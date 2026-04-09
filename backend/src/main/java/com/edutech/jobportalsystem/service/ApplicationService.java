@@ -1,19 +1,25 @@
 package com.edutech.jobportalsystem.service;
 
-// File: ./src/main/java/com/edutech/jobportalsystem/service/ApplicationService.java
+// File: ./backend/src/main/java/com/edutech/jobportalsystem/service/ApplicationService.java
 
 import com.edutech.jobportalsystem.entity.Application;
 import com.edutech.jobportalsystem.entity.Job;
 import com.edutech.jobportalsystem.entity.User;
+import com.edutech.jobportalsystem.exception.BadRequestException;
+import com.edutech.jobportalsystem.exception.ResourceNotFoundException;
 import com.edutech.jobportalsystem.repository.ApplicationRepository;
 import com.edutech.jobportalsystem.repository.JobRepository;
 import com.edutech.jobportalsystem.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class ApplicationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -25,25 +31,29 @@ public class ApplicationService {
     private JobRepository jobRepository;
 
     public Application applyForJob(Long jobId, Long userId) {
+        logger.info("User ID {} applying for job ID {}", userId, jobId);
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "id", jobId));
         User applicant = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         if (applicationRepository.existsByApplicantAndJob(applicant, job)) {
-            throw new RuntimeException("Already applied for this job");
+            logger.warn("User {} already applied for job {}", userId, jobId);
+            throw new BadRequestException("Already applied for this job");
         }
 
         Application application = new Application();
         application.setApplicant(applicant);
         application.setJob(job);
-        // status/appliedAt set by @PrePersist
-        return applicationRepository.save(application);
+        Application savedApp = applicationRepository.save(application);
+        logger.info("Application successful for user {} on job {}", userId, jobId);
+        return savedApp;
     }
 
     public List<Application> getApplicationsForRecruiter(String recruiterUsername) {
+        logger.debug("Fetching applications for recruiter: {}", recruiterUsername);
         User recruiter = userRepository.findByUsername(recruiterUsername)
-                .orElseThrow(() -> new RuntimeException("Recruiter not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", recruiterUsername));
         List<Job> jobs = jobRepository.findByPostedBy(recruiter);
         return applicationRepository.findByJobIn(jobs);
     }
@@ -53,8 +63,9 @@ public class ApplicationService {
     }
 
     public Application updateApplicationStatus(Long applicationId, String newStatus) {
+        logger.info("Updating application {} status to {}", applicationId, newStatus);
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Application", "id", applicationId));
         application.setStatus(newStatus);
         return applicationRepository.save(application);
     }

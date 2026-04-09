@@ -1,15 +1,17 @@
 package com.edutech.jobportalsystem.controller;
 
-// File: ./src/main/java/com/edutech/jobportalsystem/controller/AuthController.java
+// File: ./backend/src/main/java/com/edutech/jobportalsystem/controller/AuthController.java
 
 import com.edutech.jobportalsystem.entity.User;
+import com.edutech.jobportalsystem.exception.ResourceNotFoundException;
 import com.edutech.jobportalsystem.jwt.JwtUtil;
 import com.edutech.jobportalsystem.repository.UserRepository;
 import com.edutech.jobportalsystem.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -17,6 +19,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -32,27 +36,24 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        try {
-            userService.registerUser(user);
-            return ResponseEntity.ok(Map.of("message", "User registered successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        logger.info("Registering user: {}", user.getUsername());
+        userService.registerUser(user);
+        return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
-        }
+        logger.info("Login request for user: {}", request.getUsername());
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
 
-        User user = userRepository.findByUsername(request.getUsername()).get();
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", request.getUsername()));
+        
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
+        logger.info("User {} logged in successfully", user.getUsername());
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "role", user.getRole(),
