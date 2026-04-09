@@ -1,0 +1,18 @@
+<!-- File: ./src/app/resume/resume.component.html -->
+<div class="resume-container">
+  <h2>Upload Your Resume</h2>
+
+  <div class="nav-links">
+    <a routerLink="/jobs">Back to Jobs</a> | 
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <div class="upload-section">
+    <input type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx">
+    <p *ngIf="selectedFile">Selected file: {{ selectedFile.name }}</p>
+    <button (click)="onUpload()" [disabled]="isUploading">Upload</button>
+  </div>
+
+  <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+</div>

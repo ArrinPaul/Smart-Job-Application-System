@@ -1,0 +1,36 @@
+<!-- File: ./src/app/applications/applications.component.html -->
+<div class="applications-container">
+  <h2 *ngIf="isRecruiter">Manage Applications</h2>
+  <h2 *ngIf="isJobSeeker">My Applications</h2>
+
+  <div class="nav-links">
+    <a *ngIf="isRecruiter" routerLink="/post-job">Back to Dashboard</a>
+    <a *ngIf="isJobSeeker" routerLink="/jobs">Back to Jobs</a> | 
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <p *ngIf="isLoading">Loading...</p>
+  <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+
+  <div *ngIf="applications.length === 0 && !isLoading">
+    <p>No applications found.</p>
+  </div>
+
+  <div class="application-cards">
+    <div class="application-card" *ngFor="let app of applications" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+      <h3>{{ app.job?.title }}</h3>
+      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant?.username }}</p>
+      <p><strong>Status:</strong> {{ app.status }}</p>
+      <p><strong>Applied on:</strong> {{ app.appliedAt | date }}</p>
+
+      <div *ngIf="isRecruiter">
+        <label for="status-{{ app.id }}">Change Status:</label>
+        <select id="status-{{ app.id }}" [(ngModel)]="app.status">
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+        <button (click)="onUpdateStatus(app.id, app.status)">Update</button>
+      </div>
+    </div>
+  </div>
+</div>

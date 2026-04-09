@@ -1,0 +1,33 @@
+<!-- File: ./src/app/job-list/job-list.component.html -->
+<div class="job-list-container">
+  <h2>Browse Jobs</h2>
+  
+  <div class="nav-links">
+    <a routerLink="/applications">My Applications</a> | 
+    <a routerLink="/resume">Upload Resume</a> | 
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <div class="search-section">
+    <input type="text" [(ngModel)]="searchTitle" placeholder="Search by title">
+    <input type="text" [(ngModel)]="searchLocation" placeholder="Search by location">
+    <button (click)="onSearch()">Search</button>
+  </div>
+
+  <p *ngIf="isLoading">Loading...</p>
+  <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+
+  <div class="job-cards">
+    <div class="job-card" *ngFor="let job of jobs">
+      <h3>{{ job.title }}</h3>
+      <p>{{ job.description }}</p>
+      <p><strong>Location:</strong> {{ job.location }}</p>
+      <p><strong>Date:</strong> {{ job.createdAt | date }}</p>
+      <button (click)="onApply(job.id)">Apply</button>
+    </div>
+    <div *ngIf="jobs.length === 0 && !isLoading">
+      <p>No jobs found.</p>
+    </div>
+  </div>
+</div>

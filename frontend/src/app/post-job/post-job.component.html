@@ -1,0 +1,28 @@
+<!-- File: ./src/app/post-job/post-job.component.html -->
+<div class="post-job-container">
+  <h2>Post a New Job</h2>
+  
+  <div class="nav-links">
+    <a routerLink="/applications">Manage Applications</a> | 
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <form (ngSubmit)="onPostJob()">
+    <div>
+      <label for="jobTitle">Job Title:</label>
+      <input type="text" id="jobTitle" name="jobTitle" [(ngModel)]="jobTitle" required>
+    </div>
+    <div>
+      <label for="jobDescription">Description:</label>
+      <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription"></textarea>
+    </div>
+    <div>
+      <label for="jobLocation">Location:</label>
+      <input type="text" id="jobLocation" name="jobLocation" [(ngModel)]="jobLocation" required>
+    </div>
+    <button type="submit" [disabled]="isLoading">Post Job</button>
+  </form>
+
+  <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+</div>
