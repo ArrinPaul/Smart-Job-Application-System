@@ -18,22 +18,36 @@ This project is built **strictly** according to the "Master Prompt" documentatio
 6. **Role-Based Authentication:** ADMIN, RECRUITER, JOB_SEEKER.
 7. **JWT Authorization:** Stateless secure API communication.
 
-## Detailed Backend File Map (Strict)
-- `config/SecurityConfig.java`
-- `controller/AdminController.java`, `RecruiterController.java`, `JobSeekerController.java`, `AuthController.java`
-- `entity/User.java`, `Job.java`, `Application.java`, `Resume.java`
-- `jwt/JwtRequestFilter.java`, `JwtUtil.java`
-- `repository/UserRepository.java`, `JobRepository.java`, `ApplicationRepository.java`, `ResumeRepository.java`
-- `service/UserService.java`, `JobService.java`, `ApplicationService.java`, `ResumeService.java`
+## Detailed Backend File Map (Strict - within /backend)
+- `backend/src/main/java/com/edutech/jobportalsystem/config/SecurityConfig.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/controller/AdminController.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/controller/RecruiterController.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/controller/JobSeekerController.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/controller/AuthController.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/entity/User.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/entity/Job.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/entity/Application.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/entity/Resume.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/jwt/JwtRequestFilter.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/jwt/JwtUtil.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/repository/UserRepository.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/repository/JobRepository.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/repository/ApplicationRepository.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/repository/ResumeRepository.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/service/UserService.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/service/JobService.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/service/ApplicationService.java`
+- `backend/src/main/java/com/edutech/jobportalsystem/service/ResumeService.java`
 
-## Detailed Frontend File Map (Strict)
-- `app/login/login.component.[ts|html]`
-- `app/registration/registration.component.[ts|html]`
-- `app/job-list/job-list.component.[ts|html]`
-- `app/post-job/post-job.component.[ts|html]`
-- `app/applications/applications.component.[ts|html]`
-- `app/resume/resume.component.[ts|html]`
-- `services/http.service.ts`, `services/auth.service.ts`
+## Detailed Frontend File Map (Strict - within /frontend)
+- `frontend/src/app/login/login.component.[ts|html]`
+- `frontend/src/app/registration/registration.component.[ts|html]`
+- `frontend/src/app/job-list/job-list.component.[ts|html]`
+- `frontend/src/app/post-job/post-job.component.[ts|html]`
+- `frontend/src/app/applications/applications.component.[ts|html]`
+- `frontend/src/app/resume/resume.component.[ts|html]`
+- `frontend/services/http.service.ts`
+- `frontend/services/auth.service.ts`
 
 ## Technical Constraints (Strict)
 - **JWT Secret:** `smartjobportalsecretkey2024`
