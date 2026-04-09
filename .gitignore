@@ -1,0 +1,101 @@
+# ============================================
+# MAVEN & JAVA
+# ============================================
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+*.log
+
+# ============================================
+# NODE & NPM (ANGULAR FRONTEND)
+# ============================================
+node_modules/
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+.angular/
+
+# ============================================
+# IDE & EDITOR
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+Thumbs.db
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+bin/
+.c9/
+*.sage.js
+.env.local
+.env.*.local
+
+# ============================================
+# BUILD & COMPILATION
+# ============================================
+dist/
+build/
+*.o
+*.so
+*.dylib
+*.exe
+
+# ============================================
+# OS SPECIFIC
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# ============================================
+# ENVIRONMENT & SECRETS
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# ============================================
+# TEST COVERAGE
+# ============================================
+coverage/
+.nyc_output/
+
+# ============================================
+# MISC
+# ============================================
+.gradle
+.idea/
+*.orig
+*.rej
