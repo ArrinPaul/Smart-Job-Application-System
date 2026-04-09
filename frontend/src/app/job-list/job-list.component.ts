@@ -14,28 +14,47 @@ import { AuthService } from '../../services/auth.service';
 })
 export class JobListComponent implements OnInit {
   jobs: any[] = [];
+  users: any[] = [];
   searchTitle = '';
   searchLocation = '';
   successMessage = '';
   errorMessage = '';
   isLoading = false;
+  isAdmin = false;
+  showUsers = false;
 
   constructor(private httpService: HttpService, public authService: AuthService) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
     this.loadJobs();
+    if (this.isAdmin) {
+      this.loadUsers();
+    }
   }
 
   loadJobs(): void {
     this.isLoading = true;
+    this.errorMessage = '';
     this.httpService.searchJobs(this.searchTitle, this.searchLocation).subscribe({
       next: (response) => {
         this.jobs = response;
         this.isLoading = false;
       },
-      error: (error) => {
+      error: () => {
         this.errorMessage = 'Failed to load jobs';
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadUsers(): void {
+    this.httpService.getAllUsers().subscribe({
+      next: (response) => {
+        this.users = response;
+      },
+      error: () => {
+        this.errorMessage = 'Failed to load users';
       }
     });
   }
@@ -44,9 +63,15 @@ export class JobListComponent implements OnInit {
     this.loadJobs();
   }
 
+  toggleView(view: string): void {
+    this.showUsers = (view === 'users');
+    this.successMessage = '';
+    this.errorMessage = '';
+  }
+
   onApply(jobId: number): void {
     const userIdString = localStorage.getItem('userId');
-    const userId = userIdString ? Number(userIdString) : 1; // Fallback to 1
+    const userId = userIdString ? Number(userIdString) : 1;
 
     this.httpService.applyForJob(jobId, userId).subscribe({
       next: () => {

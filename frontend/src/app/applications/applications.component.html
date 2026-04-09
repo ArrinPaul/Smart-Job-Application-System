@@ -1,15 +1,17 @@
 <!-- File: ./src/app/applications/applications.component.html -->
-<div class="applications-container">
-  <h2 *ngIf="isRecruiter">Manage Applications</h2>
-  <h2 *ngIf="isJobSeeker">My Applications</h2>
-
+<div class="container">
   <div class="nav-links">
-    <a *ngIf="isRecruiter" routerLink="/post-job">Back to Dashboard</a>
-    <a *ngIf="isJobSeeker" routerLink="/jobs">Back to Jobs</a> | 
+    <a *ngIf="isRecruiter" routerLink="/post-job">Post Jobs</a>
+    <a *ngIf="isRecruiter" routerLink="/applications" class="active">Manage Applications</a>
+    <a *ngIf="isJobSeeker" routerLink="/jobs">Browse Jobs</a>
+    <a *ngIf="isJobSeeker" routerLink="/applications" class="active">My Applications</a>
+    <a *ngIf="isJobSeeker" routerLink="/resume">Upload Resume</a>
     <button (click)="logout()">Logout</button>
   </div>
 
-  <p *ngIf="isLoading">Loading...</p>
+  <h2>{{ isRecruiter ? 'Manage Applications' : 'My Applications' }}</h2>
+
+  <p *ngIf="isLoading">Loading applications...</p>
   <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
   <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
 
@@ -18,18 +20,20 @@
   </div>
 
   <div class="application-cards">
-    <div class="application-card" *ngFor="let app of applications" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+    <div class="application-card" *ngFor="let app of applications">
       <h3>{{ app.job?.title }}</h3>
-      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant?.username }}</p>
-      <p><strong>Status:</strong> {{ app.status }}</p>
+      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant?.username }} ({{ app.applicant?.email }})</p>
+      <p><strong>Status:</strong> <span [style.color]="app.status === 'REJECTED' ? 'red' : (app.status === 'HIRED' || app.status === 'SHORTLISTED' ? 'green' : 'inherit')">{{ app.status }}</span></p>
       <p><strong>Applied on:</strong> {{ app.appliedAt | date }}</p>
 
-      <div *ngIf="isRecruiter">
-        <label for="status-{{ app.id }}">Change Status:</label>
-        <select id="status-{{ app.id }}" [(ngModel)]="app.status">
-          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-        </select>
-        <button (click)="onUpdateStatus(app.id, app.status)">Update</button>
+      <div *ngIf="isRecruiter" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+        <label for="status-{{ app.id }}">Update Candidate Status:</label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+          <select id="status-{{ app.id }}" [(ngModel)]="app.status" style="flex: 1;">
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+          </select>
+          <button (click)="onUpdateStatus(app.id, app.status)" style="font-size: 14px;">Update</button>
+        </div>
       </div>
     </div>
   </div>

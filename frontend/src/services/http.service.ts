@@ -85,6 +85,12 @@ export class HttpService {
     });
   }
 
+  getRecruiterJobs(): Observable<any> {
+    return this.http.get(`${this.BASE_URL}/api/recruiter/jobs`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   updateApplicationStatus(applicationId: number, status: string): Observable<any> {
     return this.http.put(`${this.BASE_URL}/api/recruiter/application/update/${applicationId}?status=${status}`, null, {
       headers: this.getAuthHeaders()

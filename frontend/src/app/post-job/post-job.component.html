@@ -1,12 +1,13 @@
 <!-- File: ./src/app/post-job/post-job.component.html -->
-<div class="post-job-container">
-  <h2>Post a New Job</h2>
-  
+<div class="container">
   <div class="nav-links">
-    <a routerLink="/applications">Manage Applications</a> | 
+    <a routerLink="/post-job" class="active">Post Job</a>
+    <a routerLink="/applications">Manage Applications</a>
     <button (click)="logout()">Logout</button>
   </div>
 
+  <h2>{{ editingJobId ? 'Edit Job' : 'Post a New Job' }}</h2>
+  
   <form (ngSubmit)="onPostJob()">
     <div>
       <label for="jobTitle">Job Title:</label>
@@ -14,15 +15,38 @@
     </div>
     <div>
       <label for="jobDescription">Description:</label>
-      <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription"></textarea>
+      <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription" rows="4"></textarea>
     </div>
     <div>
       <label for="jobLocation">Location:</label>
       <input type="text" id="jobLocation" name="jobLocation" [(ngModel)]="jobLocation" required>
     </div>
-    <button type="submit" [disabled]="isLoading">Post Job</button>
+    <div style="display: flex; gap: 10px;">
+      <button type="submit" [disabled]="isLoading">{{ editingJobId ? 'Update Job' : 'Post Job' }}</button>
+      <button type="button" *ngIf="editingJobId" (click)="resetForm()" style="background-color: #95a5a6;">Cancel</button>
+    </div>
   </form>
 
   <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
   <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+
+  <hr style="margin: 40px 0;">
+
+  <h2>My Job Postings</h2>
+  <div *ngIf="myJobs.length === 0">
+    <p>You haven't posted any jobs yet.</p>
+  </div>
+  
+  <div class="job-cards">
+    <div class="job-card" *ngFor="let job of myJobs">
+      <h3>{{ job.title }}</h3>
+      <p>{{ job.description }}</p>
+      <p><strong>Location:</strong> {{ job.location }}</p>
+      <p><small>Posted on: {{ job.createdAt | date }}</small></p>
+      <div style="margin-top: 10px; display: flex; gap: 10px;">
+        <button (click)="editJob(job)" style="background-color: #f39c12; font-size: 14px;">Edit</button>
+        <button (click)="deleteJob(job.id)" style="background-color: #e74c3c; font-size: 14px;">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
