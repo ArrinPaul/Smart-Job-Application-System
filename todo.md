@@ -26,10 +26,10 @@
 - [x] `ApplicationService.java` (applyForJob, getApplicationsForRecruiter, getApplicationsByApplicant, updateStatus, getAllApplications)
 - [x] `ResumeService.java` (uploadResume, getResumeByUsername)
 
-## Phase 4: Controllers
-- [ ] `AdminController.java` (GET /api/admin/users, GET /api/admin/jobs)
-- [ ] `RecruiterController.java` (Job CRUD, applications list, status update)
-- [ ] `JobSeekerController.java` (search jobs, apply, upload resume, my applications)
+## Phase 4: Controllers (COMPLETED ✅)
+- [x] `AdminController.java` (GET /api/admin/users, GET /api/admin/jobs)
+- [x] `RecruiterController.java` (Job CRUD, applications list, status update)
+- [x] `JobSeekerController.java` (search jobs, apply, upload resume, my applications)
 
 ## Phase 5: Frontend Core
 - [ ] `auth.service.ts` (Session storage: token, role, username)
