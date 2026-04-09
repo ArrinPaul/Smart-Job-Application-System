@@ -3,9 +3,9 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpService } from '../../services/http.service';
-import { AuthService } from '../../services/auth.service';
-import { ToastService } from '../../services/toast.service';
+import { HttpService } from '../services/http.service';
+import { AuthService } from '../services/auth.service';
+import { ToastService } from '../services/toast.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -59,7 +59,7 @@ export class ResumeComponent implements OnDestroy {
     }
     
     this.isUploading = true;
-    this.httpService.uploadResume(this.selectedFile)
+      this.httpService.uploadResume(this.selectedFile, this.selectedFile.name)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {

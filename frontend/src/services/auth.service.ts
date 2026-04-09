@@ -1,12 +1,14 @@
 // File: ./src/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from '../environments/environment';
 import { UserRole } from '../app/models/user.model';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly TOKEN_KEY = 'jobportal_token';
+  private readonly ROLE_KEY = 'jobportal_role';
+  private readonly USER_KEY = 'jobportal_user';
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   public loggedIn$ = this.loggedInSubject.asObservable();
 
@@ -15,31 +17,29 @@ export class AuthService {
     this.loggedInSubject.next(this.isLoggedIn());
   }
 
-  saveSession(token: string, role: UserRole, username: string, userId?: number): void {
-    localStorage.setItem(environment.tokenKey, token);
-    localStorage.setItem(environment.roleKey, role);
-    localStorage.setItem(environment.usernameKey, username);
-    if (userId) {
-      localStorage.setItem(environment.userIdKey, userId.toString());
-    }
+  saveSession(token: string, role: UserRole, username?: string, userId?: number): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.ROLE_KEY, role);
+    if (username) localStorage.setItem('username', username);
+    if (userId) localStorage.setItem('userId', String(userId));
     this.loggedInSubject.next(true);
   }
 
   getToken(): string | null {
-    return this.secureLsGetItem(environment.tokenKey);
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
   getRole(): UserRole | null {
-    const role = this.secureLsGetItem(environment.roleKey);
+    const role = localStorage.getItem(this.ROLE_KEY);
     return role as UserRole | null;
   }
 
   getUsername(): string | null {
-    return this.secureLsGetItem(environment.usernameKey);
+    return localStorage.getItem('username');
   }
 
   getUserId(): number | null {
-    const userId = this.secureLsGetItem(environment.userIdKey);
+    const userId = localStorage.getItem('userId');
     return userId ? parseInt(userId, 10) : null;
   }
 
@@ -48,10 +48,10 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(environment.tokenKey);
-    localStorage.removeItem(environment.roleKey);
-    localStorage.removeItem(environment.usernameKey);
-    localStorage.removeItem(environment.userIdKey);
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.ROLE_KEY);
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
     this.loggedInSubject.next(false);
     this.router.navigate(['/login']);
   }

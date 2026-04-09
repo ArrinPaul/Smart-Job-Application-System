@@ -10,8 +10,8 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
 import { catchError, retry, tap, timeout } from 'rxjs/operators';
-import { AuthService } from '../../services/auth.service';
-import { ToastService } from '../../services/toast.service';
+import { AuthService } from './auth.service';
+import { ToastService } from './toast.service';
 import { environment } from '../../environments/environment';
 
 @Injectable()

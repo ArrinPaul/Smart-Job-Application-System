@@ -3,9 +3,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpService } from '../../services/http.service';
-import { AuthService } from '../../services/auth.service';
-import { ToastService } from '../../services/toast.service';
+import { HttpService } from '../services/http.service';
+import { AuthService } from '../services/auth.service';
+import { ToastService } from '../services/toast.service';
 import { Job } from '../models/job.model';
 import { User, UserRole } from '../models/user.model';
 import { Subject } from 'rxjs';
@@ -43,7 +43,7 @@ export class JobListComponent implements OnInit, OnDestroy {
 
   loadJobs(): void {
     this.isLoading = true;
-    this.httpService.searchJobs(this.searchTitle, this.searchLocation)
+    this.httpService.getJobs(this.searchTitle, this.searchLocation)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: Job[]) => {
@@ -78,13 +78,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   onApply(jobId: number): void {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      this.toastService.showError('User ID not found. Please login again.');
-      return;
-    }
-
-    this.httpService.applyForJob(jobId, userId)
+    this.httpService.applyJob(jobId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {

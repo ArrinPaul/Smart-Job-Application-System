@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
   Router
 } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -55,3 +55,16 @@ export class RoleGuard implements CanActivate {
     return false;
   }
 }
+
+// Extend AuthService with isAdmin method
+(AuthService.prototype as any).isAdmin = function(this: AuthService): boolean {
+  return this.getRole() === 'ADMIN';
+};
+
+(AuthService.prototype as any).isRecruiter = function(this: AuthService): boolean {
+  return this.getRole() === 'RECRUITER';
+};
+
+(AuthService.prototype as any).isJobSeeker = function(this: AuthService): boolean {
+  return this.getRole() === 'JOB_SEEKER';
+};

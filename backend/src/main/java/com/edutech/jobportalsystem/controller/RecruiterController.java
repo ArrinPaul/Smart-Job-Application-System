@@ -25,21 +25,21 @@ public class RecruiterController {
     @Autowired
     private ApplicationService applicationService;
 
-    @PostMapping("/job")
+    @PostMapping("/jobs")
     public ResponseEntity<?> createJob(@RequestBody Job job) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} creating job: {}", username, job.getTitle());
         return ResponseEntity.ok(jobService.createJob(job, username));
     }
 
-    @PutMapping("/job/{jobId}")
+    @PutMapping("/jobs/{jobId}")
     public ResponseEntity<?> updateJob(@PathVariable Long jobId, @RequestBody Job updatedJob) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} updating job ID: {}", username, jobId);
         return ResponseEntity.ok(jobService.updateJob(jobId, updatedJob, username));
     }
 
-    @DeleteMapping("/job/{jobId}")
+    @DeleteMapping("/jobs/{jobId}")
     public ResponseEntity<?> deleteJob(@PathVariable Long jobId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} deleting job ID: {}", username, jobId);
@@ -61,8 +61,9 @@ public class RecruiterController {
         return ResponseEntity.ok(jobService.getJobsByRecruiter(username));
     }
 
-    @PutMapping("/application/update/{applicationId}")
-    public ResponseEntity<?> updateApplicationStatus(@PathVariable Long applicationId, @RequestParam String status) {
+    @PutMapping("/applications/{applicationId}/status")
+    public ResponseEntity<?> updateApplicationStatus(@PathVariable Long applicationId, @RequestBody Map<String, String> body) {
+        String status = body.get("status");
         logger.info("Updating application {} to status: {}", applicationId, status);
         return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, status));
     }
