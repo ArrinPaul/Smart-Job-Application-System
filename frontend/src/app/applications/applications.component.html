@@ -17,8 +17,8 @@
 
   <div class="application-cards">
     <div class="application-card" *ngFor="let app of applications">
-      <h3>{{ app.job?.title }}</h3>
-      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant?.username }} ({{ app.applicant?.email }})</p>
+      <h3>{{ app.job.title }}</h3>
+      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant.username }} ({{ app.applicant.email }})</p>
       <p><strong>Status:</strong> <span [style.color]="app.status === 'REJECTED' ? 'red' : (app.status === 'HIRED' || app.status === 'SHORTLISTED' ? 'green' : 'inherit')">{{ app.status }}</span></p>
       <p><strong>Applied on:</strong> {{ app.appliedAt | date }}</p>
 

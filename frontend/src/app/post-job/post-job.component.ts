@@ -127,7 +127,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private resetForm(): void {
+  resetForm(): void {
     this.jobTitle = '';
     this.jobDescription = '';
     this.jobLocation = '';
