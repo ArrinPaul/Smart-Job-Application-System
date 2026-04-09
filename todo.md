@@ -13,18 +13,18 @@
 - [x] Step 10: `ResumeRepository` (Aligned)
 - [x] Step 11: `JobPortalSystemApplication` (Aligned)
 
-## Phase 2: JWT & Security (NEXT 🚀)
-- [ ] Step 1: `JwtUtil.java` (generateToken, extractUsername, extractRole, validateToken)
-- [ ] Step 2: `JwtRequestFilter.java` (doFilterInternal)
-- [ ] Step 3: `SecurityConfig.java` (Stateless, role-based protection)
-- [ ] Step 4: `UserService.java` (Auth part - loadByUsername, registerUser)
-- [ ] Step 5: `AuthController.java` (POST register, POST login)
+## Phase 2: JWT & Security (COMPLETED ✅)
+- [x] Step 1: `JwtUtil.java` (generateToken, extractUsername, extractRole, validateToken)
+- [x] Step 2: `JwtRequestFilter.java` (doFilterInternal)
+- [x] Step 3: `SecurityConfig.java` (Stateless, role-based protection)
+- [x] Step 4: `UserService.java` (Auth part - loadByUsername, registerUser)
+- [x] Step 5: `AuthController.java` (POST register, POST login)
 
-## Phase 3: Service Layer
-- [ ] `UserService.java` (Complete - getAllUsers, getUserByUsername)
-- [ ] `JobService.java` (createJob, updateJob, deleteJob, getAllJobs, searchJobs, getJobsByRecruiter)
-- [ ] `ApplicationService.java` (applyForJob, getApplicationsForRecruiter, getApplicationsByApplicant, updateStatus, getAllApplications)
-- [ ] `ResumeService.java` (uploadResume, getResumeByUsername)
+## Phase 3: Service Layer (COMPLETED ✅)
+- [x] `UserService.java` (Complete - getAllUsers, getUserByUsername)
+- [x] `JobService.java` (createJob, updateJob, deleteJob, getAllJobs, searchJobs, getJobsByRecruiter)
+- [x] `ApplicationService.java` (applyForJob, getApplicationsForRecruiter, getApplicationsByApplicant, updateStatus, getAllApplications)
+- [x] `ResumeService.java` (uploadResume, getResumeByUsername)
 
 ## Phase 4: Controllers
 - [ ] `AdminController.java` (GET /api/admin/users, GET /api/admin/jobs)
