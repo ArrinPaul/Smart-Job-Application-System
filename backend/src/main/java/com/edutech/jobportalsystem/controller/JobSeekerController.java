@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api")
 public class JobSeekerController {
 
     private static final Logger logger = LoggerFactory.getLogger(JobSeekerController.class);
@@ -34,29 +35,33 @@ public class JobSeekerController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/api/jobs")
+    @GetMapping("/jobs")
     public ResponseEntity<?> searchJobs(@RequestParam(required = false) String title,
                                        @RequestParam(required = false) String location) {
         logger.info("Job search - title: {}, location: {}", title, location);
         return ResponseEntity.ok(jobService.searchJobs(title, location));
     }
 
-    @PostMapping("/api/job/apply")
-    public ResponseEntity<?> applyForJob(@RequestParam Long jobId, @RequestBody Map<String, Long> body) {
-        Long userId = body.get("userId");
-        logger.info("User {} applying for job {}", userId, jobId);
-        applicationService.applyForJob(jobId, userId);
+    @PostMapping("/jobseeker/apply")
+    public ResponseEntity<?> applyJob(@RequestBody Map<String, Object> body) {
+        Long jobId = ((Number) body.get("jobId")).longValue();
+        Long resumeId = body.get("resumeId") != null ? ((Number) body.get("resumeId")).longValue() : null;
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        logger.info("User {} applying for job {}", user.getId(), jobId);
+        applicationService.applyForJob(jobId, user.getId());
         return ResponseEntity.ok(Map.of("message", "Applied successfully"));
     }
 
-    @PostMapping("/api/jobseeker/resume")
+    @PostMapping("/resume/upload")
     public ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("User {} uploading resume", username);
         return ResponseEntity.ok(resumeService.uploadResume(file, username));
     }
 
-    @GetMapping("/api/jobseeker/applications")
+    @GetMapping("/jobseeker/applications")
     public ResponseEntity<?> getMyApplications() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("User {} fetching their applications", username);

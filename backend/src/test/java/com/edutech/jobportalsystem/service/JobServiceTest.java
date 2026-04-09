@@ -84,8 +84,11 @@ public class JobServiceTest {
 
     @Test
     void deleteJob_CallsRepository() {
+        // Arrange
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
+
         // Act
-        jobService.deleteJob(1L);
+        jobService.deleteJob(1L, "recruiter1");
 
         // Assert
         verify(jobRepository, times(1)).deleteById(1L);

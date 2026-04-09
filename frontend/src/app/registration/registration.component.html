@@ -1,0 +1,38 @@
+<!-- File: ./src/app/registration/registration.component.html -->
+<div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h1 style="color: #2c3e50; margin: 0;">Create Your Account</h1>
+    <p style="color: #7f8c8d;">Join the Smart Job Portal network</p>
+  </div>
+
+  <form (ngSubmit)="onRegister()" style="width: 100%; max-width: 450px; padding: 40px;">
+    <h2 style="text-align: center; border: none; margin-bottom: 30px;">Register</h2>
+    
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" [(ngModel)]="username" required placeholder="Pick a username">
+    </div>
+    
+    <div>
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="Enter your email">
+    </div>
+    
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Choose a strong password">
+    </div>
+    
+    <div>
+      <label for="role">Your Role:</label>
+      <select id="role" name="role" [(ngModel)]="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+      </select>
+    </div>
+    
+    <button type="submit" [disabled]="isLoading" style="width: 100%; margin-top: 10px;">{{ isLoading ? 'Registering...' : 'Register' }}</button>
+    
+    <p style="text-align: center; margin-top: 20px;">Already have an account? <a routerLink="/login" style="color: #3498db; text-decoration: none; font-weight: bold;">Login here</a></p>
+  </form>
+</div>

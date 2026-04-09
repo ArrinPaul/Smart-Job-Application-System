@@ -1,0 +1,21 @@
+<!-- File: ./src/app/login/login.component.html -->
+<div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h1 style="color: #2c3e50; margin: 0;">Smart Job Portal</h1>
+    <p style="color: #7f8c8d;">Connect with your future career</p>
+  </div>
+
+  <form (ngSubmit)="onLogin()" style="width: 100%; max-width: 400px; padding: 40px;">
+    <h2 style="text-align: center; border: none; margin-bottom: 30px;">Login</h2>
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" [(ngModel)]="username" required placeholder="Enter your username">
+    </div>
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Enter your password">
+    </div>
+    <button type="submit" [disabled]="isLoading" style="width: 100%; margin-top: 10px;">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
+    <p style="text-align: center; margin-top: 20px;">Don't have an account? <a routerLink="/register" style="color: #3498db; text-decoration: none; font-weight: bold;">Register here</a></p>
+  </form>
+</div>

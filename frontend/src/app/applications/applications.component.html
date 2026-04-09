@@ -1,0 +1,36 @@
+<!-- File: ./src/app/applications/applications.component.html -->
+<div class="container">
+  <div class="nav-links">
+    <a *ngIf="isRecruiter" routerLink="/post-job">Post Jobs</a>
+    <a *ngIf="isRecruiter" routerLink="/applications" class="active">Manage Applications</a>
+    <a *ngIf="isJobSeeker" routerLink="/jobs">Browse Jobs</a>
+    <a *ngIf="isJobSeeker" routerLink="/applications" class="active">My Applications</a>
+    <a *ngIf="isJobSeeker" routerLink="/resume">Upload Resume</a>
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <h2>{{ isRecruiter ? 'Manage Applications' : 'My Applications' }}</h2>
+
+  <div *ngIf="applications.length === 0 && !isLoading">
+    <p>No applications found.</p>
+  </div>
+
+  <div class="application-cards">
+    <div class="application-card" *ngFor="let app of applications">
+      <h3>{{ app.job.title }}</h3>
+      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant.username }} ({{ app.applicant.email }})</p>
+      <p><strong>Status:</strong> <span [style.color]="app.status === 'REJECTED' ? 'red' : (app.status === 'HIRED' || app.status === 'SHORTLISTED' ? 'green' : 'inherit')">{{ app.status }}</span></p>
+      <p><strong>Applied on:</strong> {{ app.appliedAt | date }}</p>
+
+      <div *ngIf="isRecruiter" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+        <label for="status-{{ app.id }}">Update Candidate Status:</label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+          <select id="status-{{ app.id }}" [(ngModel)]="app.status" style="flex: 1;">
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+          </select>
+          <button (click)="onUpdateStatus(app.id, app.status)" style="font-size: 14px;">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
