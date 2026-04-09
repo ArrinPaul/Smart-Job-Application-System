@@ -58,5 +58,3 @@ public class AuthControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 }
-
-// Add missing Map import for test

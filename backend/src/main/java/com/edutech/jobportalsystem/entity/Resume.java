@@ -1,6 +1,6 @@
 package com.edutech.jobportalsystem.entity;
 
-// File: src/main/java/com/edutech/jobportalsystem/entity/Resume.java
+// File: ./src/main/java/com/edutech/jobportalsystem/entity/Resume.java
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,7 +28,7 @@ public class Resume {
     private String fileType;
 
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
+    @Column(name = "data", columnDefinition = "LONGBLOB")
     private byte[] data;
 
     @Column(nullable = false, updatable = false)

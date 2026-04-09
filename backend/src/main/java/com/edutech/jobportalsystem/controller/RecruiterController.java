@@ -44,7 +44,8 @@ public class RecruiterController {
     @DeleteMapping("/job/{jobId}")
     public ResponseEntity<?> deleteJob(@PathVariable Long jobId) {
         try {
-            jobService.deleteJob(jobId);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            jobService.deleteJob(jobId, username);
             return ResponseEntity.ok(Map.of("message", "Job deleted successfully"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -31,7 +31,10 @@ public class JobService {
         Job existingJob = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
         
-        // In a real app, we'd verify if the recruiter owns the job, but following the Plan strictly:
+        if (!existingJob.getPostedBy().getUsername().equals(recruiterUsername)) {
+            throw new RuntimeException("Not authorized to update this job");
+        }
+        
         existingJob.setTitle(updatedJob.getTitle());
         existingJob.setDescription(updatedJob.getDescription());
         existingJob.setLocation(updatedJob.getLocation());
@@ -39,7 +42,14 @@ public class JobService {
         return jobRepository.save(existingJob);
     }
 
-    public void deleteJob(Long jobId) {
+    public void deleteJob(Long jobId, String recruiterUsername) {
+        Job existingJob = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        
+        if (!existingJob.getPostedBy().getUsername().equals(recruiterUsername)) {
+            throw new RuntimeException("Not authorized to delete this job");
+        }
+        
         jobRepository.deleteById(jobId);
     }
 
