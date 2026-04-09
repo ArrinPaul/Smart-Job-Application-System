@@ -1,0 +1,47 @@
+// Job and Application Models
+export interface Job {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  postedBy?: {
+    id: number;
+    username: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateJobRequest {
+  title: string;
+  description: string;
+  location: string;
+}
+
+export interface Application {
+  id: number;
+  applicant: {
+    id: number;
+    username: string;
+    email: string;
+  };
+  job: {
+    id: number;
+    title: string;
+    location: string;
+  };
+  status: ApplicationStatus;
+  appliedAt?: string;
+  updatedAt?: string;
+}
+
+export enum ApplicationStatus {
+  APPLIED = 'APPLIED',
+  SHORTLISTED = 'SHORTLISTED',
+  REJECTED = 'REJECTED',
+  HIRED = 'HIRED'
+}
+
+export interface UpdateApplicationStatusRequest {
+  status: ApplicationStatus;
+}

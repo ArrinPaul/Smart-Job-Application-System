@@ -16,7 +16,6 @@
       <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Enter your password">
     </div>
     <button type="submit" [disabled]="isLoading" style="width: 100%; margin-top: 10px;">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
-    <p *ngIf="errorMessage" style="color: red; margin-top: 15px; text-align: center;">{{ errorMessage }}</p>
     <p style="text-align: center; margin-top: 20px;">Don't have an account? <a routerLink="/register" style="color: #3498db; text-decoration: none; font-weight: bold;">Register here</a></p>
   </form>
 </div>

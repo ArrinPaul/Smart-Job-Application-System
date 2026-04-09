@@ -1,10 +1,13 @@
 // File: ./src/app/resume/resume.component.ts
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpService } from '../../services/http.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-resume',
@@ -12,45 +15,75 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './resume.component.html'
 })
-export class ResumeComponent {
+export class ResumeComponent implements OnDestroy {
   selectedFile: File | null = null;
-  successMessage = '';
-  errorMessage = '';
   isUploading = false;
+  private destroy$ = new Subject<void>();
 
-  constructor(private httpService: HttpService, private authService: AuthService) {}
+  constructor(
+    private httpService: HttpService,
+    private authService: AuthService,
+    private toastService: ToastService
+  ) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
+      const file = input.files[0];
+      
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      
+      if (!allowedTypes.includes(file.type)) {
+        this.toastService.showError('Only PDF and Word documents (.pdf, .doc, .docx) are allowed');
+        return;
+      }
+
+      // Validate file size (5MB max)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.toastService.showError('File size must be less than 5MB');
+        return;
+      }
+
+      this.selectedFile = file;
+      this.toastService.showInfo(`Selected: ${file.name}`);
     }
   }
 
   onUpload(): void {
     if (!this.selectedFile) {
-      this.errorMessage = 'Please select a file';
+      this.toastService.showWarning('Please select a file');
       return;
     }
     
     this.isUploading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.httpService.uploadResume(this.selectedFile).subscribe({
-      next: () => {
-        this.successMessage = 'Resume uploaded successfully';
-        this.selectedFile = null; // Clear selection after upload
-        this.isUploading = false;
-      },
-      error: () => {
-        this.errorMessage = 'Upload failed. Please try again.';
-        this.isUploading = false;
-      }
-    });
+    this.httpService.uploadResume(this.selectedFile)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toastService.showSuccess('Resume uploaded successfully');
+          this.selectedFile = null;
+          this.isUploading = false;
+          // Clear file input
+          const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+          if (fileInput) {
+            fileInput.value = '';
+          }
+        },
+        error: () => {
+          this.isUploading = false;
+        }
+      });
   }
 
   logout(): void {
     this.authService.logout();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

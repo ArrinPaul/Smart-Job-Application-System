@@ -33,9 +33,6 @@
     
     <button type="submit" [disabled]="isLoading" style="width: 100%; margin-top: 10px;">{{ isLoading ? 'Registering...' : 'Register' }}</button>
     
-    <p *ngIf="successMessage" style="color: green; margin-top: 15px; text-align: center;">{{ successMessage }}</p>
-    <p *ngIf="errorMessage" style="color: red; margin-top: 15px; text-align: center;">{{ errorMessage }}</p>
-    
     <p style="text-align: center; margin-top: 20px;">Already have an account? <a routerLink="/login" style="color: #3498db; text-decoration: none; font-weight: bold;">Login here</a></p>
   </form>
 </div>

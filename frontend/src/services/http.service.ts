@@ -3,110 +3,122 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../environments/environment';
+import { User, LoginRequest, LoginResponse, RegisterRequest, UserRole } from '../app/models/user.model';
+import { Job, CreateJobRequest, Application, UpdateApplicationStatusRequest } from '../app/models/job.model';
 
 @Injectable({ providedIn: 'root' })
 export class HttpService {
-  private BASE_URL = 'http://localhost:8080';
+  private baseUrl = environment.apiBaseUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Authorization': 'Bearer ' + this.authService.getToken()
-    });
+  // ============ Authentication Endpoints ============
+
+  register(data: RegisterRequest): Observable<User> {
+    return this.http.post<User>(
+      `${this.baseUrl}${environment.api.auth}/register`,
+      data
+    );
   }
 
-  // Public endpoints
-  register(data: any): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/api/auth/register`, data);
+  login(data: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `${this.baseUrl}${environment.api.auth}/login`,
+      data
+    );
   }
 
-  login(data: any): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/api/auth/login`, data);
-  }
+  // ============ Job Seeker Endpoints ============
 
-  // Job Seeker endpoints
-  searchJobs(title?: string, location?: string): Observable<any> {
+  searchJobs(title?: string, location?: string): Observable<Job[]> {
     let params = new HttpParams();
-    if (title) {
+    if (title?.trim()) {
       params = params.set('title', title);
     }
-    if (location) {
+    if (location?.trim()) {
       params = params.set('location', location);
     }
-    return this.http.get(`${this.BASE_URL}/api/jobs`, {
-      headers: this.getAuthHeaders(),
-      params: params
-    });
+    return this.http.get<Job[]>(
+      `${this.baseUrl}${environment.api.jobs}`,
+      { params }
+    );
   }
 
   applyForJob(jobId: number, userId: number): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/api/job/apply?jobId=${jobId}`, { userId: userId }, {
-      headers: this.getAuthHeaders()
-    });
+    return this.http.post<any>(
+      `${this.baseUrl}${environment.api.jobSeeker}/apply?jobId=${jobId}`,
+      { userId }
+    );
   }
 
   uploadResume(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post(`${this.BASE_URL}/api/jobseeker/resume`, formData, {
-      headers: this.getAuthHeaders()
-    });
+    return this.http.post<any>(
+      `${this.baseUrl}${environment.api.jobSeeker}/resume`,
+      formData
+    );
   }
 
-  getMyApplications(): Observable<any> {
-    return this.http.get(`${this.BASE_URL}/api/jobseeker/applications`, {
-      headers: this.getAuthHeaders()
-    });
+  getMyApplications(): Observable<Application[]> {
+    return this.http.get<Application[]>(
+      `${this.baseUrl}${environment.api.jobSeeker}/applications`
+    );
   }
 
-  // Recruiter endpoints
-  createJob(jobData: any): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/api/recruiter/job`, jobData, {
-      headers: this.getAuthHeaders()
-    });
+  // ============ Recruiter Endpoints ============
+
+  createJob(jobData: CreateJobRequest): Observable<Job> {
+    return this.http.post<Job>(
+      `${this.baseUrl}${environment.api.recruiter}/job`,
+      jobData
+    );
   }
 
-  updateJob(jobId: number, jobData: any): Observable<any> {
-    return this.http.put(`${this.BASE_URL}/api/recruiter/job/${jobId}`, jobData, {
-      headers: this.getAuthHeaders()
-    });
+  updateJob(jobId: number, jobData: CreateJobRequest): Observable<Job> {
+    return this.http.put<Job>(
+      `${this.baseUrl}${environment.api.recruiter}/job/${jobId}`,
+      jobData
+    );
   }
 
   deleteJob(jobId: number): Observable<any> {
-    return this.http.delete(`${this.BASE_URL}/api/recruiter/job/${jobId}`, {
-      headers: this.getAuthHeaders()
-    });
+    return this.http.delete<any>(
+      `${this.baseUrl}${environment.api.recruiter}/job/${jobId}`
+    );
   }
 
-  getRecruiterApplications(): Observable<any> {
-    return this.http.get(`${this.BASE_URL}/api/recruiter/applications`, {
-      headers: this.getAuthHeaders()
-    });
+  getRecruiterApplications(): Observable<Application[]> {
+    return this.http.get<Application[]>(
+      `${this.baseUrl}${environment.api.recruiter}/applications`
+    );
   }
 
-  getRecruiterJobs(): Observable<any> {
-    return this.http.get(`${this.BASE_URL}/api/recruiter/jobs`, {
-      headers: this.getAuthHeaders()
-    });
+  getRecruiterJobs(): Observable<Job[]> {
+    return this.http.get<Job[]>(
+      `${this.baseUrl}${environment.api.recruiter}/jobs`
+    );
   }
 
-  updateApplicationStatus(applicationId: number, status: string): Observable<any> {
-    return this.http.put(`${this.BASE_URL}/api/recruiter/application/update/${applicationId}?status=${status}`, null, {
-      headers: this.getAuthHeaders()
-    });
+  updateApplicationStatus(applicationId: number, status: string): Observable<Application> {
+    return this.http.put<Application>(
+      `${this.baseUrl}${environment.api.recruiter}/application/update/${applicationId}?status=${status}`,
+      null
+    );
   }
 
-  // Admin endpoints
-  getAllUsers(): Observable<any> {
-    return this.http.get(`${this.BASE_URL}/api/admin/users`, {
-      headers: this.getAuthHeaders()
-    });
+  // ============ Admin Endpoints ============
+
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(
+      `${this.baseUrl}${environment.api.admin}/users`
+    );
   }
 
-  getAllJobsAdmin(): Observable<any> {
-    return this.http.get(`${this.BASE_URL}/api/admin/jobs`, {
-      headers: this.getAuthHeaders()
-    });
+  getAllJobsAdmin(): Observable<Job[]> {
+    return this.http.get<Job[]>(
+      `${this.baseUrl}${environment.api.admin}/jobs`
+    );
   }
 }

@@ -15,12 +15,8 @@
     <div class="search-section">
       <input type="text" [(ngModel)]="searchTitle" placeholder="Filter by job title">
       <input type="text" [(ngModel)]="searchLocation" placeholder="Filter by location">
-      <button (click)="onSearch()">Search</button>
+      <button (click)="onSearch()" [disabled]="isLoading">{{ isLoading ? 'Searching...' : 'Search' }}</button>
     </div>
-
-    <p *ngIf="isLoading">Loading jobs...</p>
-    <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
-    <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
 
     <div class="job-cards">
       <div class="job-card" *ngFor="let job of jobs">
@@ -39,7 +35,6 @@
 
   <div *ngIf="showUsers && isAdmin">
     <h2>Platform Users</h2>
-    <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
     
     <table class="admin-table">
       <thead>

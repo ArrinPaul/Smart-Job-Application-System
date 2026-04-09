@@ -11,10 +11,6 @@
 
   <h2>{{ isRecruiter ? 'Manage Applications' : 'My Applications' }}</h2>
 
-  <p *ngIf="isLoading">Loading applications...</p>
-  <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
-  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
-
   <div *ngIf="applications.length === 0 && !isLoading">
     <p>No applications found.</p>
   </div>

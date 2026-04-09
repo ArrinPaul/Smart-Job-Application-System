@@ -1,10 +1,14 @@
 // File: ./src/app/post-job/post-job.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpService } from '../../services/http.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { Job, CreateJobRequest } from '../models/job.model';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-post-job',
@@ -12,20 +16,20 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './post-job.component.html'
 })
-export class PostJobComponent implements OnInit {
+export class PostJobComponent implements OnInit, OnDestroy {
   jobTitle = '';
   jobDescription = '';
   jobLocation = '';
-  successMessage = '';
-  errorMessage = '';
   isLoading = false;
   
-  myJobs: any[] = [];
+  myJobs: Job[] = [];
   editingJobId: number | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private httpService: HttpService,
     private authService: AuthService,
+    private toastService: ToastService,
     private router: Router
   ) {}
 
@@ -34,60 +38,60 @@ export class PostJobComponent implements OnInit {
   }
 
   loadMyJobs(): void {
-    this.httpService.getRecruiterJobs().subscribe({
-      next: (response) => {
-        this.myJobs = response;
-      },
-      error: () => {
-        this.errorMessage = 'Failed to load your jobs';
-      }
-    });
+    this.httpService.getRecruiterJobs()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: Job[]) => {
+          this.myJobs = response;
+        },
+        error: () => {
+          // Error handled by interceptor toast
+        }
+      });
   }
 
   onPostJob(): void {
-    if (!this.jobTitle || !this.jobLocation) {
-      this.errorMessage = 'Title and Location are required';
+    if (!this.validateForm()) {
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    const jobData = {
+    const jobData: CreateJobRequest = {
       title: this.jobTitle,
       description: this.jobDescription,
       location: this.jobLocation
     };
 
     if (this.editingJobId) {
-      this.httpService.updateJob(this.editingJobId, jobData).subscribe({
-        next: () => {
-          this.successMessage = 'Job updated successfully!';
-          this.resetForm();
-          this.loadMyJobs();
-        },
-        error: (error) => {
-          this.errorMessage = error.error?.error || 'Failed to update job';
-          this.isLoading = false;
-        }
-      });
+      this.httpService.updateJob(this.editingJobId, jobData)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.toastService.showSuccess('Job updated successfully!');
+            this.resetForm();
+            this.loadMyJobs();
+          },
+          error: () => {
+            this.isLoading = false;
+          }
+        });
     } else {
-      this.httpService.createJob(jobData).subscribe({
-        next: () => {
-          this.successMessage = 'Job posted successfully!';
-          this.resetForm();
-          this.loadMyJobs();
-        },
-        error: (error) => {
-          this.errorMessage = error.error?.error || 'Failed to post job';
-          this.isLoading = false;
-        }
-      });
+      this.httpService.createJob(jobData)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.toastService.showSuccess('Job posted successfully!');
+            this.resetForm();
+            this.loadMyJobs();
+          },
+          error: () => {
+            this.isLoading = false;
+          }
+        });
     }
   }
 
-  editJob(job: any): void {
+  editJob(job: Job): void {
     this.editingJobId = job.id;
     this.jobTitle = job.title;
     this.jobDescription = job.description;
@@ -97,19 +101,33 @@ export class PostJobComponent implements OnInit {
 
   deleteJob(jobId: number): void {
     if (confirm('Are you sure you want to delete this job?')) {
-      this.httpService.deleteJob(jobId).subscribe({
-        next: () => {
-          this.successMessage = 'Job deleted successfully';
-          this.loadMyJobs();
-        },
-        error: () => {
-          this.errorMessage = 'Failed to delete job';
-        }
-      });
+      this.httpService.deleteJob(jobId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.toastService.showSuccess('Job deleted successfully');
+            this.loadMyJobs();
+          },
+          error: () => {
+            // Error handled by interceptor toast
+          }
+        });
     }
   }
 
-  resetForm(): void {
+  private validateForm(): boolean {
+    if (!this.jobTitle.trim()) {
+      this.toastService.showWarning('Job title is required');
+      return false;
+    }
+    if (!this.jobLocation.trim()) {
+      this.toastService.showWarning('Job location is required');
+      return false;
+    }
+    return true;
+  }
+
+  private resetForm(): void {
     this.jobTitle = '';
     this.jobDescription = '';
     this.jobLocation = '';
@@ -119,5 +137,10 @@ export class PostJobComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,31 +1,46 @@
 // File: ./src/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../environments/environment';
+import { UserRole } from '../app/models/user.model';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  TOKEN_KEY = 'token';
-  ROLE_KEY = 'role';
-  USERNAME_KEY = 'username';
+  private loggedInSubject = new BehaviorSubject<boolean>(false);
+  public loggedIn$ = this.loggedInSubject.asObservable();
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    // Check if user is already logged in on service initialization
+    this.loggedInSubject.next(this.isLoggedIn());
+  }
 
-  saveSession(token: string, role: string, username: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.ROLE_KEY, role);
-    localStorage.setItem(this.USERNAME_KEY, username);
+  saveSession(token: string, role: UserRole, username: string, userId?: number): void {
+    localStorage.setItem(environment.tokenKey, token);
+    localStorage.setItem(environment.roleKey, role);
+    localStorage.setItem(environment.usernameKey, username);
+    if (userId) {
+      localStorage.setItem(environment.userIdKey, userId.toString());
+    }
+    this.loggedInSubject.next(true);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.secureLsGetItem(environment.tokenKey);
   }
 
-  getRole(): string | null {
-    return localStorage.getItem(this.ROLE_KEY);
+  getRole(): UserRole | null {
+    const role = this.secureLsGetItem(environment.roleKey);
+    return role as UserRole | null;
   }
 
   getUsername(): string | null {
-    return localStorage.getItem(this.USERNAME_KEY);
+    return this.secureLsGetItem(environment.usernameKey);
+  }
+
+  getUserId(): number | null {
+    const userId = this.secureLsGetItem(environment.userIdKey);
+    return userId ? parseInt(userId, 10) : null;
   }
 
   isLoggedIn(): boolean {
@@ -33,21 +48,33 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.ROLE_KEY);
-    localStorage.removeItem(this.USERNAME_KEY);
+    localStorage.removeItem(environment.tokenKey);
+    localStorage.removeItem(environment.roleKey);
+    localStorage.removeItem(environment.usernameKey);
+    localStorage.removeItem(environment.userIdKey);
+    this.loggedInSubject.next(false);
     this.router.navigate(['/login']);
   }
 
   isAdmin(): boolean {
-    return this.getRole() === 'ADMIN';
+    return this.getRole() === UserRole.ADMIN;
   }
 
   isRecruiter(): boolean {
-    return this.getRole() === 'RECRUITER';
+    return this.getRole() === UserRole.RECRUITER;
   }
 
   isJobSeeker(): boolean {
-    return this.getRole() === 'JOB_SEEKER';
+    return this.getRole() === UserRole.JOB_SEEKER;
+  }
+
+  // Secure localStorage access - validates token existence
+  private secureLsGetItem(key: string): string | null {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.error('Error accessing localStorage:', e);
+      return null;
+    }
   }
 }

@@ -1,10 +1,15 @@
 // File: ./src/app/job-list/job-list.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpService } from '../../services/http.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { Job } from '../models/job.model';
+import { User, UserRole } from '../models/user.model';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-list',
@@ -12,18 +17,21 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './job-list.component.html'
 })
-export class JobListComponent implements OnInit {
-  jobs: any[] = [];
-  users: any[] = [];
+export class JobListComponent implements OnInit, OnDestroy {
+  jobs: Job[] = [];
+  users: User[] = [];
   searchTitle = '';
   searchLocation = '';
-  successMessage = '';
-  errorMessage = '';
   isLoading = false;
   isAdmin = false;
   showUsers = false;
+  private destroy$ = new Subject<void>();
 
-  constructor(private httpService: HttpService, public authService: AuthService) {}
+  constructor(
+    private httpService: HttpService,
+    public authService: AuthService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
@@ -35,28 +43,30 @@ export class JobListComponent implements OnInit {
 
   loadJobs(): void {
     this.isLoading = true;
-    this.errorMessage = '';
-    this.httpService.searchJobs(this.searchTitle, this.searchLocation).subscribe({
-      next: (response) => {
-        this.jobs = response;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.errorMessage = 'Failed to load jobs';
-        this.isLoading = false;
-      }
-    });
+    this.httpService.searchJobs(this.searchTitle, this.searchLocation)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: Job[]) => {
+          this.jobs = response;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        }
+      });
   }
 
   loadUsers(): void {
-    this.httpService.getAllUsers().subscribe({
-      next: (response) => {
-        this.users = response;
-      },
-      error: () => {
-        this.errorMessage = 'Failed to load users';
-      }
-    });
+    this.httpService.getAllUsers()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: User[]) => {
+          this.users = response;
+        },
+        error: () => {
+          // Error will be handled by interceptor toast
+        }
+      });
   }
 
   onSearch(): void {
@@ -65,27 +75,34 @@ export class JobListComponent implements OnInit {
 
   toggleView(view: string): void {
     this.showUsers = (view === 'users');
-    this.successMessage = '';
-    this.errorMessage = '';
   }
 
   onApply(jobId: number): void {
-    const userIdString = localStorage.getItem('userId');
-    const userId = userIdString ? Number(userIdString) : 1;
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.toastService.showError('User ID not found. Please login again.');
+      return;
+    }
 
-    this.httpService.applyForJob(jobId, userId).subscribe({
-      next: () => {
-        this.successMessage = 'Applied successfully!';
-        this.errorMessage = '';
-      },
-      error: (error) => {
-        this.errorMessage = error.error?.error || 'Failed to apply';
-        this.successMessage = '';
-      }
-    });
+    this.httpService.applyForJob(jobId, userId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toastService.showSuccess('Applied successfully!');
+        },
+        error: () => {
+          // Error will be handled by interceptor toast
+        }
+      });
   }
 
   logout(): void {
     this.authService.logout();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
+
