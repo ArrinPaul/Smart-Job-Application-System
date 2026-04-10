@@ -23,8 +23,17 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (this.isApiUrl(req.url)) {
+      const setHeaders: Record<string, string> = {};
+      if (this.authService.isMfaEnabled() && this.isSensitiveMethod(req.method)) {
+        const otpCode = this.authService.getMfaOtpCode();
+        if (otpCode) {
+          setHeaders['X-OTP-Code'] = otpCode;
+        }
+      }
+
       req = req.clone({
-        withCredentials: true
+        withCredentials: true,
+        setHeaders
       });
     }
 
@@ -162,5 +171,9 @@ export class AuthInterceptor implements HttpInterceptor {
     if (!(error instanceof HttpErrorResponse)) return false;
     // Retry on timeout (0) or 5xx errors, but not on 4xx
     return error.status === 0 || error.status >= 500;
+  }
+
+  private isSensitiveMethod(method: string): boolean {
+    return ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase());
   }
 }

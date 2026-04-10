@@ -19,6 +19,7 @@ import { takeUntil } from 'rxjs/operators';
 export class LoginComponent implements OnDestroy {
   username = '';
   password = '';
+  captchaToken = '';
   isLoading = false;
   private destroy$ = new Subject<void>();
 
@@ -38,7 +39,8 @@ export class LoginComponent implements OnDestroy {
     this.isLoading = true;
     const loginRequest: LoginRequest = {
       username: this.username,
-      password: this.password
+      password: this.password,
+      captchaToken: this.captchaToken?.trim() || undefined
     };
 
     this.httpService.login(loginRequest)
@@ -52,6 +54,14 @@ export class LoginComponent implements OnDestroy {
             response.id,
             response.mfaEnabled
           );
+
+          if (response.mfaEnabled) {
+            const otpCode = window.prompt('MFA is enabled. Enter your current 6-digit authenticator code for sensitive actions:');
+            if (otpCode && /^\d{6}$/.test(otpCode.trim())) {
+              this.authService.setMfaOtpCode(otpCode.trim());
+            }
+          }
+
           // Show success message
           this.toastService.showSuccess('✅ Login successful! Welcome back!');
           // Navigate based on role after a brief delay

@@ -8,6 +8,7 @@ import { UserRole } from '../models/user.model';
 export class AuthService {
   private readonly ROLE_KEY = 'jobportal_role';
   private readonly MFA_KEY = 'jobportal_mfa_enabled';
+  private readonly MFA_OTP_KEY = 'jobportal_mfa_otp_code';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
 
   constructor() {}
@@ -103,6 +104,7 @@ export class AuthService {
     localStorage.removeItem(this.MFA_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
+    sessionStorage.removeItem(this.MFA_OTP_KEY);
     this.loggedIn$.next(false);
   }
 
@@ -115,5 +117,13 @@ export class AuthService {
 
   isMfaEnabled(): boolean {
     return localStorage.getItem(this.MFA_KEY) === 'true';
+  }
+
+  setMfaOtpCode(code: string): void {
+    sessionStorage.setItem(this.MFA_OTP_KEY, code.trim());
+  }
+
+  getMfaOtpCode(): string | null {
+    return sessionStorage.getItem(this.MFA_OTP_KEY);
   }
 }
