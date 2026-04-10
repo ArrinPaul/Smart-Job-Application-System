@@ -33,14 +33,45 @@ The Smart Job Portal System is an integrated platform designed to streamline the
 
 ## Getting Started
 
-### Backend Setup
+### Backend Setup - Local Development
 
 1. Navigate to the `backend` directory.
-2. Update `src/main/resources/application.properties` with your MySQL credentials.
-3. Run the application:
+2. Copy `.env.example` to `.env` and update with your database credentials:
    ```bash
-   mvn spring-boot:run
+   cp .env.example .env
    ```
+3. For Railway MySQL, the `.env` file should include:
+   ```properties
+   MYSQLHOST=switchyard.proxy.rlwy.net
+   MYSQLPORT=16937
+   MYSQLDATABASE=railway
+   MYSQLUSER=root
+   MYSQLPASSWORD=YOUR_PASSWORD
+   SERVER_PORT=8080
+   HIKARI_MAX_POOL=20
+   ```
+4. Run the application:
+   ```bash
+   mvn clean spring-boot:run
+   ```
+
+### Backend Setup - Railway Deployment
+
+1. **Create Railway Project**: Go to [railway.app](https://railway.app) and create a new project.
+2. **Add MySQL**: Provision a MySQL database service.
+3. **Set Environment Variables**: In the Railway dashboard, set these variables:
+   - `MYSQLHOST` - Railway MySQL host
+   - `MYSQLPORT` - Railway MySQL port
+   - `MYSQLDATABASE` - Railway MySQL database name
+   - `MYSQLUSER` - Railway MySQL username
+   - `MYSQLPASSWORD` - Railway MySQL password
+   - `SERVER_PORT` - Leave empty (Railway sets this)
+   - `JWT_SECRET` - Your JWT secret key
+   - `CORS_ALLOWED_ORIGINS` - Your frontend URL (e.g., `https://yourapp.railway.app`)
+
+4. **Deploy**: Connect your Git repository and Railway will auto-deploy on every push.
+
+For detailed configuration, see [RAILWAY_SETUP.md](RAILWAY_SETUP.md).
 
 ### Frontend Setup
 
@@ -49,7 +80,16 @@ The Smart Job Portal System is an integrated platform designed to streamline the
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Update API URL in `src/environments/environment.ts` (for development) and `environment.prod.ts` (for production):
+   ```typescript
+   export const environment = {
+     apiBaseUrl: 'http://localhost:8080/api', // for local
+     // or for Railway: https://yourapp.railway.app/api
+   };
+   ```
+4. Start the development server:
    ```bash
+   ng serve
+   # or
    npm start
    ```

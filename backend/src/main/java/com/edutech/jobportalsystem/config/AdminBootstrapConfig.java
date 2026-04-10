@@ -21,8 +21,8 @@ public class AdminBootstrapConfig {
             PasswordEncoder passwordEncoder,
             @Value("${app.admin.bootstrap.enabled:true}") boolean enabled,
             @Value("${app.admin.bootstrap.username:admin}") String username,
-            @Value("${app.admin.bootstrap.email:admin@jobportal.local}") String email,
-            @Value("${app.admin.bootstrap.password:Admin@123}") String password
+            @Value("${app.admin.bootstrap.email:arrinpaul11@gmail.com}") String email,
+            @Value("${app.admin.bootstrap.password:Arrin@11}") String password
     ) {
         return args -> {
             if (!enabled) {
