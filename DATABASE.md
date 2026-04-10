@@ -33,7 +33,20 @@ SHOW DATABASES;
 
 ---
 
-## 3. Spring Boot Configuration
+## 3. Railway Cloud Setup (Recommended)
+
+To use a cloud-based database on Railway.app:
+
+1.  **Provision MySQL**: Create a new project on Railway and choose "Provision MySQL".
+2.  **Environment Variables**: Railway will automatically provide variables like `MYSQLHOST`, `MYSQLUSER`, etc. The backend is configured to use these automatically.
+3.  **Manual Database Creation**: Even on Railway, you must create the database schema once:
+    *   Connect to your Railway MySQL instance using a local client (like MySQL Workbench).
+    *   Run: `CREATE DATABASE jobportal_db;`
+    *   *Note: If you use the Railway dashboard, you can also see the default database name (it might be `railway`), so you can either create `jobportal_db` or change the `MYSQLDATABASE` variable in Railway to `railway`.*
+
+---
+
+## 4. Spring Boot Configuration
 
 The backend is already configured to connect to this database in `backend/src/main/resources/application.properties`:
 
