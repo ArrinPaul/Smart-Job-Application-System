@@ -46,12 +46,25 @@ export class RegistrationComponent implements OnDestroy {
     this.httpService.register(registerRequest)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          this.toastService.showSuccess('Registration successful! Redirecting to login...');
-          setTimeout(() => this.router.navigate(['/login']), 1500);
-        },
-        error: () => {
+        next: (response) => {
           this.isLoading = false;
+          // Show success message
+          this.toastService.showSuccess('✅ Account created successfully! Redirecting to login...');
+          // Reset form
+          this.username = '';
+          this.email = '';
+          this.password = '';
+          this.role = '';
+          // Redirect to login after showing success toast
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          // Error is already handled by the interceptor
+          // Just log for debugging
+          console.error('Registration failed:', error);
         }
       });
   }

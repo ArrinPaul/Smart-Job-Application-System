@@ -45,17 +45,25 @@ export class LoginComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: LoginResponse) => {
+          this.isLoading = false;
           this.authService.saveSession(
             response.token,
             response.role,
             response.username,
             response.id
           );
-          this.toastService.showSuccess('Login successful!');
-          this.navigateBasedOnRole(response.role);
+          // Show success message
+          this.toastService.showSuccess('✅ Login successful! Welcome back!');
+          // Navigate based on role after a brief delay
+          setTimeout(() => {
+            this.navigateBasedOnRole(response.role);
+          }, 1500);
         },
-        error: () => {
+        error: (error) => {
           this.isLoading = false;
+          // Error is already handled by the interceptor
+          // Just log for debugging
+          console.error('Login failed:', error);
         }
       });
   }
