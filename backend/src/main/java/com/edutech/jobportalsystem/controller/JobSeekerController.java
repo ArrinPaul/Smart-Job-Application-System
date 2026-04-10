@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
 public class JobSeekerController {
 
     private static final Logger logger = LoggerFactory.getLogger(JobSeekerController.class);
@@ -42,7 +41,7 @@ public class JobSeekerController {
         return ResponseEntity.ok(jobService.searchJobs(title, location));
     }
 
-    @PostMapping("/jobseeker/apply")
+    @PostMapping("/job/apply")
     public ResponseEntity<?> applyJob(@RequestBody Map<String, Object> body) {
         Long jobId = ((Number) body.get("jobId")).longValue();
         Long resumeId = body.get("resumeId") != null ? ((Number) body.get("resumeId")).longValue() : null;
@@ -54,7 +53,7 @@ public class JobSeekerController {
         return ResponseEntity.ok(Map.of("message", "Applied successfully"));
     }
 
-    @PostMapping("/resume/upload")
+    @PostMapping("/jobseeker/resume")
     public ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("User {} uploading resume", username);

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/recruiter")
+@RequestMapping("/recruiter")
 public class RecruiterController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecruiterController.class);

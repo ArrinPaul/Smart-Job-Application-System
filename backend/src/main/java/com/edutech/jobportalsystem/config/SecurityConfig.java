@@ -28,12 +28,6 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -45,20 +39,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/recruiter/**").hasRole("RECRUITER")
-                        .requestMatchers(HttpMethod.GET, "/api/jobs").hasRole("JOB_SEEKER")
-                        .requestMatchers("/api/job/apply").hasRole("JOB_SEEKER")
-                        .requestMatchers("/api/jobseeker/**").hasRole("JOB_SEEKER")
+                        .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/recruiter/**").hasRole("RECRUITER")
+                        .requestMatchers(HttpMethod.GET, "/jobs").hasRole("JOB_SEEKER")
+                        .requestMatchers(HttpMethod.POST, "/job/apply").hasRole("JOB_SEEKER")
+                        .requestMatchers("/jobseeker/**").hasRole("JOB_SEEKER")
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .anonymous(anonConfig -> {})
                 .headers(headers -> headers
                         .contentSecurityPolicy("default-src 'self'")
                         .and()
@@ -72,7 +67,7 @@ public class SecurityConfig {
                 exceptions.authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized: \" + authException.getMessage()}");
+                    response.getWriter().write("{\"error\": \"Unauthorized: " + authException.getMessage() + "\"}");
                 })
         );
 
