@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +32,9 @@ public class JobService {
         logger.info("Creating job: {} by {}", job.getTitle(), recruiterUsername);
         User recruiter = userRepository.findByUsername(recruiterUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", recruiterUsername));
+        job.setTitle(sanitize(job.getTitle()));
+        job.setDescription(sanitize(job.getDescription()));
+        job.setLocation(sanitize(job.getLocation()));
         job.setPostedBy(recruiter);
         return jobRepository.save(job);
     }
@@ -44,9 +49,9 @@ public class JobService {
             throw new BadRequestException("Not authorized to update this job");
         }
         
-        existingJob.setTitle(updatedJob.getTitle());
-        existingJob.setDescription(updatedJob.getDescription());
-        existingJob.setLocation(updatedJob.getLocation());
+        existingJob.setTitle(sanitize(updatedJob.getTitle()));
+        existingJob.setDescription(sanitize(updatedJob.getDescription()));
+        existingJob.setLocation(sanitize(updatedJob.getLocation()));
         
         return jobRepository.save(existingJob);
     }
@@ -69,11 +74,16 @@ public class JobService {
     }
 
     public List<Job> searchJobs(String title, String location) {
+        title = sanitize(title);
+        location = sanitize(location);
         logger.debug("Searching jobs - title: {}, location: {}", title, location);
         if (title != null && !title.isBlank() && location != null && !location.isBlank()) {
+            final String normalizedTitle = title.toLowerCase(Locale.ROOT);
+            final String normalizedLocation = location.toLowerCase(Locale.ROOT);
             return jobRepository.findAll().stream()
-                    .filter(j -> j.getTitle().toLowerCase().contains(title.toLowerCase()) && 
-                                 j.getLocation().toLowerCase().contains(location.toLowerCase()))
+                    .filter(j -> j.getTitle() != null && j.getLocation() != null)
+                    .filter(j -> j.getTitle().toLowerCase(Locale.ROOT).contains(normalizedTitle)
+                            && j.getLocation().toLowerCase(Locale.ROOT).contains(normalizedLocation))
                     .collect(Collectors.toList());
         } else if (title != null && !title.isBlank()) {
             return jobRepository.findByTitleContainingIgnoreCase(title);
@@ -88,5 +98,12 @@ public class JobService {
         User recruiter = userRepository.findByUsername(recruiterUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", recruiterUsername));
         return jobRepository.findByPostedBy(recruiter);
+    }
+
+    private String sanitize(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.replaceAll("[\\p{Cntrl}&&[^\\r\\n\\t]]", "").trim();
     }
 }

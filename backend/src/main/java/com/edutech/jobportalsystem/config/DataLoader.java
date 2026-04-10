@@ -28,7 +28,8 @@ public class DataLoader {
             JobRepository jobRepository,
             ApplicationRepository applicationRepository,
             PasswordEncoder passwordEncoder,
-            @Value("${app.data-loader.enabled:true}") boolean enabled
+            @Value("${app.data-loader.enabled:false}") boolean enabled,
+            @Value("${app.data-loader.sample-password:ChangeMe123!}") String samplePassword
     ) {
         return args -> {
             if (!enabled) {
@@ -48,7 +49,7 @@ public class DataLoader {
             User recruiter1 = new User();
             recruiter1.setUsername("john.recruiter");
             recruiter1.setEmail("john@techcorp.com");
-            recruiter1.setPassword(passwordEncoder.encode("password123"));
+            recruiter1.setPassword(passwordEncoder.encode(samplePassword));
             recruiter1.setRole("RECRUITER");
             userRepository.save(recruiter1);
             logger.info("Created recruiter: {}", recruiter1.getUsername());
@@ -56,7 +57,7 @@ public class DataLoader {
             User recruiter2 = new User();
             recruiter2.setUsername("sarah.recruiter");
             recruiter2.setEmail("sarah@startups.com");
-            recruiter2.setPassword(passwordEncoder.encode("password123"));
+            recruiter2.setPassword(passwordEncoder.encode(samplePassword));
             recruiter2.setRole("RECRUITER");
             userRepository.save(recruiter2);
             logger.info("Created recruiter: {}", recruiter2.getUsername());
@@ -65,7 +66,7 @@ public class DataLoader {
             User jobSeeker1 = new User();
             jobSeeker1.setUsername("alice.developer");
             jobSeeker1.setEmail("alice@email.com");
-            jobSeeker1.setPassword(passwordEncoder.encode("password123"));
+            jobSeeker1.setPassword(passwordEncoder.encode(samplePassword));
             jobSeeker1.setRole("JOB_SEEKER");
             userRepository.save(jobSeeker1);
             logger.info("Created job seeker: {}", jobSeeker1.getUsername());
@@ -73,7 +74,7 @@ public class DataLoader {
             User jobSeeker2 = new User();
             jobSeeker2.setUsername("bob.designer");
             jobSeeker2.setEmail("bob@email.com");
-            jobSeeker2.setPassword(passwordEncoder.encode("password123"));
+            jobSeeker2.setPassword(passwordEncoder.encode(samplePassword));
             jobSeeker2.setRole("JOB_SEEKER");
             userRepository.save(jobSeeker2);
             logger.info("Created job seeker: {}", jobSeeker2.getUsername());
@@ -81,7 +82,7 @@ public class DataLoader {
             User jobSeeker3 = new User();
             jobSeeker3.setUsername("charlie.manager");
             jobSeeker3.setEmail("charlie@email.com");
-            jobSeeker3.setPassword(passwordEncoder.encode("password123"));
+            jobSeeker3.setPassword(passwordEncoder.encode(samplePassword));
             jobSeeker3.setRole("JOB_SEEKER");
             userRepository.save(jobSeeker3);
             logger.info("Created job seeker: {}", jobSeeker3.getUsername());
@@ -162,7 +163,7 @@ public class DataLoader {
             logger.warn("Sample Users Created:");
             logger.warn("Recruiters: john.recruiter, sarah.recruiter");
             logger.warn("Job Seekers: alice.developer, bob.designer, charlie.manager");
-            logger.warn("Password for all sample users: password123");
+            logger.warn("Password for all sample users: configured via app.data-loader.sample-password");
             logger.warn("========================================");
             logger.warn("Sample Jobs: {} jobs created", jobRepository.count() - 1);
             logger.warn("Sample Applications: {} applications created", applicationRepository.count());

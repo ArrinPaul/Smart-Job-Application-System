@@ -6,9 +6,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly TOKEN_KEY = 'jobportal_token';
   private readonly ROLE_KEY = 'jobportal_role';
-  private readonly USER_KEY = 'jobportal_user';
+  private readonly MFA_KEY = 'jobportal_mfa_enabled';
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   public loggedIn$ = this.loggedInSubject.asObservable();
 
@@ -17,16 +16,16 @@ export class AuthService {
     this.loggedInSubject.next(this.isLoggedIn());
   }
 
-  saveSession(token: string, role: UserRole, username?: string, userId?: number): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
+  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean): void {
     localStorage.setItem(this.ROLE_KEY, role);
     if (username) localStorage.setItem('username', username);
     if (userId) localStorage.setItem('userId', String(userId));
+    localStorage.setItem(this.MFA_KEY, String(!!mfaEnabled));
     this.loggedInSubject.next(true);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return null;
   }
 
   getRole(): UserRole | null {
@@ -44,16 +43,20 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.getRole();
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.ROLE_KEY);
+    localStorage.removeItem(this.MFA_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
     this.loggedInSubject.next(false);
     this.router.navigate(['/login']);
+  }
+
+  isMfaEnabled(): boolean {
+    return localStorage.getItem(this.MFA_KEY) === 'true';
   }
 
   isAdmin(): boolean {

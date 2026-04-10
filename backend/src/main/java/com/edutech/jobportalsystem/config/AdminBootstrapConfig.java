@@ -19,14 +19,19 @@ public class AdminBootstrapConfig {
     public CommandLineRunner bootstrapAdminUser(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            @Value("${app.admin.bootstrap.enabled:true}") boolean enabled,
+            @Value("${app.admin.bootstrap.enabled:false}") boolean enabled,
             @Value("${app.admin.bootstrap.username:admin}") String username,
-            @Value("${app.admin.bootstrap.email:arrinpaul11@gmail.com}") String email,
-            @Value("${app.admin.bootstrap.password:Arrin@11}") String password
+            @Value("${app.admin.bootstrap.email:admin@example.com}") String email,
+            @Value("${app.admin.bootstrap.password:}") String password
     ) {
         return args -> {
             if (!enabled) {
                 logger.info("Admin bootstrap is disabled");
+                return;
+            }
+
+            if (password == null || password.isBlank()) {
+                logger.error("Admin bootstrap is enabled but no password is configured. Skipping bootstrap user creation.");
                 return;
             }
 
@@ -42,7 +47,7 @@ public class AdminBootstrapConfig {
             admin.setRole("ADMIN");
 
             userRepository.save(admin);
-            logger.warn("Default admin account created. Username: {}. Please change the password after first login.", username);
+            logger.warn("Bootstrap admin account created. Username: {}", username);
         };
     }
 }

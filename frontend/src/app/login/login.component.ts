@@ -47,10 +47,10 @@ export class LoginComponent implements OnDestroy {
         next: (response: LoginResponse) => {
           this.isLoading = false;
           this.authService.saveSession(
-            response.token,
             response.role,
             response.username,
-            response.id
+            response.id,
+            response.mfaEnabled
           );
           // Show success message
           this.toastService.showSuccess('✅ Login successful! Welcome back!');

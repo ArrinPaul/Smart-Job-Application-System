@@ -3,6 +3,9 @@ package com.edutech.jobportalsystem.config;
 // File: ./src/main/java/com/edutech/jobportalsystem/config/SecurityConfig.java
 
 import com.edutech.jobportalsystem.jwt.JwtRequestFilter;
+import com.edutech.jobportalsystem.security.AuthRateLimitFilter;
+import com.edutech.jobportalsystem.security.MfaEnforcementFilter;
+import com.edutech.jobportalsystem.security.PayloadSizeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,12 +46,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtRequestFilter jwtRequestFilter,
+                                                   AuthRateLimitFilter authRateLimitFilter,
+                                                   PayloadSizeFilter payloadSizeFilter,
+                                                   MfaEnforcementFilter mfaEnforcementFilter) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/register", "/auth/login", "/api/auth/register", "/api/auth/login").permitAll()
+                    .requestMatchers(
+                            "/auth/register", "/auth/login", "/auth/verify-email", "/auth/forgot-password", "/auth/reset-password",
+                            "/api/auth/register", "/api/auth/login", "/api/auth/verify-email", "/api/auth/forgot-password", "/api/auth/reset-password"
+                    ).permitAll()
                     .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/recruiter/**", "/api/recruiter/**").hasRole("RECRUITER")
                     .requestMatchers(HttpMethod.GET, "/jobs", "/api/jobs").hasAnyRole("JOB_SEEKER", "RECRUITER")
@@ -68,12 +78,15 @@ public class SecurityConfig {
                         .frameOptions().deny()
                 );
 
+            http.addFilterBefore(payloadSizeFilter, UsernamePasswordAuthenticationFilter.class);
+            http.addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+            http.addFilterAfter(mfaEnforcementFilter, JwtRequestFilter.class);
         http.exceptionHandling(exceptions -> 
                 exceptions.authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized: " + authException.getMessage() + "\"}");
+                    response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
                 })
         );
 
@@ -89,7 +102,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(origins);
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-XSRF-TOKEN", "X-OTP-Code"));
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

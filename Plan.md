@@ -299,12 +299,12 @@ Generate with these exact properties:
   server.port=8080
   spring.datasource.url=jdbc:mysql://localhost:3306/jobportal_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
   spring.datasource.username=root
-  spring.datasource.password=root
+  spring.datasource.password=${MYSQLPASSWORD:}
   spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
   spring.jpa.hibernate.ddl-auto=update
   spring.jpa.show-sql=true
   spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-  jwt.secret=smartjobportalsecretkey2024
+  jwt.secret=${JWT_SECRET:CHANGE_THIS_SECRET_IN_ENV}
   jwt.expiration=86400000
   spring.servlet.multipart.enabled=true
   spring.servlet.multipart.max-file-size=5MB

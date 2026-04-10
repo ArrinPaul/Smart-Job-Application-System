@@ -4,13 +4,16 @@ package com.edutech.jobportalsystem.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
@@ -28,43 +31,43 @@ public class GlobalExceptionHandler {
         logger.warn("Bad credentials attempt!");
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.UNAUTHORIZED.value());
-        response.put("error", "Invalid Credentials");
-        response.put("message", "Username or password is incorrect. Please try again.");
+        response.put("error", "Authentication Failed");
+        response.put("message", "Invalid credentials");
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        logger.warn("User not found: {}", ex.getMessage());
+        logger.warn("Authentication failure due to unknown principal");
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.UNAUTHORIZED.value());
-        response.put("error", "User Not Found");
-        response.put("message", "Username does not exist. Please register first.");
+        response.put("error", "Authentication Failed");
+        response.put("message", "Invalid credentials");
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<?> handleDisabledException(DisabledException ex) {
-        logger.warn("Disabled user login attempt");
+        logger.warn("Disabled or unverified account login attempt");
         Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.FORBIDDEN.value());
-        response.put("error", "Account Disabled");
-        response.put("message", "Your account has been disabled. Contact support for assistance.");
+        response.put("status", HttpStatus.UNAUTHORIZED.value());
+        response.put("error", "Authentication Failed");
+        response.put("message", "Invalid credentials");
         response.put("timestamp", System.currentTimeMillis());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<?> handleLockedException(LockedException ex) {
         logger.warn("Locked user login attempt");
         Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.FORBIDDEN.value());
-        response.put("error", "Account Locked");
-        response.put("message", "Your account is locked due to multiple failed login attempts. Try again later.");
+        response.put("status", HttpStatus.UNAUTHORIZED.value());
+        response.put("error", "Authentication Failed");
+        response.put("message", "Invalid credentials");
         response.put("timestamp", System.currentTimeMillis());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // ==================== VALIDATION ERRORS ====================
@@ -98,6 +101,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleMalformedPayload(HttpMessageNotReadableException ex) {
+        logger.warn("Malformed payload rejected");
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Invalid Request");
+        response.put("message", "Malformed payload");
+        response.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        logger.warn("Payload too large rejected");
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.PAYLOAD_TOO_LARGE.value());
+        response.put("error", "Payload Too Large");
+        response.put("message", "Request payload exceeds allowed size");
+        response.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(response);
+    }
+
     // ==================== RESOURCE ERRORS ====================
     
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -109,6 +134,16 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("error", "Forbidden");
+        response.put("message", "Access denied");
+        response.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // ==================== GENERAL ERRORS ====================

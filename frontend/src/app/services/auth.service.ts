@@ -6,21 +6,20 @@ import { UserRole } from '../models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly TOKEN_KEY = 'jobportal_token';
   private readonly ROLE_KEY = 'jobportal_role';
-  private readonly USER_KEY = 'jobportal_user';
-  private loggedIn$ = new BehaviorSubject<boolean>(this.hasToken());
+  private readonly MFA_KEY = 'jobportal_mfa_enabled';
+  private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
 
   constructor() {}
 
   /**
-   * Save authentication session (token, role, user info)
+   * Save authentication session metadata (token remains in HttpOnly cookie)
    */
-  saveSession(token: string, role: UserRole, username?: string, userId?: number): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
+  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean): void {
     localStorage.setItem(this.ROLE_KEY, role);
     if (username) localStorage.setItem('username', username);
     if (userId) localStorage.setItem('userId', String(userId));
+    localStorage.setItem(this.MFA_KEY, String(!!mfaEnabled));
     this.loggedIn$.next(true);
   }
 
@@ -28,14 +27,14 @@ export class AuthService {
    * Check if user is logged in
    */
   isLoggedIn(): boolean {
-    return this.hasToken();
+    return this.hasSessionMetadata();
   }
 
   /**
    * Get JWT token
    */
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return null;
   }
 
   /**
@@ -100,17 +99,21 @@ export class AuthService {
    * Logout and clear session
    */
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.ROLE_KEY);
+    localStorage.removeItem(this.MFA_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
     this.loggedIn$.next(false);
   }
 
   /**
-   * Check if token exists
+   * Check if UI-safe session metadata exists
    */
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+  private hasSessionMetadata(): boolean {
+    return !!localStorage.getItem(this.ROLE_KEY);
+  }
+
+  isMfaEnabled(): boolean {
+    return localStorage.getItem(this.MFA_KEY) === 'true';
   }
 }

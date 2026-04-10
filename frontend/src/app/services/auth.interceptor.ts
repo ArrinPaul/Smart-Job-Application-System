@@ -22,13 +22,9 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Add JWT token to request if available
-    const token = this.authService.getToken();
-    if (token && this.isSecurableUrl(req.url)) {
+    if (this.isApiUrl(req.url)) {
       req = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
+        withCredentials: true
       });
     }
 
@@ -158,9 +154,8 @@ export class AuthInterceptor implements HttpInterceptor {
     return throwError(() => error);
   }
 
-  private isSecurableUrl(url: string): boolean {
-    // Don't add token to login/register endpoints
-    return !url.includes('/api/auth/login') && !url.includes('/api/auth/register');
+  private isApiUrl(url: string): boolean {
+    return url.includes('/api/');
   }
 
   private isRetryableError(error: any): boolean {

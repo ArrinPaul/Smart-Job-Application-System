@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -38,6 +40,8 @@ public class ResumeController {
         Resume resume = resumeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume", "id", id));
 
+        enforceResumeAccess(resume.getOwner().getId());
+
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(resume.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resume.getFileName() + "\"")
@@ -47,11 +51,33 @@ public class ResumeController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Resume>> getUserResume(@PathVariable Long userId) {
         logger.info("Fetching resume metadata for user ID: {}", userId);
+        enforceResumeAccess(userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         
         return resumeRepository.findByOwner(user)
                 .map(resume -> ResponseEntity.ok(Collections.singletonList(resume)))
                 .orElse(ResponseEntity.ok(Collections.emptyList()));
+    }
+
+    private void enforceResumeAccess(Long ownerUserId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> "ROLE_ADMIN".equals(auth.getAuthority()));
+        boolean isRecruiter = authentication.getAuthorities().stream()
+                .anyMatch(auth -> "ROLE_RECRUITER".equals(auth.getAuthority()));
+
+        if (isAdmin || isRecruiter) {
+            return;
+        }
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+        if (!currentUser.getId().equals(ownerUserId)) {
+            throw new ResourceNotFoundException("Resume", "owner", ownerUserId);
+        }
     }
 }

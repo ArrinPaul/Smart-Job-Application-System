@@ -50,7 +50,7 @@ This project is built **strictly** according to the "Master Prompt" documentatio
 - `frontend/src/services/auth.service.ts` - JWT Session Management
 
 ## Technical Constraints (Strict)
-- **JWT Secret:** `smartjobportalsecretkey2024`
+- **JWT Secret:** `<set via JWT_SECRET environment variable>`
 - **JWT Expiration:** `86400000` (24 hours)
 - **Multipart Limit:** `5MB`
 - **Hibernate Dialect:** `org.hibernate.dialect.MySQL8Dialect`

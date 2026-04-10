@@ -20,10 +20,10 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  token: string;
   role: UserRole;
   username: string;
   id?: number;
+  mfaEnabled?: boolean;
 }
 
 export interface RegisterRequest {

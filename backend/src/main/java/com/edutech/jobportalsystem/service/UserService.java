@@ -3,24 +3,37 @@ package com.edutech.jobportalsystem.service;
 // File: ./backend/src/main/java/com/edutech/jobportalsystem/service/UserService.java
 
 import com.edutech.jobportalsystem.entity.User;
+import com.edutech.jobportalsystem.dto.auth.RegisterRequest;
 import com.edutech.jobportalsystem.exception.BadRequestException;
 import com.edutech.jobportalsystem.exception.ResourceNotFoundException;
 import com.edutech.jobportalsystem.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final int CAPTCHA_THRESHOLD = 3;
+    private static final int LOCK_MINUTES = 15;
+    private static final int VERIFICATION_TOKEN_HOURS = 24;
+    private static final int PASSWORD_RESET_TOKEN_MINUTES = 30;
 
     @Autowired
     private UserRepository userRepository;
@@ -34,6 +47,14 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
+        if (isLocked(user)) {
+            throw new LockedException("Account temporarily locked");
+        }
+
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new DisabledException("Email verification required");
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -43,18 +64,174 @@ public class UserService implements UserDetailsService {
 
     public User registerUser(User user) {
         logger.info("Processing registration for user: {}", user.getUsername());
-        if (userRepository.existsByUsername(user.getUsername())) {
-            logger.warn("Registration failed: Username {} taken", user.getUsername());
+        String username = normalizeUsername(user.getUsername());
+        String email = normalizeEmail(user.getEmail());
+
+        if (userRepository.existsByUsername(username)) {
+            logger.warn("Registration failed: Username {} taken", username);
             throw new BadRequestException("Username already taken");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
-            logger.warn("Registration failed: Email {} taken", user.getEmail());
+
+        if (userRepository.existsByEmail(email)) {
+            logger.warn("Registration failed: Email {} taken", email);
             throw new BadRequestException("Email already registered");
         }
+
+        user.setUsername(username);
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEmailVerified(false);
+        user.setEmailVerificationToken(generateSecureToken());
+        user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(VERIFICATION_TOKEN_HOURS));
+        user.setFailedLoginAttempts(0);
+        user.setLockUntil(null);
+        user.setTokenVersion(0L);
+        user.setMfaEnabled(false);
+
         User savedUser = userRepository.save(user);
         logger.info("User {} registered successfully", savedUser.getUsername());
         return savedUser;
+    }
+
+    public User registerUser(RegisterRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setRole(request.getRole());
+        return registerUser(user);
+    }
+
+    public boolean requiresCaptcha(String username) {
+        if (username == null || username.isBlank()) {
+            return false;
+        }
+
+        return userRepository.findByUsername(normalizeUsername(username))
+                .map(user -> user.getFailedLoginAttempts() != null && user.getFailedLoginAttempts() >= CAPTCHA_THRESHOLD)
+                .orElse(false);
+    }
+
+    public void onAuthenticationFailure(String username, String remoteIp, String userAgent) {
+        if (username == null || username.isBlank()) {
+            logger.warn("Failed authentication with empty username from {}", remoteIp);
+            return;
+        }
+
+        userRepository.findByUsername(normalizeUsername(username)).ifPresentOrElse(user -> {
+            int failedAttempts = user.getFailedLoginAttempts() == null ? 0 : user.getFailedLoginAttempts();
+            failedAttempts += 1;
+            user.setFailedLoginAttempts(failedAttempts);
+
+            if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+                user.setLockUntil(LocalDateTime.now().plusMinutes(LOCK_MINUTES));
+                user.setFailedLoginAttempts(0);
+                logger.warn("Account locked for user {} due to repeated failed attempts from {}", user.getUsername(), remoteIp);
+            }
+
+            userRepository.save(user);
+            logger.warn("Failed login for user {} from IP {} and agent {}", user.getUsername(), remoteIp, abbreviate(userAgent, 100));
+        }, () -> logger.warn("Failed login for unknown username {} from {}", username, remoteIp));
+    }
+
+    public User onAuthenticationSuccess(String username, String remoteIp, String userAgent) {
+        User user = userRepository.findByUsername(normalizeUsername(username))
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+        if (isLocked(user)) {
+            throw new LockedException("Account temporarily locked");
+        }
+
+        if (user.getLastLoginIp() != null && !user.getLastLoginIp().equals(remoteIp)) {
+            logger.warn("Unusual login location change for user {}: {} -> {}", user.getUsername(), user.getLastLoginIp(), remoteIp);
+        }
+
+        if (user.getLastLoginUserAgent() != null && !user.getLastLoginUserAgent().equals(userAgent)) {
+            logger.warn("Unusual device change for user {}", user.getUsername());
+        }
+
+        user.setFailedLoginAttempts(0);
+        user.setLockUntil(null);
+        user.setLastLoginIp(remoteIp);
+        user.setLastLoginUserAgent(abbreviate(userAgent, 500));
+        user.setLastLoginAt(LocalDateTime.now());
+        user.setTokenVersion((user.getTokenVersion() == null ? 0L : user.getTokenVersion()) + 1L);
+        return userRepository.save(user);
+    }
+
+    public void verifyEmail(String token) {
+        User user = userRepository.findByEmailVerificationToken(token)
+                .orElseThrow(() -> new BadRequestException("Invalid or expired verification token"));
+
+        if (user.getEmailVerificationExpiry() == null || user.getEmailVerificationExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Invalid or expired verification token");
+        }
+
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationExpiry(null);
+        userRepository.save(user);
+    }
+
+    public User createPasswordResetToken(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        return userRepository.findByEmail(normalizeEmail(email)).map(user -> {
+            user.setPasswordResetToken(generateSecureToken());
+            user.setPasswordResetExpiry(LocalDateTime.now().plusMinutes(PASSWORD_RESET_TOKEN_MINUTES));
+            return userRepository.save(user);
+        }).orElse(null);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByPasswordResetToken(token)
+                .orElseThrow(() -> new BadRequestException("Invalid or expired reset token"));
+
+        if (user.getPasswordResetExpiry() == null || user.getPasswordResetExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Invalid or expired reset token");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetExpiry(null);
+        user.setFailedLoginAttempts(0);
+        user.setLockUntil(null);
+        user.setTokenVersion((user.getTokenVersion() == null ? 0L : user.getTokenVersion()) + 1L);
+        userRepository.save(user);
+    }
+
+    public Map<String, String> setupMfa(String username, TotpService totpService) {
+        User user = getUserByUsername(username);
+        String secret = totpService.generateSecret();
+        user.setMfaSecret(secret);
+        user.setMfaEnabled(false);
+        userRepository.save(user);
+
+        return Map.of(
+                "secret", secret,
+                "otpauthUrl", totpService.buildOtpAuthUri(user.getUsername(), secret)
+        );
+    }
+
+    public void enableMfa(String username, String code, TotpService totpService) {
+        User user = getUserByUsername(username);
+        if (!totpService.verifyCode(user.getMfaSecret(), code)) {
+            throw new BadRequestException("Invalid OTP code");
+        }
+        user.setMfaEnabled(true);
+        userRepository.save(user);
+    }
+
+    public void disableMfa(String username, String code, TotpService totpService) {
+        User user = getUserByUsername(username);
+        if (!totpService.verifyCode(user.getMfaSecret(), code)) {
+            throw new BadRequestException("Invalid OTP code");
+        }
+        user.setMfaEnabled(false);
+        user.setMfaSecret(null);
+        userRepository.save(user);
     }
 
     public List<User> getAllUsers() {
@@ -66,5 +243,28 @@ public class UserService implements UserDetailsService {
         logger.debug("Fetching user by username: {}", username);
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+    }
+
+    private boolean isLocked(User user) {
+        return user.getLockUntil() != null && user.getLockUntil().isAfter(LocalDateTime.now());
+    }
+
+    private String generateSecureToken() {
+        return UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private String normalizeUsername(String username) {
+        return username == null ? null : username.trim();
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String abbreviate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 }

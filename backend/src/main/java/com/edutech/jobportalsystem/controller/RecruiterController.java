@@ -3,8 +3,11 @@ package com.edutech.jobportalsystem.controller;
 // File: ./backend/src/main/java/com/edutech/jobportalsystem/controller/RecruiterController.java
 
 import com.edutech.jobportalsystem.entity.Job;
+import com.edutech.jobportalsystem.dto.job.JobUpsertRequest;
+import com.edutech.jobportalsystem.dto.job.UpdateApplicationStatusRequest;
 import com.edutech.jobportalsystem.service.ApplicationService;
 import com.edutech.jobportalsystem.service.JobService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +29,26 @@ public class RecruiterController {
     private ApplicationService applicationService;
 
     @PostMapping("/jobs")
-    public ResponseEntity<?> createJob(@RequestBody Job job) {
+    public ResponseEntity<?> createJob(@Valid @RequestBody JobUpsertRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.info("Recruiter {} creating job: {}", username, job.getTitle());
+        logger.info("Recruiter {} creating job: {}", username, request.getTitle());
+
+        Job job = new Job();
+        job.setTitle(request.getTitle());
+        job.setDescription(request.getDescription());
+        job.setLocation(request.getLocation());
         return ResponseEntity.ok(jobService.createJob(job, username));
     }
 
     @PutMapping("/jobs/{jobId}")
-    public ResponseEntity<?> updateJob(@PathVariable Long jobId, @RequestBody Job updatedJob) {
+    public ResponseEntity<?> updateJob(@PathVariable Long jobId, @Valid @RequestBody JobUpsertRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} updating job ID: {}", username, jobId);
+
+        Job updatedJob = new Job();
+        updatedJob.setTitle(request.getTitle());
+        updatedJob.setDescription(request.getDescription());
+        updatedJob.setLocation(request.getLocation());
         return ResponseEntity.ok(jobService.updateJob(jobId, updatedJob, username));
     }
 
@@ -62,9 +75,10 @@ public class RecruiterController {
     }
 
     @PutMapping("/applications/{applicationId}/status")
-    public ResponseEntity<?> updateApplicationStatus(@PathVariable Long applicationId, @RequestBody Map<String, String> body) {
-        String status = body.get("status");
-        logger.info("Updating application {} to status: {}", applicationId, status);
-        return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, status));
+    public ResponseEntity<?> updateApplicationStatus(@PathVariable Long applicationId,
+                                                     @Valid @RequestBody UpdateApplicationStatusRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Recruiter {} updating application {} to status: {}", username, applicationId, request.getStatus());
+        return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, request.getStatus(), username));
     }
 }

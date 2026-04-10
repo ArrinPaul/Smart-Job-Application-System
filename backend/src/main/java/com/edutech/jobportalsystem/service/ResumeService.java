@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -51,7 +52,8 @@ public class ResumeService {
         Resume resume = resumeRepository.findByOwner(owner).orElse(new Resume());
         
         try {
-            resume.setFileName(file.getOriginalFilename());
+            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename() == null ? "resume" : file.getOriginalFilename());
+            resume.setFileName(originalFilename.replaceAll("[\\r\\n]", ""));
             resume.setFileType(file.getContentType());
             resume.setData(file.getBytes());
             resume.setOwner(owner);

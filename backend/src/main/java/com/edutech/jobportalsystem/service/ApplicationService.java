@@ -16,12 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ApplicationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
+    private static final Set<String> VALID_STATUSES = Set.of("APPLIED", "SHORTLISTED", "REJECTED", "HIRED");
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -70,11 +73,21 @@ public class ApplicationService {
         return applicationRepository.findByApplicant(applicant);
     }
 
-    public Application updateApplicationStatus(Long applicationId, String newStatus) {
+    public Application updateApplicationStatus(Long applicationId, String newStatus, String recruiterUsername) {
         logger.info("Updating application {} status to {}", applicationId, newStatus);
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application", "id", applicationId));
-        application.setStatus(newStatus);
+
+        String sanitizedStatus = newStatus == null ? "" : newStatus.trim().toUpperCase();
+        if (!VALID_STATUSES.contains(sanitizedStatus)) {
+            throw new BadRequestException("Invalid application status");
+        }
+
+        if (!application.getJob().getPostedBy().getUsername().equals(recruiterUsername)) {
+            throw new BadRequestException("Not authorized to update this application");
+        }
+
+        application.setStatus(sanitizedStatus);
         return applicationRepository.save(application);
     }
 

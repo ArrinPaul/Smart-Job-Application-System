@@ -9,18 +9,18 @@ echo ============================================
 echo.
 
 REM Set Railway MySQL credentials
-setx MYSQLHOST switchyard.proxy.rlwy.net
-setx MYSQLPORT 16937
-setx MYSQLDATABASE railway
-setx MYSQLUSER root
-setx MYSQLPASSWORD NSnLumKaKMazQIGXCXVIqlxmSAZmhXDF
+setx MYSQLHOST YOUR_RAILWAY_HOST
+setx MYSQLPORT YOUR_RAILWAY_PORT
+setx MYSQLDATABASE YOUR_RAILWAY_DATABASE
+setx MYSQLUSER YOUR_RAILWAY_USER
+setx MYSQLPASSWORD YOUR_RAILWAY_PASSWORD
 
 REM Set server configuration
 setx SERVER_PORT 8080
 setx HIKARI_MAX_POOL 20
 
 REM Set security
-setx JWT_SECRET smartjobportalsecretkey2024
+setx JWT_SECRET YOUR_LONG_RANDOM_JWT_SECRET
 setx JWT_EXPIRATION 86400000
 
 REM Set CORS
@@ -30,10 +30,10 @@ REM Set logging
 setx LOG_PATH logs
 
 REM Set admin bootstrap
-setx ADMIN_BOOTSTRAP_ENABLED true
+setx ADMIN_BOOTSTRAP_ENABLED false
 setx ADMIN_BOOTSTRAP_USERNAME admin
 setx ADMIN_BOOTSTRAP_EMAIL admin@jobportal.local
-setx ADMIN_BOOTSTRAP_PASSWORD Admin@123
+setx ADMIN_BOOTSTRAP_PASSWORD YOUR_STRONG_ADMIN_PASSWORD
 
 REM Set data loader
 setx DATA_LOADER_ENABLED true
@@ -44,9 +44,9 @@ echo.
 echo NOTE: You may need to restart your terminal or IDE for changes to take effect.
 echo.
 echo Environment Variables Configured:
-echo   - Database: Railway MySQL (switchyard.proxy.rlwy.net:16937)
+echo   - Database: Railway MySQL (from your environment values)
 echo   - Server Port: 8080
-echo   - JWT Secret: smartjobportalsecretkey2024
+echo   - JWT Secret: [configured]
 echo   - CORS Origins: http://localhost:4200,http://localhost:3000
 echo.
 echo Next Steps:

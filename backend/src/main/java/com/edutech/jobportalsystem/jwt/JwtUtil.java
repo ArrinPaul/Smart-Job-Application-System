@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -26,10 +27,11 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role, Long tokenVersion) {
         logger.debug("Generating token for user: {} with role: {}", username, role);
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("tokenVersion", tokenVersion == null ? 0L : tokenVersion);
         return createToken(claims, username);
     }
 
@@ -37,6 +39,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
+                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
@@ -53,6 +56,11 @@ public class JwtUtil {
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public Long extractTokenVersion(String token) {
+        Long tokenVersion = extractClaim(token, claims -> claims.get("tokenVersion", Long.class));
+        return tokenVersion == null ? 0L : tokenVersion;
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -73,9 +81,13 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, UserDetails userDetails, Long expectedTokenVersion) {
         final String username = extractUsername(token);
-        boolean isValid = (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        long tokenVersion = extractTokenVersion(token);
+        long expectedVersion = expectedTokenVersion == null ? 0L : expectedTokenVersion;
+        boolean isValid = (username.equals(userDetails.getUsername())
+                && !isTokenExpired(token)
+                && tokenVersion == expectedVersion);
         if (!isValid) {
             logger.warn("Token validation failed for user: {}", username);
         }

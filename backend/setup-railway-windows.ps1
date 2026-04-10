@@ -8,18 +8,18 @@ Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
 
 # Set Railway MySQL credentials
-$env:MYSQLHOST = "switchyard.proxy.rlwy.net"
-$env:MYSQLPORT = "16937"
-$env:MYSQLDATABASE = "railway"
-$env:MYSQLUSER = "root"
-$env:MYSQLPASSWORD = "NSnLumKaKMazQIGXCXVIqlxmSAZmhXDF"
+$env:MYSQLHOST = "YOUR_RAILWAY_HOST"
+$env:MYSQLPORT = "YOUR_RAILWAY_PORT"
+$env:MYSQLDATABASE = "YOUR_RAILWAY_DATABASE"
+$env:MYSQLUSER = "YOUR_RAILWAY_USER"
+$env:MYSQLPASSWORD = "YOUR_RAILWAY_PASSWORD"
 
 # Set server configuration
 $env:SERVER_PORT = "8080"
 $env:HIKARI_MAX_POOL = "20"
 
 # Set security
-$env:JWT_SECRET = "smartjobportalsecretkey2024"
+$env:JWT_SECRET = "YOUR_LONG_RANDOM_JWT_SECRET"
 $env:JWT_EXPIRATION = "86400000"
 
 # Set CORS
@@ -29,10 +29,10 @@ $env:CORS_ALLOWED_ORIGINS = "http://localhost:4200,http://localhost:3000"
 $env:LOG_PATH = "logs"
 
 # Set admin bootstrap
-$env:ADMIN_BOOTSTRAP_ENABLED = "true"
+$env:ADMIN_BOOTSTRAP_ENABLED = "false"
 $env:ADMIN_BOOTSTRAP_USERNAME = "admin"
 $env:ADMIN_BOOTSTRAP_EMAIL = "admin@jobportal.local"
-$env:ADMIN_BOOTSTRAP_PASSWORD = "Admin@123"
+$env:ADMIN_BOOTSTRAP_PASSWORD = "YOUR_STRONG_ADMIN_PASSWORD"
 
 # Set data loader
 $env:DATA_LOADER_ENABLED = "true"
@@ -41,9 +41,9 @@ Write-Host ""
 Write-Host "✅ All environment variables have been set (session-local)!" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Environment Variables Configured:" -ForegroundColor Cyan
-Write-Host "  - Database: Railway MySQL (switchyard.proxy.rlwy.net:16937)" -ForegroundColor Gray
+Write-Host "  - Database: Railway MySQL (from your environment values)" -ForegroundColor Gray
 Write-Host "  - Server Port: 8080" -ForegroundColor Gray
-Write-Host "  - JWT Secret: smartjobportalsecretkey2024" -ForegroundColor Gray
+Write-Host "  - JWT Secret: [configured]" -ForegroundColor Gray
 Write-Host "  - CORS Origins: http://localhost:4200,http://localhost:3000" -ForegroundColor Gray
 Write-Host ""
 Write-Host "NOTE: These variables are set for the current PowerShell session only." -ForegroundColor Yellow
