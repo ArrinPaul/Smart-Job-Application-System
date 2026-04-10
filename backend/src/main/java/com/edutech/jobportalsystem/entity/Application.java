@@ -27,6 +27,10 @@ public class Application {
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
+    @ManyToOne
+    @JoinColumn(name = "resume_id")
+    private Resume resume;
+
     @Column(nullable = false)
     private String status; // APPLIED, SHORTLISTED, REJECTED, HIRED
 

@@ -4,11 +4,13 @@ package com.edutech.jobportalsystem.service;
 
 import com.edutech.jobportalsystem.entity.Application;
 import com.edutech.jobportalsystem.entity.Job;
+import com.edutech.jobportalsystem.entity.Resume;
 import com.edutech.jobportalsystem.entity.User;
 import com.edutech.jobportalsystem.exception.BadRequestException;
 import com.edutech.jobportalsystem.exception.ResourceNotFoundException;
 import com.edutech.jobportalsystem.repository.ApplicationRepository;
 import com.edutech.jobportalsystem.repository.JobRepository;
+import com.edutech.jobportalsystem.repository.ResumeRepository;
 import com.edutech.jobportalsystem.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,9 @@ public class ApplicationService {
     @Autowired
     private JobRepository jobRepository;
 
+    @Autowired
+    private ResumeRepository resumeRepository;
+
     public Application applyForJob(Long jobId, Long userId) {
         logger.info("User ID {} applying for job ID {}", userId, jobId);
         Job job = jobRepository.findById(jobId)
@@ -42,9 +47,12 @@ public class ApplicationService {
             throw new BadRequestException("Already applied for this job");
         }
 
+        Resume resume = resumeRepository.findByOwner(applicant).orElse(null);
+
         Application application = new Application();
         application.setApplicant(applicant);
         application.setJob(job);
+        application.setResume(resume);
         Application savedApp = applicationRepository.save(application);
         logger.info("Application successful for user {} on job {}", userId, jobId);
         return savedApp;

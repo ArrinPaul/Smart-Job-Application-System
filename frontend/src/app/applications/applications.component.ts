@@ -81,6 +81,25 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
       });
   }
 
+  downloadResume(resumeId: number, fileName: string): void {
+    this.httpService.downloadResume(resumeId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          link.click();
+          window.URL.revokeObjectURL(url);
+          this.toastService.showSuccess('Resume downloaded');
+        },
+        error: () => {
+          this.toastService.showError('Failed to download resume');
+        }
+      });
+  }
+
   logout(): void {
     this.authService.logout();
   }

@@ -1,11 +1,12 @@
 // File: ./src/app/resume/resume.component.ts
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
+import { ResumeMetadata } from '../models/job.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -15,9 +16,11 @@ import { takeUntil } from 'rxjs/operators';
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './resume.component.html'
 })
-export class ResumeComponent implements OnDestroy {
+export class ResumeComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   isUploading = false;
+  resume: ResumeMetadata | null = null;
+  hasResume = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -25,6 +28,26 @@ export class ResumeComponent implements OnDestroy {
     private authService: AuthService,
     private toastService: ToastService
   ) {}
+
+  ngOnInit(): void {
+    this.loadUserResume();
+  }
+
+  loadUserResume(): void {
+    const userId = this.authService.getUserId();
+    if (userId) {
+      this.httpService.getResumes(userId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (resumes: ResumeMetadata[]) => {
+            if (resumes && resumes.length > 0) {
+              this.resume = resumes[0];
+              this.hasResume = true;
+            }
+          }
+        });
+    }
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -66,6 +89,7 @@ export class ResumeComponent implements OnDestroy {
           this.toastService.showSuccess('Resume uploaded successfully');
           this.selectedFile = null;
           this.isUploading = false;
+          this.loadUserResume();
           // Clear file input
           const fileInput = document.getElementById('fileInput') as HTMLInputElement;
           if (fileInput) {

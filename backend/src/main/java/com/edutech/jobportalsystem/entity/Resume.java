@@ -2,6 +2,7 @@ package com.edutech.jobportalsystem.entity;
 
 // File: ./src/main/java/com/edutech/jobportalsystem/entity/Resume.java
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class Resume {
 
     @Lob
     @Column(name = "data", columnDefinition = "LONGBLOB")
+    @JsonIgnore
     private byte[] data;
 
     @Column(nullable = false, updatable = false)

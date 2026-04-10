@@ -42,6 +42,12 @@
         <span><strong>Applied:</strong> {{ app.appliedAt | date:'mediumDate' }}</span>
       </div>
 
+      <div *ngIf="isRecruiter && app.resume" class="action-row" style="margin-top: 1rem;">
+        <button type="button" class="btn--secondary" (click)="downloadResume(app.resume.id, app.resume.fileName)">
+          Download Resume ({{ app.resume.fileName }})
+        </button>
+      </div>
+
       <div *ngIf="isRecruiter" class="panel compact status-editor">
         <div class="field-group">
           <label for="status-{{ app.id }}">Update Candidate Status</label>

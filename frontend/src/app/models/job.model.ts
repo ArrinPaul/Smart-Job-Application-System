@@ -33,6 +33,14 @@ export interface Application {
   status: ApplicationStatus;
   appliedAt?: string;
   updatedAt?: string;
+  resume?: ResumeMetadata;
+}
+
+export interface ResumeMetadata {
+  id: number;
+  fileName: string;
+  fileType?: string;
+  uploadedAt?: string;
 }
 
 export enum ApplicationStatus {

@@ -9,12 +9,17 @@
 
   <div class="page-header">
     <div>
-      <h2>Upload Resume</h2>
+      <h2>Resume Vault</h2>
       <p>Keep your latest resume ready so applying to roles is always one step away.</p>
     </div>
   </div>
 
   <section class="panel narrow">
+    <div *ngIf="hasResume" style="background: var(--light-gray); padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+      <p style="margin: 0; color: var(--text-dark); font-weight: 500;">Current Resume: {{ resume?.fileName }}</p>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: var(--text-muted);">Uploaded: {{ resume?.uploadedAt | date:'medium' }}</p>
+    </div>
+
     <div class="field-group">
       <label for="fileInput">Select Resume File</label>
       <input id="fileInput" type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx">
