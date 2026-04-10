@@ -36,6 +36,27 @@ public class AdminBootstrapConfig {
             }
 
             if (userRepository.existsByUsername(username)) {
+                userRepository.findByUsername(username).ifPresent(existing -> {
+                    if ("ADMIN".equalsIgnoreCase(existing.getRole())) {
+                        boolean changed = false;
+                        if (!Boolean.TRUE.equals(existing.getEmailVerified())) {
+                            existing.setEmailVerified(true);
+                            changed = true;
+                        }
+                        if (email != null && !email.isBlank() && !email.equalsIgnoreCase(existing.getEmail())) {
+                            existing.setEmail(email);
+                            changed = true;
+                        }
+                        if (!passwordEncoder.matches(password, existing.getPassword())) {
+                            existing.setPassword(passwordEncoder.encode(password));
+                            changed = true;
+                        }
+                        if (changed) {
+                            userRepository.save(existing);
+                            logger.warn("Existing admin account {} was synchronized with bootstrap settings", username);
+                        }
+                    }
+                });
                 logger.info("Admin bootstrap skipped: user {} already exists", username);
                 return;
             }
@@ -45,6 +66,7 @@ public class AdminBootstrapConfig {
             admin.setEmail(email);
             admin.setPassword(passwordEncoder.encode(password));
             admin.setRole("ADMIN");
+            admin.setEmailVerified(true);
 
             userRepository.save(admin);
             logger.warn("Bootstrap admin account created. Username: {}", username);

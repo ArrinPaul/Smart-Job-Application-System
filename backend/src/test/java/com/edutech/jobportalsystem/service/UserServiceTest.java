@@ -40,6 +40,7 @@ public class UserServiceTest {
         testUser.setEmail("test@mail.com");
         testUser.setPassword("password");
         testUser.setRole("JOB_SEEKER");
+        testUser.setEmailVerified(true);
     }
 
     @Test

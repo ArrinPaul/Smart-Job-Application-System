@@ -41,6 +41,7 @@ public class ApplicationServiceTest {
     private ApplicationService applicationService;
 
     private User applicant;
+    private User recruiter;
     private Job job;
     private Application application;
 
@@ -50,9 +51,14 @@ public class ApplicationServiceTest {
         applicant.setId(1L);
         applicant.setUsername("seeker1");
 
+        recruiter = new User();
+        recruiter.setId(2L);
+        recruiter.setUsername("recruiter1");
+
         job = new Job();
         job.setId(1L);
         job.setTitle("Java Dev");
+        job.setPostedBy(recruiter);
 
         application = new Application();
         application.setId(1L);
@@ -85,7 +91,6 @@ public class ApplicationServiceTest {
         // Arrange
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
         when(userRepository.findById(1L)).thenReturn(Optional.of(applicant));
-        when(resumeRepository.findByOwner(applicant)).thenReturn(Optional.empty());
         when(applicationRepository.existsByApplicantAndJob(applicant, job)).thenReturn(true);
 
         // Act & Assert
@@ -102,7 +107,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.save(any(Application.class))).thenReturn(application);
 
         // Act
-        Application result = applicationService.updateApplicationStatus(1L, "SHORTLISTED");
+        Application result = applicationService.updateApplicationStatus(1L, "SHORTLISTED", "recruiter1");
 
         // Assert
         assertEquals("SHORTLISTED", result.getStatus());

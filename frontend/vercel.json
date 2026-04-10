@@ -1,20 +1,7 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "outputDirectory": "dist/jobportal-frontend",
   "framework": "angular",
-  "env": {
-    "ANGULAR_API_URL": {
-      "description": "Backend API URL",
-      "default": "http://localhost:8080/api",
-      "required": false
-    }
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  },
   "redirects": [
     {
       "source": "/(.*)",
