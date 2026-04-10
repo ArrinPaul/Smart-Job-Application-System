@@ -113,7 +113,7 @@ export class HttpService {
    * Apply to a job
    */
   applyJob(jobId: number, resumeId?: number): Observable<Application> {
-    return this.http.post<Application>(`${this.apiUrl}/jobseeker/apply`, { jobId, resumeId });
+    return this.http.post<Application>(`${this.apiUrl}/job/apply`, { jobId, resumeId });
   }
 
   /**
@@ -133,7 +133,7 @@ export class HttpService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('fileName', fileName);
-    return this.http.post(`${this.apiUrl}/resume/upload`, formData);
+    return this.http.post(`${this.apiUrl}/jobseeker/resume`, formData);
   }
 
   /**
