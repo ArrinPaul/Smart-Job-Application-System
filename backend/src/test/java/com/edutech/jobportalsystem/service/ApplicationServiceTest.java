@@ -7,6 +7,7 @@ import com.edutech.jobportalsystem.entity.Job;
 import com.edutech.jobportalsystem.entity.User;
 import com.edutech.jobportalsystem.repository.ApplicationRepository;
 import com.edutech.jobportalsystem.repository.JobRepository;
+import com.edutech.jobportalsystem.repository.ResumeRepository;
 import com.edutech.jobportalsystem.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ public class ApplicationServiceTest {
 
     @Mock
     private JobRepository jobRepository;
+
+    @Mock
+    private ResumeRepository resumeRepository;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -62,6 +66,7 @@ public class ApplicationServiceTest {
         // Arrange
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
         when(userRepository.findById(1L)).thenReturn(Optional.of(applicant));
+        when(resumeRepository.findByOwner(applicant)).thenReturn(Optional.empty());
         when(applicationRepository.existsByApplicantAndJob(applicant, job)).thenReturn(false);
         when(applicationRepository.save(any(Application.class))).thenReturn(application);
 
@@ -80,6 +85,7 @@ public class ApplicationServiceTest {
         // Arrange
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
         when(userRepository.findById(1L)).thenReturn(Optional.of(applicant));
+        when(resumeRepository.findByOwner(applicant)).thenReturn(Optional.empty());
         when(applicationRepository.existsByApplicantAndJob(applicant, job)).thenReturn(true);
 
         // Act & Assert

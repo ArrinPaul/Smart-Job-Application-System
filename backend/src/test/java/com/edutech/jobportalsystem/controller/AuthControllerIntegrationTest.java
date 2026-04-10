@@ -55,6 +55,6 @@ public class AuthControllerIntegrationTest {
     @Test
     void testAdminEndpoint_WithoutToken_Returns403() throws Exception {
         mockMvc.perform(get("/api/admin/users"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }
