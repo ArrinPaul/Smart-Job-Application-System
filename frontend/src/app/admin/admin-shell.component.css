@@ -1,0 +1,19 @@
+.admin-shell {
+  padding-top: 16px;
+}
+
+.admin-nav {
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.admin-nav a.active {
+  background: #1f6fa8;
+  border-radius: 4px;
+}
+
+.admin-welcome {
+  color: #ecf0f1;
+  margin-left: auto;
+  font-size: 14px;
+}

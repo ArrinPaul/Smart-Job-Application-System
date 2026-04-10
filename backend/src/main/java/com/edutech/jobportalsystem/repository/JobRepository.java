@@ -6,6 +6,8 @@ import com.edutech.jobportalsystem.entity.Job;
 import com.edutech.jobportalsystem.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -16,4 +18,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     List<Job> findByLocationContainingIgnoreCase(String location);
 
     List<Job> findByPostedBy(User recruiter);
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    List<Job> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime createdAt);
 }

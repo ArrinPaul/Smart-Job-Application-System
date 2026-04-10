@@ -1,0 +1,41 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h2>Job Management</h2>
+      <p>Monitor all live and historical postings across recruiters.</p>
+    </div>
+    <button type="button" (click)="loadJobs()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+  </div>
+
+  <article class="panel" *ngIf="jobs.length > 0; else noJobsTpl">
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Posted By</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let job of jobs">
+            <td>{{ job.id }}</td>
+            <td>{{ job.title }}</td>
+            <td>{{ job.location }}</td>
+            <td>{{ job.postedBy?.username }}</td>
+            <td>{{ job.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <ng-template #noJobsTpl>
+    <div class="empty-state" *ngIf="!isLoading">
+      <h3>No jobs found</h3>
+      <p>Jobs will appear once recruiters start posting.</p>
+    </div>
+  </ng-template>
+</section>

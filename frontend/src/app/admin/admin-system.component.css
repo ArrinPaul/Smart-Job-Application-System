@@ -1,0 +1,42 @@
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #2f80b5;
+}
+
+.kpi-card h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.kpi-card p {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f6fa8;
+}
+
+.insight-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}

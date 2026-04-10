@@ -1,21 +1,55 @@
-<!-- File: ./src/app/login/login.component.html -->
-<div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
-  <div style="text-align: center; margin-bottom: 20px;">
-    <h1 style="color: #2c3e50; margin: 0;">Smart Job Portal</h1>
-    <p style="color: #7f8c8d;">Connect with your future career</p>
-  </div>
+<div class="auth-layout">
+  <section class="auth-hero">
+    <span class="hero-chip">Smart Job Portal</span>
+    <h1 class="auth-title">Hire faster and land better roles from one intelligent workspace.</h1>
+    <p>
+      Built for recruiters, job seekers, and admins who need clean workflows, live analytics,
+      and secure role-based access.
+    </p>
+    <ul class="hero-list">
+      <li>One dashboard for jobs, applications, resumes, and system health</li>
+      <li>Role-specific views with real-time status updates</li>
+      <li>Secure authentication with JWT and admin oversight</li>
+    </ul>
+  </section>
 
-  <form (ngSubmit)="onLogin()" style="width: 100%; max-width: 400px; padding: 40px;">
-    <h2 style="text-align: center; border: none; margin-bottom: 30px;">Login</h2>
-    <div>
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" [(ngModel)]="username" required placeholder="Enter your username">
-    </div>
-    <div>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Enter your password">
-    </div>
-    <button type="submit" [disabled]="isLoading" style="width: 100%; margin-top: 10px;">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
-    <p style="text-align: center; margin-top: 20px;">Don't have an account? <a routerLink="/register" style="color: #3498db; text-decoration: none; font-weight: bold;">Register here</a></p>
-  </form>
+  <section class="auth-card-wrap">
+    <form class="auth-card" (ngSubmit)="onLogin()">
+      <div class="form-heading">
+        <h2>Welcome back</h2>
+        <p>Sign in to continue to your workspace.</p>
+      </div>
+
+      <div class="field-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="username"
+          required
+          placeholder="Enter your username"
+        >
+      </div>
+
+      <div class="field-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          placeholder="Enter your password"
+        >
+      </div>
+
+      <button type="submit" [disabled]="isLoading">{{ isLoading ? 'Logging in...' : 'Login to Dashboard' }}</button>
+
+      <p class="auth-meta">
+        New here?
+        <a routerLink="/register">Create your account</a>
+      </p>
+    </form>
+  </section>
 </div>

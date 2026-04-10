@@ -1,0 +1,59 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h2>System Status</h2>
+      <p>Observe API, database, runtime health, and service diagnostics.</p>
+    </div>
+    <button type="button" (click)="loadSystemStatus()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+  </div>
+
+  <div class="kpi-grid" *ngIf="status">
+    <article class="kpi-card">
+      <h3>API Status</h3>
+      <p>{{ status.apiStatus }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Health</h3>
+      <p>{{ status.overallHealth }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Database</h3>
+      <p>{{ status.databaseStatus }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Uptime (sec)</h3>
+      <p>{{ status.uptimeSeconds }}</p>
+    </article>
+  </div>
+
+  <article class="insight-card" *ngIf="status">
+    <h3>Runtime Details</h3>
+    <p><strong>Server Time:</strong> {{ status.serverTime | date:'medium' }}</p>
+    <p><strong>Java Version:</strong> {{ status.javaVersion }}</p>
+  </article>
+
+  <article class="insight-card" *ngIf="healthDetailsEntries.length > 0">
+    <h3>Health Details</h3>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Status/Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let detail of healthDetailsEntries">
+            <td>{{ detail.key }}</td>
+            <td>{{ detail.value | json }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <div class="empty-state" *ngIf="isLoading && !status">
+    <h3>Loading system status</h3>
+    <p>Collecting live health telemetry from backend services.</p>
+  </div>
+</section>

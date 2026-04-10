@@ -1,38 +1,54 @@
-<!-- File: ./src/app/registration/registration.component.html -->
-<div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
-  <div style="text-align: center; margin-bottom: 20px;">
-    <h1 style="color: #2c3e50; margin: 0;">Create Your Account</h1>
-    <p style="color: #7f8c8d;">Join the Smart Job Portal network</p>
-  </div>
+<div class="auth-layout">
+  <section class="auth-hero">
+    <span class="hero-chip">Join the Platform</span>
+    <h1 class="auth-title">Create your role-based workspace in less than a minute.</h1>
+    <p>
+      Register as a recruiter or job seeker and start managing hiring workflows with
+      clean dashboards, secure auth, and seamless application tracking.
+    </p>
+    <ul class="hero-list">
+      <li>Recruiters can post jobs and update candidate status fast</li>
+      <li>Job seekers can browse, apply, and upload resumes securely</li>
+      <li>Admins get full platform visibility and analytics</li>
+    </ul>
+  </section>
 
-  <form (ngSubmit)="onRegister()" style="width: 100%; max-width: 450px; padding: 40px;">
-    <h2 style="text-align: center; border: none; margin-bottom: 30px;">Register</h2>
-    
-    <div>
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" [(ngModel)]="username" required placeholder="Pick a username">
-    </div>
-    
-    <div>
-      <label for="email">Email Address:</label>
-      <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="Enter your email">
-    </div>
-    
-    <div>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Choose a strong password">
-    </div>
-    
-    <div>
-      <label for="role">Your Role:</label>
-      <select id="role" name="role" [(ngModel)]="role" required>
-        <option value="" disabled selected>Select your role</option>
-        <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
-      </select>
-    </div>
-    
-    <button type="submit" [disabled]="isLoading" style="width: 100%; margin-top: 10px;">{{ isLoading ? 'Registering...' : 'Register' }}</button>
-    
-    <p style="text-align: center; margin-top: 20px;">Already have an account? <a routerLink="/login" style="color: #3498db; text-decoration: none; font-weight: bold;">Login here</a></p>
-  </form>
+  <section class="auth-card-wrap">
+    <form class="auth-card" (ngSubmit)="onRegister()">
+      <div class="form-heading">
+        <h2>Create account</h2>
+        <p>Choose your role and complete your profile setup.</p>
+      </div>
+
+      <div class="field-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" [(ngModel)]="username" required placeholder="Pick a username">
+      </div>
+
+      <div class="field-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="name@example.com">
+      </div>
+
+      <div class="field-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Use at least 6 characters">
+      </div>
+
+      <div class="field-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" [(ngModel)]="role" required>
+          <option value="" disabled>Select your role</option>
+          <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+        </select>
+      </div>
+
+      <button type="submit" [disabled]="isLoading">{{ isLoading ? 'Creating account...' : 'Create Account' }}</button>
+
+      <p class="auth-meta">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
+      </p>
+    </form>
+  </section>
 </div>

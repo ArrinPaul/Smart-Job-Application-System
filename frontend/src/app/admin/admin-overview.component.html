@@ -1,0 +1,138 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h2>Admin Dashboard Overview</h2>
+      <p>Platform-level analytics snapshot across users, jobs, and system activity.</p>
+    </div>
+    <button type="button" (click)="loadSummary()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+  </div>
+
+  <p *ngIf="summary" class="updated-time">Last updated: {{ summary.generatedAt | date:'medium' }}</p>
+
+  <div class="kpi-grid" *ngIf="summary">
+    <article class="kpi-card">
+      <h3>Total Users</h3>
+      <p>{{ summary.kpis.totalUsers }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Total Jobs</h3>
+      <p>{{ summary.kpis.totalJobs }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Total Applications</h3>
+      <p>{{ summary.kpis.totalApplications }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Active Users (30d)</h3>
+      <p>{{ summary.kpis.activeUsers }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Active Jobs (30d)</h3>
+      <p>{{ summary.kpis.activeJobs }}</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Jobs Posted Today</h3>
+      <p>{{ summary.kpis.jobsPostedToday }}</p>
+    </article>
+  </div>
+
+  <div class="charts-grid" *ngIf="summary">
+    <article class="chart-card">
+      <h3>7-Day Job Posting Trends</h3>
+      <canvas #trendChartCanvas></canvas>
+    </article>
+
+    <article class="chart-card">
+      <h3>Weekly Recruiter Activity</h3>
+      <canvas #recruiterChartCanvas></canvas>
+    </article>
+
+    <article class="chart-card full-width">
+      <h3>Application Funnel Conversion</h3>
+      <canvas #funnelChartCanvas></canvas>
+    </article>
+  </div>
+
+  <div class="insight-grid" *ngIf="summary">
+    <article class="insight-card">
+      <h3>Users by Role</h3>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of roleEntries">
+              <td>{{ item.key }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="insight-card">
+      <h3>Applications by Status</h3>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of applicationStatusEntries">
+              <td>{{ item.key }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+
+  <article class="insight-card" *ngIf="summary">
+    <h3>Latest Jobs</h3>
+    <div class="table-wrap" *ngIf="summary.recentJobs.length > 0; else noRecentJobs">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Location</th>
+            <th>Posted By</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let job of summary.recentJobs">
+            <td>{{ job.title }}</td>
+            <td>{{ job.location }}</td>
+            <td>{{ job.postedBy }}</td>
+            <td>{{ job.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noRecentJobs>
+      <div class="empty-state">
+        <h3>No recent jobs</h3>
+        <p>No jobs were posted during the recent period.</p>
+      </div>
+    </ng-template>
+  </article>
+
+  <article class="insight-card" *ngIf="summary">
+    <h3>Metric Notes</h3>
+    <p><strong>Active Users:</strong> {{ summary.metricDefinitions['activeUsers'] }}</p>
+    <p><strong>Active Jobs:</strong> {{ summary.metricDefinitions['activeJobs'] }}</p>
+  </article>
+
+  <div class="empty-state" *ngIf="isLoading && !summary">
+    <h3>Loading dashboard</h3>
+    <p>Fetching latest analytics and system health.</p>
+  </div>
+</section>

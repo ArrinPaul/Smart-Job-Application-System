@@ -1,61 +1,91 @@
-<!-- File: ./src/app/job-list/job-list.component.html -->
-<div class="container">
-  <div class="nav-links">
+<div class="page-shell">
+  <nav class="top-nav">
     <a *ngIf="!isAdmin" routerLink="/jobs" class="active">Browse Jobs</a>
-    <a *ngIf="isAdmin" (click)="toggleView('jobs')" [class.active]="!showUsers">Manage Jobs</a>
-    <a *ngIf="isAdmin" (click)="toggleView('users')" [class.active]="showUsers">Manage Users</a>
+    <button *ngIf="isAdmin" type="button" class="nav-link" (click)="toggleView('jobs')" [class.active]="!showUsers">Manage Jobs</button>
+    <button *ngIf="isAdmin" type="button" class="nav-link" (click)="toggleView('users')" [class.active]="showUsers">Manage Users</button>
     <a *ngIf="!isAdmin" routerLink="/applications">My Applications</a>
-    <a *ngIf="!isAdmin" routerLink="/resume">Upload Resume</a>
-    <button (click)="logout()">Logout</button>
-  </div>
+    <a *ngIf="!isAdmin" routerLink="/resume">Resume Vault</a>
+    <span class="nav-spacer"></span>
+    <button type="button" (click)="logout()">Logout</button>
+  </nav>
 
   <div *ngIf="!showUsers">
-    <h2>{{ isAdmin ? 'All Job Postings' : 'Browse Jobs' }}</h2>
-    
-    <div class="search-section">
-      <input type="text" [(ngModel)]="searchTitle" placeholder="Filter by job title">
-      <input type="text" [(ngModel)]="searchLocation" placeholder="Filter by location">
-      <button (click)="onSearch()" [disabled]="isLoading">{{ isLoading ? 'Searching...' : 'Search' }}</button>
+    <div class="page-header">
+      <div>
+        <h2>{{ isAdmin ? 'All Job Postings' : 'Explore Open Roles' }}</h2>
+        <p>{{ isAdmin ? 'Monitor every listing posted across the platform.' : 'Search by title and location to find your next role.' }}</p>
+      </div>
     </div>
 
-    <div class="job-cards">
-      <div class="job-card" *ngFor="let job of jobs">
+    <section class="panel">
+      <div class="panel-header">
+        <h3>Search Jobs</h3>
+      </div>
+      <div class="search-grid">
+        <input type="text" [(ngModel)]="searchTitle" placeholder="e.g. Frontend Developer">
+        <input type="text" [(ngModel)]="searchLocation" placeholder="e.g. Bengaluru / Remote">
+        <button type="button" (click)="onSearch()" [disabled]="isLoading">{{ isLoading ? 'Searching...' : 'Apply Filters' }}</button>
+      </div>
+    </section>
+
+    <section class="job-cards" *ngIf="jobs.length > 0">
+      <article class="job-card" *ngFor="let job of jobs">
         <h3>{{ job.title }}</h3>
         <p>{{ job.description }}</p>
-        <p><strong>Location:</strong> {{ job.location }}</p>
-        <p><small>Posted on: {{ job.createdAt | date }}</small></p>
-        <button *ngIf="!isAdmin" (click)="onApply(job.id)">Apply Now</button>
-        <p *ngIf="isAdmin"><strong>Posted by:</strong> {{ job.postedBy?.username }}</p>
-      </div>
-      <div *ngIf="jobs.length === 0 && !isLoading">
-        <p>No jobs found.</p>
-      </div>
+        <div class="meta-row">
+          <span><strong>Location:</strong> {{ job.location }}</span>
+          <span><strong>Posted:</strong> {{ job.createdAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="action-row" *ngIf="!isAdmin">
+          <button type="button" class="btn-accent" (click)="onApply(job.id)">Apply Now</button>
+        </div>
+        <div class="meta-row" *ngIf="isAdmin">
+          <span><strong>Posted By:</strong> {{ job.postedBy?.username }}</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="empty-state" *ngIf="jobs.length === 0 && !isLoading">
+      <h3>No jobs found</h3>
+      <p>Try changing filters and search again.</p>
     </div>
   </div>
 
   <div *ngIf="showUsers && isAdmin">
-    <h2>Platform Users</h2>
-    
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.id }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.role }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <div *ngIf="users.length === 0">
-      <p>No users registered yet.</p>
+    <div class="page-header">
+      <div>
+        <h2>Platform Users</h2>
+        <p>Audit registered users and role distribution.</p>
+      </div>
     </div>
+
+    <section class="panel">
+      <div class="table-wrap">
+        <table class="admin-table" *ngIf="users.length > 0; else noUsersTpl">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.role }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noUsersTpl>
+        <div class="empty-state">
+          <h3>No users yet</h3>
+          <p>Registered users will appear here.</p>
+        </div>
+      </ng-template>
+    </section>
   </div>
 </div>

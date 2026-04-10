@@ -69,7 +69,7 @@ export class LoginComponent implements OnDestroy {
         this.router.navigate(['/jobs']);
         break;
       case UserRole.ADMIN:
-        this.router.navigate(['/jobs']);
+        this.router.navigate(['/admin']);
         break;
       default:
         this.router.navigate(['/']);

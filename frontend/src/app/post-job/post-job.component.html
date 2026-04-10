@@ -1,49 +1,67 @@
-<!-- File: ./src/app/post-job/post-job.component.html -->
-<div class="container">
-  <div class="nav-links">
-    <a routerLink="/post-job" class="active">Post Job</a>
-    <a routerLink="/applications">Manage Applications</a>
-    <button (click)="logout()">Logout</button>
+<div class="page-shell">
+  <nav class="top-nav">
+    <a routerLink="/post-job" class="active">Job Studio</a>
+    <a routerLink="/applications">Application Queue</a>
+    <span class="nav-spacer"></span>
+    <button type="button" (click)="logout()">Logout</button>
+  </nav>
+
+  <div class="page-header">
+    <div>
+      <h2>{{ editingJobId ? 'Edit Existing Job' : 'Publish New Job' }}</h2>
+      <p>Create clear role listings and manage all your active openings in one place.</p>
+    </div>
   </div>
 
-  <h2>{{ editingJobId ? 'Edit Job' : 'Post a New Job' }}</h2>
-  
-  <form (ngSubmit)="onPostJob()">
-    <div>
-      <label for="jobTitle">Job Title:</label>
-      <input type="text" id="jobTitle" name="jobTitle" [(ngModel)]="jobTitle" required>
-    </div>
-    <div>
-      <label for="jobDescription">Description:</label>
-      <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription" rows="4"></textarea>
-    </div>
-    <div>
-      <label for="jobLocation">Location:</label>
-      <input type="text" id="jobLocation" name="jobLocation" [(ngModel)]="jobLocation" required>
-    </div>
-    <div style="display: flex; gap: 10px;">
-      <button type="submit" [disabled]="isLoading">{{ editingJobId ? 'Update Job' : 'Post Job' }}</button>
-      <button type="button" *ngIf="editingJobId" (click)="resetForm()" style="background-color: #95a5a6;">Cancel</button>
-    </div>
-  </form>
-
-  <hr style="margin: 40px 0;">
-
-  <h2>My Job Postings</h2>
-  <div *ngIf="myJobs.length === 0">
-    <p>You haven't posted any jobs yet.</p>
-  </div>
-  
-  <div class="job-cards">
-    <div class="job-card" *ngFor="let job of myJobs">
-      <h3>{{ job.title }}</h3>
-      <p>{{ job.description }}</p>
-      <p><strong>Location:</strong> {{ job.location }}</p>
-      <p><small>Posted on: {{ job.createdAt | date }}</small></p>
-      <div style="margin-top: 10px; display: flex; gap: 10px;">
-        <button (click)="editJob(job)" style="background-color: #f39c12; font-size: 14px;">Edit</button>
-        <button (click)="deleteJob(job.id)" style="background-color: #e74c3c; font-size: 14px;">Delete</button>
+  <section class="panel">
+    <form (ngSubmit)="onPostJob()">
+      <div class="field-group">
+        <label for="jobTitle">Job Title</label>
+        <input type="text" id="jobTitle" name="jobTitle" [(ngModel)]="jobTitle" required placeholder="e.g. Senior Backend Engineer">
       </div>
+
+      <div class="field-group">
+        <label for="jobDescription">Description</label>
+        <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription" rows="5" placeholder="Describe responsibilities, requirements, and expectations"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="jobLocation">Location</label>
+        <input type="text" id="jobLocation" name="jobLocation" [(ngModel)]="jobLocation" required placeholder="e.g. Remote / Mumbai">
+      </div>
+
+      <div class="action-row">
+        <button type="submit" [disabled]="isLoading">{{ editingJobId ? 'Update Job' : 'Post Job' }}</button>
+        <button type="button" class="btn-muted" *ngIf="editingJobId" (click)="resetForm()">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h3>My Job Postings</h3>
     </div>
-  </div>
+
+    <div class="job-cards" *ngIf="myJobs.length > 0; else noJobsTpl">
+      <article class="job-card" *ngFor="let job of myJobs">
+        <h3>{{ job.title }}</h3>
+        <p>{{ job.description }}</p>
+        <div class="meta-row">
+          <span><strong>Location:</strong> {{ job.location }}</span>
+          <span><strong>Posted:</strong> {{ job.createdAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="action-row">
+          <button type="button" class="btn-accent" (click)="editJob(job)">Edit</button>
+          <button type="button" class="btn-danger" (click)="deleteJob(job.id)">Delete</button>
+        </div>
+      </article>
+    </div>
+
+    <ng-template #noJobsTpl>
+      <div class="empty-state">
+        <h3>No jobs posted yet</h3>
+        <p>Publish your first role to start receiving applications.</p>
+      </div>
+    </ng-template>
+  </section>
 </div>

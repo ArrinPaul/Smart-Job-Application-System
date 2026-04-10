@@ -4,6 +4,7 @@ package com.edutech.jobportalsystem.controller;
 
 import com.edutech.jobportalsystem.service.JobService;
 import com.edutech.jobportalsystem.service.UserService;
+import com.edutech.jobportalsystem.service.AdminDashboardService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class AdminController {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private AdminDashboardService adminDashboardService;
+
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         logger.info("Admin request: fetching all users");
@@ -34,5 +38,17 @@ public class AdminController {
     public ResponseEntity<?> getAllJobs() {
         logger.info("Admin request: fetching all jobs");
         return ResponseEntity.ok(jobService.getAllJobs());
+    }
+
+    @GetMapping("/dashboard/summary")
+    public ResponseEntity<?> getDashboardSummary() {
+        logger.info("Admin request: fetching dashboard summary");
+        return ResponseEntity.ok(adminDashboardService.getDashboardSummary());
+    }
+
+    @GetMapping("/system/status")
+    public ResponseEntity<?> getSystemStatus() {
+        logger.info("Admin request: fetching system status");
+        return ResponseEntity.ok(adminDashboardService.getSystemStatus());
     }
 }

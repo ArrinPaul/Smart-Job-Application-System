@@ -1,36 +1,65 @@
-<!-- File: ./src/app/applications/applications.component.html -->
-<div class="container">
-  <div class="nav-links">
-    <a *ngIf="isRecruiter" routerLink="/post-job">Post Jobs</a>
-    <a *ngIf="isRecruiter" routerLink="/applications" class="active">Manage Applications</a>
+<div class="page-shell">
+  <nav class="top-nav">
+    <a *ngIf="isRecruiter" routerLink="/post-job">Job Studio</a>
+    <a *ngIf="isRecruiter" routerLink="/applications" class="active">Application Queue</a>
     <a *ngIf="isJobSeeker" routerLink="/jobs">Browse Jobs</a>
     <a *ngIf="isJobSeeker" routerLink="/applications" class="active">My Applications</a>
-    <a *ngIf="isJobSeeker" routerLink="/resume">Upload Resume</a>
-    <button (click)="logout()">Logout</button>
-  </div>
+    <a *ngIf="isJobSeeker" routerLink="/resume">Resume Vault</a>
+    <span class="nav-spacer"></span>
+    <button type="button" (click)="logout()">Logout</button>
+  </nav>
 
-  <h2>{{ isRecruiter ? 'Manage Applications' : 'My Applications' }}</h2>
-
-  <div *ngIf="applications.length === 0 && !isLoading">
-    <p>No applications found.</p>
-  </div>
-
-  <div class="application-cards">
-    <div class="application-card" *ngFor="let app of applications">
-      <h3>{{ app.job.title }}</h3>
-      <p *ngIf="isRecruiter"><strong>Applicant:</strong> {{ app.applicant.username }} ({{ app.applicant.email }})</p>
-      <p><strong>Status:</strong> <span [style.color]="app.status === 'REJECTED' ? 'red' : (app.status === 'HIRED' || app.status === 'SHORTLISTED' ? 'green' : 'inherit')">{{ app.status }}</span></p>
-      <p><strong>Applied on:</strong> {{ app.appliedAt | date }}</p>
-
-      <div *ngIf="isRecruiter" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-        <label for="status-{{ app.id }}">Update Candidate Status:</label>
-        <div style="display: flex; gap: 10px; margin-top: 5px;">
-          <select id="status-{{ app.id }}" [(ngModel)]="app.status" style="flex: 1;">
-            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-          </select>
-          <button (click)="onUpdateStatus(app.id, app.status)" style="font-size: 14px;">Update</button>
-        </div>
-      </div>
+  <div class="page-header">
+    <div>
+      <h2>{{ isRecruiter ? 'Manage Incoming Applications' : 'Track My Applications' }}</h2>
+      <p>{{ isRecruiter ? 'Review candidates and update hiring status quickly.' : 'View all applications and monitor progress in real time.' }}</p>
     </div>
   </div>
+
+  <section class="application-cards" *ngIf="applications.length > 0; else noAppsTpl">
+    <article class="application-card" *ngFor="let app of applications">
+      <h3>{{ app.job.title }}</h3>
+
+      <p *ngIf="isRecruiter">
+        <strong>Applicant:</strong>
+        {{ app.applicant.username }} ({{ app.applicant.email }})
+      </p>
+
+      <div class="meta-row">
+        <span>
+          <strong>Status:</strong>
+          <span
+            class="status-pill"
+            [ngClass]="{
+              'status-pill--bad': app.status === 'REJECTED',
+              'status-pill--good': app.status === 'HIRED' || app.status === 'SHORTLISTED',
+              'status-pill--neutral': app.status === 'APPLIED'
+            }"
+          >
+            {{ app.status }}
+          </span>
+        </span>
+        <span><strong>Applied:</strong> {{ app.appliedAt | date:'mediumDate' }}</span>
+      </div>
+
+      <div *ngIf="isRecruiter" class="panel compact status-editor">
+        <div class="field-group">
+          <label for="status-{{ app.id }}">Update Candidate Status</label>
+          <div class="action-row">
+            <select id="status-{{ app.id }}" [(ngModel)]="app.status">
+              <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+            </select>
+            <button type="button" (click)="onUpdateStatus(app.id, app.status)">Update Status</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #noAppsTpl>
+    <div class="empty-state" *ngIf="!isLoading">
+      <h3>No applications found</h3>
+      <p>{{ isRecruiter ? 'Applications will appear here once candidates apply.' : 'Apply for jobs to start tracking your progress.' }}</p>
+    </div>
+  </ng-template>
 </div>

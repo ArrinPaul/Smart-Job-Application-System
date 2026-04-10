@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/user.model';
 import { Job, Application, UpdateApplicationStatusRequest } from '../models/job.model';
+import { AdminDashboardSummary, AdminSystemStatus } from '../models/admin.model';
 
 /**
  * HTTP Service for all API communication
@@ -166,10 +167,24 @@ export class HttpService {
   }
 
   /**
-   * Get admin dashboard data
+   * Get all jobs (Admin only)
    */
-  getDashboard(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/admin/dashboard`);
+  getAllJobsAdmin(): Observable<Job[]> {
+    return this.http.get<Job[]>(`${this.apiUrl}/admin/jobs`);
+  }
+
+  /**
+   * Get admin dashboard summary
+   */
+  getAdminDashboardSummary(): Observable<AdminDashboardSummary> {
+    return this.http.get<AdminDashboardSummary>(`${this.apiUrl}/admin/dashboard/summary`);
+  }
+
+  /**
+   * Get admin system status
+   */
+  getAdminSystemStatus(): Observable<AdminSystemStatus> {
+    return this.http.get<AdminSystemStatus>(`${this.apiUrl}/admin/system/status`);
   }
 
   /**

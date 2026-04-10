@@ -1,0 +1,12 @@
+<div class="page-shell admin-shell">
+  <nav class="top-nav admin-nav">
+    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Overview</a>
+    <a routerLink="/admin/users" routerLinkActive="active">Users</a>
+    <a routerLink="/admin/jobs" routerLinkActive="active">Jobs</a>
+    <a routerLink="/admin/system" routerLinkActive="active">System</a>
+    <span class="nav-spacer admin-welcome">Welcome, {{ username }}</span>
+    <button type="button" (click)="logout()">Logout</button>
+  </nav>
+
+  <router-outlet></router-outlet>
+</div>

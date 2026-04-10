@@ -1,0 +1,39 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h2>User Management</h2>
+      <p>Review all users with roles and account identifiers.</p>
+    </div>
+    <button type="button" (click)="loadUsers()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+  </div>
+
+  <article class="panel" *ngIf="users.length > 0; else noUsersTpl">
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <ng-template #noUsersTpl>
+    <div class="empty-state" *ngIf="!isLoading">
+      <h3>No users found</h3>
+      <p>Users will appear here as soon as they register.</p>
+    </div>
+  </ng-template>
+</section>
