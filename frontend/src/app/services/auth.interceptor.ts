@@ -89,9 +89,13 @@ export class AuthInterceptor implements HttpInterceptor {
 
       case 401:
         // Unauthorized
-        errorMessage = error.error?.message || '🔐 Session expired - please login again';
+        if (error.url?.includes('/auth/login')) {
+          errorMessage = error.error?.message || '❌ Invalid credentials or email not verified';
+        } else {
+          errorMessage = error.error?.message || '🔐 Session expired - please login again';
+          this.authService.logout(); // Clear session on non-login 401
+        }
         errorType = 'error';
-        this.authService.logout(); // Clear session on 401
         break;
 
       case 403:

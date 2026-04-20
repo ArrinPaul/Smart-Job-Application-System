@@ -10,7 +10,6 @@ import com.edutech.jobportalsystem.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,14 +46,6 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        if (isLocked(user)) {
-            throw new LockedException("Account temporarily locked");
-        }
-
-        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
-            throw new DisabledException("Email verification required");
-        }
-
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -80,9 +71,9 @@ public class UserService implements UserDetailsService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setEmailVerified(false);
-        user.setEmailVerificationToken(generateSecureToken());
-        user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(VERIFICATION_TOKEN_HOURS));
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationExpiry(null);
         user.setFailedLoginAttempts(0);
         user.setLockUntil(null);
         user.setTokenVersion(0L);
@@ -103,13 +94,7 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean requiresCaptcha(String username) {
-        if (username == null || username.isBlank()) {
-            return false;
-        }
-
-        return userRepository.findByUsername(normalizeUsername(username))
-                .map(user -> user.getFailedLoginAttempts() != null && user.getFailedLoginAttempts() >= CAPTCHA_THRESHOLD)
-                .orElse(false);
+        return false;
     }
 
     public void onAuthenticationFailure(String username, String remoteIp, String userAgent) {
@@ -118,29 +103,15 @@ public class UserService implements UserDetailsService {
             return;
         }
 
-        userRepository.findByUsername(normalizeUsername(username)).ifPresentOrElse(user -> {
-            int failedAttempts = user.getFailedLoginAttempts() == null ? 0 : user.getFailedLoginAttempts();
-            failedAttempts += 1;
-            user.setFailedLoginAttempts(failedAttempts);
-
-            if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
-                user.setLockUntil(LocalDateTime.now().plusMinutes(LOCK_MINUTES));
-                user.setFailedLoginAttempts(0);
-                logger.warn("Account locked for user {} due to repeated failed attempts from {}", user.getUsername(), remoteIp);
-            }
-
-            userRepository.save(user);
-            logger.warn("Failed login for user {} from IP {} and agent {}", user.getUsername(), remoteIp, abbreviate(userAgent, 100));
-        }, () -> logger.warn("Failed login for unknown username {} from {}", username, remoteIp));
+        userRepository.findByUsername(normalizeUsername(username)).ifPresentOrElse(
+                user -> logger.warn("Failed login for user {} from IP {} and agent {}", user.getUsername(), remoteIp, abbreviate(userAgent, 100)),
+                () -> logger.warn("Failed login for unknown username {} from {}", username, remoteIp)
+        );
     }
 
     public User onAuthenticationSuccess(String username, String remoteIp, String userAgent) {
         User user = userRepository.findByUsername(normalizeUsername(username))
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-
-        if (isLocked(user)) {
-            throw new LockedException("Account temporarily locked");
-        }
 
         if (user.getLastLoginIp() != null && !user.getLastLoginIp().equals(remoteIp)) {
             logger.warn("Unusual login location change for user {}: {} -> {}", user.getUsername(), user.getLastLoginIp(), remoteIp);
@@ -243,10 +214,6 @@ public class UserService implements UserDetailsService {
         logger.debug("Fetching user by username: {}", username);
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-    }
-
-    private boolean isLocked(User user) {
-        return user.getLockUntil() != null && user.getLockUntil().isAfter(LocalDateTime.now());
     }
 
     private String generateSecureToken() {

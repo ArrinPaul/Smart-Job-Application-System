@@ -11,7 +11,6 @@ import com.edutech.jobportalsystem.entity.User;
 import com.edutech.jobportalsystem.exception.BadRequestException;
 import com.edutech.jobportalsystem.jwt.JwtUtil;
 import com.edutech.jobportalsystem.service.AuthNotificationService;
-import com.edutech.jobportalsystem.service.CaptchaService;
 import com.edutech.jobportalsystem.service.TotpService;
 import com.edutech.jobportalsystem.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,9 +49,6 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private CaptchaService captchaService;
-
-    @Autowired
     private TotpService totpService;
 
     @Autowired
@@ -75,13 +71,12 @@ public class AuthController {
         logger.info("Registering user request received for username: {}", request.getUsername());
 
         try {
-            User user = userService.registerUser(request);
-            authNotificationService.sendEmailVerification(user);
+            userService.registerUser(request);
         } catch (BadRequestException ex) {
             logger.warn("Registration request handled with generic response");
         }
 
-        return ResponseEntity.ok(Map.of("message", "If the account can be created, verification instructions will be sent."));
+        return ResponseEntity.ok(Map.of("message", "Registration request processed successfully."));
     }
 
     @PostMapping("/login")
@@ -89,12 +84,6 @@ public class AuthController {
                                        HttpServletRequest httpRequest,
                                        HttpServletResponse httpResponse) {
         logger.info("Login request for user: {}", request.getUsername());
-
-        if (userService.requiresCaptcha(request.getUsername())
-                && !captchaService.verifyToken(request.getCaptchaToken(), httpRequest.getRemoteAddr())) {
-            userService.onAuthenticationFailure(request.getUsername(), httpRequest.getRemoteAddr(), httpRequest.getHeader("User-Agent"));
-            throw new BadCredentialsException("Invalid credentials");
-        }
 
         try {
             authenticationManager.authenticate(

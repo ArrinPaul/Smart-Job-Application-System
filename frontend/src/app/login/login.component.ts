@@ -1,5 +1,5 @@
 // File: ./src/app/login/login.component.ts
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -71,9 +71,14 @@ export class LoginComponent implements OnDestroy {
         },
         error: (error) => {
           this.isLoading = false;
-          // Error is already handled by the interceptor
-          // Just log for debugging
-          console.error('Login failed:', error);
+          // Interceptor already displays user-facing error toasts.
+          if (isDevMode()) {
+            console.warn('Login failed', {
+              status: error?.status,
+              url: error?.url,
+              message: error?.error?.message || error?.message
+            });
+          }
         }
       });
   }

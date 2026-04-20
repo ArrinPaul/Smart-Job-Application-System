@@ -5,6 +5,7 @@ package com.edutech.jobportalsystem.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -62,6 +63,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<?> handleLockedException(LockedException ex) {
         logger.warn("Locked user login attempt");
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.UNAUTHORIZED.value());
+        response.put("error", "Authentication Failed");
+        response.put("message", "Invalid credentials");
+        response.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException ex) {
+        logger.warn("Authentication failure: {}", ex.getClass().getSimpleName());
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.UNAUTHORIZED.value());
         response.put("error", "Authentication Failed");
