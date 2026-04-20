@@ -26,17 +26,18 @@ import { takeUntil } from 'rxjs/operators';
   styles: [`
     .toast-container {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 18px;
+      right: 18px;
       z-index: 9999;
       pointer-events: none;
     }
 
     .toast {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       padding: 16px;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 14px 24px rgba(56, 39, 20, 0.2);
       animation: slideIn 0.3s ease-in-out;
       pointer-events: auto;
       display: flex;
@@ -44,6 +45,8 @@ import { takeUntil } from 'rxjs/operators';
       align-items: center;
       min-width: 300px;
       max-width: 500px;
+      position: relative;
+      overflow: hidden;
     }
 
     .toast-content {
@@ -57,7 +60,8 @@ import { takeUntil } from 'rxjs/operators';
     .toast-message {
       flex: 1;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
+      line-height: 1.45;
     }
 
     .toast-close {
@@ -65,10 +69,11 @@ import { takeUntil } from 'rxjs/operators';
       border: none;
       color: currentColor;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 22px;
       padding: 0;
-      opacity: 0.7;
+      opacity: 0.75;
       transition: opacity 0.2s;
+      box-shadow: none;
     }
 
     .toast-close:hover {
@@ -79,34 +84,34 @@ import { takeUntil } from 'rxjs/operators';
       position: absolute;
       bottom: 0;
       left: 0;
-      height: 3px;
+      height: 4px;
       background: currentColor;
-      border-radius: 0 0 4px 0;
+      border-radius: 0 0 14px 0;
       animation: progress linear forwards;
     }
 
     .toast-success {
-      background-color: #d4edda;
-      color: #155724;
-      border-left: 4px solid #28a745;
+      background-color: #ecf7ef;
+      color: #1b5f3c;
+      border-left: 4px solid #287548;
     }
 
     .toast-error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border-left: 4px solid #dc3545;
+      background-color: #ffebe8;
+      color: #7a251c;
+      border-left: 4px solid #b83629;
     }
 
     .toast-warning {
-      background-color: #fff3cd;
-      color: #856404;
-      border-left: 4px solid #ffc107;
+      background-color: #fff4df;
+      color: #7a5a20;
+      border-left: 4px solid #c4831e;
     }
 
     .toast-info {
-      background-color: #d1ecf1;
-      color: #0c5460;
-      border-left: 4px solid #17a2b8;
+      background-color: #e6f4f6;
+      color: #165967;
+      border-left: 4px solid #17768a;
     }
 
     @keyframes slideIn {

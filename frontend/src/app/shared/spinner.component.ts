@@ -24,29 +24,38 @@ import { CommonModule } from '@angular/common';
       display: flex;
       justify-content: center;
       align-items: center;
-      background: rgba(0, 0, 0, 0.4);
+      background:
+        radial-gradient(circle at center, rgba(255, 252, 247, 0.36), rgba(45, 34, 26, 0.72));
       z-index: 9000;
+      backdrop-filter: blur(2px);
     }
 
     .spinner {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
+      padding: 26px 28px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(33, 28, 23, 0.7);
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.24);
     }
 
     .spinner-circle {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
+      width: 54px;
+      height: 54px;
+      border: 4px solid rgba(255, 255, 255, 0.28);
       border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s linear infinite;
+      border-top-color: #f3b56f;
+      border-right-color: #bb3e2d;
+      animation: spin 0.9s linear infinite;
     }
 
     .spinner-message {
-      color: #fff;
-      font-size: 16px;
+      color: #fff3e3;
+      font-size: 15px;
+      font-weight: 600;
       margin: 0;
     }
 

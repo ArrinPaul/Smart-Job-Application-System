@@ -8,12 +8,11 @@
 }
 
 .admin-nav a.active {
-  background: #1f6fa8;
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
 .admin-welcome {
-  color: #ecf0f1;
+  color: #f6e5d0;
   margin-left: auto;
   font-size: 14px;
 }
