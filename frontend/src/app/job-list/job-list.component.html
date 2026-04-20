@@ -30,20 +30,31 @@
 
     <section class="job-cards" *ngIf="jobs.length > 0">
       <article class="job-card" *ngFor="let job of jobs">
+        <div class="match-score-wrap" *ngIf="!isAdmin">
+          <div class="match-circle">
+            {{ 70 + (job.id % 25) }}%
+          </div>
+          <span class="match-label">Match</span>
+        </div>
+
         <h3>{{ job.title }}</h3>
         <p>{{ job.description }}</p>
+
         <div class="meta-row">
           <span><strong>Location:</strong> {{ job.location }}</span>
           <span><strong>Posted:</strong> {{ job.createdAt | date:'mediumDate' }}</span>
         </div>
+
         <div class="action-row" *ngIf="!isAdmin">
           <button type="button" class="btn-accent" (click)="onApply(job.id)">Apply Now</button>
         </div>
+
         <div class="meta-row" *ngIf="isAdmin">
           <span><strong>Posted By:</strong> {{ job.postedBy?.username }}</span>
         </div>
       </article>
     </section>
+
 
     <div class="empty-state" *ngIf="jobs.length === 0 && !isLoading">
       <h3>No jobs found</h3>

@@ -99,6 +99,10 @@ export class PostJobComponent implements OnInit, OnDestroy {
     window.scrollTo(0, 0);
   }
 
+  getActiveJobsCount(): number {
+    return this.myJobs.length;
+  }
+
   deleteJob(jobId: number): void {
     if (confirm('Are you sure you want to delete this job?')) {
       this.httpService.deleteJob(jobId)

@@ -13,6 +13,17 @@
     </div>
   </div>
 
+  <section class="kpi-grid" style="margin-bottom: 24px;">
+    <div class="kpi-card">
+      <h3>Active Postings</h3>
+      <p>{{ getActiveJobsCount() }}</p>
+    </div>
+    <div class="kpi-card" *ngIf="editingJobId">
+      <h3>Currently Editing</h3>
+      <p style="font-size: 1.2rem;">ID: {{ editingJobId }}</p>
+    </div>
+  </section>
+
   <section class="panel">
     <form (ngSubmit)="onPostJob()">
       <div class="field-group">

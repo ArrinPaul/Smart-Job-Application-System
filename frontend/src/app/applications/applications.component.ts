@@ -36,6 +36,31 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     this.loadApplications();
   }
 
+  getStepStatus(appStatus: string, stepName: string): string {
+    const statuses = ['APPLIED', 'SHORTLISTED', 'HIRED', 'REJECTED'];
+    const currentIdx = statuses.indexOf(appStatus);
+    
+    if (appStatus === 'REJECTED' && stepName === 'REJECTED') return 'rejected';
+    if (appStatus === 'REJECTED' && stepName !== 'APPLIED') return '';
+    
+    if (stepName === 'APPLIED') {
+      return currentIdx >= 0 ? 'completed' : '';
+    }
+    if (stepName === 'SHORTLISTED') {
+      if (appStatus === 'SHORTLISTED') return 'active';
+      return currentIdx > 1 ? 'completed' : '';
+    }
+    if (stepName === 'HIRED') {
+      if (appStatus === 'HIRED') return 'completed';
+      return '';
+    }
+    return '';
+  }
+
+  getApplicationsCount(status: string): number {
+    return this.applications.filter(app => app.status === status).length;
+  }
+
   loadApplications(): void {
     this.isLoading = true;
     if (this.isRecruiter) {

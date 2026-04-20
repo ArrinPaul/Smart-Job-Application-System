@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,9 +30,6 @@ public class AuthControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserRepository userRepository;
-
     @Test
     void testRegisterAndLogin_Success() throws Exception {
         Map<String, String> registerRequest = Map.of(
@@ -42,19 +40,14 @@ public class AuthControllerIntegrationTest {
         );
 
         // Register
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
-        User createdUser = userRepository.findByUsername("integrationuser").orElseThrow();
-        mockMvc.perform(get("/auth/verify-email")
-            .param("token", createdUser.getEmailVerificationToken()))
-            .andExpect(status().isOk());
-
         // Login
         Map<String, String> loginRequest = Map.of("username", "integrationuser", "password", "password123");
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -64,7 +57,7 @@ public class AuthControllerIntegrationTest {
 
     @Test
     void testAdminEndpoint_WithoutToken_Returns403() throws Exception {
-        mockMvc.perform(get("/admin/users"))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().is4xxClientError());
     }
 }

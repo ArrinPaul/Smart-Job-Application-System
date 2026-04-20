@@ -15,17 +15,29 @@
   </div>
 
   <section class="panel narrow">
-    <div *ngIf="hasResume" style="background: var(--light-gray); padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
-      <p style="margin: 0; color: var(--text-dark); font-weight: 500;">Current Resume: {{ resume?.fileName }}</p>
-      <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: var(--text-muted);">Uploaded: {{ resume?.uploadedAt | date:'medium' }}</p>
+    <div *ngIf="hasResume" class="panel compact" style="margin-bottom: 2rem; background: var(--surface-soft);">
+      <div style="display: flex; gap: 16px; align-items: flex-start;">
+        <div class="resume-icon-box" [class.doc]="resume?.fileName?.endsWith('.doc') || resume?.fileName?.endsWith('.docx')">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--ink-soft);"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <h3 style="font-size: 1rem; margin-bottom: 4px;">{{ resume?.fileName }}</h3>
+          <p style="font-size: 13px;">Uploaded: {{ resume?.uploadedAt | date:'medium' }}</p>
+          <span class="status-pill status-pill--good" style="margin-top: 8px;">Active Profile</span>
+        </div>
+      </div>
     </div>
 
     <div class="field-group">
-      <label for="fileInput">Select Resume File</label>
-      <input id="fileInput" type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx">
+      <label for="fileInput">Update Career Document</label>
+      <div class="panel compact" style="border: 2px dashed var(--border); text-align: center; padding: 40px 20px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; color: var(--brand);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p style="margin-bottom: 16px;">Drag and drop or click to choose a file</p>
+        <input id="fileInput" type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" style="max-width: 300px; margin: 0 auto;">
+      </div>
     </div>
 
-    <p>Supported formats: PDF, DOC, DOCX. Maximum file size: 5MB.</p>
+    <p style="font-size: 13px; text-align: center; margin-top: 12px;">Supported formats: <strong>PDF, DOC, DOCX</strong>. Max size: <strong>5MB</strong>.</p>
 
     <div class="meta-row" *ngIf="selectedFile">
       <span><strong>Selected:</strong> {{ selectedFile.name }}</span>

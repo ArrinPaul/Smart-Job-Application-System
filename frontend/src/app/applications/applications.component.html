@@ -16,30 +16,65 @@
     </div>
   </div>
 
+  <section class="kpi-grid" style="margin-bottom: 24px;" *ngIf="applications.length > 0">
+    <div class="kpi-card">
+      <h3>Total Applications</h3>
+      <p>{{ applications.length }}</p>
+    </div>
+    <div class="kpi-card" *ngIf="isJobSeeker">
+      <h3>Shortlisted</h3>
+      <p>{{ getApplicationsCount('SHORTLISTED') }}</p>
+    </div>
+    <div class="kpi-card" *ngIf="isRecruiter">
+      <h3>Pending Review</h3>
+      <p>{{ getApplicationsCount('APPLIED') }}</p>
+    </div>
+  </section>
+
   <section class="application-cards" *ngIf="applications.length > 0; else noAppsTpl">
     <article class="application-card" *ngFor="let app of applications">
-      <h3>{{ app.job.title }}</h3>
+      <div class="panel-header">
+        <h3>{{ app.job.title }}</h3>
+        <span
+          class="status-pill"
+          [ngClass]="{
+            'status-pill--bad': app.status === 'REJECTED',
+            'status-pill--good': app.status === 'HIRED' || app.status === 'SHORTLISTED',
+            'status-pill--neutral': app.status === 'APPLIED'
+          }"
+        >
+          {{ app.status }}
+        </span>
+      </div>
 
       <p *ngIf="isRecruiter">
         <strong>Applicant:</strong>
         {{ app.applicant.username }} ({{ app.applicant.email }})
       </p>
 
+      <!-- Application Timeline -->
+      <div class="application-timeline">
+        <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'APPLIED')">
+          <div class="step-dot"></div>
+          <span class="step-label">Applied</span>
+        </div>
+        <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'SHORTLISTED')">
+          <div class="step-dot"></div>
+          <span class="step-label">Review</span>
+        </div>
+        <div class="timeline-step" *ngIf="app.status !== 'REJECTED'" [ngClass]="getStepStatus(app.status, 'HIRED')">
+          <div class="step-dot"></div>
+          <span class="step-label">Outcome</span>
+        </div>
+        <div class="timeline-step rejected" *ngIf="app.status === 'REJECTED'">
+          <div class="step-dot"></div>
+          <span class="step-label">Rejected</span>
+        </div>
+      </div>
+
       <div class="meta-row">
-        <span>
-          <strong>Status:</strong>
-          <span
-            class="status-pill"
-            [ngClass]="{
-              'status-pill--bad': app.status === 'REJECTED',
-              'status-pill--good': app.status === 'HIRED' || app.status === 'SHORTLISTED',
-              'status-pill--neutral': app.status === 'APPLIED'
-            }"
-          >
-            {{ app.status }}
-          </span>
-        </span>
         <span><strong>Applied:</strong> {{ app.appliedAt | date:'mediumDate' }}</span>
+        <span><strong>Location:</strong> {{ app.job.location }}</span>
       </div>
 
       <div *ngIf="isRecruiter && app.resume" class="action-row" style="margin-top: 1rem;">
@@ -61,6 +96,7 @@
       </div>
     </article>
   </section>
+
 
   <ng-template #noAppsTpl>
     <div class="empty-state" *ngIf="!isLoading">
