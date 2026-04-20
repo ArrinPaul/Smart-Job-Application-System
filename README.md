@@ -14,7 +14,7 @@ The Smart Job Portal System is an integrated platform designed to streamline the
 
 ## Technology Stack
 
-- **Backend**: Spring Boot 3.2.0, Spring Data JPA, MySQL
+- **Backend**: Spring Boot 3.2.0, Spring Data JPA, PostgreSQL (Supabase)
 - **Frontend**: Angular
 - **Security**: Spring Security, JSON Web Token (JWT)
 - **Language**: Java 17
@@ -28,8 +28,14 @@ The Smart Job Portal System is an integrated platform designed to streamline the
 
 - JDK 17
 - Maven
-- MySQL
+- PostgreSQL (Supabase)
 - Node.js & npm (for Angular)
+
+## Database Status
+
+- This project is database-integrated with PostgreSQL using Spring Data JPA.
+- Runtime schema management uses Flyway migrations + Hibernate validate.
+- App startup runs migration `backend/src/main/resources/db/migration/supabase/V1__init_job_portal.sql`.
 
 ## Getting Started
 
@@ -40,13 +46,14 @@ The Smart Job Portal System is an integrated platform designed to streamline the
    ```bash
    cp .env.example .env
    ```
-3. For Railway MySQL, the `.env` file should include:
+3. Configure PostgreSQL/Supabase values in `.env`:
    ```properties
-   MYSQLHOST=switchyard.proxy.rlwy.net
-   MYSQLPORT=16937
-   MYSQLDATABASE=railway
-   MYSQLUSER=root
-   MYSQLPASSWORD=YOUR_PASSWORD
+   SPRING_PROFILES_ACTIVE=supabase
+   SUPABASE_DB_HOST=aws-1-ap-northeast-1.pooler.supabase.com
+   SUPABASE_DB_PORT=6543
+   SUPABASE_DB_NAME=postgres
+   SUPABASE_DB_USER=postgres.xsroytgypeekyuixhysy
+   SUPABASE_DB_PASSWORD=YOUR_PASSWORD
    SERVER_PORT=8080
    HIKARI_MAX_POOL=20
    ```
@@ -55,23 +62,34 @@ The Smart Job Portal System is an integrated platform designed to streamline the
    mvn clean spring-boot:run
    ```
 
-### Backend Setup - Railway Deployment
+### Backend Setup - Supabase PostgreSQL (Optional)
 
-1. **Create Railway Project**: Go to [railway.app](https://railway.app) and create a new project.
-2. **Add MySQL**: Provision a MySQL database service.
-3. **Set Environment Variables**: In the Railway dashboard, set these variables:
-   - `MYSQLHOST` - Railway MySQL host
-   - `MYSQLPORT` - Railway MySQL port
-   - `MYSQLDATABASE` - Railway MySQL database name
-   - `MYSQLUSER` - Railway MySQL username
-   - `MYSQLPASSWORD` - Railway MySQL password
-   - `SERVER_PORT` - Leave empty (Railway sets this)
-   - `JWT_SECRET` - Your JWT secret key
-   - `CORS_ALLOWED_ORIGINS` - Your frontend URL (e.g., `https://yourapp.railway.app`)
+1. In Supabase, create a project and copy your database connection details (host, port, db, user, password).
+2. Apply migration from this repository in Supabase SQL Editor:
+   - `supabase/migrations/20260420_000001_init_job_portal.sql`
+3. Configure backend environment (copy from `.env.example`):
+   ```properties
+   SPRING_PROFILES_ACTIVE=supabase
+   SUPABASE_DB_HOST=...
+   SUPABASE_DB_PORT=5432
+   SUPABASE_DB_NAME=postgres
+   SUPABASE_DB_USER=postgres
+   SUPABASE_DB_PASSWORD=...
+   ```
+4. Start backend as usual:
+   ```bash
+   mvn clean spring-boot:run
+   ```
 
-4. **Deploy**: Connect your Git repository and Railway will auto-deploy on every push.
+Notes:
+- Supabase anon key is for frontend client access, not for backend JDBC DB connection.
+- Backend profile for Supabase is defined in `backend/src/main/resources/application-supabase.properties`.
 
-For detailed configuration, see [RAILWAY_SETUP.md](RAILWAY_SETUP.md).
+### Backend Setup - Deployment Notes
+
+1. Set `SPRING_PROFILES_ACTIVE=supabase` in deployment environment.
+2. Set the Supabase DB environment variables from `.env.example`.
+3. Flyway migration runs automatically during startup.
 
 ### Frontend Setup
 

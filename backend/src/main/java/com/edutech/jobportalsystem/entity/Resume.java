@@ -28,8 +28,7 @@ public class Resume {
 
     private String fileType;
 
-    @Lob
-    @Column(name = "data", columnDefinition = "LONGBLOB")
+    @Column(name = "data", columnDefinition = "bytea")
     @JsonIgnore
     private byte[] data;
 
