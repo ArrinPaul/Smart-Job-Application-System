@@ -124,6 +124,10 @@ export class PostJobComponent implements OnInit, OnDestroy {
       this.toastService.showWarning('Job title is required');
       return false;
     }
+    if (!this.jobDescription.trim()) {
+      this.toastService.showWarning('Job description is required');
+      return false;
+    }
     if (!this.jobLocation.trim()) {
       this.toastService.showWarning('Job location is required');
       return false;

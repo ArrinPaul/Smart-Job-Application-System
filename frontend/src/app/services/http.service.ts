@@ -33,6 +33,13 @@ export class HttpService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, request);
   }
 
+  /**
+   * Logout user and clear auth cookie
+   */
+  logout(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/logout`, {});
+  }
+
   // ==================== JOB MANAGEMENT ====================
 
   /**

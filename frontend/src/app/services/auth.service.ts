@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { HttpService } from './http.service';
 import { UserRole } from '../models/user.model';
 
 @Injectable({
@@ -11,7 +13,10 @@ export class AuthService {
   private readonly MFA_OTP_KEY = 'jobportal_mfa_otp_code';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
 
-  constructor() {}
+  constructor(
+    private router: Router,
+    private httpService: HttpService
+  ) {}
 
   /**
    * Save authentication session metadata (token remains in HttpOnly cookie)
@@ -100,12 +105,10 @@ export class AuthService {
    * Logout and clear session
    */
   logout(): void {
-    localStorage.removeItem(this.ROLE_KEY);
-    localStorage.removeItem(this.MFA_KEY);
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
-    sessionStorage.removeItem(this.MFA_OTP_KEY);
-    this.loggedIn$.next(false);
+    this.httpService.logout().subscribe({
+      next: () => this.finalizeLogout(),
+      error: () => this.finalizeLogout()
+    });
   }
 
   /**
@@ -125,5 +128,18 @@ export class AuthService {
 
   getMfaOtpCode(): string | null {
     return sessionStorage.getItem(this.MFA_OTP_KEY);
+  }
+
+  private finalizeLogout(): void {
+    localStorage.removeItem(this.ROLE_KEY);
+    localStorage.removeItem(this.MFA_KEY);
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    sessionStorage.removeItem(this.MFA_OTP_KEY);
+    this.loggedIn$.next(false);
+
+    this.router.navigate(['/login']).catch(() => {
+      window.location.href = '/login';
+    });
   }
 }
