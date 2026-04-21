@@ -25,6 +25,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
   myJobs: Job[] = [];
   editingJobId: number | null = null;
   private destroy$ = new Subject<void>();
+  private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private httpService: HttpService,
@@ -35,6 +36,15 @@ export class PostJobComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadMyJobs();
+    this.startAutoRefresh();
+  }
+
+  private startAutoRefresh(): void {
+    this.refreshTimer = setInterval(() => {
+      if (!this.isLoading) {
+        this.loadMyJobs();
+      }
+    }, 10000);
   }
 
   loadMyJobs(): void {
@@ -148,6 +158,10 @@ export class PostJobComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }

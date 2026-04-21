@@ -105,9 +105,16 @@ export class AuthService {
    * Logout and clear session
    */
   logout(): void {
+    // Make logout UX immediate even if network/backend is temporarily unavailable.
+    this.finalizeLogout();
+
     this.httpService.logout().subscribe({
-      next: () => this.finalizeLogout(),
-      error: () => this.finalizeLogout()
+      next: () => {
+        // No-op: client state already cleared.
+      },
+      error: () => {
+        // No-op: client state already cleared.
+      }
     });
   }
 

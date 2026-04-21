@@ -5,7 +5,7 @@
 
 param(
     [ValidateSet("local", "supabase")]
-    [string]$Profile = "local"
+    [string]$Profile = "supabase"
 )
 
 Set-Location $PSScriptRoot

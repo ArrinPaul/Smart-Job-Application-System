@@ -26,6 +26,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   isAdmin = false;
   showUsers = false;
   private destroy$ = new Subject<void>();
+  private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private httpService: HttpService,
@@ -36,9 +37,18 @@ export class JobListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
     this.loadJobs();
+    this.startAutoRefresh();
     if (this.isAdmin) {
       this.loadUsers();
     }
+  }
+
+  private startAutoRefresh(): void {
+    this.refreshTimer = setInterval(() => {
+      if (!this.isLoading) {
+        this.loadJobs();
+      }
+    }, 12000);
   }
 
   loadJobs(): void {
@@ -95,6 +105,10 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
