@@ -1,56 +1,63 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { RegistrationComponent } from './registration/registration.component';
-import { JobListComponent } from './job-list/job-list.component';
-import { PostJobComponent } from './post-job/post-job.component';
-import { ApplicationsComponent } from './applications/applications.component';
-import { ResumeComponent } from './resume/resume.component';
-import { AdminShellComponent } from './admin/admin-shell.component';
-import { AdminOverviewComponent } from './admin/admin-overview.component';
-import { AdminUsersComponent } from './admin/admin-users.component';
-import { AdminJobsComponent } from './admin/admin-jobs.component';
-import { AdminSystemComponent } from './admin/admin-system.component';
 import { AuthGuard } from './services/auth.guard';
 import { RoleGuard } from './services/auth.guard';
 import { UserRole } from './models/user.model';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegistrationComponent },
+  {
+    path: 'login',
+    loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./registration/registration.component').then(m => m.RegistrationComponent)
+  },
   {
     path: 'jobs',
-    component: JobListComponent,
+    loadComponent: () => import('./job-list/job-list.component').then(m => m.JobListComponent),
     canActivate: [AuthGuard]
   },
   {
     path: 'post-job',
-    component: PostJobComponent,
+    loadComponent: () => import('./post-job/post-job.component').then(m => m.PostJobComponent),
     canActivate: [RoleGuard],
     data: { roles: [UserRole.RECRUITER] }
   },
   {
     path: 'applications',
-    component: ApplicationsComponent,
+    loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent),
     canActivate: [RoleGuard],
     data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] }
   },
   {
     path: 'resume',
-    component: ResumeComponent,
+    loadComponent: () => import('./resume/resume.component').then(m => m.ResumeComponent),
     canActivate: [RoleGuard],
     data: { roles: [UserRole.JOB_SEEKER] }
   },
   {
     path: 'admin',
-    component: AdminShellComponent,
+    loadComponent: () => import('./admin/admin-shell.component').then(m => m.AdminShellComponent),
     canActivate: [RoleGuard],
     data: { roles: [UserRole.ADMIN] },
     children: [
-      { path: '', component: AdminOverviewComponent },
-      { path: 'users', component: AdminUsersComponent },
-      { path: 'jobs', component: AdminJobsComponent },
-      { path: 'system', component: AdminSystemComponent }
+      {
+        path: '',
+        loadComponent: () => import('./admin/admin-overview.component').then(m => m.AdminOverviewComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./admin/admin-users.component').then(m => m.AdminUsersComponent)
+      },
+      {
+        path: 'jobs',
+        loadComponent: () => import('./admin/admin-jobs.component').then(m => m.AdminJobsComponent)
+      },
+      {
+        path: 'system',
+        loadComponent: () => import('./admin/admin-system.component').then(m => m.AdminSystemComponent)
+      }
     ]
   },
   {

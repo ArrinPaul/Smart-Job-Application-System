@@ -46,7 +46,11 @@ The Smart Job Portal System is an integrated platform designed to streamline the
    ```bash
    cp .env.example .env
    ```
-3. Configure PostgreSQL/Supabase values in `.env`:
+3. For local development, run the H2-backed helper script:
+   ```powershell
+   .\run-local.ps1 -Profile local
+   ```
+4. Configure PostgreSQL/Supabase values in `.env` when you want to run against Supabase:
    ```properties
    SPRING_PROFILES_ACTIVE=supabase
    SUPABASE_DB_HOST=aws-1-ap-northeast-1.pooler.supabase.com
@@ -57,7 +61,7 @@ The Smart Job Portal System is an integrated platform designed to streamline the
    SERVER_PORT=8080
    HIKARI_MAX_POOL=20
    ```
-4. Run the application:
+5. Run the application directly with Maven if you prefer that path:
    ```bash
    mvn clean spring-boot:run
    ```
@@ -110,4 +114,9 @@ Notes:
    ng serve
    # or
    npm start
+   ```
+5. Serve the production build from the Angular browser output:
+   ```bash
+   ng build
+   npx serve dist/jobportal-frontend/browser
    ```

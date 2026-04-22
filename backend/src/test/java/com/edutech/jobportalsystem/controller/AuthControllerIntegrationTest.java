@@ -40,14 +40,14 @@ public class AuthControllerIntegrationTest {
         );
 
         // Register
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
         // Login
         Map<String, String> loginRequest = Map.of("username", "integrationuser", "password", "password123");
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -57,7 +57,7 @@ public class AuthControllerIntegrationTest {
 
     @Test
     void testAdminEndpoint_WithoutToken_Returns403() throws Exception {
-        mockMvc.perform(get("/api/admin/users"))
+        mockMvc.perform(get("/admin/users"))
                 .andExpect(status().is4xxClientError());
     }
 }

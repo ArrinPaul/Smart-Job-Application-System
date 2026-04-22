@@ -103,60 +103,60 @@
 ## 4. Remaining Work — INTEGRATION & TESTING
 
 ### A) Local Integration Testing (Priority: HIGH ⏳)
-- [ ] Start backend: `mvn spring-boot:run` (verify Flyway migrations succeed)
-- [ ] Start frontend: `ng serve` (verify no runtime errors)
-- [ ] Test login flow: register account, login, verify session
-- [ ] Test job seeker workflow: view jobs, apply, upload resume
-- [ ] Test recruiter workflow: post job, view applications, update status
-- [ ] Test admin workflow: view all users/jobs, system status
-- [ ] Verify all pages render with new design system
-- [ ] Verify toast notifications appear on errors and success
+- [x] Start backend: `mvn spring-boot:run` (verify Flyway migrations succeed)
+- [x] Start frontend: `ng serve` (verify no runtime errors)
+- [x] Test login flow: register account, login, verify session
+- [x] Test job seeker workflow: view jobs, apply, upload resume
+- [x] Test recruiter workflow: post job, view applications, update status
+- [x] Test admin workflow: view all users/jobs, system status
+- [x] Verify all pages render with new design system
+- [x] Verify toast notifications appear on errors and success
 
 ### B) Visual QA (Priority: HIGH ⏳)
-- [ ] Login page: check typography, colors, form styling, button hover states
-- [ ] Registration page: same as login
-- [ ] Job list page: verify card styling, search bar, job card design
-- [ ] Post job page: form styling, label positioning
-- [ ] Applications page: table styling, status pills, action buttons
-- [ ] Resume upload: file input styling, upload progress
-- [ ] Admin dashboard: KPI cards, tables, system status display
-- [ ] Admin users page: table styling and layout
-- [ ] Admin jobs page: table styling and layout
-- [ ] Navigation bar: active state indicator, responsive behavior
-- [ ] Mobile breakpoints: 480px, 768px, 1024px (verify responsive grid)
+- [x] Login page: check typography, colors, form styling, button hover states
+- [x] Registration page: same as login
+- [x] Job list page: verify card styling, search bar, job card design
+- [x] Post job page: form styling, label positioning
+- [x] Applications page: table styling, status pills, action buttons
+- [x] Resume upload: file input styling, upload progress
+- [x] Admin dashboard: KPI cards, tables, system status display
+- [x] Admin users page: table styling and layout
+- [x] Admin jobs page: table styling and layout
+- [x] Navigation bar: active state indicator, responsive behavior
+- [x] Mobile breakpoints: 480px, 768px, 1024px (verify responsive grid)
 
 ### C) API Endpoint Testing (Priority: MEDIUM ⏳)
-- [ ] POST /api/auth/register - valid/invalid inputs
-- [ ] POST /api/auth/login - valid/invalid credentials, verify JWT
-- [ ] GET /api/admin/users - verify authorization, response format
-- [ ] GET /api/admin/jobs - verify authorization
-- [ ] GET /api/admin/system-status - verify health data
-- [ ] POST /api/recruiter/job - create job, verify response
+- [x] POST /api/auth/register - valid/invalid inputs
+- [x] POST /api/auth/login - valid/invalid credentials, verify JWT
+- [x] GET /api/admin/users - verify authorization, response format
+- [x] GET /api/admin/jobs - verify authorization
+- [x] GET /api/admin/system-status - verify health data
+- [x] POST /api/recruiter/job - create job, verify response
 - [ ] PUT /api/recruiter/job/{id} - update job, test authorization
 - [ ] DELETE /api/recruiter/job/{id} - delete job, test authorization
-- [ ] GET /api/recruiter/applications - verify filters by recruiter's jobs
+- [x] GET /api/recruiter/applications - verify filters by recruiter's jobs
 - [ ] PUT /api/recruiter/application/update/{id}?status=X - update status
-- [ ] GET /api/jobs - test filtering (title, location, combined)
-- [ ] POST /api/job/apply - verify application creation
-- [ ] POST /api/jobseeker/resume - valid/invalid file types
-- [ ] GET /api/jobseeker/applications - verify filters by user
+- [x] GET /api/jobs - test filtering (title, location, combined)
+- [x] POST /api/job/apply - verify application creation
+- [x] POST /api/jobseeker/resume - valid/invalid file types
+- [x] GET /api/jobseeker/applications - verify filters by user
 
 ### D) Cleanup Tasks (Priority: LOW ⏳)
-- [ ] Remove MySQL references from helper scripts (setup-railway-*.sh, *.bat)
-- [ ] Remove MySQL test configurations from test resources
-- [ ] Verify .env.example only references PostgreSQL/Supabase
-- [ ] Delete legacy MySQL migration files if present
+- [x] Remove MySQL references from helper scripts (setup-railway-*.sh, *.bat)
+- [x] Remove MySQL test configurations from test resources
+- [x] Verify .env.example only references PostgreSQL/Supabase
+- [x] Delete legacy MySQL migration files if present
 
 ### E) Performance & Bundle (Priority: MEDIUM ⏳)
-- [ ] Reduce frontend bundle size (~97 kB over budget)
-  - Identify heavy dependencies
-  - Enable lazy loading for feature modules
-  - Check for unused imports
-- [ ] Test build serves correctly with `npx serve dist/jobportal-frontend`
+- [x] Reduce frontend bundle size (~97 kB over budget)
+  - [x] Enable lazy loading for feature modules
+  - [ ] Identify heavy dependencies
+  - [ ] Check for unused imports
+- [x] Test build serves correctly with `npx serve dist/jobportal-frontend/browser`
 
 ### F) Documentation (Priority: LOW ⏳)
-- [ ] Update README.md with latest quick-start commands
-- [ ] Verify DATABASE.md reflects PostgreSQL/Supabase only
+- [x] Update README.md with latest quick-start commands
+- [x] Verify DATABASE.md reflects PostgreSQL/Supabase only
 - [ ] Add screenshot gallery to PRD.md of redesigned pages
 - [ ] Document environment variables in .env.example with descriptions
 
@@ -171,7 +171,7 @@ mvn test                                    # Run tests
 # Frontend
 cd frontend && ng serve                     # Dev server (port 4200)
 ng build                                    # Production build
-npx serve dist/jobportal-frontend           # Serve production build
+npx serve dist/jobportal-frontend/browser   # Serve production build
 
 # Database
 # Flyway runs automatically on `mvn spring-boot:run`
