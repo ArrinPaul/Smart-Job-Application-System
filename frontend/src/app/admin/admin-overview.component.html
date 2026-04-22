@@ -9,6 +9,11 @@
 
   <p *ngIf="summary" class="updated-time">Last updated: {{ summary.generatedAt | date:'medium' }}</p>
 
+  <div class="empty-state" *ngIf="loadError && !summary">
+    <h3>{{ loadError }}</h3>
+    <p>Refresh the dashboard after a moment or use the subpages for live admin data.</p>
+  </div>
+
   <div class="kpi-grid" *ngIf="summary">
     <article class="kpi-card">
       <h3>Total Users</h3>

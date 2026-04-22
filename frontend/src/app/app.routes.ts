@@ -44,6 +44,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        pathMatch: 'full',
         loadComponent: () => import('./admin/admin-overview.component').then(m => m.AdminOverviewComponent)
       },
       {

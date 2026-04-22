@@ -1,9 +1,7 @@
-import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpService } from '../services/http.service';
 import { AdminDashboardSummary } from '../models/admin.model';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -16,6 +14,7 @@ Chart.register(...registerables);
 })
 export class AdminOverviewComponent implements OnInit, OnDestroy {
   summary: AdminDashboardSummary | null = null;
+  loadError: string | null = null;
   isLoading = false;
 
   @ViewChild('trendChartCanvas') trendChartCanvas?: ElementRef;
@@ -25,9 +24,11 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   private trendChart: Chart | null = null;
   private recruiterChart: Chart | null = null;
   private funnelChart: Chart | null = null;
-  private destroy$ = new Subject<void>();
 
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private changeDetector: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadSummary();
@@ -35,25 +36,33 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
 
   loadSummary(): void {
     this.isLoading = true;
-    this.httpService.getAdminDashboardSummary()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: AdminDashboardSummary) => {
-          this.summary = response;
-          this.isLoading = false;
-          setTimeout(() => this.initCharts(), 100);
-        },
-        error: () => {
-          this.isLoading = false;
-          setTimeout(() => this.initCharts(), 100);
-        }
-      });
+    this.loadError = null;
+
+    this.httpService.getAdminDashboardSummary().subscribe({
+      next: (response: AdminDashboardSummary) => {
+        this.summary = response;
+        this.isLoading = false;
+        this.changeDetector.detectChanges();
+        setTimeout(() => this.initCharts(), 100);
+      },
+      error: (error: unknown) => {
+        console.error('Unable to load admin dashboard summary', error);
+        this.loadError = 'Unable to load dashboard summary right now.';
+        this.summary = null;
+        this.isLoading = false;
+        this.changeDetector.detectChanges();
+      }
+    });
   }
 
   private initCharts(): void {
-    this.initTrendChart();
-    this.initRecruiterActivityChart();
-    this.initFunnelChart();
+    try {
+      this.initTrendChart();
+      this.initRecruiterActivityChart();
+      this.initFunnelChart();
+    } catch (error) {
+      console.error('Unable to render admin dashboard charts', error);
+    }
   }
 
   private initTrendChart(): void {
@@ -244,7 +253,5 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
     this.trendChart?.destroy();
     this.recruiterChart?.destroy();
     this.funnelChart?.destroy();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
