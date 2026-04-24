@@ -29,6 +29,19 @@ export interface AdminDashboardSummary {
     createdAt: string;
     postedBy: string;
   }>;
+  jobTrends: {
+    labels: string[];
+    data: number[];
+  };
+  recruiterActivity: {
+    labels: string[];
+    recruiters: number[];
+    jobs: number[];
+  };
+  applicationFunnel: {
+    labels: string[];
+    data: number[];
+  };
   metricDefinitions: Record<string, string>;
   systemStatus: AdminSystemStatus;
 }

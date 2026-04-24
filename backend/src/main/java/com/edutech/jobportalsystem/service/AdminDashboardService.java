@@ -95,6 +95,44 @@ public class AdminDashboardService {
         response.put("usersByRole", usersByRole);
         response.put("applicationsByStatus", applicationsByStatus);
         response.put("recentJobs", recentJobsSnapshot);
+        
+        // Real-time chart data structures
+        List<String> last7DaysLabels = new java.util.ArrayList<>();
+        List<Long> jobTrendData = new java.util.ArrayList<>();
+        List<Long> activeRecruitersTrend = new java.util.ArrayList<>();
+        
+        for (int i = 6; i >= 0; i--) {
+            LocalDateTime dayStart = LocalDate.now().minusDays(i).atStartOfDay();
+            LocalDateTime dayEnd = dayStart.plusDays(1).minusNanos(1);
+            
+            last7DaysLabels.add(dayStart.toLocalDate().getMonth().name().substring(0, 3) + " " + dayStart.getDayOfMonth());
+            jobTrendData.add(jobRepository.countByCreatedAtBetween(dayStart, dayEnd));
+            activeRecruitersTrend.add(jobRepository.countDistinctRecruitersSince(dayStart) - jobRepository.countDistinctRecruitersSince(dayEnd));
+        }
+
+        response.put("jobTrends", Map.of(
+            "labels", last7DaysLabels,
+            "data", jobTrendData
+        ));
+        
+        response.put("recruiterActivity", Map.of(
+            "labels", last7DaysLabels,
+            "recruiters", activeRecruitersTrend,
+            "jobs", jobTrendData
+        ));
+        
+        response.put("applicationFunnel", Map.of(
+            "labels", List.of("Applied", "Reviewed", "Shortlisted", "Interviewed", "Offered", "Hired"),
+            "data", List.of(
+                applicationsByStatus.getOrDefault("APPLIED", 0L),
+                applicationsByStatus.getOrDefault("REVIEWED", 0L),
+                applicationsByStatus.getOrDefault("SHORTLISTED", 0L),
+                applicationsByStatus.getOrDefault("INTERVIEWED", 0L),
+                applicationsByStatus.getOrDefault("OFFERED", 0L),
+                applicationsByStatus.getOrDefault("HIRED", 0L)
+            )
+        ));
+
         response.put("metricDefinitions", Map.of(
                 "activeUsers", "Distinct users who posted jobs or applied in the last 30 days.",
                 "activeJobs", "Jobs posted in the last 30 days."

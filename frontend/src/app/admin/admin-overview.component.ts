@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpService } from '../services/http.service';
 import { AdminDashboardSummary } from '../models/admin.model';
 import { Chart, registerables } from 'chart.js';
+import { interval, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 Chart.register(...registerables);
 
@@ -26,6 +28,7 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   private trendChart: Chart | null = null;
   private recruiterChart: Chart | null = null;
   private funnelChart: Chart | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private httpService: HttpService
@@ -33,12 +36,22 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSummary();
+    this.startRealtimeSync();
   }
 
-  loadSummary(): void {
+  private startRealtimeSync(): void {
+    // Polling every 30 seconds for real-time updates
+    interval(30000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadSummary(true);
+      });
+  }
+
+  loadSummary(isSilent = false): void {
     if (this.isLoading) return;
 
-    this.isLoading = true;
+    if (!isSilent) this.isLoading = true;
     this.loadError = null;
 
     this.httpService.getAdminDashboardSummary().subscribe({
@@ -54,10 +67,12 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
       },
       error: (error: unknown) => {
         console.error('Unable to load admin dashboard summary', error);
-        this.loadError = 'Unable to load dashboard summary right now.';
-        this.summary = null;
-        this.roleEntries = [];
-        this.applicationStatusEntries = [];
+        if (!isSilent) {
+          this.loadError = 'Unable to load dashboard summary right now.';
+          this.summary = null;
+          this.roleEntries = [];
+          this.applicationStatusEntries = [];
+        }
         this.isLoading = false;
       }
     });
@@ -102,14 +117,13 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
     }
 
     const today = new Date();
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const last7Days = this.summary?.jobTrends?.labels?.length ? this.summary.jobTrends.labels : Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
       d.setDate(d.getDate() - (6 - i));
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     });
 
-    // Mock data: simulate job posting trends
-    const jobData = [2, 5, 4, 7, 6, 8, this.summary?.kpis?.jobsPostedToday || 3];
+    const jobData = this.summary?.jobTrends?.data?.length ? this.summary.jobTrends.data : [0, 0, 0, 0, 0, 0, this.summary?.kpis?.jobsPostedToday || 0];
 
     this.trendChart = new Chart(ctx, {
       type: 'line',
@@ -164,14 +178,14 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
       this.recruiterChart.destroy();
     }
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const recruiterCount = [5, 8, 6, 12, 9, 4, 2];
-    const jobPostCount = [3, 5, 4, 8, 6, 2, 1];
+    const labels = this.summary?.recruiterActivity?.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const recruiterCount = this.summary?.recruiterActivity?.recruiters || [0, 0, 0, 0, 0, 0, 0];
+    const jobPostCount = this.summary?.recruiterActivity?.jobs || [0, 0, 0, 0, 0, 0, 0];
 
     this.recruiterChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: days,
+        labels: labels,
         datasets: [
           {
             label: 'Active Recruiters',
@@ -221,8 +235,8 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
       this.funnelChart.destroy();
     }
 
-    const funnelStages = ['Applied', 'Reviewed', 'Shortlisted', 'Interviewed', 'Offered', 'Hired'];
-    const funnelData = [120, 85, 54, 38, 22, 18];
+    const funnelStages = this.summary?.applicationFunnel?.labels || ['Applied', 'Reviewed', 'Shortlisted', 'Interviewed', 'Offered', 'Hired'];
+    const funnelData = this.summary?.applicationFunnel?.data || [0, 0, 0, 0, 0, 0];
     const colors = ['#0f6f88', '#1a8ba8', '#2ba5c0', '#e9822b', '#d47321', '#177146'];
 
     this.funnelChart = new Chart(ctx, {
