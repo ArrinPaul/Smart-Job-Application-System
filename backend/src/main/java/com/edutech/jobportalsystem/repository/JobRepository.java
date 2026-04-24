@@ -22,4 +22,9 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<Job> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime createdAt);
+
+    long countByCreatedAtAfter(LocalDateTime createdAt);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT j.postedBy.id) FROM Job j WHERE j.createdAt > :since")
+    long countDistinctRecruitersSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 }

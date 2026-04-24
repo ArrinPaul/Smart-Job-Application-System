@@ -22,6 +22,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   users: User[] = [];
   searchTitle = '';
   searchLocation = '';
+  activeQuickFilter = 'ALL';
   isLoading = false;
   isAdmin = false;
   showUsers = false;
@@ -80,7 +81,66 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   onSearch(): void {
+    this.activeQuickFilter = 'CUSTOM';
     this.loadJobs();
+  }
+
+  applyQuickFilter(filter: 'ALL' | 'REMOTE' | 'ENGINEERING' | 'ENTRY'): void {
+    this.activeQuickFilter = filter;
+
+    switch (filter) {
+      case 'REMOTE':
+        this.searchTitle = '';
+        this.searchLocation = 'Remote';
+        break;
+      case 'ENGINEERING':
+        this.searchTitle = 'Engineer';
+        this.searchLocation = '';
+        break;
+      case 'ENTRY':
+        this.searchTitle = 'Intern';
+        this.searchLocation = '';
+        break;
+      default:
+        this.searchTitle = '';
+        this.searchLocation = '';
+        break;
+    }
+
+    this.loadJobs();
+  }
+
+  get totalJobs(): number {
+    return this.jobs.length;
+  }
+
+  get remoteJobsCount(): number {
+    return this.jobs.filter(job => {
+      const location = (job.location || '').toLowerCase();
+      return location.includes('remote') || location.includes('hybrid');
+    }).length;
+  }
+
+  get recentJobsCount(): number {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return this.jobs.filter(job => {
+      if (!job.createdAt) return false;
+      return new Date(job.createdAt) >= sevenDaysAgo;
+    }).length;
+  }
+
+  getRoleSignal(title: string): string {
+    const normalized = title.toLowerCase();
+
+    if (normalized.includes('intern') || normalized.includes('trainee') || normalized.includes('junior')) {
+      return 'Entry Friendly';
+    }
+    if (normalized.includes('lead') || normalized.includes('principal') || normalized.includes('architect')) {
+      return 'Leadership Track';
+    }
+    return 'Core Role';
   }
 
   toggleView(view: string): void {

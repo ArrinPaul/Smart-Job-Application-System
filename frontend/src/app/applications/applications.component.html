@@ -12,11 +12,11 @@
   <div class="page-header">
     <div>
       <h2>{{ isRecruiter ? 'Manage Incoming Applications' : 'Track My Applications' }}</h2>
-      <p>{{ isRecruiter ? 'Review candidates and update hiring status quickly.' : 'View all applications and monitor progress in real time.' }}</p>
+      <p>{{ isRecruiter ? 'Review candidate pipeline with faster decisions and cleaner handoffs.' : 'Track every application stage with confidence.' }}</p>
     </div>
   </div>
 
-  <section class="kpi-grid" style="margin-bottom: 24px;" *ngIf="applications.length > 0">
+  <section class="kpi-grid studio-kpi-grid" *ngIf="applications.length > 0">
     <div class="kpi-card">
       <h3>Total Applications</h3>
       <p>{{ applications.length }}</p>
@@ -29,10 +29,31 @@
       <h3>Pending Review</h3>
       <p>{{ getApplicationsCount('APPLIED') }}</p>
     </div>
+    <div class="kpi-card">
+      <h3>Hired</h3>
+      <p>{{ hiredCount }}</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Rejected</h3>
+      <p>{{ rejectedCount }}</p>
+    </div>
   </section>
 
-  <section class="application-cards" *ngIf="applications.length > 0; else noAppsTpl">
-    <article class="application-card" *ngFor="let app of applications">
+  <section class="panel" *ngIf="applications.length > 0">
+    <div class="panel-header">
+      <h3>Filter Pipeline</h3>
+    </div>
+    <div class="chip-row">
+      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='ALL'" (click)="setStatusFilter('ALL')">All</button>
+      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='APPLIED'" (click)="setStatusFilter('APPLIED')">Applied</button>
+      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='SHORTLISTED'" (click)="setStatusFilter('SHORTLISTED')">Shortlisted</button>
+      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='HIRED'" (click)="setStatusFilter('HIRED')">Hired</button>
+      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='REJECTED'" (click)="setStatusFilter('REJECTED')">Rejected</button>
+    </div>
+  </section>
+
+  <section class="application-cards" *ngIf="filteredApplications.length > 0; else noAppsTpl">
+    <article class="application-card" *ngFor="let app of filteredApplications">
       <div class="panel-header">
         <h3>{{ app.job.title }}</h3>
         <span
@@ -77,7 +98,7 @@
         <span><strong>Location:</strong> {{ app.job.location }}</span>
       </div>
 
-      <div *ngIf="isRecruiter && app.resume" class="action-row" style="margin-top: 1rem;">
+      <div *ngIf="isRecruiter && app.resume" class="action-row">
         <button type="button" class="btn--secondary" (click)="downloadResume(app.resume.id, app.resume.fileName)">
           Download Resume ({{ app.resume.fileName }})
         </button>
@@ -100,7 +121,7 @@
 
   <ng-template #noAppsTpl>
     <div class="empty-state" *ngIf="!isLoading">
-      <h3>No applications found</h3>
+      <h3>No applications for this filter</h3>
       <p>{{ isRecruiter ? 'Applications will appear here once candidates apply.' : 'Apply for jobs to start tracking your progress.' }}</p>
     </div>
   </ng-template>

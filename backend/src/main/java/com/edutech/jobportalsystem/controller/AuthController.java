@@ -117,7 +117,8 @@ public class AuthController {
                 "role", user.getRole(),
                 "username", user.getUsername(),
                 "id", user.getId(),
-                "mfaEnabled", user.getMfaEnabled()
+            "mfaEnabled", user.getMfaEnabled(),
+            "token", token
         ));
     }
 

@@ -13,9 +13,32 @@
     <div class="page-header">
       <div>
         <h2>{{ isAdmin ? 'All Job Postings' : 'Explore Open Roles' }}</h2>
-        <p>{{ isAdmin ? 'Monitor every listing posted across the platform.' : 'Search by title and location to find your next role.' }}</p>
+        <p>{{ isAdmin ? 'Monitor every listing posted across the platform.' : 'Discover curated roles, apply faster, and track your momentum.' }}</p>
       </div>
     </div>
+
+    <section class="panel discovery-hero" *ngIf="!isAdmin">
+      <div class="discovery-grid">
+        <article class="discovery-stat">
+          <h3>{{ totalJobs }}</h3>
+          <p>Open positions</p>
+        </article>
+        <article class="discovery-stat">
+          <h3>{{ remoteJobsCount }}</h3>
+          <p>Remote/Hybrid roles</p>
+        </article>
+        <article class="discovery-stat">
+          <h3>{{ recentJobsCount }}</h3>
+          <p>Posted in last 7 days</p>
+        </article>
+      </div>
+      <div class="chip-row">
+        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='ALL'" (click)="applyQuickFilter('ALL')">All Roles</button>
+        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='REMOTE'" (click)="applyQuickFilter('REMOTE')">Remote First</button>
+        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">Engineering</button>
+        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='ENTRY'" (click)="applyQuickFilter('ENTRY')">Internships</button>
+      </div>
+    </section>
 
     <section class="panel">
       <div class="panel-header">
@@ -38,6 +61,7 @@
         </div>
 
         <h3>{{ job.title }}</h3>
+  <span class="status-pill status-pill--neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
         <p>{{ job.description }}</p>
 
         <div class="meta-row">

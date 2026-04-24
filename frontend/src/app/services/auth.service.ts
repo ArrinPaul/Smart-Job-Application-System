@@ -9,6 +9,7 @@ import { UserRole } from '../models/user.model';
 })
 export class AuthService {
   private readonly ROLE_KEY = 'jobportal_role';
+  private readonly TOKEN_KEY = 'jobportal_token';
   private readonly MFA_KEY = 'jobportal_mfa_enabled';
   private readonly MFA_OTP_KEY = 'jobportal_mfa_otp_code';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
@@ -21,11 +22,16 @@ export class AuthService {
   /**
    * Save authentication session metadata (token remains in HttpOnly cookie)
    */
-  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean): void {
+  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean, token?: string): void {
     localStorage.setItem(this.ROLE_KEY, role);
     if (username) localStorage.setItem('username', username);
     if (userId) localStorage.setItem('userId', String(userId));
     localStorage.setItem(this.MFA_KEY, String(!!mfaEnabled));
+    if (token) {
+      localStorage.setItem(this.TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(this.TOKEN_KEY);
+    }
     this.loggedIn$.next(true);
   }
 
@@ -40,7 +46,7 @@ export class AuthService {
    * Get JWT token
    */
   getToken(): string | null {
-    return null;
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
   /**
@@ -139,6 +145,7 @@ export class AuthService {
 
   private finalizeLogout(): void {
     localStorage.removeItem(this.ROLE_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.MFA_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('userId');

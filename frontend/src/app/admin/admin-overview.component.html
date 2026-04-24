@@ -65,19 +65,19 @@
         <div class="data-bar-wrap">
           <div class="data-bar-label">
             <span>Job Fulfillment</span>
-            <span>{{ (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) | number:'1.0-0' }}%</span>
+            <span>{{ (summary.kpis.totalJobs > 0 ? (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) : 0) | number:'1.0-0' }}%</span>
           </div>
           <div class="data-bar-bg">
-            <div class="data-bar-fill" [style.width.%]="(summary.kpis.activeJobs / summary.kpis.totalJobs * 100)"></div>
+            <div class="data-bar-fill" [style.width.%]="(summary.kpis.totalJobs > 0 ? (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) : 0)"></div>
           </div>
         </div>
         <div class="data-bar-wrap">
           <div class="data-bar-label">
             <span>User Retention</span>
-            <span>{{ (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) | number:'1.0-0' }}%</span>
+            <span>{{ (summary.kpis.totalUsers > 0 ? (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) : 0) | number:'1.0-0' }}%</span>
           </div>
           <div class="data-bar-bg">
-            <div class="data-bar-fill data-bar-fill--accent" [style.width.%]="(summary.kpis.activeUsers / summary.kpis.totalUsers * 100)"></div>
+            <div class="data-bar-fill data-bar-fill--accent" [style.width.%]="(summary.kpis.totalUsers > 0 ? (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) : 0)"></div>
           </div>
         </div>
       </div>

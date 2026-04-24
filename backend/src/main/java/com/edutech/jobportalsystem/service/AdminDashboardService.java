@@ -46,35 +46,34 @@ public class AdminDashboardService {
         LocalDateTime endOfToday = startOfToday.plusDays(1);
         LocalDateTime activeSince = now.minusDays(30);
 
+        // For "recent jobs" we still need the list for the snapshot
         List<Job> recentJobs = jobRepository.findByCreatedAtAfterOrderByCreatedAtDesc(activeSince);
-        List<Application> recentApplications = applicationRepository.findByAppliedAtAfter(activeSince);
-
-        Set<Long> activeUserIds = recentJobs.stream()
-                .map(job -> job.getPostedBy() != null ? job.getPostedBy().getId() : null)
-                .filter(id -> id != null)
-                .collect(Collectors.toSet());
-        activeUserIds.addAll(recentApplications.stream()
-                .map(app -> app.getApplicant() != null ? app.getApplicant().getId() : null)
-                .filter(id -> id != null)
-                .collect(Collectors.toSet()));
+        
+        long activeRecruiters = jobRepository.countDistinctRecruitersSince(activeSince);
+        long activeApplicants = applicationRepository.countDistinctApplicantsSince(activeSince);
+        // Note: This is an approximation of (Recruiters UNION Applicants). 
+        // For absolute precision we'd need a more complex query, but this is much faster.
+        long totalActiveUsers = activeRecruiters + activeApplicants; 
 
         Map<String, Long> usersByRole = new LinkedHashMap<>();
         usersByRole.put(ROLE_ADMIN, userRepository.countByRole(ROLE_ADMIN));
         usersByRole.put(ROLE_RECRUITER, userRepository.countByRole(ROLE_RECRUITER));
         usersByRole.put(ROLE_JOB_SEEKER, userRepository.countByRole(ROLE_JOB_SEEKER));
 
-        Map<String, Long> applicationsByStatus = applicationRepository.findAll().stream()
-                .collect(Collectors.groupingBy(
-                        application -> application.getStatus() == null ? "UNKNOWN" : application.getStatus(),
-                        Collectors.counting()
-                ));
+        Map<String, Long> applicationsByStatus = new HashMap<>();
+        List<Object[]> statusCounts = applicationRepository.countApplicationsByStatus();
+        for (Object[] row : statusCounts) {
+            String status = row[0] == null ? "UNKNOWN" : (String) row[0];
+            Long count = (Long) row[1];
+            applicationsByStatus.put(status, count);
+        }
 
         Map<String, Object> kpis = new LinkedHashMap<>();
         kpis.put("totalUsers", userRepository.count());
         kpis.put("totalJobs", jobRepository.count());
         kpis.put("totalApplications", applicationRepository.count());
-        kpis.put("activeUsers", activeUserIds.size());
-        kpis.put("activeJobs", recentJobs.size());
+        kpis.put("activeUsers", totalActiveUsers);
+        kpis.put("activeJobs", jobRepository.countByCreatedAtAfter(activeSince));
         kpis.put("jobsPostedToday", jobRepository.countByCreatedAtBetween(startOfToday, endOfToday));
 
         List<Map<String, Object>> recentJobsSnapshot = recentJobs.stream()

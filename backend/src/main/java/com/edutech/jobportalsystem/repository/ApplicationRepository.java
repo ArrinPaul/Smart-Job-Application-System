@@ -23,4 +23,12 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Boolean existsByApplicantAndJob(User applicant, Job job);
 
     List<Application> findByAppliedAtAfter(LocalDateTime appliedAt);
+
+    long countByAppliedAtAfter(LocalDateTime appliedAt);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT a.applicant.id) FROM Application a WHERE a.appliedAt > :since")
+    long countDistinctApplicantsSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
+    @org.springframework.data.jpa.repository.Query("SELECT a.status, COUNT(a) FROM Application a GROUP BY a.status")
+    List<Object[]> countApplicationsByStatus();
 }

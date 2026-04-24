@@ -21,6 +21,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   isRecruiter = false;
   isJobSeeker = false;
   isLoading = false;
+  selectedStatusFilter = 'ALL';
   statusOptions = Object.values(ApplicationStatus);
   private destroy$ = new Subject<void>();
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -69,6 +70,26 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
 
   getApplicationsCount(status: string): number {
     return this.applications.filter(app => app.status === status).length;
+  }
+
+  get filteredApplications(): Application[] {
+    if (this.selectedStatusFilter === 'ALL') {
+      return this.applications;
+    }
+
+    return this.applications.filter(app => app.status === this.selectedStatusFilter);
+  }
+
+  setStatusFilter(status: string): void {
+    this.selectedStatusFilter = status;
+  }
+
+  get hiredCount(): number {
+    return this.getApplicationsCount('HIRED');
+  }
+
+  get rejectedCount(): number {
+    return this.getApplicationsCount('REJECTED');
   }
 
   loadApplications(): void {

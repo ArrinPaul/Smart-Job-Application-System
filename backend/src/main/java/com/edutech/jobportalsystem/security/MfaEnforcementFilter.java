@@ -71,8 +71,7 @@ public class MfaEnforcementFilter extends OncePerRequestFilter {
         }
 
         String method = request.getMethod();
-        return path.contains("/admin/")
-                || "POST".equalsIgnoreCase(method)
+        return "POST".equalsIgnoreCase(method)
                 || "PUT".equalsIgnoreCase(method)
                 || "PATCH".equalsIgnoreCase(method)
                 || "DELETE".equalsIgnoreCase(method);

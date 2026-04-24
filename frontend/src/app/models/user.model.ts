@@ -25,6 +25,7 @@ export interface LoginResponse {
   username: string;
   id?: number;
   mfaEnabled?: boolean;
+  token?: string;
 }
 
 export interface RegisterRequest {

@@ -14,6 +14,8 @@ Chart.register(...registerables);
 })
 export class AdminOverviewComponent implements OnInit, OnDestroy {
   summary: AdminDashboardSummary | null = null;
+  roleEntries: Array<{ key: string; value: number }> = [];
+  applicationStatusEntries: Array<{ key: string; value: number }> = [];
   loadError: string | null = null;
   isLoading = false;
 
@@ -26,8 +28,7 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   private funnelChart: Chart | null = null;
 
   constructor(
-    private httpService: HttpService,
-    private changeDetector: ChangeDetectorRef
+    private httpService: HttpService
   ) {}
 
   ngOnInit(): void {
@@ -35,27 +36,51 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   }
 
   loadSummary(): void {
+    if (this.isLoading) return;
+
     this.isLoading = true;
     this.loadError = null;
 
     this.httpService.getAdminDashboardSummary().subscribe({
       next: (response: AdminDashboardSummary) => {
         this.summary = response;
+        this.processEntries(response);
         this.isLoading = false;
-        this.changeDetector.detectChanges();
-        setTimeout(() => this.initCharts(), 100);
+        
+        // Use requestAnimationFrame for smoother chart initialization after DOM updates
+        requestAnimationFrame(() => {
+          setTimeout(() => this.initCharts(), 50);
+        });
       },
       error: (error: unknown) => {
         console.error('Unable to load admin dashboard summary', error);
         this.loadError = 'Unable to load dashboard summary right now.';
         this.summary = null;
+        this.roleEntries = [];
+        this.applicationStatusEntries = [];
         this.isLoading = false;
-        this.changeDetector.detectChanges();
       }
     });
   }
 
+  private processEntries(summary: AdminDashboardSummary): void {
+    if (summary.usersByRole) {
+      this.roleEntries = Object.entries(summary.usersByRole).map(([key, value]) => ({ key, value }));
+    } else {
+      this.roleEntries = [];
+    }
+
+    if (summary.applicationsByStatus) {
+      this.applicationStatusEntries = Object.entries(summary.applicationsByStatus).map(([key, value]) => ({ key, value }));
+    } else {
+      this.applicationStatusEntries = [];
+    }
+  }
+
   private initCharts(): void {
+    // Only init if we have summary data
+    if (!this.summary) return;
+
     try {
       this.initTrendChart();
       this.initRecruiterActivityChart();
@@ -66,7 +91,10 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   }
 
   private initTrendChart(): void {
-    const ctx = this.trendChartCanvas?.nativeElement?.getContext('2d');
+    const canvas = this.trendChartCanvas?.nativeElement;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     if (this.trendChart) {
@@ -233,20 +261,6 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
-
-  get roleEntries(): Array<{ key: string; value: number }> {
-    if (!this.summary?.usersByRole) {
-      return [];
-    }
-    return Object.entries(this.summary.usersByRole).map(([key, value]) => ({ key, value }));
-  }
-
-  get applicationStatusEntries(): Array<{ key: string; value: number }> {
-    if (!this.summary?.applicationsByStatus) {
-      return [];
-    }
-    return Object.entries(this.summary.applicationsByStatus).map(([key, value]) => ({ key, value }));
   }
 
   ngOnDestroy(): void {

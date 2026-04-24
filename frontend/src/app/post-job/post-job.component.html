@@ -9,43 +9,155 @@
   <div class="page-header">
     <div>
       <h2>{{ editingJobId ? 'Edit Existing Job' : 'Publish New Job' }}</h2>
-      <p>Create clear role listings and manage all your active openings in one place.</p>
+      <p>Build high-conviction job posts with structured details, hiring expectations, and candidate screening prompts.</p>
     </div>
   </div>
 
-  <section class="kpi-grid" style="margin-bottom: 24px;">
+  <section class="kpi-grid studio-kpi-grid">
     <div class="kpi-card">
       <h3>Active Postings</h3>
       <p>{{ getActiveJobsCount() }}</p>
     </div>
+    <div class="kpi-card">
+      <h3>Structured Fields</h3>
+      <p>{{ totalStructuredFields }}</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Screening Questions</h3>
+      <p>{{ screeningQuestions.length }}</p>
+    </div>
     <div class="kpi-card" *ngIf="editingJobId">
       <h3>Currently Editing</h3>
-      <p style="font-size: 1.2rem;">ID: {{ editingJobId }}</p>
+      <p>ID: {{ editingJobId }}</p>
     </div>
   </section>
 
-  <section class="panel">
-    <form (ngSubmit)="onPostJob()">
-      <div class="field-group">
-        <label for="jobTitle">Job Title</label>
-        <input type="text" id="jobTitle" name="jobTitle" [(ngModel)]="jobTitle" required placeholder="e.g. Senior Backend Engineer">
-      </div>
+  <section class="studio-layout">
+    <article class="panel studio-form-panel">
+      <form (ngSubmit)="onPostJob()">
+        <div class="field-group">
+          <label for="jobTitle">Job Title</label>
+          <input type="text" id="jobTitle" name="jobTitle" [(ngModel)]="jobTitle" required placeholder="e.g. Senior Backend Engineer">
+        </div>
 
-      <div class="field-group">
-        <label for="jobDescription">Description</label>
-        <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription" rows="5" placeholder="Describe responsibilities, requirements, and expectations"></textarea>
-      </div>
+        <div class="studio-grid-two">
+          <div class="field-group">
+            <label for="jobLocation">Location</label>
+            <input type="text" id="jobLocation" name="jobLocation" [(ngModel)]="jobLocation" required placeholder="e.g. Bengaluru / Remote">
+          </div>
+          <div class="field-group">
+            <label for="salaryRange">Salary Range (optional)</label>
+            <input type="text" id="salaryRange" name="salaryRange" [(ngModel)]="salaryRange" placeholder="e.g. 18-26 LPA">
+          </div>
+        </div>
 
-      <div class="field-group">
-        <label for="jobLocation">Location</label>
-        <input type="text" id="jobLocation" name="jobLocation" [(ngModel)]="jobLocation" required placeholder="e.g. Remote / Mumbai">
-      </div>
+        <div class="studio-grid-three">
+          <div class="field-group">
+            <label for="employmentType">Employment Type</label>
+            <select id="employmentType" name="employmentType" [(ngModel)]="employmentType">
+              <option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="experienceLevel">Experience Level</label>
+            <select id="experienceLevel" name="experienceLevel" [(ngModel)]="experienceLevel">
+              <option *ngFor="let level of experienceLevels" [value]="level">{{ level }}</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="workMode">Work Mode</label>
+            <select id="workMode" name="workMode" [(ngModel)]="workMode">
+              <option *ngFor="let mode of workModes" [value]="mode">{{ mode }}</option>
+            </select>
+          </div>
+        </div>
 
-      <div class="action-row">
-        <button type="submit" [disabled]="isLoading">{{ editingJobId ? 'Update Job' : 'Post Job' }}</button>
-        <button type="button" class="btn-muted" *ngIf="editingJobId" (click)="resetForm()">Cancel</button>
+        <div class="field-group">
+          <label for="jobDescription">Core Role Description</label>
+          <textarea id="jobDescription" name="jobDescription" [(ngModel)]="jobDescription" rows="6" placeholder="Describe mission, ownership, team, and success outcomes for this role."></textarea>
+        </div>
+
+        <div class="studio-grid-two">
+          <div class="field-group">
+            <label for="mustHaveSkills">Must-Have Skills (comma separated)</label>
+            <input type="text" id="mustHaveSkills" name="mustHaveSkills" [(ngModel)]="mustHaveSkillsInput" placeholder="Spring Boot, SQL, REST APIs, Git">
+          </div>
+          <div class="field-group">
+            <label for="niceToHaveSkills">Nice-to-Have Skills (comma separated)</label>
+            <input type="text" id="niceToHaveSkills" name="niceToHaveSkills" [(ngModel)]="niceToHaveSkillsInput" placeholder="Docker, AWS, Kafka">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="interviewProcess">Interview Process</label>
+          <input type="text" id="interviewProcess" name="interviewProcess" [(ngModel)]="interviewProcess" placeholder="e.g. 2 rounds (technical + culture)">
+        </div>
+
+        <div class="field-group">
+          <label for="newQuestion">Screening Questions</label>
+          <div class="studio-question-row">
+            <input type="text" id="newQuestion" name="newQuestion" [(ngModel)]="newQuestion" placeholder="Add a screening question for applicants">
+            <button type="button" class="btn-accent" (click)="addScreeningQuestion()">Add Question</button>
+          </div>
+          <div class="chip-row">
+            <button type="button" class="chip-btn" (click)="quickAddQuestion('How soon can you join if selected?')">Join availability</button>
+            <button type="button" class="chip-btn" (click)="quickAddQuestion('What is your expected compensation range?')">Comp expectation</button>
+            <button type="button" class="chip-btn" (click)="quickAddQuestion('Share one measurable impact you created in your last role.')">Impact evidence</button>
+          </div>
+          <ul class="question-list" *ngIf="screeningQuestions.length > 0">
+            <li *ngFor="let question of screeningQuestions; let i = index">
+              <span>{{ i + 1 }}. {{ question }}</span>
+              <button type="button" class="question-remove" (click)="removeScreeningQuestion(i)">Remove</button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="action-row">
+          <button type="submit" [disabled]="isLoading">{{ editingJobId ? 'Update Job' : 'Publish Job' }}</button>
+          <button type="button" class="btn-muted" *ngIf="editingJobId" (click)="resetForm()">Cancel Edit</button>
+        </div>
+      </form>
+    </article>
+
+    <article class="panel studio-preview-panel">
+      <div class="panel-header">
+        <h3>Live Posting Preview</h3>
       </div>
-    </form>
+      <div class="preview-card">
+        <h3>{{ jobTitle || 'Untitled Role' }}</h3>
+        <p class="preview-subtitle">{{ jobLocation || 'Location TBD' }} · {{ employmentType }} · {{ experienceLevel }}</p>
+        <p class="preview-description">{{ jobDescription || 'Start writing your role description to see preview here.' }}</p>
+
+        <div class="preview-meta-grid">
+          <div>
+            <h4>Work Mode</h4>
+            <p>{{ workMode }}</p>
+          </div>
+          <div>
+            <h4>Salary Range</h4>
+            <p>{{ salaryRange || 'Not specified' }}</p>
+          </div>
+          <div>
+            <h4>Interview Process</h4>
+            <p>{{ interviewProcess }}</p>
+          </div>
+        </div>
+
+        <div class="preview-skills" *ngIf="mustHaveSkills.length > 0">
+          <h4>Must-Have Skills</h4>
+          <div class="skill-pill-row">
+            <span class="skill-pill" *ngFor="let skill of mustHaveSkills">{{ skill }}</span>
+          </div>
+        </div>
+
+        <div class="preview-skills" *ngIf="niceToHaveSkills.length > 0">
+          <h4>Nice-to-Have Skills</h4>
+          <div class="skill-pill-row">
+            <span class="skill-pill skill-pill--soft" *ngFor="let skill of niceToHaveSkills">{{ skill }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
   </section>
 
   <section class="panel">

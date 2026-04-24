@@ -24,6 +24,12 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (this.isApiUrl(req.url)) {
       const setHeaders: Record<string, string> = {};
+      const token = this.authService.getToken();
+
+      if (token) {
+        setHeaders['Authorization'] = `Bearer ${token}`;
+      }
+
       if (this.authService.isMfaEnabled() && this.isSensitiveMethod(req.method)) {
         const otpCode = this.authService.getMfaOtpCode();
         if (otpCode) {

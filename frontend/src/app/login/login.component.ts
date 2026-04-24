@@ -52,7 +52,8 @@ export class LoginComponent implements OnDestroy {
             response.role,
             response.username,
             response.id,
-            response.mfaEnabled
+            response.mfaEnabled,
+            response.token
           );
 
           if (response.mfaEnabled) {
