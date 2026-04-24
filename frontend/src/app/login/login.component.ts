@@ -19,7 +19,6 @@ import { takeUntil } from 'rxjs/operators';
 export class LoginComponent implements OnDestroy {
   username = '';
   password = '';
-  captchaToken = '';
   isLoading = false;
   private destroy$ = new Subject<void>();
 
@@ -39,8 +38,7 @@ export class LoginComponent implements OnDestroy {
     this.isLoading = true;
     const loginRequest: LoginRequest = {
       username: this.username,
-      password: this.password,
-      captchaToken: this.captchaToken?.trim() || undefined
+      password: this.password
     };
 
     this.httpService.login(loginRequest)

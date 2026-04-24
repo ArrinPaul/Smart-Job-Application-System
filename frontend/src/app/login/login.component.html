@@ -44,17 +44,6 @@
         >
       </div>
 
-      <div class="field-group">
-        <label for="captchaToken">CAPTCHA token (only if requested)</label>
-        <input
-          type="text"
-          id="captchaToken"
-          name="captchaToken"
-          [(ngModel)]="captchaToken"
-          placeholder="Paste CAPTCHA verification token when prompted"
-        >
-      </div>
-
       <button type="submit" [disabled]="isLoading">{{ isLoading ? 'Logging in...' : 'Login to Dashboard' }}</button>
 
       <p class="auth-meta">
