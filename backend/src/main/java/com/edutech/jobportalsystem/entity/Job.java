@@ -27,6 +27,12 @@ public class Job {
 
     private String location;
 
+    @Column(name = "application_link")
+    private String applicationLink;
+
+    @Column(unique = true)
+    private String slug;
+
     @ManyToOne
     @JoinColumn(name = "recruiter_id", nullable = false)
     private User postedBy;

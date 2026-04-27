@@ -4,6 +4,8 @@ export interface Job {
   title: string;
   description: string;
   location: string;
+  slug: string;
+  applicationLink?: string;
   postedBy?: {
     id: number;
     username: string;

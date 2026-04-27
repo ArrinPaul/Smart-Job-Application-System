@@ -1,7 +1,5 @@
 package com.edutech.jobportalsystem.repository;
 
-// File: ./src/main/java/com/edutech/jobportalsystem/repository/JobRepository.java
-
 import com.edutech.jobportalsystem.entity.Job;
 import com.edutech.jobportalsystem.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,9 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job, Long> {
+    
+    Optional<Job> findBySlug(String slug);
 
     List<Job> findByTitleContainingIgnoreCase(String title);
 

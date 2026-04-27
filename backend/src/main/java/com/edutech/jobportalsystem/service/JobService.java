@@ -100,6 +100,11 @@ public class JobService {
         return jobRepository.findByPostedBy(recruiter);
     }
 
+    public Job getJobBySlug(String slug) {
+        return jobRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "slug", slug));
+    }
+
     private String sanitize(String input) {
         if (input == null) {
             return null;

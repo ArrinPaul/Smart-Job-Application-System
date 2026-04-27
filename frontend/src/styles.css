@@ -313,9 +313,28 @@ button:disabled {
 }
 
 .btn-muted,
-.btn--secondary {
+.btn--secondary,
+.btn-secondary {
   background: linear-gradient(135deg, #8f7f6b, #706352);
   box-shadow: 0 8px 16px rgba(80, 67, 54, 0.2);
+  color: white;
+}
+
+.clickable-title {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.clickable-title:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.description-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .auth-meta {

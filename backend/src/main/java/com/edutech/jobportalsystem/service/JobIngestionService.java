@@ -94,14 +94,22 @@ public class JobIngestionService {
     }
 
     @Transactional
+    public void deleteAllJobs() {
+        logger.info("Truncating jobs table for fresh start...");
+        jobRepository.deleteAllInBatch(); // Faster than deleteAll()
+    }
+
+    @Transactional
     public List<Job> ingestJobs(List<Map<String, String>> jobDataList) {
         User recruiter = getOrCreateGlobalRecruiter();
-        List<Job> ingestedJobs = new ArrayList<>();
+        List<Job> jobsToSave = new ArrayList<>();
+        java.util.Set<String> seenSlugs = new java.util.HashSet<>();
 
         for (Map<String, String> data : jobDataList) {
             String title = data.get("title");
             String location = data.get("location");
             String description = data.get("description");
+            String applicationLink = data.get("applicationLink");
 
             if (title == null || title.isEmpty()) continue;
 
@@ -109,13 +117,30 @@ public class JobIngestionService {
             job.setTitle(title);
             job.setLocation(location != null ? location : "Remote");
             job.setDescription(description != null ? description : "No description provided.");
+            job.setApplicationLink(applicationLink);
             job.setPostedBy(recruiter);
-
-            ingestedJobs.add(jobRepository.save(job));
-            logger.info("Ingested real job: {} at {}", title, location);
+            
+            // Generate extremely unique slug
+            String baseSlug = title.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+            if (baseSlug.isEmpty()) baseSlug = "job";
+            
+            String uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
+            
+            // Avoid duplicates within the same batch
+            int attempts = 0;
+            while (seenSlugs.contains(uniqueSlug) && attempts < 10) {
+                uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
+                attempts++;
+            }
+            
+            job.setSlug(uniqueSlug);
+            seenSlugs.add(uniqueSlug);
+            jobsToSave.add(job);
         }
 
-        return ingestedJobs;
+        List<Job> savedJobs = jobRepository.saveAll(jobsToSave);
+        logger.info("Successfully ingested {} jobs in batch.", savedJobs.size());
+        return savedJobs;
     }
 
     private User getOrCreateGlobalRecruiter() {

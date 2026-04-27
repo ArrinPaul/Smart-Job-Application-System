@@ -64,6 +64,13 @@ export class HttpService {
   }
 
   /**
+   * Get single job by slug
+   */
+  getJobBySlug(slug: string): Observable<Job> {
+    return this.http.get<Job>(`${this.apiUrl}/jobs/${slug}`);
+  }
+
+  /**
    * Create new job (Recruiter only)
    */
   createJob(job: any): Observable<Job> {

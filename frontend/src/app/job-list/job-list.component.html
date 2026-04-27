@@ -59,9 +59,9 @@
           </button>
         </div>
 
-        <h3>{{ job.title }}</h3>
+        <h3 [routerLink]="['/jobs', job.slug]" class="clickable-title">{{ job.title }}</h3>
         <span class="status-pill status-pill--neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
-        <p>{{ job.description }}</p>
+        <p class="description-preview">{{ job.description | slice:0:150 }}{{ job.description.length > 150 ? '...' : '' }}</p>
 
         <!-- Dynamic Smart Insights Panel -->
         <div class="insight-panel" *ngIf="insightJobId === job.id && selectedInsights && !selectedInsights.error">
@@ -108,6 +108,7 @@
         </div>
 
         <div class="action-row" *ngIf="!isAdmin">
+          <button type="button" class="btn-secondary" [routerLink]="['/jobs', job.slug]">View Details</button>
           <button type="button" class="btn-accent" (click)="onApply(job.id)">Apply Now</button>
         </div>
 

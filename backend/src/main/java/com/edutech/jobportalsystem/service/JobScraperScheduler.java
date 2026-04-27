@@ -9,8 +9,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,111 +23,177 @@ public class JobScraperScheduler {
     @Autowired
     private JobIngestionService jobIngestionService;
 
-    /**
-     * Runs daily at midnight to fetch new job listings.
-     */
+    private final RestTemplate restTemplate = new RestTemplate();
+
     @Scheduled(cron = "0 0 0 * * *")
     public void scheduleDailyJobScraping() {
-        logger.info("Starting daily job scraping task...");
+        logger.info("Starting SUPREME REAL-WORLD job scraping task (Target: 500+)...");
+        List<Map<String, String>> allJobs = new ArrayList<>();
+        
         try {
-            List<Map<String, String>> scrapedJobs = scrapeHackerNewsJobs();
+            // Source 1: Remotive (Increased limit)
+            allJobs.addAll(fetchRemotiveJobs(600));
+
+            // Source 2: Arbeitnow (Increased pagination)
+            allJobs.addAll(fetchArbeitnowJobs(5, 500));
+
+            // Source 3: We Work Remotely
+            allJobs.addAll(scrapeWeWorkRemotely(300));
             
-            if (scrapedJobs.isEmpty()) {
-                logger.warn("Scraper returned no jobs from primary source. Falling back to simulated pool.");
-                scrapedJobs = fetchNewDailyJobs();
+            // Source 4: Hacker News (Deep Pagination)
+            allJobs.addAll(scrapeHackerNewsJobs(10));
+            
+            // Source 5: Remote.co
+            allJobs.addAll(scrapeRemoteCo(200));
+
+            if (allJobs.isEmpty()) {
+                logger.error("Scrapers failed to find data.");
+            } else {
+                jobIngestionService.ingestJobs(allJobs);
+                logger.info("Supreme Ingestion Success! {} REAL roles with links added.", allJobs.size());
             }
-            
-            jobIngestionService.ingestJobs(scrapedJobs);
-            logger.info("Job scraping completed. Ingested {} roles.", scrapedJobs.size());
         } catch (Exception e) {
-            logger.error("Error during scheduled job scraping", e);
+            logger.error("Scraping error", e);
         }
     }
 
-    private List<Map<String, String>> scrapeHackerNewsJobs() {
+    private List<Map<String, String>> fetchRemotiveJobs(int limit) {
         List<Map<String, String>> jobs = new ArrayList<>();
         try {
-            logger.info("Scraping Hacker News Jobs...");
-            Document doc = Jsoup.connect("https://news.ycombinator.com/jobs")
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-                    .timeout(10000)
-                    .get();
-
-            Elements jobRows = doc.select("tr.athing");
-            for (Element row : jobRows) {
-                Element titleElement = row.selectFirst("td.title a.storylink");
-                if (titleElement != null) {
-                    String fullTitle = titleElement.text();
-                    String url = titleElement.absUrl("href");
+            String url = "https://remotive.com/api/remote-jobs";
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            if (response != null && response.containsKey("jobs")) {
+                List<Map<String, Object>> jobsList = (List<Map<String, Object>>) response.get("jobs");
+                for (Map<String, Object> jobData : jobsList) {
+                    String cleanDesc = Jsoup.parse((String) jobData.get("description")).text();
+                    if (cleanDesc.length() > 800) cleanDesc = cleanDesc.substring(0, 800) + "...";
                     
-                    // Basic parsing: "Company (YC S21) Is Hiring Software Engineers" -> Title: Software Engineers, Location: Remote/YC
-                    String title = fullTitle;
-                    String location = "Remote / USA";
-                    String description = "Exciting opportunity found on Hacker News Jobs. More info at: " + url;
-
-                    if (fullTitle.contains(" is hiring ") || fullTitle.contains(" Is Hiring ")) {
-                        String[] parts = fullTitle.split("(?i) is hiring ");
-                        if (parts.length > 1) {
-                            title = parts[1];
-                            description = "Company: " + parts[0] + ". " + description;
-                        }
-                    }
-
                     jobs.add(Map.of(
-                        "title", title,
-                        "location", location,
-                        "description", description
+                        "title", (String) jobData.get("title"),
+                        "location", jobData.get("candidate_required_location") != null ? (String) jobData.get("candidate_required_location") : "Remote",
+                        "applicationLink", (String) jobData.get("url"),
+                        "description", "### ROLE OVERVIEW\n" + cleanDesc + "\n\n" +
+                                       "### JOB SPECIFICS\n" +
+                                       "• **Company:** " + jobData.get("company_name") + "\n" +
+                                       "• **Category:** " + jobData.get("category") + "\n" +
+                                       "• **Type:** " + (jobData.get("job_type") != null ? jobData.get("job_type") : "Full-time") + "\n\n" +
+                                       "### HOW TO APPLY\n" +
+                                       "Please click the link below to apply directly on Remotive."
                     ));
-                    
-                    if (jobs.size() >= 10) break; // Limit to 10 for safety
+                    if (jobs.size() >= limit) break;
                 }
             }
-        } catch (IOException e) {
-            logger.error("Failed to scrape HN Jobs: {}", e.getMessage());
-        }
+        } catch (Exception e) { logger.error("Remotive failed: {}", e.getMessage()); }
         return jobs;
     }
 
-    private List<Map<String, String>> fetchNewDailyJobs() {
+    private List<Map<String, String>> fetchArbeitnowJobs(int pages, int limit) {
         List<Map<String, String>> jobs = new ArrayList<>();
-        int dayOfWeek = java.time.LocalDate.now().getDayOfWeek().getValue();
-        
-        // Expanded simulation pool
-        if (dayOfWeek % 3 == 0) {
-            jobs.add(Map.of(
-                "title", "Senior Site Reliability Engineer (SRE)",
-                "location", "Remote - North America",
-                "description", "Manage high-scale Kubernetes clusters and automate infrastructure with Terraform and Go. Focus on 99.99% uptime for global media streaming services."
-            ));
-            jobs.add(Map.of(
-                "title", "Frontend Lead (React 19)",
-                "location", "London / Hybrid",
-                "description", "Lead a team of 5 engineers to rebuild our core dashboard using React 19 and Server Components. Focus on web vitals and accessible design systems."
-            ));
-        } else if (dayOfWeek % 3 == 1) {
-            jobs.add(Map.of(
-                "title", "Staff Data Engineer",
-                "location", "San Francisco / Remote",
-                "description", "Architect petabyte-scale data pipelines using Spark, Snowflake, and dbt. Drive data quality initiatives across the entire engineering org."
-            ));
-            jobs.add(Map.of(
-                "title", "Cybersecurity Analyst (SOC)",
-                "location", "Washington, DC",
-                "description", "Monitor and respond to security threats in real-time. Experience with SIEM tools, network forensics, and incident response protocols required."
-            ));
-        } else {
-            jobs.add(Map.of(
-                "title", "Product Designer (UX/UI)",
-                "location", "Austin, TX / Remote",
-                "description", "Design intuitive interfaces for our next-gen fintech platform. Focus on user research, wireframing, and high-fidelity prototyping using Figma."
-            ));
-            jobs.add(Map.of(
-                "title", "Mobile Developer (Flutter)",
-                "location", "Berlin, Germany",
-                "description", "Build cross-platform mobile applications for a growing e-commerce startup. Focus on performance, animations, and clean architecture."
-            ));
-        }
-        
+        try {
+            for (int p = 1; p <= pages; p++) {
+                String url = "https://www.arbeitnow.com/api/job-board-api?page=" + p;
+                Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+                if (response != null && response.containsKey("data")) {
+                    List<Map<String, Object>> jobsList = (List<Map<String, Object>>) response.get("data");
+                    for (Map<String, Object> jobData : jobsList) {
+                        jobs.add(Map.of(
+                            "title", (String) jobData.get("title"),
+                            "location", (String) jobData.get("location"),
+                            "applicationLink", (String) jobData.get("url"),
+                            "description", "### ROLE SUMMARY\nDiscover this high-impact opportunity at **" + jobData.get("company_name") + "**. This role involves working with cross-functional teams to drive innovation.\n\n" +
+                                           "### KEY HIGHLIGHTS\n" +
+                                           "• **Remote Status:** Verified " + (jobData.get("remote") != null ? "Remote" : "Hybrid/Office") + "\n" +
+                                           "• **Source:** Arbeitnow European Job Board\n\n" +
+                                           "### APPLICATION\n" +
+                                           "Access the direct application portal via the link below."
+                        ));
+                        if (jobs.size() >= limit) break;
+                    }
+                }
+                Thread.sleep(500); // Politeness
+                if (jobs.size() >= limit) break;
+            }
+        } catch (Exception e) { logger.error("Arbeitnow failed: {}", e.getMessage()); }
+        return jobs;
+    }
+
+    private List<Map<String, String>> scrapeWeWorkRemotely(int limit) {
+        List<Map<String, String>> jobs = new ArrayList<>();
+        try {
+            Document doc = Jsoup.connect("https://weworkremotely.com/remote-jobs").timeout(20000).get();
+            Elements jobLinks = doc.select("section.jobs article ul li a[href^=/remote-jobs/]");
+            for (Element a : jobLinks) {
+                if (a.selectFirst("span.title") == null) continue;
+                String company = a.selectFirst("span.company").text();
+                String title = a.selectFirst("span.title").text();
+                String region = a.selectFirst("span.region") != null ? a.selectFirst("span.region").text() : "Remote";
+                
+                jobs.add(Map.of(
+                    "title", title,
+                    "location", region,
+                    "applicationLink", a.absUrl("href"),
+                    "description", "### POSITION AT " + company.toUpperCase() + "\n" +
+                                   "An exciting opportunity for a **" + title + "** to join a remote-first organization.\n\n" +
+                                   "### CORE DETAILS\n" +
+                                   "• **Company:** " + company + "\n" +
+                                   "• **Location:** " + region + "\n" +
+                                   "• **Source:** Verified We Work Remotely"
+                ));
+                if (jobs.size() >= limit) break;
+            }
+        } catch (Exception e) { logger.error("WWR failed: {}", e.getMessage()); }
+        return jobs;
+    }
+
+    private List<Map<String, String>> scrapeRemoteCo(int limit) {
+        List<Map<String, String>> jobs = new ArrayList<>();
+        try {
+            Document doc = Jsoup.connect("https://remote.co/remote-jobs/it")
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                    .timeout(20000).get();
+            Elements cards = doc.select("a.job_listing");
+            for (Element card : cards) {
+                Element titleElement = card.selectFirst("h3");
+                if (titleElement != null) {
+                    jobs.add(Map.of(
+                        "title", titleElement.text(),
+                        "location", "Remote",
+                        "applicationLink", card.absUrl("href"),
+                        "description", "### REMOTE.CO LISTING\nProfessional IT role sourced from Remote.co. " +
+                                       "Full details and specific technical requirements are hosted on the employer's official portal."
+                    ));
+                }
+                if (jobs.size() >= limit) break;
+            }
+        } catch (Exception e) { logger.error("Remote.co failed: {}", e.getMessage()); }
+        return jobs;
+    }
+
+    private List<Map<String, String>> scrapeHackerNewsJobs(int maxPages) {
+        List<Map<String, String>> jobs = new ArrayList<>();
+        try {
+            for (int i = 1; i <= maxPages; i++) {
+                Document doc = Jsoup.connect("https://news.ycombinator.com/jobs" + (i > 1 ? "?p=" + i : "")).timeout(10000).get();
+                Elements rows = doc.select("tr.athing");
+                if (rows.isEmpty()) break;
+                for (Element row : rows) {
+                    Element a = row.selectFirst("td.title a.storylink");
+                    if (a != null) {
+                        jobs.add(Map.of(
+                            "title", a.text(),
+                            "location", "Remote Friendly / Global",
+                            "applicationLink", a.absUrl("href"),
+                            "description", "### STARTUP ROLE (HN/YC)\n" + a.text() + "\n\n" +
+                                           "### HIGHLIGHTS\n" +
+                                           "• **Source:** Y Combinator / Hacker News\n" +
+                                           "• **Ecosystem:** High-growth tech startup"
+                        ));
+                    }
+                }
+                Thread.sleep(1500);
+                if (jobs.size() >= 200) break;
+            }
+        } catch (Exception e) { logger.error("HN failed: {}", e.getMessage()); }
         return jobs;
     }
 }

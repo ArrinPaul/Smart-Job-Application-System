@@ -1,0 +1,60 @@
+<div class="job-details-container" *ngIf="job">
+  <div class="job-header-card">
+    <div class="header-content">
+      <div class="title-section">
+        <h1>{{ job.title }}</h1>
+        <div class="meta-info">
+          <span class="location"><i class="icon-location"></i> {{ job.location }}</span>
+          <span class="date"><i class="icon-calendar"></i> Posted {{ job.createdAt | date:'mediumDate' }}</span>
+          <span class="company" *ngIf="job.postedBy"><i class="icon-user"></i> {{ job.postedBy.username }}</span>
+        </div>
+      </div>
+      <div class="action-section">
+        <a [href]="job.applicationLink" target="_blank" class="apply-btn-primary" *ngIf="job.applicationLink">
+          Apply on Company Site
+        </a>
+        <button class="apply-btn-internal" (click)="applyInternally()" *ngIf="!job.applicationLink">
+          Apply Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-content-grid">
+    <div class="main-content">
+      <div class="description-card card">
+        <h2>Job Description</h2>
+        <div class="markdown-body" [innerHTML]="renderedDescription"></div>
+      </div>
+    </div>
+
+    <div class="side-content">
+      <div class="quick-facts-card card">
+        <h3>Quick Facts</h3>
+        <ul class="facts-list">
+          <li><strong>Role:</strong> {{ job.title }}</li>
+          <li><strong>Location:</strong> {{ job.location }}</li>
+          <li><strong>Status:</strong> Accepting Applications</li>
+        </ul>
+      </div>
+
+      <div class="share-card card">
+        <h3>Share this job</h3>
+        <div class="share-buttons">
+          <button (click)="shareJob()">Copy Link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <app-spinner></app-spinner>
+  <p>Loading job details...</p>
+</div>
+
+<div class="error-state" *ngIf="error">
+  <h2>Job Not Found</h2>
+  <p>{{ error }}</p>
+  <button routerLink="/jobs">Back to Job Board</button>
+</div>

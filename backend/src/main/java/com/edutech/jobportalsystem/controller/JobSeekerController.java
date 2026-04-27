@@ -49,6 +49,12 @@ public class JobSeekerController {
         return ResponseEntity.ok(jobService.searchJobs(title, location));
     }
 
+    @GetMapping("/jobs/{slug}")
+    public ResponseEntity<?> getJobBySlug(@PathVariable String slug) {
+        logger.info("Fetching job details for slug: {}", slug);
+        return ResponseEntity.ok(jobService.getJobBySlug(slug));
+    }
+
     @PostMapping("/job/apply")
     public ResponseEntity<?> applyJob(@Valid @RequestBody ApplyJobRequest body) {
         Long jobId = body.getJobId();

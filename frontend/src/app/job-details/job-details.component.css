@@ -1,0 +1,159 @@
+.job-details-container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.job-header-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    border-left: 6px solid #2563eb;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.title-section h1 {
+    font-size: 2.25rem;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+}
+
+.meta-info {
+    display: flex;
+    gap: 1.5rem;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.meta-info span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.apply-btn-primary {
+    background: #2563eb;
+    color: white;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.apply-btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
+}
+
+.job-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.description-card h2 {
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+/* Markdown Styles */
+.markdown-body {
+    line-height: 1.7;
+    color: #334155;
+    font-size: 1.05rem;
+}
+
+.markdown-body .md-h3 {
+    font-size: 1.25rem;
+    color: #0f172a;
+    margin: 2rem 0 1rem 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.markdown-body .md-ul {
+    padding-left: 1.25rem;
+    margin: 1rem 0;
+}
+
+.markdown-body .md-li {
+    margin-bottom: 0.5rem;
+    list-style: disc;
+}
+
+.markdown-body strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Sidebar */
+.side-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.quick-facts-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.facts-list {
+    list-style: none;
+    padding: 0;
+}
+
+.facts-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+.facts-list li:last-child {
+    border-bottom: none;
+}
+
+.facts-list strong {
+    color: #1e293b;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .job-content-grid {
+        grid-template-columns: 1fr;
+    }
+    .title-section h1 {
+        font-size: 1.75rem;
+    }
+}
