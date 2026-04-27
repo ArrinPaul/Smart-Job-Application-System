@@ -17,6 +17,7 @@
             <th>Location</th>
             <th>Posted By</th>
             <th>Created At</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -26,11 +27,80 @@
             <td>{{ job.location }}</td>
             <td>{{ job.postedBy?.username }}</td>
             <td>{{ job.createdAt | date:'short' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button type="button" class="btn--icon" (click)="openEditModal(job)" title="Edit Job">Edit</button>
+                <button type="button" class="btn--icon btn--danger" (click)="openDeleteConfirm(job)" title="Delete Job">Delete</button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </article>
+
+  <!-- Edit Job Modal -->
+  <div class="modal-backdrop" *ngIf="showEditModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit Job: {{ editingJob?.title }}</h3>
+        <button type="button" class="close-btn" (click)="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body" *ngIf="editingJob">
+        <div class="form-group">
+          <label>Job Title</label>
+          <input type="text" [(ngModel)]="editingJob.title">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" [(ngModel)]="editingJob.company">
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" [(ngModel)]="editingJob.location">
+        </div>
+        <div class="form-group">
+          <label>Salary Range</label>
+          <input type="text" [(ngModel)]="editingJob.salaryRange">
+        </div>
+        <div class="form-group">
+          <label>Job Type</label>
+          <select [(ngModel)]="editingJob.type">
+            <option value="FULL_TIME">Full Time</option>
+            <option value="PART_TIME">Part Time</option>
+            <option value="CONTRACT">Contract</option>
+            <option value="REMOTE">Remote</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editingJob.description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn--secondary" (click)="closeEditModal()">Cancel</button>
+        <button type="button" class="btn--primary" (click)="saveJobChanges()" [disabled]="isLoading">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation -->
+  <div class="modal-backdrop" *ngIf="showDeleteConfirm">
+    <div class="modal modal--small">
+      <div class="modal-header">
+        <h3>Confirm Deletion</h3>
+        <button type="button" class="close-btn" (click)="closeDeleteConfirm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete job <strong>{{ jobToDelete?.title }}</strong>?</p>
+        <p class="warning-text small">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn--secondary" (click)="closeDeleteConfirm()">Cancel</button>
+        <button type="button" class="btn--danger-primary" (click)="confirmDelete()" [disabled]="isLoading">Delete Job</button>
+      </div>
+    </div>
+  </div>
 
   <ng-template #noJobsTpl>
     <div class="empty-state" *ngIf="!isLoading">

@@ -31,9 +31,9 @@
             </td>
             <td>
               <div class="action-buttons">
-                <button type="button" class="btn--icon" (click)="openEditModal(user)" title="Edit User">✏️</button>
-                <button type="button" class="btn--icon" (click)="openPasswordModal(user)" title="Reset Password">🔑</button>
-                <button type="button" class="btn--icon btn--danger" (click)="openDeleteConfirm(user)" title="Delete User">🗑️</button>
+                <button type="button" class="btn--icon" (click)="openEditModal(user)" title="Edit User">Edit</button>
+                <button type="button" class="btn--icon" (click)="openPasswordModal(user)" title="Reset Password">Reset</button>
+                <button type="button" class="btn--icon btn--danger" (click)="openDeleteConfirm(user)" title="Delete User">Delete</button>
               </div>
             </td>
           </tr>
@@ -72,7 +72,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn--secondary" (click)="closeEditModal()">Cancel</button>
-        <button type="button" (click)="saveUserChanges()" [disabled]="isLoading">Save Changes</button>
+        <button type="button" class="btn--primary" (click)="saveUserChanges()" [disabled]="isLoading">Save Changes</button>
       </div>
     </div>
   </div>
@@ -99,7 +99,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn--secondary" (click)="closePasswordModal()">Cancel</button>
-        <button type="button" (click)="saveNewPassword()" [disabled]="isLoading">Update Password</button>
+        <button type="button" class="btn--primary" (click)="saveNewPassword()" [disabled]="isLoading">Update Password</button>
       </div>
     </div>
   </div>
@@ -117,7 +117,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn--secondary" (click)="closeDeleteConfirm()">Cancel</button>
-        <button type="button" class="btn--danger" (click)="confirmDelete()" [disabled]="isLoading">Delete Account</button>
+        <button type="button" class="btn--danger-primary" (click)="confirmDelete()" [disabled]="isLoading">Delete Account</button>
       </div>
     </div>
   </div>
