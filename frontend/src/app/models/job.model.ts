@@ -4,11 +4,21 @@ export interface Job {
   title: string;
   description: string;
   location: string;
-  slug: string;
+  jobType?: string;
+  workType?: string;
+  experienceRequired?: number;
+  requiredSkills?: string;
+  educationRequired?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  isActive?: boolean;
   applicationLink?: string;
+  slug: string;
   postedBy?: {
     id: number;
     username: string;
+    companyName?: string;
   };
   createdAt?: string;
   updatedAt?: string;

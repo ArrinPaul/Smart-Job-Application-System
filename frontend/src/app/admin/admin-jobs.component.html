@@ -52,24 +52,32 @@
           <input type="text" [(ngModel)]="editingJob.title">
         </div>
         <div class="form-group">
-          <label>Company</label>
-          <input type="text" [(ngModel)]="editingJob.company">
-        </div>
-        <div class="form-group">
           <label>Location</label>
           <input type="text" [(ngModel)]="editingJob.location">
         </div>
         <div class="form-group">
-          <label>Salary Range</label>
-          <input type="text" [(ngModel)]="editingJob.salaryRange">
+          <label>Salary Min</label>
+          <input type="number" [(ngModel)]="editingJob.salaryMin">
+        </div>
+        <div class="form-group">
+          <label>Salary Max</label>
+          <input type="number" [(ngModel)]="editingJob.salaryMax">
         </div>
         <div class="form-group">
           <label>Job Type</label>
-          <select [(ngModel)]="editingJob.type">
+          <select [(ngModel)]="editingJob.jobType">
             <option value="FULL_TIME">Full Time</option>
             <option value="PART_TIME">Part Time</option>
             <option value="CONTRACT">Contract</option>
             <option value="REMOTE">Remote</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Work Type</label>
+          <select [(ngModel)]="editingJob.workType">
+            <option value="ON_SITE">On-Site</option>
+            <option value="REMOTE">Remote</option>
+            <option value="HYBRID">Hybrid</option>
           </select>
         </div>
         <div class="form-group">
