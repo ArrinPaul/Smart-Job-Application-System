@@ -428,3 +428,6 @@ Caused by: org.postgresql.util.PSQLException: ERROR: new row for relation "users
 	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:280)
 	... 209 common frames omitted
+2026-04-27 16:43:01 [http-nio-8080-exec-8] INFO  c.e.j.controller.AuthController - Login request for user: Arrin
+2026-04-27 16:43:03 [http-nio-8080-exec-8] INFO  c.e.j.controller.AuthController - User Arrin logged in successfully
+2026-04-27 16:43:18 [http-nio-8080-exec-9] WARN  c.e.j.security.AuthRateLimitFilter - Rate limit exceeded for POST /api/auth/login from 0:0:0:0:0:0:0:1
