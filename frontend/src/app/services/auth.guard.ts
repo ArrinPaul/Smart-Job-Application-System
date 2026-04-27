@@ -19,6 +19,13 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): boolean {
     if (this.authService.isLoggedIn()) {
+      // Check onboarding (except for the onboarding page itself)
+      if (!this.authService.isOnboardingCompleted() && 
+          !state.url.startsWith('/onboarding') && 
+          !this.authService.isAdmin()) {
+        this.router.navigate(['/onboarding']);
+        return false;
+      }
       return true;
     }
 
@@ -42,6 +49,12 @@ export class RoleGuard implements CanActivate {
 
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
+      return false;
+    }
+
+    // Check onboarding
+    if (!this.authService.isOnboardingCompleted() && !this.authService.isAdmin()) {
+      this.router.navigate(['/onboarding']);
       return false;
     }
 

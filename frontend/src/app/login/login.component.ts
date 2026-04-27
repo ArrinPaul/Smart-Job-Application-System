@@ -51,7 +51,8 @@ export class LoginComponent implements OnDestroy {
             response.username,
             response.id,
             response.mfaEnabled,
-            response.token
+            response.token,
+            response.onboardingCompleted
           );
 
           if (response.mfaEnabled) {
@@ -63,9 +64,14 @@ export class LoginComponent implements OnDestroy {
 
           // Show success message
           this.toastService.showSuccess('✅ Login successful! Welcome back!');
-          // Navigate based on role after a brief delay
+          
+          // Navigate based on role and onboarding status
           setTimeout(() => {
-            this.navigateBasedOnRole(response.role);
+            if (!response.onboardingCompleted && response.role !== UserRole.ADMIN) {
+              this.router.navigate(['/onboarding']);
+            } else {
+              this.navigateBasedOnRole(response.role);
+            }
           }, 1500);
         },
         error: (error) => {

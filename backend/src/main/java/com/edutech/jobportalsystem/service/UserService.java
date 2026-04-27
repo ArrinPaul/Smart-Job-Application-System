@@ -216,6 +216,22 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 
+    public User completeOnboarding(String username, Map<String, Object> profileData) {
+        User user = getUserByUsername(username);
+        
+        if (profileData.containsKey("fullName")) user.setFullName((String) profileData.get("fullName"));
+        if (profileData.containsKey("headline")) user.setHeadline((String) profileData.get("headline"));
+        if (profileData.containsKey("bio")) user.setBio((String) profileData.get("bio"));
+        if (profileData.containsKey("location")) user.setLocation((String) profileData.get("location"));
+        if (profileData.containsKey("skills")) user.setSkills((String) profileData.get("skills"));
+        if (profileData.containsKey("companyName")) user.setCompanyName((String) profileData.get("companyName"));
+        if (profileData.containsKey("website")) user.setWebsite((String) profileData.get("website"));
+        
+        user.setOnboardingCompleted(true);
+        logger.info("User {} completed onboarding", username);
+        return userRepository.save(user);
+    }
+
     private String generateSecureToken() {
         return UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
     }

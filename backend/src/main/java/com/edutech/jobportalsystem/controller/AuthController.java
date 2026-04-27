@@ -7,10 +7,12 @@ import com.edutech.jobportalsystem.dto.auth.LoginRequest;
 import com.edutech.jobportalsystem.dto.auth.MfaCodeRequest;
 import com.edutech.jobportalsystem.dto.auth.RegisterRequest;
 import com.edutech.jobportalsystem.dto.auth.ResetPasswordRequest;
+import com.edutech.jobportalsystem.dto.onboarding.OnboardingStepRequest;
 import com.edutech.jobportalsystem.entity.User;
 import com.edutech.jobportalsystem.exception.BadRequestException;
 import com.edutech.jobportalsystem.jwt.JwtUtil;
 import com.edutech.jobportalsystem.service.AuthNotificationService;
+import com.edutech.jobportalsystem.service.OnboardingService;
 import com.edutech.jobportalsystem.service.TotpService;
 import com.edutech.jobportalsystem.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +46,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OnboardingService onboardingService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -117,8 +122,74 @@ public class AuthController {
                 "role", user.getRole(),
                 "username", user.getUsername(),
                 "id", user.getId(),
-            "mfaEnabled", user.getMfaEnabled(),
-            "token", token
+                "mfaEnabled", user.getMfaEnabled(),
+                "onboardingCompleted", user.getOnboardingCompleted(),
+                "token", token
+        ));
+    }
+
+    @PostMapping("/onboarding/complete")
+    public ResponseEntity<?> completeOnboarding(@RequestBody Map<String, Object> profileData) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.completeOnboarding(username, profileData);
+        return ResponseEntity.ok(Map.of(
+                "message", "Onboarding completed",
+                "onboardingCompleted", user.getOnboardingCompleted()
+        ));
+    }
+
+    // ========== NEW STEP-BASED ONBOARDING ENDPOINTS ==========
+    
+    @GetMapping("/onboarding/status")
+    public ResponseEntity<?> getOnboardingStatus() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Fetching onboarding status for user: {}", username);
+        return ResponseEntity.ok(onboardingService.getOnboardingStatus(username));
+    }
+
+    @PostMapping("/onboarding/step/1")
+    public ResponseEntity<?> saveStep1(@Valid @RequestBody OnboardingStepRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Saving onboarding step 1 for user: {}", username);
+        return ResponseEntity.ok(onboardingService.saveStep1(username, request));
+    }
+
+    @PostMapping("/onboarding/step/2")
+    public ResponseEntity<?> saveStep2(@Valid @RequestBody OnboardingStepRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Saving onboarding step 2 for user: {}", username);
+        return ResponseEntity.ok(onboardingService.saveStep2(username, request));
+    }
+
+    @PostMapping("/onboarding/step/3")
+    public ResponseEntity<?> saveStep3(@Valid @RequestBody OnboardingStepRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Saving onboarding step 3 for user: {}", username);
+        return ResponseEntity.ok(onboardingService.saveStep3(username, request));
+    }
+
+    @PostMapping("/onboarding/step/4")
+    public ResponseEntity<?> saveStep4(@Valid @RequestBody OnboardingStepRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Saving onboarding step 4 for user: {}", username);
+        return ResponseEntity.ok(onboardingService.saveStep4(username, request));
+    }
+
+    @PostMapping("/onboarding/step/5")
+    public ResponseEntity<?> completeOnboardingStep5() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Completing onboarding for user: {}", username);
+        return ResponseEntity.ok(onboardingService.completeOnboarding(username));
+    }
+
+    @PostMapping("/onboarding/skip")
+    public ResponseEntity<?> skipOnboarding() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.warn("User {} is skipping onboarding", username);
+        onboardingService.skipOnboarding(username);
+        return ResponseEntity.ok(Map.of(
+                "message", "Onboarding skipped",
+                "onboardingCompleted", true
         ));
     }
 

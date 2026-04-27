@@ -4,7 +4,10 @@ import { RoleGuard } from './services/auth.guard';
 import { UserRole } from './models/user.model';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  {
+    path: '',
+    loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent)
+  },
   {
     path: 'login',
     loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
@@ -12,6 +15,11 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./registration/registration.component').then(m => m.RegistrationComponent)
+  },
+  {
+    path: 'onboarding',
+    loadComponent: () => import('./onboarding/onboarding.component').then(m => m.OnboardingComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'jobs',

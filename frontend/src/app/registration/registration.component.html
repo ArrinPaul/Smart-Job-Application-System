@@ -3,12 +3,12 @@
     <span class="hero-chip">Join the Platform</span>
     <h1 class="auth-title">Create your role-based workspace in less than a minute.</h1>
     <p>
-      Register as a recruiter or job seeker and start managing hiring workflows with
+      Register as a recruiter or job applicant and start managing hiring workflows with
       clean dashboards, secure auth, and seamless application tracking.
     </p>
     <ul class="hero-list">
       <li>Recruiters can post jobs and update candidate status fast</li>
-      <li>Job seekers can browse, apply, and upload resumes securely</li>
+      <li>Job applicants can browse, apply, and upload resumes securely</li>
       <li>Admins get full platform visibility and analytics</li>
     </ul>
   </section>
@@ -39,7 +39,7 @@
         <label for="role">Role</label>
         <select id="role" name="role" [(ngModel)]="role" required>
           <option value="" disabled>Select your role</option>
-          <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+          <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
         </select>
       </div>
 

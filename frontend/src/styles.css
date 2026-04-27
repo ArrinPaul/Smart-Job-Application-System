@@ -1397,3 +1397,78 @@ button:disabled {
   color: var(--ink-soft);
   margin-bottom: 4px;
 }
+
+/* ==================== PAGINATION ==================== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 16px;
+  background: rgba(31, 29, 24, 0.03);
+  border-radius: var(--radius-md);
+}
+
+.pagination-btn {
+  min-width: 120px;
+  padding: 8px 16px;
+  font-size: 13px;
+  background: linear-gradient(135deg, #8f7f6b, #706352);
+  box-shadow: 0 4px 8px rgba(80, 67, 54, 0.15);
+}
+
+.pagination-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pagination-info {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-family: 'Manrope', sans-serif;
+}
+
+.pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 12px;
+}
+
+/* ==================== ADVANCED FILTERS ==================== */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-actions {
+  justify-content: flex-end;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: var(--brand);
+  text-decoration: underline;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: auto;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  transform: none;
+  filter: brightness(1.2);
+  box-shadow: none;
+}

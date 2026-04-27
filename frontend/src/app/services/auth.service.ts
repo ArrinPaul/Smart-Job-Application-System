@@ -11,6 +11,7 @@ export class AuthService {
   private readonly ROLE_KEY = 'jobportal_role';
   private readonly TOKEN_KEY = 'jobportal_token';
   private readonly MFA_KEY = 'jobportal_mfa_enabled';
+  private readonly ONBOARDING_KEY = 'jobportal_onboarding_completed';
   private readonly MFA_OTP_KEY = 'jobportal_mfa_otp_code';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
 
@@ -22,17 +23,26 @@ export class AuthService {
   /**
    * Save authentication session metadata (token remains in HttpOnly cookie)
    */
-  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean, token?: string): void {
+  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean, token?: string, onboardingCompleted?: boolean): void {
     localStorage.setItem(this.ROLE_KEY, role);
     if (username) localStorage.setItem('username', username);
     if (userId) localStorage.setItem('userId', String(userId));
     localStorage.setItem(this.MFA_KEY, String(!!mfaEnabled));
+    localStorage.setItem(this.ONBOARDING_KEY, String(!!onboardingCompleted));
     if (token) {
       localStorage.setItem(this.TOKEN_KEY, token);
     } else {
       localStorage.removeItem(this.TOKEN_KEY);
     }
     this.loggedIn$.next(true);
+  }
+
+  isOnboardingCompleted(): boolean {
+    return localStorage.getItem(this.ONBOARDING_KEY) === 'true';
+  }
+
+  setOnboardingCompleted(completed: boolean): void {
+    localStorage.setItem(this.ONBOARDING_KEY, String(completed));
   }
 
   /**

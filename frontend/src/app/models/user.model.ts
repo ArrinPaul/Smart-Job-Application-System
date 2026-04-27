@@ -6,6 +6,15 @@ export interface User {
   password?: string;
   role: UserRole;
   createdAt?: string;
+  onboardingCompleted: boolean;
+  fullName?: string;
+  headline?: string;
+  bio?: string;
+  companyName?: string;
+  website?: string;
+  location?: string;
+  skills?: string;
+  profilePictureUrl?: string;
 }
 
 export enum UserRole {
@@ -25,6 +34,7 @@ export interface LoginResponse {
   username: string;
   id?: number;
   mfaEnabled?: boolean;
+  onboardingCompleted: boolean;
   token?: string;
 }
 

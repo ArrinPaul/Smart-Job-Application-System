@@ -48,7 +48,7 @@ export class JobDetailsComponent implements OnInit {
       error: (err) => {
         this.error = 'Could not load job details. It may have been removed.';
         this.loading = false;
-        this.toastService.show('Error loading job details', 'error');
+        this.toastService.showError('Error loading job details');
       }
     });
   }
@@ -83,8 +83,8 @@ export class JobDetailsComponent implements OnInit {
   applyInternally(): void {
     if (this.job) {
         this.httpService.applyJob(this.job.id).subscribe({
-            next: () => this.toastService.show('Applied successfully!', 'success'),
-            error: () => this.toastService.show('Failed to apply', 'error')
+            next: () => this.toastService.showSuccess('Applied successfully!'),
+            error: () => this.toastService.showError('Failed to apply')
         });
     }
   }
@@ -92,7 +92,7 @@ export class JobDetailsComponent implements OnInit {
   shareJob(): void {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      this.toastService.show('Link copied to clipboard!', 'success');
+      this.toastService.showSuccess('Link copied to clipboard!');
     });
   }
 }

@@ -22,12 +22,40 @@ export class JobListComponent implements OnInit, OnDestroy {
   users: User[] = [];
   searchTitle = '';
   searchLocation = '';
+  selectedCategory = 'All Categories';
+  selectedJobType = 'All Types';
+  
+  categories = [
+    'All Categories',
+    'Engineering',
+    'Design',
+    'Marketing',
+    'Sales',
+    'Product',
+    'Support',
+    'Internships'
+  ];
+
+  jobTypes = [
+    'All Types',
+    'Remote',
+    'On-site',
+    'Hybrid',
+    'Full-time',
+    'Part-time'
+  ];
+
   activeQuickFilter = 'ALL';
   isLoading = false;
   isAdmin = false;
   showUsers = false;
   selectedInsights: any = null;
   insightJobId: number | null = null;
+  
+  // Pagination
+  currentPage = 1;
+  pageSize = 50;
+  
   private destroy$ = new Subject<void>();
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -49,13 +77,16 @@ export class JobListComponent implements OnInit, OnDestroy {
   private startAutoRefresh(): void {
     this.refreshTimer = setInterval(() => {
       if (!this.isLoading) {
-        this.loadJobs();
+        this.loadJobs(false);
       }
     }, 12000);
   }
 
-  loadJobs(): void {
+  loadJobs(resetPagination: boolean = true): void {
     this.isLoading = true;
+    if (resetPagination) {
+      this.currentPage = 1;
+    }
     this.httpService.getJobs(this.searchTitle, this.searchLocation)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -67,6 +98,57 @@ export class JobListComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+  get filteredJobs(): Job[] {
+    return this.jobs.filter(job => {
+      let matchesCategory = true;
+      let matchesType = true;
+
+      const title = (job.title || '').toLowerCase();
+      const desc = (job.description || '').toLowerCase();
+      const loc = (job.location || '').toLowerCase();
+
+      if (this.selectedCategory !== 'All Categories') {
+        const cat = this.selectedCategory.toLowerCase();
+        if (cat === 'internships') {
+          matchesCategory = title.includes('intern') || desc.includes('intern') || title.includes('trainee');
+        } else {
+          matchesCategory = title.includes(cat) || desc.includes(cat);
+        }
+      }
+
+      if (this.selectedJobType !== 'All Types') {
+        const type = this.selectedJobType.toLowerCase();
+        if (type === 'remote') {
+          matchesType = loc.includes('remote') || desc.includes('remote');
+        } else if (type === 'hybrid') {
+          matchesType = loc.includes('hybrid') || desc.includes('hybrid');
+        } else if (type === 'on-site') {
+          matchesType = !loc.includes('remote') && !loc.includes('hybrid') && !desc.includes('remote');
+        } else {
+          matchesType = title.includes(type) || desc.includes(type);
+        }
+      }
+
+      return matchesCategory && matchesType;
+    });
+  }
+
+  get paginatedJobs(): Job[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredJobs.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredJobs.length / this.pageSize);
+  }
+
+  setPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   loadUsers(): void {
@@ -87,21 +169,35 @@ export class JobListComponent implements OnInit, OnDestroy {
     this.loadJobs();
   }
 
+  clearFilters(): void {
+    this.searchTitle = '';
+    this.searchLocation = '';
+    this.selectedCategory = 'All Categories';
+    this.selectedJobType = 'All Types';
+    this.activeQuickFilter = 'ALL';
+    this.loadJobs();
+  }
+
   applyQuickFilter(filter: 'ALL' | 'REMOTE' | 'ENGINEERING' | 'ENTRY'): void {
     this.activeQuickFilter = filter;
+    this.selectedCategory = 'All Categories';
+    this.selectedJobType = 'All Types';
 
     switch (filter) {
       case 'REMOTE':
         this.searchTitle = '';
         this.searchLocation = 'Remote';
+        this.selectedJobType = 'Remote';
         break;
       case 'ENGINEERING':
         this.searchTitle = 'Engineer';
         this.searchLocation = '';
+        this.selectedCategory = 'Engineering';
         break;
       case 'ENTRY':
         this.searchTitle = 'Intern';
         this.searchLocation = '';
+        this.selectedCategory = 'Internships';
         break;
       default:
         this.searchTitle = '';
@@ -117,10 +213,15 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   get remoteJobsCount(): number {
-    return this.jobs.filter(job => {
-      const location = (job.location || '').toLowerCase();
-      return location.includes('remote') || location.includes('hybrid');
-    }).length;
+    return this.jobs.filter(job => this.isRemoteOrHybrid(job)).length;
+  }
+
+  isRemoteOrHybrid(job: Job): boolean {
+    const location = (job.location || '').toLowerCase();
+    const description = (job.description || '').toLowerCase();
+    const keywords = ['remote', 'hybrid', 'work from home', 'wfh', 'anywhere'];
+
+    return keywords.some(key => location.includes(key) || description.includes(key));
   }
 
   get recentJobsCount(): number {
@@ -205,4 +306,3 @@ export class JobListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-

@@ -33,6 +33,38 @@ export class HttpService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, request);
   }
 
+  completeOnboarding(profileData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/onboarding/complete`, profileData);
+  }
+
+  /**
+   * Get onboarding status and progress
+   */
+  getOnboardingStatus(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/onboarding/status`);
+  }
+
+  /**
+   * Save onboarding step data
+   */
+  saveOnboardingStep(step: number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/onboarding/step/${step}`, data);
+  }
+
+  /**
+   * Complete onboarding final step
+   */
+  completeOnboardingFinal(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/onboarding/step/5`, {});
+  }
+
+  /**
+   * Skip onboarding
+   */
+  skipOnboarding(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/onboarding/skip`, {});
+  }
+
   /**
    * Logout user and clear auth cookie
    */

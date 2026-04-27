@@ -69,6 +69,26 @@ public class User {
     @JsonIgnore
     private String mfaSecret;
 
+    @Column(nullable = false)
+    private Boolean onboardingCompleted = false;
+
+    private LocalDateTime onboardingCompletedAt;
+
+    private String fullName;
+    private String headline;
+    
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+    
+    private String companyName;
+    private String website;
+    private String location;
+    
+    @Column(columnDefinition = "TEXT")
+    private String skills;
+    
+    private String profilePictureUrl;
+
     private String lastLoginIp;
 
     @Column(length = 512)
