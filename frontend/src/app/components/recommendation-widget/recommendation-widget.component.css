@@ -1,0 +1,291 @@
+.recommendation-widget {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Widget Header */
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-title .icon {
+  font-size: 1.5rem;
+}
+
+.header-title h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.view-all-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+.view-all-link:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* Loading State */
+.widget-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.mini-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.widget-loading p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Error State */
+.widget-error {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.widget-error p {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+}
+
+.retry-link {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+.retry-link:hover {
+  color: #1d4ed8;
+}
+
+/* Empty State */
+.widget-empty {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.widget-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Recommendations List */
+.recommendations-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.recommendation-item:last-child {
+  border-bottom: none;
+}
+
+.recommendation-item:hover {
+  background: #fafbfc;
+}
+
+/* Match Badge */
+.match-badge-mini {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Item Content */
+.item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-company {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.meta-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta-divider {
+  flex-shrink: 0;
+}
+
+/* Arrow */
+.item-arrow {
+  flex-shrink: 0;
+  color: #3b82f6;
+  font-size: 1.2rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.recommendation-item:hover .item-arrow {
+  transform: translateX(4px);
+}
+
+/* Widget Footer */
+.widget-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #fafbfc;
+  text-align: center;
+}
+
+.footer-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .widget-header {
+    padding: 1rem;
+  }
+
+  .header-title h3 {
+    font-size: 1rem;
+  }
+
+  .view-all-link {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .recommendation-item {
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .match-badge-mini {
+    width: 45px;
+    height: 45px;
+    font-size: 0.9rem;
+  }
+
+  .item-title {
+    font-size: 0.9rem;
+  }
+
+  .item-company {
+    font-size: 0.8rem;
+  }
+
+  .item-arrow {
+    font-size: 1rem;
+  }
+}
+
+/* Scrollbar Styling */
+.recommendations-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.recommendations-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.recommendations-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.recommendations-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

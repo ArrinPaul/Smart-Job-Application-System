@@ -3,11 +3,13 @@ package com.edutech.jobportalsystem.controller;
 // File: ./backend/src/main/java/com/edutech/jobportalsystem/controller/JobSeekerController.java
 
 import com.edutech.jobportalsystem.dto.job.ApplyJobRequest;
+import com.edutech.jobportalsystem.dto.job.JobRecommendationDTO;
 import com.edutech.jobportalsystem.entity.User;
 import com.edutech.jobportalsystem.exception.ResourceNotFoundException;
 import com.edutech.jobportalsystem.repository.UserRepository;
 import com.edutech.jobportalsystem.service.ApplicationService;
 import com.edutech.jobportalsystem.service.JobService;
+import com.edutech.jobportalsystem.service.JobRecommendationService;
 import com.edutech.jobportalsystem.service.ResumeService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
@@ -19,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -38,6 +41,9 @@ public class JobSeekerController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JobRecommendationService jobRecommendationService;
 
     @Autowired
     private com.edutech.jobportalsystem.service.SmartInsightsService smartInsightsService;
@@ -87,5 +93,26 @@ public class JobSeekerController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("User {} fetching insights for job {}", username, jobId);
         return ResponseEntity.ok(smartInsightsService.getMatchInsights(jobId, username));
+    }
+
+    /**
+     * Get personalized job recommendations for the current user
+     * @param limit Maximum number of recommendations to return (default: 10, max: 50)
+     * @return List of recommended jobs with match percentages
+     */
+    @GetMapping("/jobseeker/recommendations")
+    public ResponseEntity<List<JobRecommendationDTO>> getJobRecommendations(
+            @RequestParam(required = false, defaultValue = "10") int limit) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        
+        // Cap limit to 50
+        if (limit > 50) limit = 50;
+        if (limit < 1) limit = 10;
+        
+        logger.info("User {} requesting {} job recommendations", user.getId(), limit);
+        List<JobRecommendationDTO> recommendations = jobRecommendationService.getRecommendationsForUser(user.getId(), limit);
+        return ResponseEntity.ok(recommendations);
     }
 }

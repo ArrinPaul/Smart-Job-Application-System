@@ -1,0 +1,58 @@
+<div class="recommendation-widget">
+  <!-- Widget Header -->
+  <div class="widget-header">
+    <div class="header-title">
+      <span class="icon">⭐</span>
+      <h3>Recommended For You</h3>
+    </div>
+    <a routerLink="/recommendations" class="view-all-link">View All →</a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="widget-loading">
+    <div class="mini-spinner"></div>
+    <p>Loading recommendations...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="widget-error">
+    <p>{{ error }}</p>
+    <button (click)="loadRecommendations()" class="retry-link">Retry</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="recommendations.length === 0 && !loading && !error" class="widget-empty">
+    <p>No recommendations yet. Complete your profile to get personalized suggestions.</p>
+  </div>
+
+  <!-- Recommendations List -->
+  <div *ngIf="recommendations.length > 0 && !loading" class="recommendations-list">
+    <div *ngFor="let rec of recommendations" class="recommendation-item">
+      <!-- Match Badge -->
+      <div class="match-badge-mini" [style.backgroundColor]="getMatchColor(rec.matchPercentage)">
+        {{ rec.matchPercentage }}%
+      </div>
+
+      <!-- Item Content -->
+      <div class="item-content">
+        <h4 class="item-title">{{ rec.jobTitle }}</h4>
+        <p class="item-company">{{ rec.companyName }}</p>
+        <div class="item-meta">
+          <span class="meta-item">{{ rec.location }}</span>
+          <span class="meta-divider">•</span>
+          <span class="meta-item">{{ formatSalary(rec.salaryMin) }}</span>
+        </div>
+      </div>
+
+      <!-- Action -->
+      <a [routerLink]="['/job-details', rec.jobId]" class="item-arrow">→</a>
+    </div>
+  </div>
+
+  <!-- Widget Footer -->
+  <div *ngIf="recommendations.length > 0 && !loading" class="widget-footer">
+    <a routerLink="/recommendations" class="footer-link">
+      See all {{ recommendations.length }}+ job recommendations
+    </a>
+  </div>
+</div>

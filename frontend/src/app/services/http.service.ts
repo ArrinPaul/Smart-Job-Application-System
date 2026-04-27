@@ -203,6 +203,13 @@ export class HttpService {
     return this.http.delete<void>(`${this.apiUrl}/resume/${resumeId}`);
   }
 
+  /**
+   * Get job recommendations for current user
+   */
+  getJobRecommendations(limit: number = 10): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/jobseeker/recommendations?limit=${limit}`);
+  }
+
   // ==================== ADMIN ====================
 
   /**

@@ -11,7 +11,7 @@ ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMP;
 -- 2. CREATE ONBOARDING_PROGRESS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS onboarding_progress (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     current_step INTEGER NOT NULL DEFAULT 1,
     max_step_reached INTEGER NOT NULL DEFAULT 1,
@@ -35,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_onboarding_progress_completed_at ON onboarding_pr
 -- 3. CREATE RECRUITER_PROFILE TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS recruiter_profile (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     company_name VARCHAR(255),
     company_website VARCHAR(255),
@@ -56,7 +56,7 @@ CREATE INDEX IF NOT EXISTS idx_recruiter_profile_company_name ON recruiter_profi
 -- 4. CREATE JOB_SEEKER_PROFILE TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS job_seeker_profile (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     professional_headline VARCHAR(255),
     skills TEXT,
