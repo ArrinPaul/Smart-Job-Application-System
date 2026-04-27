@@ -169,11 +169,12 @@
           </div>
         </div>
 
-        <!-- STEP 3: Work Experience -->
+        <!-- STEP 3: Experience & Background -->
         <div *ngIf="currentStep === 3" class="form-step" [@fadeInOut]>
+          <!-- Job Applicant Fields -->
           <div *ngIf="role === UserRole.JOB_APPLICANT">
             <div class="form-group">
-              <label for="currentCompany">Current Company</label>
+              <label for="currentCompany">Current/Last Company</label>
               <input 
                 type="text" 
                 id="currentCompany" 
@@ -183,41 +184,58 @@
                 class="form-input">
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="currentDesignation">Current Designation</label>
-                <input 
-                  type="text" 
-                  id="currentDesignation" 
-                  [(ngModel)]="formData.currentDesignation"
-                  name="currentDesignation"
-                  placeholder="e.g., Software Engineer"
-                  class="form-input">
-              </div>
+            <div class="form-group">
+              <label for="currentDesignation">Current/Last Designation</label>
+              <input 
+                type="text" 
+                id="currentDesignation" 
+                [(ngModel)]="formData.currentDesignation"
+                name="currentDesignation"
+                placeholder="e.g., Software Engineer"
+                class="form-input">
             </div>
 
             <div class="form-group">
-              <label for="education">Education</label>
+              <label for="education">Highest Education</label>
               <textarea 
                 id="education" 
                 [(ngModel)]="formData.education"
                 name="education"
-                placeholder="Add your educational background"
+                placeholder="e.g., Bachelor of Engineering in Computer Science"
                 rows="3"
                 class="form-input"></textarea>
             </div>
           </div>
 
+          <!-- Recruiter Fields -->
           <div *ngIf="role === UserRole.RECRUITER">
-            <div class="info-card">
-              <div class="info-icon">✓</div>
-              <p>Great! Let's move to work preferences in the next step.</p>
+            <div class="form-group">
+              <label for="companyWebsite">Company Website</label>
+              <input 
+                type="url" 
+                id="companyWebsite" 
+                [(ngModel)]="formData.companyWebsite"
+                name="companyWebsite"
+                placeholder="e.g., https://www.techcorp.com"
+                class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input 
+                type="text" 
+                id="industry" 
+                [(ngModel)]="formData.industry"
+                name="industry"
+                placeholder="e.g., Fintech / Healthcare"
+                class="form-input">
             </div>
           </div>
         </div>
 
-        <!-- STEP 4: Preferences (Job Applicant) -->
+        <!-- STEP 4: Preferences & Settings -->
         <div *ngIf="currentStep === 4" class="form-step" [@fadeInOut]>
+          <!-- Job Applicant Fields -->
           <div *ngIf="role === UserRole.JOB_APPLICANT">
             <div class="form-group">
               <label class="checkbox-label">
@@ -226,53 +244,69 @@
                   [(ngModel)]="formData.openToOpportunities"
                   name="openToOpportunities"
                   class="checkbox-input">
-                <span>I'm open to job opportunities</span>
+                <span>I'm actively looking for new opportunities</span>
               </label>
             </div>
 
             <div class="form-group">
-              <label for="workPreference">Work Preference</label>
+              <label for="workPreference">Work Mode Preference</label>
               <select 
                 id="workPreference" 
                 [(ngModel)]="formData.workPreference"
                 name="workPreference"
                 class="form-input">
-                <option value="remote">Remote</option>
-                <option value="on-site">On-Site</option>
-                <option value="hybrid">Hybrid</option>
+                <option value="remote">Fully Remote</option>
+                <option value="on-site">On-Site / Office</option>
+                <option value="hybrid">Hybrid (Remote + Office)</option>
               </select>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="salaryMin">Expected Salary Min (₹)</label>
+                <label for="salaryMin">Min Expected Salary (₹)</label>
                 <input 
                   type="number" 
                   id="salaryMin" 
                   [(ngModel)]="formData.expectedSalaryMin"
                   name="expectedSalaryMin"
-                  placeholder="0"
+                  placeholder="e.g., 500000"
                   class="form-input">
               </div>
 
               <div class="form-group">
-                <label for="salaryMax">Expected Salary Max (₹)</label>
+                <label for="salaryMax">Max Expected Salary (₹)</label>
                 <input 
                   type="number" 
                   id="salaryMax" 
                   [(ngModel)]="formData.expectedSalaryMax"
                   name="expectedSalaryMax"
-                  placeholder="0"
+                  placeholder="e.g., 1200000"
                   class="form-input">
               </div>
             </div>
             <span *ngIf="errors['salary']" class="error-text">{{ errors['salary'] }}</span>
           </div>
 
+          <!-- Recruiter Fields -->
           <div *ngIf="role === UserRole.RECRUITER">
+            <div class="form-group">
+              <label for="companySize">Company Size</label>
+              <select 
+                id="companySize" 
+                [(ngModel)]="formData.companySize"
+                name="companySize"
+                class="form-input">
+                <option value="">Select Size</option>
+                <option value="startup">Startup (1-50 employees)</option>
+                <option value="small">Small (51-200 employees)</option>
+                <option value="medium">Medium (201-1000 employees)</option>
+                <option value="large">Large (1000+ employees)</option>
+              </select>
+            </div>
+
             <div class="info-card">
-              <div class="info-icon">✓</div>
-              <p>You've completed all required information. Ready to finish?</p>
+              <div class="info-icon">🎯</div>
+              <p>You're almost there! Review your details in the next step to finish setting up your hiring profile.</p>
             </div>
           </div>
         </div>

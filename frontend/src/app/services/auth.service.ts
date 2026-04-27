@@ -34,6 +34,7 @@ export class AuthService {
     } else {
       localStorage.removeItem(this.TOKEN_KEY);
     }
+    // Push true to notify all subscribers immediately
     this.loggedIn$.next(true);
   }
 
@@ -64,7 +65,14 @@ export class AuthService {
    */
   getRole(): UserRole | null {
     const role = localStorage.getItem(this.ROLE_KEY);
-    return role as UserRole || null;
+    if (!role) return null;
+    
+    // Normalize role string to match enum
+    const normalizedRole = role.toUpperCase();
+    if (Object.values(UserRole).includes(normalizedRole as UserRole)) {
+      return normalizedRole as UserRole;
+    }
+    return null;
   }
 
   /**

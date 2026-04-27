@@ -123,3 +123,28 @@
 2026-04-27 16:23:00 [main] INFO  c.e.j.JobPortalSystemApplication - Started JobPortalSystemApplication in 36.968 seconds (process running for 39.005)
 2026-04-27 16:23:02 [main] INFO  c.e.j.config.AdminBootstrapConfig - Admin bootstrap skipped: user admin already exists
 2026-04-27 16:23:02 [main] INFO  c.e.j.config.DataLoader - Data loader is disabled
+2026-04-27 16:27:19 [http-nio-8080-exec-2] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-04-27 16:27:20 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - Login request for user: ArrinPaul
+2026-04-27 16:27:22 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - User ArrinPaul logged in successfully
+2026-04-27 16:27:25 [http-nio-8080-exec-4] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: ArrinPaul
+2026-04-27 16:27:44 [http-nio-8080-exec-6] INFO  c.e.j.controller.AuthController - Saving onboarding step 1 for user: ArrinPaul
+2026-04-27 16:27:44 [http-nio-8080-exec-6] INFO  c.e.j.service.OnboardingService - Saving onboarding step 1 for user: ArrinPaul
+2026-04-27 16:27:45 [http-nio-8080-exec-6] INFO  c.e.j.service.OnboardingService - Step 1 completed for user: ArrinPaul
+2026-04-27 16:28:02 [http-nio-8080-exec-8] INFO  c.e.j.controller.AuthController - Saving onboarding step 2 for user: ArrinPaul
+2026-04-27 16:28:02 [http-nio-8080-exec-8] INFO  c.e.j.service.OnboardingService - Saving onboarding step 2 for user: ArrinPaul
+2026-04-27 16:28:02 [http-nio-8080-exec-8] INFO  c.e.j.service.OnboardingService - Step 2 completed for user: ArrinPaul
+2026-04-27 16:28:53 [http-nio-8080-exec-10] INFO  c.e.j.controller.AuthController - Saving onboarding step 3 for user: ArrinPaul
+2026-04-27 16:28:53 [http-nio-8080-exec-10] INFO  c.e.j.service.OnboardingService - Saving onboarding step 3 for user: ArrinPaul
+2026-04-27 16:28:53 [http-nio-8080-exec-10] INFO  c.e.j.service.OnboardingService - Step 3 completed for user: ArrinPaul
+2026-04-27 16:29:00 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - Saving onboarding step 4 for user: ArrinPaul
+2026-04-27 16:29:00 [http-nio-8080-exec-2] INFO  c.e.j.service.OnboardingService - Saving onboarding step 4 for user: ArrinPaul
+2026-04-27 16:29:00 [http-nio-8080-exec-2] INFO  c.e.j.service.OnboardingService - Step 4 completed for user: ArrinPaul
+2026-04-27 16:29:03 [http-nio-8080-exec-4] INFO  c.e.j.controller.AuthController - Completing onboarding for user: ArrinPaul
+2026-04-27 16:29:03 [http-nio-8080-exec-4] INFO  c.e.j.service.OnboardingService - Completing onboarding for user: ArrinPaul
+2026-04-27 16:29:03 [http-nio-8080-exec-4] INFO  c.e.j.service.OnboardingService - Onboarding completed successfully for user: ArrinPaul
+2026-04-27 16:31:05 [http-nio-8080-exec-7] INFO  c.e.j.controller.AuthController - Login request for user: ArrinPaul
+2026-04-27 16:31:06 [http-nio-8080-exec-7] INFO  c.e.j.controller.AuthController - User ArrinPaul logged in successfully
+2026-04-27 16:31:21 [http-nio-8080-exec-8] INFO  c.e.j.controller.AuthController - Login request for user: ArrinPaul
+2026-04-27 16:31:23 [http-nio-8080-exec-8] INFO  c.e.j.controller.AuthController - User ArrinPaul logged in successfully
+2026-04-27 16:34:18 [http-nio-8080-exec-10] INFO  c.e.j.controller.AuthController - Login request for user: ArrinPaul
+2026-04-27 16:34:20 [http-nio-8080-exec-10] INFO  c.e.j.controller.AuthController - User ArrinPaul logged in successfully

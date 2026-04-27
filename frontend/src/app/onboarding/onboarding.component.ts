@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
@@ -19,7 +20,18 @@ interface OnboardingStatus {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './onboarding.component.html',
-  styleUrls: ['./onboarding.component.css']
+  styleUrls: ['./onboarding.component.css'],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
 export class OnboardingComponent implements OnInit {
   currentStep = 1;
@@ -88,6 +100,12 @@ export class OnboardingComponent implements OnInit {
       next: (response: OnboardingStatus) => {
         this.status = response;
         this.currentStep = response.currentStep;
+        
+        // Ensure role is synced if auth service was empty
+        if (!this.role && response.userRole) {
+          this.role = response.userRole as UserRole;
+        }
+
         if (response.isCompleted) {
           this.navigateHome();
         }

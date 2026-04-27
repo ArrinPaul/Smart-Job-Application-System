@@ -67,12 +67,17 @@ export class LoginComponent implements OnDestroy {
           
           // Navigate based on role and onboarding status
           setTimeout(() => {
-            if (!response.onboardingCompleted && response.role !== UserRole.ADMIN) {
+            const role = response.role;
+            const onboardingCompleted = response.onboardingCompleted;
+
+            if (!onboardingCompleted && role !== UserRole.ADMIN) {
+              console.log('Navigating to onboarding...');
               this.router.navigate(['/onboarding']);
             } else {
-              this.navigateBasedOnRole(response.role);
+              console.log('Navigating to dashboard based on role:', role);
+              this.navigateBasedOnRole(role);
             }
-          }, 1500);
+          }, 1000);
         },
         error: (error) => {
           this.isLoading = false;
@@ -94,7 +99,7 @@ export class LoginComponent implements OnDestroy {
         this.router.navigate(['/post-job']);
         break;
       case UserRole.JOB_APPLICANT:
-        this.router.navigate(['/jobs']);
+        this.router.navigate(['/dashboard']);
         break;
       case UserRole.ADMIN:
         this.router.navigate(['/admin']);

@@ -46,25 +46,46 @@ export class RoleGuard implements CanActivate {
     state: RouterStateSnapshot
   ): boolean {
     const requiredRoles = route.data['roles'] as string[];
+    const isLoggedIn = this.authService.isLoggedIn();
+    const userRole = this.authService.getRole();
+    const isOnboardingCompleted = this.authService.isOnboardingCompleted();
 
-    if (!this.authService.isLoggedIn()) {
+    console.log('[RoleGuard] Checking access:', {
+      url: state.url,
+      requiredRoles,
+      userRole,
+      isLoggedIn,
+      isOnboardingCompleted
+    });
+
+    if (!isLoggedIn) {
+      console.warn('[RoleGuard] Not logged in, redirecting to login');
       this.router.navigate(['/login']);
       return false;
     }
 
     // Check onboarding
-    if (!this.authService.isOnboardingCompleted() && !this.authService.isAdmin()) {
+    if (!isOnboardingCompleted && !this.authService.isAdmin()) {
+      console.warn('[RoleGuard] Onboarding incomplete, redirecting to onboarding');
       this.router.navigate(['/onboarding']);
       return false;
     }
 
-    const userRole = this.authService.getRole();
     if (userRole && requiredRoles.includes(userRole)) {
       return true;
     }
 
-    // User doesn't have required role
-    this.router.navigate(['/']);
+    // User doesn't have required role - instead of landing, try to send them to THEIR dashboard
+    console.error('[RoleGuard] Role mismatch. Required:', requiredRoles, 'Actual:', userRole);
+    
+    if (userRole === 'RECRUITER') {
+      this.router.navigate(['/post-job']);
+    } else if (userRole === 'JOB_APPLICANT') {
+      this.router.navigate(['/dashboard']);
+    } else {
+      this.router.navigate(['/']);
+    }
+    
     return false;
   }
 }
