@@ -208,7 +208,7 @@ export class OnboardingComponent implements OnInit {
           this.errors['companyName'] = 'Company name is required';
           return false;
         }
-      } else if (this.role === UserRole.JOB_SEEKER) {
+      } else if (this.role === UserRole.JOB_APPLICANT) {
         if (!this.formData.skills?.trim()) {
           this.errors['skills'] = 'Skills are required';
           return false;
@@ -237,7 +237,7 @@ export class OnboardingComponent implements OnInit {
     const role = this.authService.getRole();
     if (role === UserRole.RECRUITER) {
       this.router.navigate(['/post-job']);
-    } else if (role === UserRole.JOB_SEEKER) {
+    } else if (role === UserRole.JOB_APPLICANT) {
       this.router.navigate(['/job-list']);
     } else {
       this.router.navigate(['/']);
@@ -249,7 +249,7 @@ export class OnboardingComponent implements OnInit {
       1: 'Basic Information',
       2: this.role === UserRole.RECRUITER ? 'Company Information' : 'Professional Details',
       3: 'Work Experience',
-      4: this.role === UserRole.JOB_SEEKER ? 'Work Preferences' : 'Company Details',
+      4: this.role === UserRole.JOB_APPLICANT ? 'Work Preferences' : 'Company Details',
       5: 'Complete Onboarding'
     };
     return titles[this.currentStep] || '';
@@ -260,7 +260,7 @@ export class OnboardingComponent implements OnInit {
       1: 'Help us get to know you better',
       2: this.role === UserRole.RECRUITER ? 'Tell us about your company' : 'Share your professional background',
       3: 'Add your experience and education',
-      4: this.role === UserRole.JOB_SEEKER ? 'Set your job preferences' : 'Company details',
+      4: this.role === UserRole.JOB_APPLICANT ? 'Set your job preferences' : 'Company details',
       5: 'You\'re all set!'
     };
     return descriptions[this.currentStep] || '';

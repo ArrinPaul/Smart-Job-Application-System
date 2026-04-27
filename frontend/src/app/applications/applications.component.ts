@@ -19,7 +19,7 @@ import { takeUntil } from 'rxjs/operators';
 export class ApplicationsComponent implements OnInit, OnDestroy {
   applications: Application[] = [];
   isRecruiter = false;
-  isJobSeeker = false;
+  isJobApplicant = false;
   isLoading = false;
   selectedStatusFilter = 'ALL';
   statusOptions = Object.values(ApplicationStatus);
@@ -34,7 +34,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isRecruiter = this.authService.isRecruiter();
-    this.isJobSeeker = this.authService.isJobSeeker();
+    this.isJobApplicant = this.authService.isJobApplicant();
     this.loadApplications();
     this.startAutoRefresh();
   }
@@ -106,7 +106,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
             this.isLoading = false;
           }
         });
-    } else if (this.isJobSeeker) {
+    } else if (this.isJobApplicant) {
       this.httpService.getMyApplications()
         .pipe(takeUntil(this.destroy$))
         .subscribe({

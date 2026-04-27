@@ -93,7 +93,7 @@ export class LoginComponent implements OnDestroy {
       case UserRole.RECRUITER:
         this.router.navigate(['/post-job']);
         break;
-      case UserRole.JOB_SEEKER:
+      case UserRole.JOB_APPLICANT:
         this.router.navigate(['/jobs']);
         break;
       case UserRole.ADMIN:

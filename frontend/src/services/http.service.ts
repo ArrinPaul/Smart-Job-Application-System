@@ -29,7 +29,7 @@ export class HttpService {
     );
   }
 
-  // ============ Job Seeker Endpoints ============
+  // ============ Job Applicant Endpoints ============
 
   searchJobs(title?: string, location?: string): Observable<Job[]> {
     let params = new HttpParams();

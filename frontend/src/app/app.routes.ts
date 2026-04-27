@@ -25,7 +25,7 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.JOB_APPLICANT] }
   },
   {
     path: 'onboarding',
@@ -46,7 +46,7 @@ export const routes: Routes = [
     path: 'recommendations',
     loadComponent: () => import('./recommendations/recommendations.component').then(m => m.RecommendationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.JOB_APPLICANT] }
   },
   {
     path: 'post-job',
@@ -58,13 +58,13 @@ export const routes: Routes = [
     path: 'applications',
     loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.RECRUITER, UserRole.JOB_APPLICANT] }
   },
   {
     path: 'resume',
     loadComponent: () => import('./resume/resume.component').then(m => m.ResumeComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.JOB_APPLICANT] }
   },
   {
     path: 'admin',

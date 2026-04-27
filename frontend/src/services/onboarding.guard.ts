@@ -31,7 +31,7 @@ export class OnboardingGuard implements CanActivate {
       const role = this.authService.getRole();
       if (role === 'RECRUITER') {
         this.router.navigate(['/post-job']);
-      } else if (role === 'JOB_SEEKER') {
+      } else if (role === 'JOB_APPLICANT') {
         this.router.navigate(['/job-list']);
       } else {
         this.router.navigate(['/']);

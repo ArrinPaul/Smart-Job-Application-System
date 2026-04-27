@@ -40,13 +40,13 @@ public class JobRecommendationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // Only recommend to job seekers
-        if (!user.getRole().equals("JOB_SEEKER")) {
-            logger.warn("User {} is not a job seeker", userId);
+        // Only recommend to job applicants
+        if (!user.getRole().equals("JOB_APPLICANT")) {
+            logger.warn("User {} is not a job applicant", userId);
             return Collections.emptyList();
         }
 
-        // Get user's job seeker profile
+        // Get user's job applicant profile
         JobSeekerProfile profile = jobSeekerProfileRepository.findByUserId(userId)
                 .orElse(null);
 
@@ -70,7 +70,7 @@ public class JobRecommendationService {
     /**
      * Score a specific job for a user
      * @param user The user
-     * @param profile The user's job seeker profile (can be null)
+     * @param profile The user's job applicant profile (can be null)
      * @param job The job to score
      * @return Recommendation with match percentage and explanation
      */

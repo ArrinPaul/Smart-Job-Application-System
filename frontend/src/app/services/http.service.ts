@@ -149,7 +149,7 @@ export class HttpService {
   }
 
   /**
-   * Get job seeker's own applications
+   * Get Job Applicant's own applications
    */
   getMyApplications(): Observable<Application[]> {
     return this.http.get<Application[]>(`${this.apiUrl}/jobseeker/applications`);
@@ -248,7 +248,7 @@ export class HttpService {
   }
 
   /**
-   * Get smart insights for a job (Job Seeker only)
+   * Get smart insights for a job (Job Applicant only)
    */
   getJobMatchInsights(jobId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/jobseeker/insights/match/${jobId}`);

@@ -62,30 +62,30 @@ public class DataLoader {
             userRepository.save(recruiter2);
             logger.info("Created recruiter: {}", recruiter2.getUsername());
 
-            // Create sample job seekers
+            // Create sample job applicants
             User jobSeeker1 = new User();
             jobSeeker1.setUsername("alice.developer");
             jobSeeker1.setEmail("alice@email.com");
             jobSeeker1.setPassword(passwordEncoder.encode(samplePassword));
-            jobSeeker1.setRole("JOB_SEEKER");
+            jobSeeker1.setRole("JOB_APPLICANT");
             userRepository.save(jobSeeker1);
-            logger.info("Created job seeker: {}", jobSeeker1.getUsername());
+            logger.info("Created job applicant: {}", jobSeeker1.getUsername());
 
             User jobSeeker2 = new User();
             jobSeeker2.setUsername("bob.designer");
             jobSeeker2.setEmail("bob@email.com");
             jobSeeker2.setPassword(passwordEncoder.encode(samplePassword));
-            jobSeeker2.setRole("JOB_SEEKER");
+            jobSeeker2.setRole("JOB_APPLICANT");
             userRepository.save(jobSeeker2);
-            logger.info("Created job seeker: {}", jobSeeker2.getUsername());
+            logger.info("Created job applicant: {}", jobSeeker2.getUsername());
 
             User jobSeeker3 = new User();
             jobSeeker3.setUsername("charlie.manager");
             jobSeeker3.setEmail("charlie@email.com");
             jobSeeker3.setPassword(passwordEncoder.encode(samplePassword));
-            jobSeeker3.setRole("JOB_SEEKER");
+            jobSeeker3.setRole("JOB_APPLICANT");
             userRepository.save(jobSeeker3);
-            logger.info("Created job seeker: {}", jobSeeker3.getUsername());
+            logger.info("Created job applicant: {}", jobSeeker3.getUsername());
 
             // Create sample jobs
             Job job1 = new Job();
@@ -162,7 +162,7 @@ public class DataLoader {
             logger.warn("========================================");
             logger.warn("Sample Users Created:");
             logger.warn("Recruiters: john.recruiter, sarah.recruiter");
-            logger.warn("Job Seekers: alice.developer, bob.designer, charlie.manager");
+            logger.warn("job applicants: alice.developer, bob.designer, charlie.manager");
             logger.warn("Password for all sample users: configured via app.data-loader.sample-password");
             logger.warn("========================================");
             logger.warn("Sample Jobs: {} jobs created", jobRepository.count() - 1);

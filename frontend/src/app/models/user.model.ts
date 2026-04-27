@@ -20,7 +20,7 @@ export interface User {
 export enum UserRole {
   ADMIN = 'ADMIN',
   RECRUITER = 'RECRUITER',
-  JOB_SEEKER = 'JOB_SEEKER'
+  JOB_APPLICANT = 'JOB_APPLICANT'
 }
 
 export interface LoginRequest {

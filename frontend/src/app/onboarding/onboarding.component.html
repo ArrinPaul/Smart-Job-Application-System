@@ -66,7 +66,7 @@
               <span *ngIf="errors['location']" class="error-text">{{ errors['location'] }}</span>
             </div>
 
-            <div class="form-group" *ngIf="role === UserRole.JOB_SEEKER">
+            <div class="form-group" *ngIf="role === UserRole.JOB_APPLICANT">
               <label for="experienceYears">Years of Experience</label>
               <select 
                 id="experienceYears" 
@@ -108,8 +108,8 @@
             <span *ngIf="errors['headline']" class="error-text">{{ errors['headline'] }}</span>
           </div>
 
-          <!-- Job Seeker Fields -->
-          <div *ngIf="role === UserRole.JOB_SEEKER">
+          <!-- Job Applicant Fields -->
+          <div *ngIf="role === UserRole.JOB_APPLICANT">
             <div class="form-group">
               <label for="skills">Skills (Comma-separated) *</label>
               <input 
@@ -171,7 +171,7 @@
 
         <!-- STEP 3: Work Experience -->
         <div *ngIf="currentStep === 3" class="form-step" [@fadeInOut]>
-          <div *ngIf="role === UserRole.JOB_SEEKER">
+          <div *ngIf="role === UserRole.JOB_APPLICANT">
             <div class="form-group">
               <label for="currentCompany">Current Company</label>
               <input 
@@ -216,9 +216,9 @@
           </div>
         </div>
 
-        <!-- STEP 4: Preferences (Job Seeker) -->
+        <!-- STEP 4: Preferences (Job Applicant) -->
         <div *ngIf="currentStep === 4" class="form-step" [@fadeInOut]>
-          <div *ngIf="role === UserRole.JOB_SEEKER">
+          <div *ngIf="role === UserRole.JOB_APPLICANT">
             <div class="form-group">
               <label class="checkbox-label">
                 <input 
@@ -300,7 +300,7 @@
                   <span class="summary-label">Headline</span>
                   <span class="summary-value">{{ formData.headline }}</span>
                 </div>
-                <div class="summary-item" *ngIf="role === UserRole.JOB_SEEKER">
+                <div class="summary-item" *ngIf="role === UserRole.JOB_APPLICANT">
                   <span class="summary-label">Skills</span>
                   <span class="summary-value">{{ formData.skills }}</span>
                 </div>

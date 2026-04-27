@@ -69,3 +69,16 @@
 2026-04-27 15:19:04 [http-nio-8080-exec-4] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
 2026-04-27 15:19:34 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
 2026-04-27 15:20:45 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:21:10 [http-nio-8080-exec-10] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:21:34 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:22:05 [http-nio-8080-exec-9] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:22:34 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:22:49 [http-nio-8080-exec-2] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:23:05 [http-nio-8080-exec-2] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:23:20 [http-nio-8080-exec-2] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:23:36 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:23:50 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:24:09 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:24:40 [http-nio-8080-exec-10] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:24:53 [http-nio-8080-exec-9] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:25:13 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary

@@ -26,7 +26,7 @@ public class AdminDashboardService {
 
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_RECRUITER = "RECRUITER";
-    private static final String ROLE_JOB_SEEKER = "JOB_SEEKER";
+    private static final String ROLE_JOB_APPLICANT = "JOB_APPLICANT";
 
     @Autowired
     private UserRepository userRepository;
@@ -58,7 +58,7 @@ public class AdminDashboardService {
         Map<String, Long> usersByRole = new LinkedHashMap<>();
         usersByRole.put(ROLE_ADMIN, userRepository.countByRole(ROLE_ADMIN));
         usersByRole.put(ROLE_RECRUITER, userRepository.countByRole(ROLE_RECRUITER));
-        usersByRole.put(ROLE_JOB_SEEKER, userRepository.countByRole(ROLE_JOB_SEEKER));
+        usersByRole.put(ROLE_JOB_APPLICANT, userRepository.countByRole(ROLE_JOB_APPLICANT));
 
         Map<String, Long> applicationsByStatus = new HashMap<>();
         List<Object[]> statusCounts = applicationRepository.countApplicationsByStatus();
