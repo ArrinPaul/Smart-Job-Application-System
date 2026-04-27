@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
@@ -14,9 +15,26 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-post-job',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './post-job.component.html'
+  templateUrl: './post-job.component.html',
+  styleUrls: ['./post-job.component.css'],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
 export class PostJobComponent implements OnInit, OnDestroy {
+  // Wizard State
+  currentStep = 1;
+  totalSteps = 5;
+
+  // Form Data
   jobTitle = '';
   jobDescription = '';
   jobLocation = '';
@@ -61,7 +79,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
       if (!this.isLoading) {
         this.loadMyJobs();
       }
-    }, 10000);
+    }, 15000);
   }
 
   loadMyJobs(): void {
@@ -77,8 +95,69 @@ export class PostJobComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Wizard Navigation
+  nextStep(): void {
+    if (this.validateStep(this.currentStep)) {
+      if (this.currentStep < this.totalSteps) {
+        this.currentStep++;
+        window.scrollTo(0, 0);
+      }
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      window.scrollTo(0, 0);
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step < this.currentStep) {
+      this.currentStep = step;
+      window.scrollTo(0, 0);
+    } else if (step === this.currentStep + 1) {
+      this.nextStep();
+    }
+  }
+
+  validateStep(step: number): boolean {
+    switch(step) {
+      case 1:
+        if (!this.jobTitle.trim()) {
+          this.toastService.showWarning('Job title is required');
+          return false;
+        }
+        if (!this.jobLocation.trim()) {
+          this.toastService.showWarning('Location is required');
+          return false;
+        }
+        return true;
+      case 2:
+        if (!this.jobDescription.trim()) {
+          this.toastService.showWarning('Job description is required');
+          return false;
+        }
+        return true;
+      case 3:
+        if (!this.mustHaveSkillsInput.trim()) {
+          this.toastService.showWarning('Please add at least one must-have skill');
+          return false;
+        }
+        return true;
+      case 4:
+        if (this.screeningQuestions.length === 0) {
+          this.toastService.showWarning('Please add at least one screening question');
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  }
+
   onPostJob(): void {
-    if (!this.validateForm()) {
+    if (!this.validateStep(1) || !this.validateStep(2) || !this.validateStep(3) || !this.validateStep(4)) {
       return;
     }
 
@@ -97,8 +176,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.toastService.showSuccess('Job updated successfully!');
-            this.resetForm();
-            this.loadMyJobs();
+            this.finishPosting();
           },
           error: () => {
             this.isLoading = false;
@@ -110,8 +188,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.toastService.showSuccess('Job posted successfully!');
-            this.resetForm();
-            this.loadMyJobs();
+            this.finishPosting();
           },
           error: () => {
             this.isLoading = false;
@@ -120,11 +197,20 @@ export class PostJobComponent implements OnInit, OnDestroy {
     }
   }
 
+  finishPosting(): void {
+    this.resetForm();
+    this.loadMyJobs();
+    this.currentStep = 1;
+    window.scrollTo(0, 0);
+  }
+
   editJob(job: Job): void {
     this.editingJobId = job.id;
     this.jobTitle = job.title;
     this.jobDescription = this.extractOriginalDescription(job.description);
     this.jobLocation = job.location;
+    // Potentially extract more if role details were structured
+    this.currentStep = 1;
     window.scrollTo(0, 0);
   }
 
@@ -184,26 +270,6 @@ export class PostJobComponent implements OnInit, OnDestroy {
           }
         });
     }
-  }
-
-  private validateForm(): boolean {
-    if (!this.jobTitle.trim()) {
-      this.toastService.showWarning('Job title is required');
-      return false;
-    }
-    if (!this.jobDescription.trim()) {
-      this.toastService.showWarning('Job description is required');
-      return false;
-    }
-    if (!this.jobLocation.trim()) {
-      this.toastService.showWarning('Job location is required');
-      return false;
-    }
-    if (this.screeningQuestions.length === 0) {
-      this.toastService.showWarning('Add at least one screening question');
-      return false;
-    }
-    return true;
   }
 
   resetForm(): void {
@@ -270,6 +336,28 @@ export class PostJobComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  getTabLabel(step: number): string {
+    const labels: { [key: number]: string } = {
+      1: 'Basics',
+      2: 'Role',
+      3: 'Requirements',
+      4: 'Questions',
+      5: 'Review'
+    };
+    return labels[step] || '';
+  }
+
+  getTabIcon(step: number): string {
+    const icons: { [key: number]: string } = {
+      1: '📋',
+      2: '✍️',
+      3: '🛠️',
+      4: '❓',
+      5: '🚀'
+    };
+    return icons[step] || '';
   }
 
   ngOnDestroy(): void {

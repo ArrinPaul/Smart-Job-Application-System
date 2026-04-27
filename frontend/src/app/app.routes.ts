@@ -25,7 +25,7 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_APPLICANT] }
+    data: { roles: [UserRole.JOB_APPLICANT, UserRole.JOB_SEEKER] }
   },
   {
     path: 'onboarding',
@@ -46,7 +46,7 @@ export const routes: Routes = [
     path: 'recommendations',
     loadComponent: () => import('./recommendations/recommendations.component').then(m => m.RecommendationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_APPLICANT] }
+    data: { roles: [UserRole.JOB_APPLICANT, UserRole.JOB_SEEKER] }
   },
   {
     path: 'post-job',

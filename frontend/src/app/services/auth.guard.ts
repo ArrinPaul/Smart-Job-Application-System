@@ -78,9 +78,10 @@ export class RoleGuard implements CanActivate {
     // User doesn't have required role - instead of landing, try to send them to THEIR dashboard
     console.error('[RoleGuard] Role mismatch. Required:', requiredRoles, 'Actual:', userRole);
     
-    if (userRole === 'RECRUITER') {
+    const normalizedRole = String(userRole).toUpperCase();
+    if (normalizedRole === 'RECRUITER') {
       this.router.navigate(['/post-job']);
-    } else if (userRole === 'JOB_APPLICANT') {
+    } else if (normalizedRole === 'JOB_APPLICANT' || normalizedRole === 'JOB_SEEKER') {
       this.router.navigate(['/dashboard']);
     } else {
       this.router.navigate(['/']);

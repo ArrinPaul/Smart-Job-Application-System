@@ -93,18 +93,23 @@ export class LoginComponent implements OnDestroy {
       });
   }
 
-  private navigateBasedOnRole(role: UserRole): void {
-    switch (role) {
-      case UserRole.RECRUITER:
+  private navigateBasedOnRole(role: any): void {
+    const normalizedRole = String(role).toUpperCase();
+    console.log('[Login] Normalizing role for navigation:', normalizedRole);
+
+    switch (normalizedRole) {
+      case 'RECRUITER':
         this.router.navigate(['/post-job']);
         break;
-      case UserRole.JOB_APPLICANT:
+      case 'JOB_APPLICANT':
+      case 'JOB_SEEKER':
         this.router.navigate(['/dashboard']);
         break;
-      case UserRole.ADMIN:
+      case 'ADMIN':
         this.router.navigate(['/admin']);
         break;
       default:
+        console.warn('[Login] Unknown role, falling back to landing:', normalizedRole);
         this.router.navigate(['/']);
     }
   }
