@@ -191,7 +191,7 @@ export class OnboardingComponent implements OnInit {
       next: () => {
         this.isLoading = false;
         this.authService.setOnboardingCompleted(true);
-        this.toastService.showSuccess('🎉 Onboarding complete! Welcome to SmartJobPortal!');
+        this.toastService.showSuccess('Onboarding complete! Welcome to SmartJobPortal!');
         setTimeout(() => this.navigateHome(), 1500);
       },
       error: () => {
@@ -286,11 +286,11 @@ export class OnboardingComponent implements OnInit {
 
   getTabIcon(step: number): string {
     const icons: { [key: number]: string } = {
-      1: '👤',
-      2: '💼',
-      3: '📚',
-      4: '⚙️',
-      5: '✓'
+      1: '1',
+      2: '2',
+      3: '3',
+      4: '4',
+      5: '*'
     };
     return icons[step] || '';
   }

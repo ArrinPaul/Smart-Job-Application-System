@@ -1,6 +1,6 @@
 <div class="onboarding-overlay">
   <!-- Close Button -->
-  <button class="close-btn" (click)="closeOnboarding()" title="Close onboarding">✕</button>
+  <button class="close-btn" (click)="closeOnboarding()" title="Close onboarding">X</button>
 
   <div class="onboarding-modal">
     <!-- Header Section -->
@@ -263,7 +263,7 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label for="salaryMin">Min Expected Salary (₹)</label>
+                <label for="salaryMin">Min Expected Salary (INR)</label>
                 <input 
                   type="number" 
                   id="salaryMin" 
@@ -274,7 +274,7 @@
               </div>
 
               <div class="form-group">
-                <label for="salaryMax">Max Expected Salary (₹)</label>
+                <label for="salaryMax">Max Expected Salary (INR)</label>
                 <input 
                   type="number" 
                   id="salaryMax" 
@@ -305,7 +305,7 @@
             </div>
 
             <div class="info-card">
-              <div class="info-icon">🎯</div>
+              <div class="info-icon">Info:</div>
               <p>You're almost there! Review your details in the next step to finish setting up your hiring profile.</p>
             </div>
           </div>
@@ -315,7 +315,7 @@
         <div *ngIf="currentStep === 5" class="form-step" [@fadeInOut]>
           <div class="completion-card">
             <div class="completion-header">
-              <div class="completion-icon">🎉</div>
+              <div class="completion-icon">Done!</div>
               <h3>Almost There!</h3>
             </div>
             
@@ -355,7 +355,7 @@
         (click)="prevStep()"
         *ngIf="currentStep > 1"
         [disabled]="isLoading">
-        ← Back
+        &lt;- Back
       </button>
       
       <button 
@@ -374,7 +374,7 @@
         (click)="nextStep()"
         *ngIf="currentStep < totalSteps"
         [disabled]="isLoading">
-        NEXT {{ currentStep < totalSteps ? '→' : '' }}
+        NEXT {{ currentStep < totalSteps ? '->' : '' }}
       </button>
 
       <button 
@@ -383,7 +383,7 @@
         (click)="completeOnboarding()"
         *ngIf="currentStep === totalSteps"
         [disabled]="isLoading">
-        {{ isLoading ? 'Finishing...' : 'COMPLETE SETUP →' }}
+        {{ isLoading ? 'Finishing...' : 'COMPLETE SETUP ->' }}
       </button>
     </div>
   </div>

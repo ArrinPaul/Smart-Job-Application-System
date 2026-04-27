@@ -86,8 +86,23 @@
                 </select>
               </div>
               <div class="field-group">
-                <label for="salaryRange">Salary Range (optional)</label>
-                <input type="text" id="salaryRange" name="salaryRange" [(ngModel)]="salaryRange" placeholder="e.g. 18-26 LPA">
+                <label for="salaryRangeSelect">Salary Range</label>
+                <select 
+                  id="salaryRangeSelect" 
+                  (change)="onSalaryChange($any($event.target).value)"
+                  class="form-select">
+                  <option value="" disabled selected>Select range...</option>
+                  <option *ngFor="let range of salaryRanges" [value]="range">{{ range }}</option>
+                  <option value="CUSTOM">-- Custom / Other --</option>
+                </select>
+                <input 
+                  *ngIf="isCustomSalary"
+                  type="text" 
+                  id="salaryRange" 
+                  name="salaryRange" 
+                  [(ngModel)]="salaryRange" 
+                  placeholder="Enter custom salary range"
+                  class="mt-2">
               </div>
             </div>
           </div>
@@ -95,17 +110,58 @@
           <!-- STEP 3: REQUIREMENTS -->
           <div *ngIf="currentStep === 3" class="form-step" [@fadeInOut]>
             <h3 class="step-heading">Skills & Process</h3>
+            
             <div class="field-group">
-              <label for="mustHaveSkills">Must-Have Skills (comma separated)</label>
-              <input type="text" id="mustHaveSkills" name="mustHaveSkills" [(ngModel)]="mustHaveSkillsInput" placeholder="Spring Boot, SQL, REST APIs, Git">
+              <label for="mustHaveSkillsSelect">Must-Have Skills</label>
+              <select 
+                id="mustHaveSkillsSelect" 
+                (change)="addSkill('must', $any($event.target).value); $any($event.target).value = ''"
+                class="form-select mb-2">
+                <option value="" disabled selected>Select from 50+ popular skills...</option>
+                <optgroup label="Top 25 Core Skills (Languages & Cloud)">
+                  <option *ngFor="let skill of coreSkills" [value]="skill">{{ skill }}</option>
+                </optgroup>
+                <optgroup label="Top 25 Suggested Skills (AI & Frameworks)">
+                  <option *ngFor="let skill of suggestedSkills" [value]="skill">{{ skill }}</option>
+                </optgroup>
+              </select>
+              <input type="text" id="mustHaveSkills" name="mustHaveSkills" [(ngModel)]="mustHaveSkillsInput" placeholder="Or type manually (comma separated)">
             </div>
+
             <div class="field-group">
-              <label for="niceToHaveSkills">Nice-to-Have Skills (comma separated)</label>
-              <input type="text" id="niceToHaveSkills" name="niceToHaveSkills" [(ngModel)]="niceToHaveSkillsInput" placeholder="Docker, AWS, Kafka">
+              <label for="niceToHaveSkillsSelect">Nice-to-Have Skills</label>
+              <select 
+                id="niceToHaveSkillsSelect" 
+                (change)="addSkill('nice', $any($event.target).value); $any($event.target).value = ''"
+                class="form-select mb-2">
+                <option value="" disabled selected>Select from 50+ popular skills...</option>
+                <optgroup label="Top 25 Core Skills">
+                  <option *ngFor="let skill of coreSkills" [value]="skill">{{ skill }}</option>
+                </optgroup>
+                <optgroup label="Top 25 Suggested Skills">
+                  <option *ngFor="let skill of suggestedSkills" [value]="skill">{{ skill }}</option>
+                </optgroup>
+              </select>
+              <input type="text" id="niceToHaveSkills" name="niceToHaveSkills" [(ngModel)]="niceToHaveSkillsInput" placeholder="Or type manually (comma separated)">
             </div>
+
             <div class="field-group">
-              <label for="interviewProcess">Interview Process</label>
-              <input type="text" id="interviewProcess" name="interviewProcess" [(ngModel)]="interviewProcess" placeholder="e.g. 2 rounds (technical + culture)">
+              <label for="interviewProcessSelect">Interview Process</label>
+              <select 
+                id="interviewProcessSelect" 
+                (change)="onInterviewChange($any($event.target).value)"
+                class="form-select mb-2">
+                <option value="" disabled selected>Select format...</option>
+                <option *ngFor="let stage of interviewStages" [value]="stage">{{ stage }}</option>
+                <option value="CUSTOM">-- Custom Process --</option>
+              </select>
+              <input 
+                *ngIf="isCustomInterview"
+                type="text" 
+                id="interviewProcess" 
+                name="interviewProcess" 
+                [(ngModel)]="interviewProcess" 
+                placeholder="Describe your custom interview process">
             </div>
           </div>
 
@@ -137,43 +193,81 @@
           </div>
 
           <!-- STEP 5: REVIEW -->
-          <div *ngIf="currentStep === 5" class="form-step" [@fadeInOut]>
-            <h3 class="step-heading">Review & Publish</h3>
-            <div class="review-summary">
-              <div class="review-item">
-                <label>Job Title</label>
-                <p>{{ jobTitle }}</p>
+          <div *ngIf="currentStep === 5" class="form-step review-step" [@fadeInOut]>
+            <h3 class="step-heading">Final Review</h3>
+            <p class="step-hint">Verify all details below. This is exactly how your job post will appear to candidates.</p>
+            
+            <div class="preview-card full-width-preview">
+              <div class="preview-header">
+                <div class="title-meta">
+                  <h3>{{ jobTitle || 'Untitled Role' }}</h3>
+                  <p class="preview-subtitle">{{ jobLocation }} - {{ experienceLevel }} - {{ employmentType }}</p>
+                </div>
+                <span class="preview-tag">{{ workMode }}</span>
               </div>
-              <div class="review-item">
-                <label>Location</label>
-                <p>{{ jobLocation }} ({{ workMode }})</p>
+              
+              <div class="preview-section">
+                <h4>Role Description</h4>
+                <p class="preview-description">{{ jobDescription }}</p>
               </div>
-              <div class="review-item">
-                <label>Description</label>
-                <p class="truncate">{{ jobDescription }}</p>
+
+              <div class="preview-meta-grid">
+                <div *ngIf="salaryRange">
+                  <h4>Salary Range</h4>
+                  <p>{{ salaryRange }}</p>
+                </div>
+                <div *ngIf="interviewProcess">
+                  <h4>Interview Process</h4>
+                  <p>{{ interviewProcess }}</p>
+                </div>
+              </div>
+
+              <div class="preview-skills" *ngIf="mustHaveSkills.length > 0">
+                <h4>Must-Have Skills</h4>
+                <div class="skill-pill-row">
+                  <span class="skill-pill" *ngFor="let skill of mustHaveSkills">{{ skill }}</span>
+                </div>
+              </div>
+
+              <div class="preview-skills" *ngIf="niceToHaveSkills.length > 0">
+                <h4>Nice-to-Have Skills</h4>
+                <div class="skill-pill-row">
+                  <span class="skill-pill skill-pill--soft" *ngFor="let skill of niceToHaveSkills">{{ skill }}</span>
+                </div>
+              </div>
+
+              <div class="preview-questions" *ngIf="screeningQuestions.length > 0">
+                <h4>Screening Questions</h4>
+                <ul class="preview-q-list">
+                  <li *ngFor="let q of screeningQuestions">{{ q }}</li>
+                </ul>
               </div>
             </div>
-            
-            <div class="completion-info">
-              <p>Everything looks good! Your job will be published and visible to all candidates immediately.</p>
+
+            <div class="publish-footer">
+              <div class="info-note">
+                <span class="icon">INFO:</span>
+                <p>By publishing, your job post will be immediately discoverable by relevant candidates in our network.</p>
+              </div>
+              <button type="submit" class="btn-publish-final" [disabled]="isLoading">
+                <span *ngIf="!isLoading">{{ editingJobId ? 'Update & Publish' : 'Confirm & Publish Job' }}</span>
+                <span *ngIf="isLoading">Processing...</span>
+              </button>
             </div>
           </div>
 
           <!-- WIZARD ACTIONS -->
           <div class="wizard-actions">
-            <button type="button" class="btn-secondary" (click)="prevStep()" *ngIf="currentStep > 1">← Back</button>
+            <button type="button" class="btn-secondary" (click)="prevStep()" *ngIf="currentStep > 1">< Back</button>
             <span class="spacer"></span>
-            <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">Next Step →</button>
-            <button type="submit" class="btn-accent" *ngIf="currentStep === totalSteps" [disabled]="isLoading">
-              {{ editingJobId ? 'Update Job Posting' : 'Publish Job Now' }}
-            </button>
+            <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">Next Step ></button>
             <button type="button" class="btn-muted" *ngIf="editingJobId" (click)="resetForm()">Cancel Edit</button>
           </div>
         </form>
       </article>
 
       <!-- PREVIEW PANEL (Visible on large screens) -->
-      <article class="panel studio-preview-panel">
+      <article class="panel studio-preview-panel" *ngIf="currentStep !== 5">
         <div class="panel-header">
           <h3>Live Posting Preview</h3>
         </div>
@@ -182,7 +276,7 @@
             <h3>{{ jobTitle || 'Untitled Role' }}</h3>
             <span class="preview-tag">{{ employmentType }}</span>
           </div>
-          <p class="preview-subtitle">{{ jobLocation || 'Location TBD' }} · {{ experienceLevel }}</p>
+          <p class="preview-subtitle">{{ jobLocation || 'Location TBD' }} - {{ experienceLevel }}</p>
           
           <div class="preview-section">
             <p class="preview-description">{{ jobDescription || 'Start writing your role description to see preview here.' }}</p>
@@ -226,11 +320,11 @@
           <div class="job-item" *ngFor="let job of myJobs">
             <div class="job-item-info">
               <h4>{{ job.title }}</h4>
-              <p>{{ job.location }} · Posted {{ job.createdAt | date:'mediumDate' }}</p>
+              <p>{{ job.location }} - Posted {{ job.createdAt | date:'mediumDate' }}</p>
             </div>
             <div class="job-item-actions">
-              <button type="button" class="btn-icon" (click)="editJob(job)" title="Edit">✏️</button>
-              <button type="button" class="btn-icon btn-danger-soft" (click)="deleteJob(job.id)" title="Delete">🗑️</button>
+              <button type="button" class="btn-icon" (click)="editJob(job)" title="Edit">Edit</button>
+              <button type="button" class="btn-icon btn-danger-soft" (click)="deleteJob(job.id)" title="Delete">Del</button>
             </div>
           </div>
       </div>

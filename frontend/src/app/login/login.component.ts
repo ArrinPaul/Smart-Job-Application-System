@@ -63,7 +63,7 @@ export class LoginComponent implements OnDestroy {
           }
 
           // Show success message
-          this.toastService.showSuccess('✅ Login successful! Welcome back!');
+          this.toastService.showSuccess('Login successful! Welcome back!');
           
           // Navigate based on role and onboarding status
           setTimeout(() => {

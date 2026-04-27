@@ -17,14 +17,14 @@
 
   <!-- Error State -->
   <div *ngIf="error && !loading" class="error-state">
-    <div class="error-icon">⚠️</div>
+    <div class="error-icon">!</div>
     <p>{{ error }}</p>
     <button class="retry-button" (click)="loadRecommendations()">Try Again</button>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="recommendations.length === 0 && !loading && !error" class="empty-state">
-    <div class="empty-icon">🔍</div>
+    <div class="empty-icon">(?)</div>
     <h2>No Recommendations Yet</h2>
     <p>Complete your profile to get personalized job recommendations based on your skills and preferences.</p>
     <a href="/profile" class="profile-link">Complete Your Profile</a>
@@ -67,15 +67,15 @@
           <!-- Job Details -->
           <div class="job-details">
             <div class="detail-item">
-              <span class="detail-icon">📍</span>
+              <span class="detail-icon">Loc:</span>
               <span class="detail-text">{{ rec.location }}</span>
             </div>
             <div class="detail-item">
-              <span class="detail-icon">💼</span>
+              <span class="detail-icon">Type:</span>
               <span class="detail-text">{{ rec.workType }}</span>
             </div>
             <div class="detail-item">
-              <span class="detail-icon">💰</span>
+              <span class="detail-icon">Pay:</span>
               <span class="detail-text">{{ formatSalary(rec.salaryMin) }} - {{ formatSalary(rec.salaryMax) }}</span>
             </div>
           </div>
@@ -85,7 +85,7 @@
             <h4>Why we recommend this job:</h4>
             <ul>
               <li *ngFor="let reason of rec.matchReasons" class="reason-item">
-                <span class="reason-checkmark">✓</span>
+                <span class="reason-checkmark">*</span>
                 {{ reason }}
               </li>
             </ul>
@@ -95,15 +95,12 @@
         <!-- Card Footer -->
         <div class="card-footer">
           <button class="action-button apply-btn" (click)="applyForJob(rec.jobId, $event)">
-            <span class="btn-icon">📝</span>
             Apply Now
           </button>
           <button class="action-button share-btn" (click)="shareRecommendation(rec, $event)">
-            <span class="btn-icon">📤</span>
             Share
           </button>
           <button class="action-button details-btn" [routerLink]="['/job-details', rec.jobId]">
-            <span class="btn-icon">👁️</span>
             Details
           </button>
         </div>

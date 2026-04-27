@@ -83,22 +83,22 @@ export class AuthInterceptor implements HttpInterceptor {
     switch (error.status) {
       case 0:
         // Network error / timeout
-        errorMessage = '⚠️ Network error - unable to connect to server. Please check your connection.';
+        errorMessage = 'Network error - unable to connect to server. Please check your connection.';
         errorType = 'error';
         break;
 
       case 400:
         // Bad request
-        errorMessage = error.error?.message || '❌ Invalid input - please check your data and try again';
+        errorMessage = error.error?.message || 'Invalid input - please check your data and try again';
         errorType = 'warning';
         break;
 
       case 401:
         // Unauthorized
         if (error.url?.includes('/auth/login')) {
-          errorMessage = error.error?.message || '❌ Invalid credentials or email not verified';
+          errorMessage = error.error?.message || 'Invalid credentials or email not verified';
         } else {
-          errorMessage = error.error?.message || '🔐 Session expired - please login again';
+          errorMessage = error.error?.message || 'Session expired - please login again';
           this.authService.logout(); // Clear session on non-login 401
         }
         errorType = 'error';
@@ -106,31 +106,31 @@ export class AuthInterceptor implements HttpInterceptor {
 
       case 403:
         // Forbidden
-        errorMessage = error.error?.message || '🚫 Access denied - you do not have permission to perform this action';
+        errorMessage = error.error?.message || 'Access denied - you do not have permission to perform this action';
         errorType = 'error';
         break;
 
       case 404:
         // Not found
-        errorMessage = error.error?.message || '🔍 Resource not found';
+        errorMessage = error.error?.message || 'Resource not found';
         errorType = 'warning';
         break;
 
       case 409:
         // Conflict (e.g., duplicate email)
-        errorMessage = error.error?.message || '⚠️ This resource already exists';
+        errorMessage = error.error?.message || 'This resource already exists';
         errorType = 'warning';
         break;
 
       case 422:
         // Unprocessable entity
-        errorMessage = error.error?.message || '⚠️ Unable to process your request - please check the data';
+        errorMessage = error.error?.message || 'Unable to process your request - please check the data';
         errorType = 'warning';
         break;
 
       case 500:
         // Server error
-        errorMessage = '❌ Server error - our team is working on it. Please try again later.';
+        errorMessage = 'Server error - our team is working on it. Please try again later.';
         errorType = 'error';
         break;
 
@@ -138,16 +138,16 @@ export class AuthInterceptor implements HttpInterceptor {
       case 503:
       case 504:
         // Gateway errors
-        errorMessage = '⚠️ Server is temporarily unavailable. Please try again in a few moments.';
+        errorMessage = 'Server is temporarily unavailable. Please try again in a few moments.';
         errorType = 'error';
         break;
 
       default:
         if (error.status >= 500) {
-          errorMessage = '❌ Server error - please try again later.';
+          errorMessage = 'Server error - please try again later.';
           errorType = 'error';
         } else if (error.status >= 400) {
-          errorMessage = error.error?.message || '❌ Request failed - please check and try again';
+          errorMessage = error.error?.message || 'Request failed - please check and try again';
           errorType = 'warning';
         }
     }

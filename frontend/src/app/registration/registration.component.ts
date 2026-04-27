@@ -52,7 +52,7 @@ export class RegistrationComponent implements OnDestroy {
         next: (response) => {
           this.isLoading = false;
           // Show success message
-          this.toastService.showSuccess('✅ Account created successfully! Redirecting to login...');
+          this.toastService.showSuccess('Account created successfully! Redirecting to login...');
           // Reset form
           this.username = '';
           this.email = '';

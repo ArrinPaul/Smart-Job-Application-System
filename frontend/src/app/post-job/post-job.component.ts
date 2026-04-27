@@ -55,6 +55,53 @@ export class PostJobComponent implements OnInit, OnDestroy {
   readonly experienceLevels = ['Entry-level', 'Mid-level', 'Senior', 'Lead'];
   readonly workModes = ['Remote', 'Hybrid', 'On-site'];
 
+  // Expanded 2025 Skills List (50+ items)
+  readonly coreSkills = [
+    'Python', 'JavaScript', 'TypeScript', 'Java', 'Go (Golang)', 'Rust', 'C#', 'SQL', 'PostgreSQL',
+    'React.js', 'Angular', 'Node.js', 'Next.js', 'Spring Boot', 'AWS', 'Azure', 'GCP',
+    'Docker', 'Kubernetes', 'Terraform', 'CI/CD Pipelines', 'API Design (REST/gRPC)',
+    'Microservices', 'System Design', 'Git / GitHub'
+  ];
+
+  readonly suggestedSkills = [
+    'Generative AI Integration', 'AI Agents & Orchestration', 'Prompt Engineering', 'LangChain',
+    'PyTorch', 'TensorFlow', 'Vector Databases (Pinecone/Milvus)', 'RAG (Retrieval-Augmented Generation)',
+    'NLP', 'MLOps', 'Large Language Models (LLMs)', 'Serverless Architecture', 'GraphQL',
+    'Tailwind CSS', 'Flutter', 'React Native', 'Redis / Caching', 'NoSQL (MongoDB/DynamoDB)',
+    'Event-Driven Architecture (Kafka)', 'Cybersecurity / DevSecOps', 'OAuth / OpenID Connect',
+    'Unit & Integration Testing', 'Observability (Datadog/Prometheus)', 'Agile / Scrum', 'Product-Oriented Thinking'
+  ];
+
+  readonly interviewStages = [
+    'Initial HR Screening',
+    'Technical Phone Screen',
+    'Online Coding Assessment',
+    'Take-Home Project',
+    'System Design Interview',
+    'Data Structures & Algorithms',
+    'Pair Programming',
+    'Behavioral / Culture Fit',
+    'Hiring Manager Round',
+    '2 rounds (technical + culture)',
+    '3 rounds (screening + tech + manager)'
+  ];
+
+  readonly salaryRanges = [
+    '3 - 6 LPA',
+    '6 - 10 LPA',
+    '10 - 15 LPA',
+    '15 - 25 LPA',
+    '25 - 40 LPA',
+    '40 - 60 LPA',
+    '60 - 100 LPA',
+    '100+ LPA',
+    'Competitive / Not Disclosed'
+  ];
+
+  // Custom selection states
+  isCustomSalary = false;
+  isCustomInterview = false;
+
   isLoading = false;
   
   myJobs: Job[] = [];
@@ -72,6 +119,47 @@ export class PostJobComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadMyJobs();
     this.startAutoRefresh();
+  }
+
+  // Helper for adding skills
+  addSkill(target: 'must' | 'nice', skill: string): void {
+    if (!skill || skill === 'CUSTOM') return;
+
+    if (target === 'must') {
+      const skills = this.csvToList(this.mustHaveSkillsInput);
+      if (!skills.includes(skill)) {
+        this.mustHaveSkillsInput = this.mustHaveSkillsInput 
+          ? `${this.mustHaveSkillsInput}, ${skill}`
+          : skill;
+      }
+    } else {
+      const skills = this.csvToList(this.niceToHaveSkillsInput);
+      if (!skills.includes(skill)) {
+        this.niceToHaveSkillsInput = this.niceToHaveSkillsInput 
+          ? `${this.niceToHaveSkillsInput}, ${skill}`
+          : skill;
+      }
+    }
+  }
+
+  onSalaryChange(value: string): void {
+    if (value === 'CUSTOM') {
+      this.isCustomSalary = true;
+      this.salaryRange = '';
+    } else {
+      this.isCustomSalary = false;
+      this.salaryRange = value;
+    }
+  }
+
+  onInterviewChange(value: string): void {
+    if (value === 'CUSTOM') {
+      this.isCustomInterview = true;
+      this.interviewProcess = '';
+    } else {
+      this.isCustomInterview = false;
+      this.interviewProcess = value;
+    }
   }
 
   private startAutoRefresh(): void {
@@ -209,7 +297,6 @@ export class PostJobComponent implements OnInit, OnDestroy {
     this.jobTitle = job.title;
     this.jobDescription = this.extractOriginalDescription(job.description);
     this.jobLocation = job.location;
-    // Potentially extract more if role details were structured
     this.currentStep = 1;
     window.scrollTo(0, 0);
   }
@@ -290,6 +377,8 @@ export class PostJobComponent implements OnInit, OnDestroy {
     this.newQuestion = '';
     this.editingJobId = null;
     this.isLoading = false;
+    this.isCustomSalary = false;
+    this.isCustomInterview = false;
   }
 
   private csvToList(value: string): string[] {
@@ -351,11 +440,11 @@ export class PostJobComponent implements OnInit, OnDestroy {
 
   getTabIcon(step: number): string {
     const icons: { [key: number]: string } = {
-      1: '📋',
-      2: '✍️',
-      3: '🛠️',
-      4: '❓',
-      5: '🚀'
+      1: '1',
+      2: '2',
+      3: '3',
+      4: '4',
+      5: '5'
     };
     return icons[step] || '';
   }
