@@ -39,3 +39,26 @@
 2026-04-27 15:10:41 [http-nio-8080-exec-4] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
 2026-04-27 15:10:42 [http-nio-8080-exec-5] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
 2026-04-27 15:10:52 [http-nio-8080-exec-6] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:14:42 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-27 15:14:44 [http-nio-8080-exec-1] WARN  c.e.j.service.UserService - Failed login for user admin from IP 0:0:0:0:0:0:0:1 and agent Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Sa
+2026-04-27 15:14:44 [http-nio-8080-exec-1] WARN  c.e.j.e.GlobalExceptionHandler - Bad credentials attempt!
+2026-04-27 15:14:49 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-27 15:14:50 [http-nio-8080-exec-2] WARN  c.e.j.service.UserService - Failed login for user admin from IP 0:0:0:0:0:0:0:1 and agent Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Sa
+2026-04-27 15:14:50 [http-nio-8080-exec-2] WARN  c.e.j.e.GlobalExceptionHandler - Bad credentials attempt!
+2026-04-27 15:14:58 [http-nio-8080-exec-3] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-27 15:14:59 [http-nio-8080-exec-3] WARN  c.e.j.service.UserService - Failed login for user admin from IP 0:0:0:0:0:0:0:1 and agent Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Sa
+2026-04-27 15:14:59 [http-nio-8080-exec-3] WARN  c.e.j.e.GlobalExceptionHandler - Bad credentials attempt!
+2026-04-27 15:15:31 [http-nio-8080-exec-4] INFO  c.e.j.controller.AuthController - Login request for user: Admin
+2026-04-27 15:15:32 [http-nio-8080-exec-4] WARN  c.e.j.service.UserService - Failed login for unknown username Admin from 0:0:0:0:0:0:0:1
+2026-04-27 15:15:32 [http-nio-8080-exec-4] WARN  c.e.j.e.GlobalExceptionHandler - Bad credentials attempt!
+2026-04-27 15:15:36 [http-nio-8080-exec-5] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-27 15:15:38 [http-nio-8080-exec-5] INFO  c.e.j.controller.AuthController - User admin logged in successfully
+2026-04-27 15:15:40 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:15:56 [http-nio-8080-exec-10] INFO  c.e.j.controller.AdminController - Admin request: fetching all users
+2026-04-27 15:15:59 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-27 15:16:04 [http-nio-8080-exec-3] INFO  c.e.j.controller.AdminController - Admin request: fetching system status
+2026-04-27 15:16:05 [http-nio-8080-exec-4] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-27 15:16:10 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:16:23 [http-nio-8080-exec-6] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:16:34 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:17:04 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary

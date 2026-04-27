@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './services/auth.guard';
 import { RoleGuard } from './services/auth.guard';
+import { OnboardingGuard } from './services/onboarding.guard';
 import { UserRole } from './models/user.model';
 
 export const routes: Routes = [
@@ -29,7 +30,7 @@ export const routes: Routes = [
   {
     path: 'onboarding',
     loadComponent: () => import('./onboarding/onboarding.component').then(m => m.OnboardingComponent),
-    canActivate: [AuthGuard]
+    canActivate: [OnboardingGuard]
   },
   {
     path: 'jobs',

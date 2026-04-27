@@ -8,6 +8,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class AuthService {
   private readonly ROLE_KEY = 'jobportal_role';
   private readonly MFA_KEY = 'jobportal_mfa_enabled';
+  private readonly ONBOARDING_KEY = 'jobportal_onboarding_completed';
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   public loggedIn$ = this.loggedInSubject.asObservable();
 
@@ -16,11 +17,13 @@ export class AuthService {
     this.loggedInSubject.next(this.isLoggedIn());
   }
 
-  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean): void {
+  saveSession(role: UserRole, username?: string, userId?: number, mfaEnabled?: boolean, token?: string, onboardingCompleted?: boolean): void {
     localStorage.setItem(this.ROLE_KEY, role);
     if (username) localStorage.setItem('username', username);
     if (userId) localStorage.setItem('userId', String(userId));
     localStorage.setItem(this.MFA_KEY, String(!!mfaEnabled));
+    if (token) localStorage.setItem('token', token);
+    localStorage.setItem(this.ONBOARDING_KEY, String(!!onboardingCompleted));
     this.loggedInSubject.next(true);
   }
 
@@ -49,14 +52,25 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.ROLE_KEY);
     localStorage.removeItem(this.MFA_KEY);
+    localStorage.removeItem(this.ONBOARDING_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
+    localStorage.removeItem('token');
+    localStorage.removeItem('mfaOtpCode');
     this.loggedInSubject.next(false);
     this.router.navigate(['/login']);
   }
 
   isMfaEnabled(): boolean {
     return localStorage.getItem(this.MFA_KEY) === 'true';
+  }
+
+  setMfaOtpCode(otpCode: string): void {
+    localStorage.setItem('mfaOtpCode', otpCode);
+  }
+
+  getMfaOtpCode(): string | null {
+    return localStorage.getItem('mfaOtpCode');
   }
 
   isAdmin(): boolean {
@@ -69,6 +83,14 @@ export class AuthService {
 
   isJobSeeker(): boolean {
     return this.getRole() === UserRole.JOB_SEEKER;
+  }
+
+  isOnboardingCompleted(): boolean {
+    return localStorage.getItem(this.ONBOARDING_KEY) === 'true';
+  }
+
+  setOnboardingCompleted(completed: boolean): void {
+    localStorage.setItem(this.ONBOARDING_KEY, String(completed));
   }
 
   // Secure localStorage access - validates token existence
