@@ -2,9 +2,9 @@
   <nav class="top-nav">
     <a *ngIf="isRecruiter" routerLink="/post-job">Job Studio</a>
     <a *ngIf="isRecruiter" routerLink="/applications" class="active">Application Queue</a>
-    <a *ngIf="isJobSeeker" routerLink="/jobs">Browse Jobs</a>
-    <a *ngIf="isJobSeeker" routerLink="/applications" class="active">My Applications</a>
-    <a *ngIf="isJobSeeker" routerLink="/resume">Resume Vault</a>
+    <a *ngIf="isJobApplicant" routerLink="/jobs">Browse Jobs</a>
+    <a *ngIf="isJobApplicant" routerLink="/applications" class="active">My Applications</a>
+    <a *ngIf="isJobApplicant" routerLink="/resume">Resume Vault</a>
     <span class="nav-spacer"></span>
     <button type="button" (click)="logout()">Logout</button>
   </nav>
@@ -21,7 +21,7 @@
       <h3>Total Applications</h3>
       <p>{{ applications.length }}</p>
     </div>
-    <div class="kpi-card" *ngIf="isJobSeeker">
+    <div class="kpi-card" *ngIf="isJobApplicant">
       <h3>Shortlisted</h3>
       <p>{{ getApplicationsCount('SHORTLISTED') }}</p>
     </div>

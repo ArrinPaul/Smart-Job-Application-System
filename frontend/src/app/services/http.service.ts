@@ -260,4 +260,46 @@ export class HttpService {
   deleteUser(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/admin/users/${userId}`);
   }
+
+  /**
+   * Get user details by ID (Admin only)
+   */
+  getUserById(userId: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/admin/users/${userId}`);
+  }
+
+  /**
+   * Update user role (Admin only)
+   */
+  updateUserRole(userId: number, newRole: string): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/admin/users/${userId}/role`, { role: newRole });
+  }
+
+  /**
+   * Update user password (Admin only)
+   */
+  updateUserPassword(userId: number, newPassword: string): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/admin/users/${userId}/password`, { password: newPassword });
+  }
+
+  /**
+   * Update user details (Admin only)
+   */
+  updateUser(userId: number, userData: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/admin/users/${userId}`, userData);
+  }
+
+  /**
+   * Delete job (Admin only)
+   */
+  deleteJobAdmin(jobId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/admin/jobs/${jobId}`);
+  }
+
+  /**
+   * Update job (Admin only)
+   */
+  updateJobAdmin(jobId: number, jobData: any): Observable<Job> {
+    return this.http.put<Job>(`${this.apiUrl}/admin/jobs/${jobId}`, jobData);
+  }
 }

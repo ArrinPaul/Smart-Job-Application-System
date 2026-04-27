@@ -23,7 +23,11 @@
             <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
+            <td>
+              <span class="role-badge" [ngClass]="user.role.toLowerCase()">
+                {{ getRoleLabel(user.role) }}
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>

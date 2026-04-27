@@ -47,7 +47,7 @@ export class HttpService {
 
   applyForJob(jobId: number, userId: number): Observable<any> {
     return this.http.post<any>(
-      `${this.baseUrl}${environment.api.jobSeeker}/apply?jobId=${jobId}`,
+      `${this.baseUrl}${environment.api.jobApplicant}/apply?jobId=${jobId}`,
       { userId }
     );
   }
@@ -56,14 +56,14 @@ export class HttpService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<any>(
-      `${this.baseUrl}${environment.api.jobSeeker}/resume`,
+      `${this.baseUrl}${environment.api.jobApplicant}/resume`,
       formData
     );
   }
 
   getMyApplications(): Observable<Application[]> {
     return this.http.get<Application[]>(
-      `${this.baseUrl}${environment.api.jobSeeker}/applications`
+      `${this.baseUrl}${environment.api.jobApplicant}/applications`
     );
   }
 

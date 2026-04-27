@@ -10,7 +10,7 @@ export const environment = {
   api: {
     auth: '/auth',
     jobs: '/jobs',
-    jobSeeker: '/job-seeker',
+    jobApplicant: '/job-seeker',
     recruiter: '/recruiter',
     admin: '/admin',
     applications: '/applications',

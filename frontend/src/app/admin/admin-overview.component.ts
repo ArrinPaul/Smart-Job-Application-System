@@ -98,7 +98,7 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
     });
   }
 
-  private processEntries(summary: AdminDashboardSummary): void {
+  processEntries(summary: AdminDashboardSummary): void {
     if (summary.usersByRole) {
       this.roleEntries = Object.entries(summary.usersByRole).map(([key, value]) => ({ key, value }));
     } else {
@@ -109,6 +109,15 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
       this.applicationStatusEntries = Object.entries(summary.applicationsByStatus).map(([key, value]) => ({ key, value }));
     } else {
       this.applicationStatusEntries = [];
+    }
+  }
+
+  getRoleLabel(role: string): string {
+    switch (role) {
+      case 'JOB_APPLICANT': return 'Job Applicant';
+      case 'RECRUITER': return 'Recruiter';
+      case 'ADMIN': return 'Administrator';
+      default: return role;
     }
   }
 
