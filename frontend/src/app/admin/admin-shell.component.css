@@ -1,18 +1,83 @@
 .admin-shell {
-  padding-top: 16px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f3f0 0%, #f0ebe6 100%);
+}
+
+.admin-header {
+  background: linear-gradient(135deg, #2c2420 0%, #3d3530 100%);
+  color: white !important;
+  padding: 32px !important;
+  border-bottom: 2px solid #ff6b35;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header h2 {
+  color: white;
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  font-weight: 900;
+}
+
+.admin-header p {
+  color: #c4b5a8;
+  margin: 0;
+  font-size: 1rem;
 }
 
 .admin-nav {
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  background: white;
+  border-bottom: 2px solid #e8dfd0;
+  padding: 0 32px !important;
+  margin-bottom: 32px !important;
+  display: flex;
+  gap: 0;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 0;
+}
+
+.admin-nav a {
+  padding: 16px 24px;
+  text-decoration: none;
+  color: #6b6157;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.admin-nav a:hover {
+  color: #ff6b35;
+  background: rgba(255, 107, 53, 0.04);
 }
 
 .admin-nav a.active {
-  border-radius: 10px;
+  color: #ff6b35;
+  border-bottom-color: #ff6b35;
+  background: rgba(255, 107, 53, 0.08);
 }
 
 .admin-welcome {
-  color: #f6e5d0;
-  margin-left: auto;
-  font-size: 14px;
+  color: #8b7a6e !important;
+  margin-left: auto !important;
+  font-size: 14px !important;
+  padding: 16px 24px !important;
+  margin-right: 0 !important;
+}
+
+.admin-nav button {
+  padding: 10px 20px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 12px 32px 12px 12px;
+  transition: all 0.2s ease;
+}
+
+.admin-nav button:hover {
+  background: #e85a2a;
+  transform: translateY(-2px);
 }

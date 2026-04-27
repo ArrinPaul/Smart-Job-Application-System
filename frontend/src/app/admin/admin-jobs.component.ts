@@ -9,7 +9,8 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-admin-jobs',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './admin-jobs.component.html'
+  templateUrl: './admin-jobs.component.html',
+  styleUrl: './admin-jobs.component.css'
 })
 export class AdminJobsComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];

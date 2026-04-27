@@ -9,7 +9,8 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-admin-users',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './admin-users.component.html'
+  templateUrl: './admin-users.component.html',
+  styleUrl: './admin-users.component.css'
 })
 export class AdminUsersComponent implements OnInit, OnDestroy {
   users: User[] = [];

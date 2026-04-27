@@ -1,0 +1,41 @@
+2026-04-27 15:03:24 [main] INFO  c.e.j.JobPortalSystemApplication - Starting JobPortalSystemApplication v0.0.1-SNAPSHOT using Java 21.0.10 with PID 11776 (D:\ON Going Projects\smart-job-portal-system\backend\target\jobportalsystem-0.0.1-SNAPSHOT.jar started by Arrin in D:\ON Going Projects\smart-job-portal-system\backend)
+2026-04-27 15:03:24 [main] INFO  c.e.j.JobPortalSystemApplication - The following 1 profile is active: "supabase"
+2026-04-27 15:03:36 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2026-04-27 15:03:43 [main] WARN  o.f.c.i.database.base.Database - Flyway upgrade recommended: PostgreSQL 17.6 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 15.
+2026-04-27 15:03:49 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-27 15:04:01 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@c8d09e4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3aeba81, org.springframework.security.web.context.SecurityContextHolderFilter@2613a6fc, org.springframework.security.web.header.HeaderWriterFilter@1d62a0b, org.springframework.web.filter.CorsFilter@125dcfe1, org.springframework.security.web.authentication.logout.LogoutFilter@3851c572, com.edutech.jobportalsystem.security.PayloadSizeFilter@4f7a2262, com.edutech.jobportalsystem.security.AuthRateLimitFilter@7b842e79, com.edutech.jobportalsystem.jwt.JwtRequestFilter@358bbbe2, com.edutech.jobportalsystem.security.MfaEnforcementFilter@93cc5eb, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2f541378, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6112390a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@63e148cb, org.springframework.security.web.session.SessionManagementFilter@2bb5637a, org.springframework.security.web.access.ExceptionTranslationFilter@4aa8504f, org.springframework.security.web.access.intercept.AuthorizationFilter@3e45ca81]
+2026-04-27 15:04:04 [main] INFO  c.e.j.JobPortalSystemApplication - Started JobPortalSystemApplication in 41.419 seconds (process running for 43.615)
+2026-04-27 15:04:06 [main] INFO  c.e.j.config.AdminBootstrapConfig - Admin bootstrap skipped: user admin already exists
+2026-04-27 15:04:06 [main] INFO  c.e.j.config.DataLoader - Sample data already exists, skipping data loading
+2026-04-27 15:07:11 [http-nio-8080-exec-2] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-04-27 15:07:12 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - Login request for user: Arrin
+2026-04-27 15:07:15 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - User Arrin logged in successfully
+2026-04-27 15:07:17 [http-nio-8080-exec-4] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Arrin
+2026-04-27 15:07:34 [http-nio-8080-exec-6] WARN  c.e.j.controller.AuthController - User Arrin is skipping onboarding
+2026-04-27 15:07:34 [http-nio-8080-exec-6] WARN  c.e.j.service.OnboardingService - User Arrin skipped onboarding
+2026-04-27 15:07:36 [http-nio-8080-exec-8] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:07:46 [http-nio-8080-exec-9] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:07:47 [http-nio-8080-exec-1] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching applications
+2026-04-27 15:07:48 [http-nio-8080-exec-2] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:07:58 [http-nio-8080-exec-3] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:08:08 [http-nio-8080-exec-4] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:08:18 [http-nio-8080-exec-5] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:08:28 [http-nio-8080-exec-6] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:08:38 [http-nio-8080-exec-7] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:08:48 [http-nio-8080-exec-9] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:08:58 [http-nio-8080-exec-1] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:09:08 [http-nio-8080-exec-2] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:09:18 [http-nio-8080-exec-3] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:09:22 [http-nio-8080-exec-4] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:09:31 [http-nio-8080-exec-5] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:09:42 [http-nio-8080-exec-6] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:09:51 [http-nio-8080-exec-7] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:01 [http-nio-8080-exec-8] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:11 [http-nio-8080-exec-10] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:21 [http-nio-8080-exec-9] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:31 [http-nio-8080-exec-1] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:37 [http-nio-8080-exec-2] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:38 [http-nio-8080-exec-3] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:41 [http-nio-8080-exec-4] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:42 [http-nio-8080-exec-5] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs
+2026-04-27 15:10:52 [http-nio-8080-exec-6] INFO  c.e.j.controller.RecruiterController - Recruiter Arrin fetching their jobs

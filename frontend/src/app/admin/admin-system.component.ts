@@ -9,7 +9,8 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-admin-system',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './admin-system.component.html'
+  templateUrl: './admin-system.component.html',
+  styleUrl: './admin-system.component.css'
 })
 export class AdminSystemComponent implements OnInit, OnDestroy {
   status: AdminSystemStatus | null = null;

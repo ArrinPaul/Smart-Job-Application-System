@@ -12,7 +12,8 @@ Chart.register(...registerables);
   selector: 'app-admin-overview',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './admin-overview.component.html'
+  templateUrl: './admin-overview.component.html',
+  styleUrl: './admin-overview.component.css'
 })
 export class AdminOverviewComponent implements OnInit, OnDestroy {
   summary: AdminDashboardSummary | null = null;

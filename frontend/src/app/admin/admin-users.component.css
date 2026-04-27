@@ -1,0 +1,153 @@
+section {
+  padding: 0 32px 32px 32px;
+}
+
+.page-header {
+  padding: 0 0 32px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.page-header div:first-child {
+  flex: 1;
+}
+
+.page-header h2 {
+  font-size: 1.8rem;
+  color: #1a1410;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.page-header p {
+  color: #8b7a6e;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.page-header button {
+  padding: 10px 20px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.page-header button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.page-header button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.panel {
+  background: white;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid #e8dfd0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.admin-table thead {
+  background: linear-gradient(135deg, #f5f3f0 0%, #f0ebe6 100%);
+  border-bottom: 2px solid #e8dfd0;
+}
+
+.admin-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #1a1410;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0ebe6;
+  color: #6b6157;
+  font-size: 0.9rem;
+}
+
+.admin-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+  background: #faf8f5;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.empty-state {
+  padding: 60px 40px;
+  text-align: center;
+  background: white;
+  border: 2px dashed #e8dfd0;
+  border-radius: 12px;
+}
+
+.empty-state h3 {
+  font-size: 1.3rem;
+  color: #1a1410;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.empty-state p {
+  color: #8b7a6e;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: 0 24px 24px 24px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .page-header button {
+    width: 100%;
+  }
+
+  .admin-table {
+    font-size: 0.85rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 12px;
+  }
+
+  .empty-state {
+    padding: 40px 24px;
+  }
+}
