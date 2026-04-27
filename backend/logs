@@ -62,3 +62,10 @@
 2026-04-27 15:16:23 [http-nio-8080-exec-6] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
 2026-04-27 15:16:34 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
 2026-04-27 15:17:04 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:17:34 [http-nio-8080-exec-9] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:18:04 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:18:34 [http-nio-8080-exec-2] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:18:48 [http-nio-8080-exec-3] INFO  c.e.j.controller.AdminController - Admin request: fetching all users
+2026-04-27 15:19:04 [http-nio-8080-exec-4] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:19:34 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-27 15:20:45 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary

@@ -104,6 +104,50 @@ section {
 }
 
 .empty-state {
+  margin: 32px;
+  padding: 60px 40px;
+  background: white;
+  border: 2px dashed #e8dfd0;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.empty-state h3 {
+  font-size: 1.3rem;
+  color: #1a1410;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.empty-state p {
+  color: #8b7a6e;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: 0 24px 24px 24px;
+  }
+
+  .page-header {
+    padding: 0 0 24px 0;
+  }
+
+  .admin-table {
+    font-size: 0.85rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 12px;
+  }
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.empty-state {
   padding: 60px 40px;
   text-align: center;
   background: white;

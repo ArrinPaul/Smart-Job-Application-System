@@ -166,18 +166,18 @@
     </div>
 
     <div class="job-cards" *ngIf="myJobs.length > 0; else noJobsTpl">
-      <article class="job-card" *ngFor="let job of myJobs">
-        <h3>{{ job.title }}</h3>
-        <p>{{ job.description }}</p>
-        <div class="meta-row">
-          <span><strong>Location:</strong> {{ job.location }}</span>
-          <span><strong>Posted:</strong> {{ job.createdAt | date:'mediumDate' }}</span>
+        <div class="job-card" *ngFor="let job of myJobs">
+          <h3>{{ job.title }}</h3>
+          <p>{{ job.description }}</p>
+          <div class="meta-row">
+            <span><strong>Location:</strong> {{ job.location }}</span>
+            <span><strong>Posted:</strong> {{ job.createdAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="action-row-secondary">
+            <button type="button" class="btn-accent" (click)="editJob(job)">Edit</button>
+            <button type="button" class="btn-danger" (click)="deleteJob(job.id)">Delete</button>
+          </div>
         </div>
-        <div class="action-row">
-          <button type="button" class="btn-accent" (click)="editJob(job)">Edit</button>
-          <button type="button" class="btn-danger" (click)="deleteJob(job.id)">Delete</button>
-        </div>
-      </article>
     </div>
 
     <ng-template #noJobsTpl>

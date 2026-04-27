@@ -51,12 +51,8 @@
   cursor: not-allowed;
 }
 
-.section-header {
-  padding: 0 32px 20px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+section {
+  padding: 0 32px 32px 32px;
 }
 
 .kpi-grid {
@@ -187,11 +183,15 @@
 }
 
 @media (max-width: 768px) {
+  section,
   .page-header,
-  .section-header,
   .kpi-grid,
   .insight-card {
     padding: 0 24px;
+  }
+
+  .page-header {
+    padding: 0 24px 24px 24px;
   }
 
   .kpi-grid,
@@ -220,4 +220,25 @@
   .page-header button {
     width: 100%;
   }
+}
+
+.empty-state {
+  margin: 32px;
+  padding: 60px 40px;
+  background: white;
+  border: 2px dashed #e8dfd0;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.empty-state h3 {
+  font-size: 1.3rem;
+  color: #1a1410;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.empty-state p {
+  color: #8b7a6e;
+  margin: 0;
 }
