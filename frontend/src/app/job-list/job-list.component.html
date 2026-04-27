@@ -54,15 +54,53 @@
     <section class="job-cards" *ngIf="jobs.length > 0">
       <article class="job-card" *ngFor="let job of jobs">
         <div class="match-score-wrap" *ngIf="!isAdmin">
-          <div class="match-circle">
-            {{ 70 + (job.id % 25) }}%
-          </div>
-          <span class="match-label">Match</span>
+          <button type="button" class="insight-btn" (click)="fetchInsights(job.id)" [class.insight-btn--active]="insightJobId === job.id">
+            <span class="insight-label">{{ insightJobId === job.id && selectedInsights ? 'Closing Insights' : 'Smart Insight' }}</span>
+          </button>
         </div>
 
         <h3>{{ job.title }}</h3>
-  <span class="status-pill status-pill--neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
+        <span class="status-pill status-pill--neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
         <p>{{ job.description }}</p>
+
+        <!-- Dynamic Smart Insights Panel -->
+        <div class="insight-panel" *ngIf="insightJobId === job.id && selectedInsights && !selectedInsights.error">
+          <div class="insight-header">
+            <div class="insight-score-circle">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle" [attr.stroke-dasharray]="selectedInsights.compatibilityScore + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">{{ selectedInsights.compatibilityScore }}%</text>
+              </svg>
+            </div>
+            <div>
+              <h4 class="match-level">{{ selectedInsights.matchLevel }}</h4>
+              <p class="match-subtitle">Based on your uploaded resume</p>
+            </div>
+          </div>
+          
+          <div class="insight-grid">
+            <div class="insight-col">
+              <h5>Strong Matches</h5>
+              <div class="tag-row">
+                <span class="tag-green" *ngFor="let skill of selectedInsights.topMatches">{{ skill }}</span>
+              </div>
+            </div>
+            <div class="insight-col">
+              <h5>Missing Keywords</h5>
+              <div class="tag-row">
+                <span class="tag-orange" *ngFor="let skill of selectedInsights.improvementAreas">{{ skill }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="recommendations">
+            <h5>Coach Recommendations</h5>
+            <ul>
+              <li *ngFor="let rec of selectedInsights.recommendations">{{ rec }}</li>
+            </ul>
+          </div>
+        </div>
 
         <div class="meta-row">
           <span><strong>Location:</strong> {{ job.location }}</span>

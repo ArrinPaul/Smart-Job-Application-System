@@ -195,6 +195,20 @@ export class HttpService {
   }
 
   /**
+   * Manually trigger job scraping (Admin only)
+   */
+  triggerJobScraping(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/admin/scrape-now`, {});
+  }
+
+  /**
+   * Get smart insights for a job (Job Seeker only)
+   */
+  getJobMatchInsights(jobId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/jobseeker/insights/match/${jobId}`);
+  }
+
+  /**
    * Delete user (Admin only)
    */
   deleteUser(userId: number): Observable<void> {

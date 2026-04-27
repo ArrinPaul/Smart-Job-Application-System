@@ -20,6 +20,7 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   applicationStatusEntries: Array<{ key: string; value: number }> = [];
   loadError: string | null = null;
   isLoading = false;
+  isScraping = false;
 
   @ViewChild('trendChartCanvas') trendChartCanvas?: ElementRef;
   @ViewChild('recruiterChartCanvas') recruiterChartCanvas?: ElementRef;
@@ -74,6 +75,24 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
           this.applicationStatusEntries = [];
         }
         this.isLoading = false;
+      }
+    });
+  }
+
+  triggerScraping(): void {
+    if (this.isScraping) return;
+
+    this.isScraping = true;
+    this.httpService.triggerJobScraping().subscribe({
+      next: () => {
+        // Wait a bit then reload summary
+        setTimeout(() => {
+          this.loadSummary(true);
+          this.isScraping = false;
+        }, 2000);
+      },
+      error: () => {
+        this.isScraping = false;
       }
     });
   }

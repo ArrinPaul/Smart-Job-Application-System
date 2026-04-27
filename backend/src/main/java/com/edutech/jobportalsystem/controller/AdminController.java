@@ -28,6 +28,12 @@ public class AdminController {
     @Autowired
     private AdminDashboardService adminDashboardService;
 
+    @Autowired
+    private com.edutech.jobportalsystem.service.JobIngestionService jobIngestionService;
+
+    @Autowired
+    private com.edutech.jobportalsystem.service.JobScraperScheduler jobScraperScheduler;
+
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         logger.info("Admin request: fetching all users");
@@ -50,5 +56,18 @@ public class AdminController {
     public ResponseEntity<?> getSystemStatus() {
         logger.info("Admin request: fetching system status");
         return ResponseEntity.ok(adminDashboardService.getSystemStatus());
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/ingest-real-jobs")
+    public ResponseEntity<?> ingestRealJobs(@org.springframework.web.bind.annotation.RequestBody java.util.List<java.util.Map<String, String>> jobData) {
+        logger.info("Admin request: ingesting {} real jobs", jobData.size());
+        return ResponseEntity.ok(jobIngestionService.ingestJobs(jobData));
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/scrape-now")
+    public ResponseEntity<?> triggerScraping() {
+        logger.warn("Admin request: manual job scraping triggered");
+        jobScraperScheduler.scheduleDailyJobScraping();
+        return ResponseEntity.ok(java.util.Map.of("message", "Scraping task started successfully"));
     }
 }

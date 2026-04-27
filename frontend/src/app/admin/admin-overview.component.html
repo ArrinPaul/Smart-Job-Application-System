@@ -4,7 +4,15 @@
       <h2>Admin Dashboard Overview</h2>
       <p>Platform-level analytics snapshot across users, jobs, and system activity.</p>
     </div>
-    <button type="button" (click)="loadSummary()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+    <div class="action-row">
+      <button type="button" class="btn--secondary" (click)="triggerScraping()" [disabled]="isScraping || isLoading">
+        {{ isScraping ? 'Scanning Boards...' : 'Manual Job Scan' }}
+      </button>
+      <button type="button" (click)="loadSummary()" [disabled]="isLoading">
+        {{ isLoading ? 'Refreshing...' : 'Refresh' }}
+      </button>
+    </div>
+
   </div>
 
   <p *ngIf="summary" class="updated-time">Last updated: {{ summary.generatedAt | date:'medium' }}</p>

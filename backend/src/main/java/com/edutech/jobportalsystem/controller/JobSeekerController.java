@@ -39,6 +39,9 @@ public class JobSeekerController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.edutech.jobportalsystem.service.SmartInsightsService smartInsightsService;
+
     @GetMapping("/jobs")
     public ResponseEntity<?> searchJobs(@RequestParam(required = false) @Size(max = 120) String title,
                                        @RequestParam(required = false) @Size(max = 120) String location) {
@@ -71,5 +74,12 @@ public class JobSeekerController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         return ResponseEntity.ok(applicationService.getApplicationsByApplicant(user));
+    }
+
+    @GetMapping("/jobseeker/insights/match/{jobId}")
+    public ResponseEntity<?> getJobMatchInsights(@PathVariable Long jobId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("User {} fetching insights for job {}", username, jobId);
+        return ResponseEntity.ok(smartInsightsService.getMatchInsights(jobId, username));
     }
 }

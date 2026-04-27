@@ -26,6 +26,8 @@ export class JobListComponent implements OnInit, OnDestroy {
   isLoading = false;
   isAdmin = false;
   showUsers = false;
+  selectedInsights: any = null;
+  insightJobId: number | null = null;
   private destroy$ = new Subject<void>();
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -158,6 +160,36 @@ export class JobListComponent implements OnInit, OnDestroy {
           // Error will be handled by interceptor toast
         }
       });
+  }
+
+  fetchInsights(jobId: number): void {
+    if (this.insightJobId === jobId && this.selectedInsights) {
+      this.closeInsights();
+      return;
+    }
+
+    this.insightJobId = jobId;
+    this.selectedInsights = null; // Clear previous
+
+    this.httpService.getJobMatchInsights(jobId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.selectedInsights = response;
+          if (response.error) {
+            this.toastService.showWarning(response.error);
+          }
+        },
+        error: () => {
+          this.toastService.showError('Unable to fetch smart insights.');
+          this.insightJobId = null;
+        }
+      });
+  }
+
+  closeInsights(): void {
+    this.selectedInsights = null;
+    this.insightJobId = null;
   }
 
   logout(): void {
