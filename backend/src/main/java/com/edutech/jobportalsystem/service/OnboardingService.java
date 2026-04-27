@@ -98,7 +98,7 @@ public class OnboardingService {
             profile.setIndustry(request.getIndustry());
             profile.setCompanySize(request.getCompanySize());
             recruiterProfileRepository.save(profile);
-        } else if ("JOB_APPLICANT".equals(user.getRole())) {
+        } else if ("JOB_SEEKER".equals(user.getRole())) {
             // job applicant: save skills
             if (request.getSkills() != null) {
                 user.setSkills(request.getSkills().trim());
@@ -136,7 +136,7 @@ public class OnboardingService {
             user.setBio(request.getBio().trim());
         }
 
-        if ("JOB_APPLICANT".equals(user.getRole())) {
+        if ("JOB_SEEKER".equals(user.getRole())) {
             JobSeekerProfile profile = jobSeekerProfileRepository.findByUser(user)
                     .orElse(new JobSeekerProfile());
             profile.setUser(user);
@@ -168,7 +168,7 @@ public class OnboardingService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
-        if ("JOB_APPLICANT".equals(user.getRole())) {
+        if ("JOB_SEEKER".equals(user.getRole())) {
             JobSeekerProfile profile = jobSeekerProfileRepository.findByUser(user)
                     .orElse(new JobSeekerProfile());
             profile.setUser(user);

@@ -32,7 +32,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String role; // ADMIN, RECRUITER, JOB_APPLICANT
+    private String role; // ADMIN, RECRUITER, JOB_SEEKER
 
     @Column(nullable = false)
     @JsonIgnore

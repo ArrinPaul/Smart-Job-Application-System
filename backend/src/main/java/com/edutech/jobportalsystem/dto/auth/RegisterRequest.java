@@ -22,7 +22,7 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Role is required")
-    @Pattern(regexp = "^(RECRUITER|JOB_APPLICANT)$", message = "Role is invalid")
+    @Pattern(regexp = "^(RECRUITER|JOB_SEEKER)$", message = "Role is invalid")
     private String role;
 
     public String getUsername() {

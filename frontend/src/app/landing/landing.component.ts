@@ -38,7 +38,7 @@ export class LandingComponent implements OnInit {
       case UserRole.RECRUITER:
         targetUrl = '/post-job';
         break;
-      case UserRole.JOB_APPLICANT:
+      case UserRole.JOB_SEEKER:
         targetUrl = '/dashboard';
         break;
       case UserRole.ADMIN:

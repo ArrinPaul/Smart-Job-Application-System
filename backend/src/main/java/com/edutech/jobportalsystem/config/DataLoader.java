@@ -67,7 +67,7 @@ public class DataLoader {
             jobSeeker1.setUsername("alice.developer");
             jobSeeker1.setEmail("alice@email.com");
             jobSeeker1.setPassword(passwordEncoder.encode(samplePassword));
-            jobSeeker1.setRole("JOB_APPLICANT");
+            jobSeeker1.setRole("JOB_SEEKER");
             userRepository.save(jobSeeker1);
             logger.info("Created job applicant: {}", jobSeeker1.getUsername());
 
@@ -75,7 +75,7 @@ public class DataLoader {
             jobSeeker2.setUsername("bob.designer");
             jobSeeker2.setEmail("bob@email.com");
             jobSeeker2.setPassword(passwordEncoder.encode(samplePassword));
-            jobSeeker2.setRole("JOB_APPLICANT");
+            jobSeeker2.setRole("JOB_SEEKER");
             userRepository.save(jobSeeker2);
             logger.info("Created job applicant: {}", jobSeeker2.getUsername());
 
@@ -83,7 +83,7 @@ public class DataLoader {
             jobSeeker3.setUsername("charlie.manager");
             jobSeeker3.setEmail("charlie@email.com");
             jobSeeker3.setPassword(passwordEncoder.encode(samplePassword));
-            jobSeeker3.setRole("JOB_APPLICANT");
+            jobSeeker3.setRole("JOB_SEEKER");
             userRepository.save(jobSeeker3);
             logger.info("Created job applicant: {}", jobSeeker3.getUsername());
 

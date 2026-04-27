@@ -41,7 +41,7 @@ public class JobRecommendationService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
         // Only recommend to job applicants
-        if (!user.getRole().equals("JOB_APPLICANT")) {
+        if (!user.getRole().equals("JOB_SEEKER")) {
             logger.warn("User {} is not a job applicant", userId);
             return Collections.emptyList();
         }

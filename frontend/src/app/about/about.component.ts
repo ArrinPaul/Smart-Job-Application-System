@@ -11,59 +11,59 @@ import { RouterModule } from '@angular/router';
 })
 export class AboutComponent {
   stats = [
-    { number: '50K+', label: 'Active Users' },
-    { number: '10K+', label: 'Job Listings' },
-    { number: '5K+', label: 'Successful Placements' },
-    { number: '98%', label: 'Match Accuracy' }
+    { number: '100%', label: 'Open Source' },
+    { number: 'Real-time', label: 'Job Syncing' },
+    { number: 'Secure', label: 'JWT Auth' },
+    { number: '99.9%', label: 'Uptime' }
   ];
 
   values = [
     {
       icon: 'Mission',
-      title: 'Mission-Driven',
-      description: 'We connect talented professionals with life-changing opportunities.'
+      title: 'Seamless Matching',
+      description: 'We leverage intelligent algorithms to connect job seekers with the most relevant opportunities instantly.'
     },
     {
       icon: 'Collaboration',
-      title: 'People First',
-      description: 'Your success is our success. We prioritize your career growth.'
+      title: 'Recruiter Empowerment',
+      description: 'Our platform provides recruiters with powerful tools to manage listings and track candidate progress efficiently.'
     },
     {
       icon: 'Security',
-      title: 'Transparent',
-      description: 'Honest matching, clear processes, and fair opportunities for all.'
+      title: 'Data Integrity',
+      description: 'We prioritize security with JWT-based authentication and secure database migrations using Supabase.'
     },
     {
       icon: 'Speed',
-      title: 'Innovative',
-      description: 'Using AI and data to revolutionize job matching.'
+      title: 'Modern Stack',
+      description: 'Built with Spring Boot 3 and Angular 17, ensuring a high-performance, responsive experience for all users.'
     }
   ];
 
   team = [
     {
-      name: 'Sarah Johnson',
-      role: 'Founder & CEO',
+      name: 'EduTech System',
+      role: 'Platform Core',
       image: '',
-      bio: 'Former HR Director with 15 years of recruitment experience'
+      bio: 'The foundational architecture supporting thousands of concurrent job interactions.'
     },
     {
-      name: 'Aryan Patel',
-      role: 'CTO & Co-founder',
+      name: 'Supabase',
+      role: 'Database Engine',
       image: '',
-      bio: 'AI/ML expert building intelligent matching algorithms'
+      bio: 'Providing real-time PostgreSQL capabilities and secure data persistence.'
     },
     {
-      name: 'Emma Wilson',
-      role: 'Head of Operations',
+      name: 'Spring Boot',
+      role: 'Backend Framework',
       image: '',
-      bio: 'Operations strategist ensuring seamless platform experience'
+      bio: 'Powering the robust RESTful API and business logic layer.'
     },
     {
-      name: 'Marcus Chen',
-      role: 'Head of Product',
+      name: 'Angular',
+      role: 'Frontend Framework',
       image: '',
-      bio: 'Product visionary designing user-centric features'
+      bio: 'Delivering a modular and responsive single-page application interface.'
     }
   ];
 }

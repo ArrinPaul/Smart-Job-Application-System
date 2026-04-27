@@ -81,8 +81,8 @@ export class AuthService {
     return this.getRole() === UserRole.RECRUITER;
   }
 
-  isJobApplicant(): boolean {
-    return this.getRole() === UserRole.JOB_APPLICANT;
+  isJobSeeker(): boolean {
+    return this.getRole() === UserRole.JOB_SEEKER;
   }
 
   isOnboardingCompleted(): boolean {

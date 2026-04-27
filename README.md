@@ -1,356 +1,206 @@
 # Smart Job Portal System
 
+[![Project Status: Active](https://img.shields.io/badge/status-active-success.svg)](https://github.com/your-repo/smart-job-portal-system)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 A modern, production-ready recruitment platform that connects job seekers, recruiters, and administrators with real-time data synchronization and intelligent job scraping.
+
+---
+
+## Table of Contents
+
+- [Key Features](#key-features)
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Local Development Setup](#local-development-setup)
+- [API Endpoints](#api-endpoints)
+- [Security](#security)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
 
 ## Key Features
 
-- **User Management**: Role-based access (Admin, Recruiter, Job Seeker) with secure JWT authentication
-- **Job Management**: Post, edit, delete jobs with full recruiter control
-- **Smart Job Search**: Filter and search jobs by title and location
-- **Application Workflow**: Apply to jobs, upload resumes, track application status
-- **Admin Dashboard**: Real-time analytics, user management, system health monitoring
-- **Job Scraping**: Automated scraper that ingests jobs from Indeed, Internshala, and other portals
-- **Data Normalization**: Structured, cleaned job data automatically stored in PostgreSQL/Supabase
+- **Role-Based Access Control**: Separate interfaces and permissions for Administrators, Recruiters, and Job Seekers.
+- **Full Job Lifecycle Management**: Recruiters can post, edit, archive, and manage job listings.
+- **Intelligent Job Search**: Job seekers can search and filter jobs by title, location, and other criteria.
+- **Seamless Application Workflow**: Candidates can apply for jobs, upload resumes, and track their application status.
+- **Comprehensive Admin Dashboard**: Real-time analytics, user management, and system health monitoring.
+- **Automated Job Scraping**: A scheduled service scrapes jobs from external portals like Indeed and normalizes the data.
+- **Step-by-Step User Onboarding**: A guided process for new users to complete their profiles.
+
+## System Architecture
+
+The system is composed of three main components: a **Spring Boot Backend**, an **Angular Frontend**, and a **PostgreSQL Database** (managed via Supabase).
+
+```
++------------------+      +---------------------+      +-------------------+
+|                  |      |                     |      |                   |
+|  Angular         | <=>  |  Spring Boot        | <=>  |  Supabase         |
+|  Frontend        |      |  Backend (API)      |      |  (PostgreSQL)     |
+|  (Port 4200)     |      |  (Port 8080)        |      |                   |
+|                  |      |                     |      |                   |
++------------------+      +---------------------+      +-------------------+
+        ^                           ^
+        |                           |
+        +---------------------------+
+        |
+        |  RESTful API Communication
+        |  (JSON via HTTP/S)
+        |
+```
+
+- **Frontend**: A responsive single-page application (SPA) built with Angular that provides the user interface.
+- **Backend**: A powerful RESTful API built with Spring Boot that handles all business logic, data processing, and authentication.
+- **Database**: A PostgreSQL database hosted on Supabase, with schema migrations managed by Flyway.
+
+---
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Spring Boot 3.2, Spring Security, Spring Data JPA |
-| **Frontend** | Angular 17, Chart.js (admin analytics) |
-| **Database** | PostgreSQL / Supabase with Flyway migrations |
-| **Authentication** | JWT (httponly cookies) |
-| **Job Scraping** | Jsoup, Selenium WebDriver (for dynamic content) |
-| **Runtime** | Java 21 LTS |
+| Layer | Technology | Description |
+|---|---|---|
+| **Backend** | Spring Boot 3, Java 21 | Core framework for building the robust, high-performance API. |
+| **Frontend** | Angular 17, TypeScript | Modern framework for the client-side single-page application. |
+| **Database** | PostgreSQL (Supabase) | Scalable, open-source object-relational database. |
+| **Authentication**| Spring Security, JWT | Secure, stateless authentication using JSON Web Tokens stored in `HttpOnly` cookies. |
+| **Migrations** | Flyway | Manages database schema evolution reliably across all environments. |
+| **Job Scraping** | Jsoup, Selenium | Tools for extracting job data from external websites. |
+| **Build Tools** | Maven (Backend), npm (Frontend) | Dependency management and build automation. |
 
-## Project Structure
-
-```
-smart-job-portal-system/
-├── backend/
-│   ├── src/
-│   │   ├── main/java/com/edutech/jobportalsystem/
-│   │   │   ├── controller/          # REST endpoints
-│   │   │   ├── service/             # Business logic (including JobScraperService)
-│   │   │   ├── entity/              # JPA entities
-│   │   │   ├── repository/          # Spring Data JPA repos
-│   │   │   ├── config/              # Spring configuration
-│   │   │   └── exception/           # Global error handling
-│   │   ├── resources/
-│   │   │   ├── application.properties
-│   │   │   ├── application-supabase.properties
-│   │   │   └── db/migration/supabase/V1__init_job_portal.sql
-│   │   └── test/
-│   └── pom.xml
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── admin/               # Admin dashboard & pages
-│   │   │   ├── job-list/
-│   │   │   ├── applications/
-│   │   │   ├── resume/
-│   │   │   └── services/
-│   │   ├── styles.css               # Design system (design tokens, animations)
-│   │   └── environments/
-│   └── package.json
-└── supabase/
-    └── migrations/
-```
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 21** (LTS)
-- **Maven 3.9.6**
-- **Node.js 20+** & npm
-- **PostgreSQL 14+** or Supabase account
+- **Java 21** (or higher)
+- **Maven 3.9** (or higher)
+- **Node.js 20** (or higher) & npm
 - **Git**
+- A **Supabase Account** (for database hosting)
 
-### Quick Start — Local Development
+### Local Development Setup
 
-#### 1. Backend Setup (Port 8080)
+#### 1. Clone the Repository
 
 ```bash
+git clone https://github.com/your-repo/smart-job-portal-system.git
+cd smart-job-portal-system
+```
+
+#### 2. Configure Backend (Supabase)
+
+1.  **Create a Supabase Project**: Go to [Supabase](https://supabase.com/) and create a new project.
+2.  **Get Database Credentials**: Navigate to `Project Settings > Database` to find your connection details (Host, Port, DB name, etc.).
+3.  **Create an Environment File**: In the `backend/` directory, create a `.env` file and add your Supabase credentials. **Note:** Do not commit this file.
+
+    ```env
+    # backend/.env
+    SPRING_PROFILES_ACTIVE=supabase
+    SUPABASE_DB_HOST=db.<your-project-ref>.supabase.co
+    SUPABASE_DB_PORT=5432
+    SUPABASE_DB_NAME=postgres
+    SUPABASE_DB_USER=postgres
+    SUPABASE_DB_PASSWORD=<your-db-password>
+    ```
+
+#### 3. Run the Backend
+
+Open a terminal in the `backend/` directory and run the application. Flyway will automatically run the database migrations on startup.
+
+```powershell
+# For PowerShell
 cd backend
-
-# Run with local H2 database (testing only)
-./run-local.ps1 -Profile local
-
-# Or run with Supabase PostgreSQL (production-like)
-# First, set environment variables in .env or your terminal:
-export SPRING_PROFILES_ACTIVE=supabase
-export SUPABASE_DB_HOST=<your-supabase-host>
-export SUPABASE_DB_PORT=6543
-export SUPABASE_DB_NAME=postgres
-export SUPABASE_DB_USER=postgres.<your-project>
-export SUPABASE_DB_PASSWORD=<your-password>
-
-mvn clean spring-boot:run -Dspring.profiles.active=supabase
+./run-local.ps1 -Profile supabase
 ```
-
-#### 2. Frontend Setup (Port 4200)
-
+Or using Maven directly:
 ```bash
-cd frontend
-npm install
-ng serve
-
-# Open http://localhost:4200 in your browser
+# Make sure your .env file is loaded or export the variables manually
+mvn spring-boot:run
 ```
+The backend API will be available at `http://localhost:8080`.
 
-#### 3. Test the Flow
+#### 4. Configure Frontend
 
-1. **Register** a Recruiter and Job Seeker account
-2. **Post a Job** as the Recruiter
-3. **Search and Apply** as the Job Seeker
-4. **Upload Resume** on the Resume page
-5. **View Admin Dashboard** (login as admin@example.com / admin) to see analytics
+The frontend reads its API URL from an environment file.
 
-### Production Build
+1.  **Navigate to Frontend**: `cd ../frontend`
+2.  **Install Dependencies**: `npm install`
+3.  **Run the Development Server**: `ng serve`
 
-#### Backend
-
-```bash
-cd backend
-mvn clean package -DskipTests
-
-# Run the JAR
-java -jar target/jobportalsystem-0.0.1-SNAPSHOT.jar \
-  --spring.profiles.active=supabase \
-  --server.port=8080 \
-  --supabase.db.host=$DB_HOST \
-  --supabase.db.port=$DB_PORT \
-  --supabase.db.name=$DB_NAME \
-  --supabase.db.user=$DB_USER \
-  --supabase.db.password=$DB_PASSWORD
-```
-
-#### Frontend
-
-```bash
-cd frontend
-ng build --configuration=production
-
-# Serve the production build
-npx serve dist/jobportal-frontend/browser --port 80
-```
-
-## Admin Panel Features
-
-### Dashboard Overview
-- **KPI Cards**: Total users, jobs, applications, active metrics
-- **7-Day Job Posting Trends**: Line chart showing job posting activity
-- **Weekly Recruiter Activity**: Bar chart with recruiter and job post counts
-- **Application Funnel**: Conversion visualization (Applied → Hired)
-- **Platform Activity Pulse**: Fulfillment rate, user retention percentages
-- **Users by Role**: Breakdown of Admin, Recruiter, Job Seeker counts
-- **Applications by Status**: Distribution of application statuses
-
-### User Management
-- View all registered users with roles and contact info
-- Filter and search users
-- Bulk user actions (future enhancement)
-
-### Job Management
-- Monitor all active and historical job postings
-- View recruiter information and job metadata
-- Track job posting timestamps
-
-### System Status
-- Real-time API health (UP/DOWN)
-- Database connection status
-- JVM uptime and Java version info
-- Backend health endpoint details
-
-## Job Scraper Architecture
-
-The system includes an intelligent job scraper that automatically collects jobs from multiple portals:
-
-### Supported Portals
-- **Indeed** (indeed.com / indeed.co.in)
-- **Internshala** (internshala.com)
-- **LinkedIn** (linkedin.com/jobs) - planned
-- **Glassdoor** (glassdoor.com/jobs) - planned
-
-### Data Pipeline
-
-```
-Portal Scraper → Raw Data Extract → Data Cleaner → Job Entity → Database
-                                                        ↓
-                                                    Admin View
-                                                        ↓
-                                                  Frontend Display
-```
-
-### Scraper Service
-
-Located in `backend/src/main/java/com/edutech/jobportalsystem/service/JobScraperService.java`:
-
-```java
-@Service
-public class JobScraperService {
-  
-  // Scrape jobs from multiple portals
-  public List<Job> scrapeAndNormalize(String portal, String query);
-  
-  // Schedule periodic scraping (e.g., every 6 hours)
-  @Scheduled(fixedRate = 21600000) // 6 hours
-  public void scheduledScraping();
-}
-```
-
-#### Scraping Workflow
-
-1. **Extract**: Fetch HTML from portal using Jsoup or Selenium
-2. **Parse**: Extract job title, description, location, salary, company
-3. **Clean**: Normalize text, remove HTML tags, validate data
-4. **Enrich**: Add source portal, timestamp, apply-to URL
-5. **Store**: Save to `jobs` table with `posted_by = SYSTEM` for automation
-6. **Frontend**: Jobs appear instantly in job list and admin dashboard
-
-## Authentication Flow
-
-1. User registers with username, email, password, and role
-2. System creates account and stores hashed password
-3. User logs in → JWT issued in httponly cookie
-4. All API requests include JWT for authorization
-5. Roles: ADMIN (full access), RECRUITER (job management), JOB_SEEKER (browse/apply)
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Create account
-- `POST /api/auth/login` - Login and get JWT
-- `POST /api/auth/logout` - Clear session
-
-### Jobs
-- `GET /api/jobs` - List all jobs (searchable)
-- `POST /api/recruiter/jobs` - Create job (Recruiter)
-- `PUT /api/recruiter/jobs/:id` - Edit job
-- `DELETE /api/recruiter/jobs/:id` - Delete job
-
-### Applications
-- `POST /api/job/apply` - Apply to job
-- `GET /api/recruiter/applications` - View applications for own jobs (Recruiter)
-- `GET /api/jobseeker/applications` - View own applications
-- `PUT /api/recruiter/applications/:id/status` - Update application status
-
-### Resume
-- `POST /api/jobseeker/resume` - Upload resume
-- `GET /api/resume/:id` - Download resume
-
-### Admin
-- `GET /api/admin/users` - All users
-- `GET /api/admin/jobs` - All jobs
-- `GET /api/admin/dashboard/summary` - Analytics dashboard
-- `GET /api/admin/system/status` - Health & system info
-
-## Testing
-
-### Run Backend Tests
-```bash
-cd backend
-mvn test
-```
-
-### Manual API Testing
-```bash
-# Register
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"recruiter1","email":"rec@example.com","password":"pass123","role":"RECRUITER"}'
-
-# Login
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"recruiter1","password":"pass123"}'
-
-# Post a job
-curl -X POST http://localhost:8080/api/recruiter/jobs \
-  -H "Content-Type: application/json" \
-  -H "Cookie: token=<JWT>" \
-  -d '{"title":"Senior Engineer","description":"...","location":"Remote"}'
-```
-
-## Routing & Navigation
-
-### Routes
-- `/` → Redirect to `/login`
-- `/login` → Login page
-- `/register` → Registration page
-- `/jobs` → Browse all jobs (authenticated)
-- `/post-job` → Create new job (Recruiter only)
-- `/applications` → View applications (Recruiter/Job Seeker)
-- `/resume` → Manage resumes (Job Seeker only)
-- `/admin` → Admin dashboard overview
-- `/admin/users` → User management
-- `/admin/jobs` → Job monitoring
-- `/admin/system` → System health
-- `/**` → Redirect to `/login`
-
-### Route Guards
-- **AuthGuard**: Redirects unauthenticated users to `/login`
-- **RoleGuard**: Restricts routes by user role (ADMIN, RECRUITER, JOB_SEEKER)
-
-## Deployment
-
-### Option 1: Local Server
-```bash
-# Backend
-mvn clean spring-boot:run
-
-# Frontend (separate terminal)
-ng serve
-```
-
-### Option 2: Docker (Coming Soon)
-```bash
-# Build backend image
-docker build -t job-portal-backend ./backend
-
-# Build frontend image
-docker build -t job-portal-frontend ./frontend
-
-# Run with docker-compose
-docker-compose up
-```
-
-### Option 3: Railway / Cloud Platforms
-
-Set environment variables and deploy:
-- `SPRING_PROFILES_ACTIVE=supabase`
-- `SUPABASE_DB_*` credentials
-- `CORS_ALLOWED_ORIGINS` for frontend URL
-
-## Maintenance & Admin Commands
-
-### Database Migrations
-```bash
-# Flyway auto-runs on startup. To manually manage:
-mvn flyway:migrate -Dspring.profiles.active=supabase
-```
-
-### View Application Logs
-```bash
-tail -f backend/logs/app.log
-```
-
-### Trigger Job Scraper (Manual)
-```bash
-# Future: Admin endpoint to trigger scraping
-POST /api/admin/scraper/trigger-now
-```
-
-## License
-
-This project is provided as-is for educational and commercial use.
-
-## Support
-
-For issues or questions, please refer to the GitHub repository issues section.
+The frontend application will be available at `http://localhost:4200`.
 
 ---
 
-**Last Updated:** April 2026 | **Status:** Production Ready
+## API Endpoints
 
+The following are the primary API endpoints. All are prefixed with `/api`.
+
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `POST` | `/auth/register` | Creates a new user account. | Public |
+| `POST` | `/auth/login` | Authenticates a user and returns a JWT. | Public |
+| `POST` | `/auth/logout` | Clears the user's session. | Authenticated |
+| `GET` | `/jobs` | Retrieves a list of all active jobs. | Public |
+| `GET` | `/jobs/{slug}` | Retrieves a single job by its slug. | Public |
+| `POST` | `/recruiter/jobs` | Creates a new job listing. | Recruiter |
+| `POST` | `/jobseeker/apply` | Applies for a job. | Job Seeker |
+| `GET` | `/admin/dashboard/summary` | Retrieves analytics for the admin dashboard. | Admin |
+
+---
+
+## Security
+
+- **Stateless Authentication**: Uses JWTs stored in secure, `HttpOnly` cookies, preventing XSS attacks from accessing tokens.
+- **CORS Protection**: Configured to only allow requests from the frontend origin specified in the backend configuration.
+- **Role-Based Authorization**: API endpoints are protected using Spring Security to ensure users can only access resources permitted by their role.
+- **SQL Injection Prevention**: Spring Data JPA and Hibernate protect against SQL injection vulnerabilities.
+- **Rate Limiting**: Implemented on authentication endpoints to prevent brute-force attacks.
+
+---
+
+## Deployment
+
+### Backend
+
+1.  Build the production JAR file:
+    ```bash
+    cd backend
+    mvn clean package -DskipTests
+    ```
+2.  Run the application on your server, passing the database credentials as environment variables:
+    ```bash
+    java -jar target/jobportalsystem-*.jar
+    ```
+
+### Frontend
+
+1.  Build the production-ready static files:
+    ```bash
+    cd frontend
+    ng build --configuration=production
+    ```
+2.  Serve the generated files from `dist/jobportal-frontend/browser` using a web server like Nginx or Vercel.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue to discuss a new feature or bug. Pull requests should be made to the `develop` branch.
+
+1.  **Fork the repository.**
+2.  **Create a new feature branch:** `git checkout -b feature/my-new-feature`
+3.  **Commit your changes:** `git commit -am 'Add some feature'`
+4.  **Push to the branch:** `git push origin feature/my-new-feature`
+5.  **Submit a pull request.**
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

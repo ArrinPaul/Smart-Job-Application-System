@@ -23,7 +23,7 @@ export class RegistrationComponent implements OnDestroy {
   isLoading = false;
   roleOptions = [
     { label: 'Recruiter', value: UserRole.RECRUITER },
-    { label: 'Job Applicant', value: UserRole.JOB_APPLICANT }
+    { label: 'Job Applicant', value: UserRole.JOB_SEEKER }
   ];
   private destroy$ = new Subject<void>();
 

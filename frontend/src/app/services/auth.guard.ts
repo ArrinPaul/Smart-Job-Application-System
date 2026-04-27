@@ -81,7 +81,7 @@ export class RoleGuard implements CanActivate {
     const normalizedRole = String(userRole).toUpperCase();
     if (normalizedRole === 'RECRUITER') {
       this.router.navigate(['/post-job']);
-    } else if (normalizedRole === 'JOB_APPLICANT' || normalizedRole === 'JOB_SEEKER') {
+    } else if (normalizedRole === 'JOB_SEEKER') {
       this.router.navigate(['/dashboard']);
     } else {
       this.router.navigate(['/']);

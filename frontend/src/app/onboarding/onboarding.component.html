@@ -66,7 +66,7 @@
               <span *ngIf="errors['location']" class="error-text">{{ errors['location'] }}</span>
             </div>
 
-            <div class="form-group" *ngIf="role === UserRole.JOB_APPLICANT">
+            <div class="form-group" *ngIf="role === UserRole.JOB_SEEKER">
               <label for="experienceYears">Years of Experience</label>
               <select 
                 id="experienceYears" 
@@ -109,7 +109,7 @@
           </div>
 
           <!-- Job Applicant Fields -->
-          <div *ngIf="role === UserRole.JOB_APPLICANT">
+          <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
               <label for="skills">Skills (Comma-separated) *</label>
               <input 
@@ -172,7 +172,7 @@
         <!-- STEP 3: Experience & Background -->
         <div *ngIf="currentStep === 3" class="form-step" [@fadeInOut]>
           <!-- Job Applicant Fields -->
-          <div *ngIf="role === UserRole.JOB_APPLICANT">
+          <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
               <label for="currentCompany">Current/Last Company</label>
               <input 
@@ -236,7 +236,7 @@
         <!-- STEP 4: Preferences & Settings -->
         <div *ngIf="currentStep === 4" class="form-step" [@fadeInOut]>
           <!-- Job Applicant Fields -->
-          <div *ngIf="role === UserRole.JOB_APPLICANT">
+          <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
               <label class="checkbox-label">
                 <input 
@@ -334,7 +334,7 @@
                   <span class="summary-label">Headline</span>
                   <span class="summary-value">{{ formData.headline }}</span>
                 </div>
-                <div class="summary-item" *ngIf="role === UserRole.JOB_APPLICANT">
+                <div class="summary-item" *ngIf="role === UserRole.JOB_SEEKER">
                   <span class="summary-label">Skills</span>
                   <span class="summary-value">{{ formData.skills }}</span>
                 </div>

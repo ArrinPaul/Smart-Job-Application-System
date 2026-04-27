@@ -74,13 +74,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
         logger.info("Registering user request received for username: {}", request.getUsername());
-
-        try {
-            userService.registerUser(request);
-        } catch (BadRequestException ex) {
-            logger.warn("Registration request handled with generic response");
-        }
-
+        userService.registerUser(request);
         return ResponseEntity.ok(Map.of("message", "Registration request processed successfully."));
     }
 
