@@ -1,36 +1,44 @@
-<div class="onboarding-layout">
-  <div class="onboarding-container">
-    <!-- Header -->
-    <div class="onboarding-header">
-      <h1>Welcome to SmartJobPortal</h1>
-      <p>Let's get you set up in just 5 minutes</p>
-    </div>
+<div class="onboarding-overlay">
+  <!-- Close Button -->
+  <button class="close-btn" (click)="closeOnboarding()" title="Close onboarding">✕</button>
 
-    <!-- Progress Bar -->
-    <div class="progress-section">
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="status.completionPercentage"></div>
-      </div>
-      <div class="step-indicators">
-        <div class="step-indicator" *ngFor="let i of [1, 2, 3, 4, 5]"
-             [class.active]="currentStep === i"
-             [class.completed]="i < currentStep">
-          <span>{{ i }}</span>
-        </div>
-      </div>
-      <p class="progress-text">Step {{ currentStep }} of {{ totalSteps }}</p>
-    </div>
-
-    <!-- Main Card -->
-    <div class="onboarding-card panel">
-      <div class="card-header">
+  <div class="onboarding-modal">
+    <!-- Header Section -->
+    <div class="onboarding-header-section">
+      <div class="step-counter">STEP {{ currentStep }} OF {{ totalSteps }}</div>
+      
+      <div class="step-title">
         <h2>{{ getStepTitle() }}</h2>
         <p>{{ getStepDescription() }}</p>
       </div>
 
-      <form class="step-content">
+      <!-- Step Tabs -->
+      <div class="step-tabs">
+        <button 
+          *ngFor="let step of [1, 2, 3, 4, 5]" 
+          class="tab-btn"
+          [class.active]="currentStep === step"
+          [class.completed]="step < currentStep"
+          (click)="goToStep(step)"
+          [disabled]="step > currentStep + 1">
+          <span class="tab-icon">{{ getTabIcon(step) }}</span>
+          <span class="tab-label">{{ getTabLabel(step) }}</span>
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="status.completionPercentage"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="form-section">
+      <form class="step-form">
         <!-- STEP 1: Basic Information -->
-        <div *ngIf="currentStep === 1" class="step-form" [@fadeInOut]>
+        <div *ngIf="currentStep === 1" class="form-step" [@fadeInOut]>
           <div class="form-group">
             <label for="fullName">Full Name *</label>
             <input 
@@ -44,33 +52,49 @@
             <span *ngIf="errors['fullName']" class="error-text">{{ errors['fullName'] }}</span>
           </div>
 
-          <div class="form-group">
-            <label for="location">Location *</label>
-            <input 
-              type="text" 
-              id="location" 
-              [(ngModel)]="formData.location"
-              name="location"
-              placeholder="e.g., Bengaluru, India"
-              class="form-input"
-              [class.error]="errors['location']">
-            <span *ngIf="errors['location']" class="error-text">{{ errors['location'] }}</span>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="location">Location *</label>
+              <input 
+                type="text" 
+                id="location" 
+                [(ngModel)]="formData.location"
+                name="location"
+                placeholder="e.g., Bengaluru, India"
+                class="form-input"
+                [class.error]="errors['location']">
+              <span *ngIf="errors['location']" class="error-text">{{ errors['location'] }}</span>
+            </div>
+
+            <div class="form-group" *ngIf="role === UserRole.JOB_SEEKER">
+              <label for="experienceYears">Years of Experience</label>
+              <select 
+                id="experienceYears" 
+                [(ngModel)]="formData.experienceYears"
+                name="experienceYears"
+                class="form-input">
+                <option [ngValue]="null">Select</option>
+                <option *ngFor="let year of [0, 1, 2, 3, 5, 8, 10, 15, 20]" [ngValue]="year">
+                  {{ year === 0 ? 'Fresher' : year + ' years' }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="bio">Bio (Optional)</label>
+            <label for="bio">Bio / About You</label>
             <textarea 
               id="bio" 
               [(ngModel)]="formData.bio"
               name="bio"
               placeholder="Tell us a bit about yourself..."
-              rows="4"
+              rows="3"
               class="form-input"></textarea>
           </div>
         </div>
 
         <!-- STEP 2: Professional Details -->
-        <div *ngIf="currentStep === 2" class="step-form" [@fadeInOut]>
+        <div *ngIf="currentStep === 2" class="form-step" [@fadeInOut]>
           <div class="form-group">
             <label for="headline">Professional Headline *</label>
             <input 
@@ -98,20 +122,6 @@
                 [class.error]="errors['skills']">
               <span *ngIf="errors['skills']" class="error-text">{{ errors['skills'] }}</span>
             </div>
-
-            <div class="form-group">
-              <label for="experienceYears">Years of Experience</label>
-              <select 
-                id="experienceYears" 
-                [(ngModel)]="formData.experienceYears"
-                name="experienceYears"
-                class="form-input">
-                <option [ngValue]="null">Select years of experience</option>
-                <option *ngFor="let year of [0, 1, 2, 3, 5, 8, 10, 15, 20]" [ngValue]="year">
-                  {{ year === 0 ? 'Fresher' : year + ' years' }}
-                </option>
-              </select>
-            </div>
           </div>
 
           <!-- Recruiter Fields -->
@@ -127,17 +137,6 @@
                 class="form-input"
                 [class.error]="errors['companyName']">
               <span *ngIf="errors['companyName']" class="error-text">{{ errors['companyName'] }}</span>
-            </div>
-
-            <div class="form-group">
-              <label for="companyWebsite">Company Website</label>
-              <input 
-                type="url" 
-                id="companyWebsite" 
-                [(ngModel)]="formData.companyWebsite"
-                name="companyWebsite"
-                placeholder="https://company.com"
-                class="form-input">
             </div>
 
             <div class="form-row">
@@ -159,7 +158,7 @@
                   [(ngModel)]="formData.companySize"
                   name="companySize"
                   class="form-input">
-                  <option value="">Select company size</option>
+                  <option value="">Select</option>
                   <option value="startup">Startup (1-50)</option>
                   <option value="small">Small (51-200)</option>
                   <option value="medium">Medium (201-1000)</option>
@@ -171,7 +170,7 @@
         </div>
 
         <!-- STEP 3: Work Experience -->
-        <div *ngIf="currentStep === 3" class="step-form" [@fadeInOut]>
+        <div *ngIf="currentStep === 3" class="form-step" [@fadeInOut]>
           <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
               <label for="currentCompany">Current Company</label>
@@ -184,15 +183,17 @@
                 class="form-input">
             </div>
 
-            <div class="form-group">
-              <label for="currentDesignation">Current Designation</label>
-              <input 
-                type="text" 
-                id="currentDesignation" 
-                [(ngModel)]="formData.currentDesignation"
-                name="currentDesignation"
-                placeholder="e.g., Software Engineer"
-                class="form-input">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="currentDesignation">Current Designation</label>
+                <input 
+                  type="text" 
+                  id="currentDesignation" 
+                  [(ngModel)]="formData.currentDesignation"
+                  name="currentDesignation"
+                  placeholder="e.g., Software Engineer"
+                  class="form-input">
+              </div>
             </div>
 
             <div class="form-group">
@@ -201,21 +202,22 @@
                 id="education" 
                 [(ngModel)]="formData.education"
                 name="education"
-                placeholder="Add your educational background (e.g., Bachelor's in CS from XYZ University)"
-                rows="4"
+                placeholder="Add your educational background"
+                rows="3"
                 class="form-input"></textarea>
             </div>
           </div>
 
           <div *ngIf="role === UserRole.RECRUITER">
-            <div class="info-box">
-              <p>📋 You're doing great! Let's move to work preferences in the next step.</p>
+            <div class="info-card">
+              <div class="info-icon">✓</div>
+              <p>Great! Let's move to work preferences in the next step.</p>
             </div>
           </div>
         </div>
 
-        <!-- STEP 4: Work Preferences (Job Seeker) or Additional (Recruiter) -->
-        <div *ngIf="currentStep === 4" class="step-form" [@fadeInOut]>
+        <!-- STEP 4: Preferences (Job Seeker) -->
+        <div *ngIf="currentStep === 4" class="form-step" [@fadeInOut]>
           <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
               <label class="checkbox-label">
@@ -243,107 +245,112 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label for="salaryMin">Expected Salary Min</label>
-                <div class="salary-input">
-                  <span>₹</span>
-                  <input 
-                    type="number" 
-                    id="salaryMin" 
-                    [(ngModel)]="formData.expectedSalaryMin"
-                    name="expectedSalaryMin"
-                    placeholder="0"
-                    class="form-input">
-                </div>
+                <label for="salaryMin">Expected Salary Min (₹)</label>
+                <input 
+                  type="number" 
+                  id="salaryMin" 
+                  [(ngModel)]="formData.expectedSalaryMin"
+                  name="expectedSalaryMin"
+                  placeholder="0"
+                  class="form-input">
               </div>
 
               <div class="form-group">
-                <label for="salaryMax">Expected Salary Max</label>
-                <div class="salary-input">
-                  <span>₹</span>
-                  <input 
-                    type="number" 
-                    id="salaryMax" 
-                    [(ngModel)]="formData.expectedSalaryMax"
-                    name="expectedSalaryMax"
-                    placeholder="0"
-                    class="form-input">
-                </div>
+                <label for="salaryMax">Expected Salary Max (₹)</label>
+                <input 
+                  type="number" 
+                  id="salaryMax" 
+                  [(ngModel)]="formData.expectedSalaryMax"
+                  name="expectedSalaryMax"
+                  placeholder="0"
+                  class="form-input">
               </div>
             </div>
             <span *ngIf="errors['salary']" class="error-text">{{ errors['salary'] }}</span>
           </div>
 
           <div *ngIf="role === UserRole.RECRUITER">
-            <div class="info-box">
-              <p>✅ You've completed all required information. Ready to finish setup?</p>
+            <div class="info-card">
+              <div class="info-icon">✓</div>
+              <p>You've completed all required information. Ready to finish?</p>
             </div>
           </div>
         </div>
 
-        <!-- STEP 5: Complete -->
-        <div *ngIf="currentStep === 5" class="step-form" [@fadeInOut]>
-          <div class="completion-box">
-            <div class="completion-icon">✨</div>
-            <h3>You're All Set!</h3>
-            <p>Your profile is ready. Let's start exploring opportunities on SmartJobPortal.</p>
+        <!-- STEP 5: Review & Complete -->
+        <div *ngIf="currentStep === 5" class="form-step" [@fadeInOut]>
+          <div class="completion-card">
+            <div class="completion-header">
+              <div class="completion-icon">🎉</div>
+              <h3>Almost There!</h3>
+            </div>
             
-            <div class="summary-box">
-              <div class="summary-item">
-                <span class="label">Name:</span>
-                <span class="value">{{ formData.fullName }}</span>
-              </div>
-              <div class="summary-item">
-                <span class="label">Location:</span>
-                <span class="value">{{ formData.location }}</span>
-              </div>
-              <div class="summary-item">
-                <span class="label">Headline:</span>
-                <span class="value">{{ formData.headline }}</span>
+            <div class="summary-section">
+              <h4>Your Profile</h4>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-label">Name</span>
+                  <span class="summary-value">{{ formData.fullName }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Location</span>
+                  <span class="summary-value">{{ formData.location }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Headline</span>
+                  <span class="summary-value">{{ formData.headline }}</span>
+                </div>
+                <div class="summary-item" *ngIf="role === UserRole.JOB_SEEKER">
+                  <span class="summary-label">Skills</span>
+                  <span class="summary-value">{{ formData.skills }}</span>
+                </div>
               </div>
             </div>
+
+            <p class="completion-text">Click "Complete Setup" to finalize your profile and start exploring opportunities!</p>
           </div>
         </div>
       </form>
+    </div>
 
-      <!-- Actions -->
-      <div class="onboarding-actions">
-        <button 
-          type="button" 
-          class="btn-secondary"
-          (click)="prevStep()"
-          *ngIf="currentStep > 1"
-          [disabled]="isLoading">
-          ← Back
-        </button>
-        
-        <span class="spacer"></span>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button 
+        type="button" 
+        class="btn-secondary"
+        (click)="prevStep()"
+        *ngIf="currentStep > 1"
+        [disabled]="isLoading">
+        ← Back
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn-ghost"
+        (click)="skipOnboarding()"
+        [disabled]="isLoading">
+        SKIP FOR NOW
+      </button>
 
-        <button 
-          type="button" 
-          class="btn-ghost"
-          (click)="skipOnboarding()"
-          [disabled]="isLoading">
-          Skip for Now
-        </button>
+      <span class="spacer"></span>
 
-        <button 
-          type="button" 
-          class="btn-primary"
-          (click)="nextStep()"
-          *ngIf="currentStep < totalSteps"
-          [disabled]="isLoading">
-          {{ isLoading ? 'Saving...' : 'Continue →' }}
-        </button>
+      <button 
+        type="button" 
+        class="btn-primary"
+        (click)="nextStep()"
+        *ngIf="currentStep < totalSteps"
+        [disabled]="isLoading">
+        NEXT {{ currentStep < totalSteps ? '→' : '' }}
+      </button>
 
-        <button 
-          type="button" 
-          class="btn-accent"
-          (click)="completeOnboarding()"
-          *ngIf="currentStep === totalSteps"
-          [disabled]="isLoading">
-          {{ isLoading ? 'Finishing...' : 'Complete Setup 🎉' }}
-        </button>
-      </div>
+      <button 
+        type="button" 
+        class="btn-accent"
+        (click)="completeOnboarding()"
+        *ngIf="currentStep === totalSteps"
+        [disabled]="isLoading">
+        {{ isLoading ? 'Finishing...' : 'COMPLETE SETUP →' }}
+      </button>
     </div>
   </div>
 </div>

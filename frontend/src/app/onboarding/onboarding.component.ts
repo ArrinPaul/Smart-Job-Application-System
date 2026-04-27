@@ -111,6 +111,20 @@ export class OnboardingComponent implements OnInit {
     }
   }
 
+  goToStep(step: number): void {
+    if (step <= this.currentStep || step === this.currentStep + 1) {
+      this.currentStep = step;
+      this.errors = {};
+      window.scrollTo(0, 0);
+    }
+  }
+
+  closeOnboarding(): void {
+    if (confirm('Are you sure you want to close onboarding? You can complete it later from your profile.')) {
+      this.navigateHome();
+    }
+  }
+
   skipOnboarding(): void {
     if (confirm('Are you sure you want to skip the onboarding? You can complete it later.')) {
       this.isLoading = true;
@@ -250,5 +264,27 @@ export class OnboardingComponent implements OnInit {
       5: 'You\'re all set!'
     };
     return descriptions[this.currentStep] || '';
+  }
+
+  getTabIcon(step: number): string {
+    const icons: { [key: number]: string } = {
+      1: '👤',
+      2: '💼',
+      3: '📚',
+      4: '⚙️',
+      5: '✓'
+    };
+    return icons[step] || '';
+  }
+
+  getTabLabel(step: number): string {
+    const labels: { [key: number]: string } = {
+      1: 'Personal',
+      2: 'Professional',
+      3: 'Experience',
+      4: 'Preferences',
+      5: 'Review'
+    };
+    return labels[step] || '';
   }
 }
