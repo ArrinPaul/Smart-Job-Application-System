@@ -1,60 +1,135 @@
 <div class="job-details-container" *ngIf="job">
-  <div class="job-header-card">
-    <div class="header-content">
-      <div class="title-section">
-        <h1>{{ job.title }}</h1>
-        <div class="meta-info">
-          <span class="location"><i class="icon-location"></i> {{ job.location }}</span>
-          <span class="date"><i class="icon-calendar"></i> Posted {{ job.createdAt | date:'mediumDate' }}</span>
-          <span class="company" *ngIf="job.postedBy"><i class="icon-user"></i> {{ job.postedBy.username }}</span>
-        </div>
+  <!-- Header Section -->
+  <div class="job-details-header">
+    <a routerLink="/jobs" class="breadcrumb">← Back to Jobs</a>
+    <h1>{{ job.title }}</h1>
+    <p class="company-name">{{ job.postedBy?.username || 'Hiring Company' }}</p>
+  </div>
+
+  <!-- Quick Info Bar -->
+  <div class="quick-info-bar">
+    <div class="info-item">
+      <span class="info-icon">📍</span>
+      <div>
+        <p class="info-label">Location</p>
+        <p class="info-value">{{ job.location }}</p>
       </div>
-      <div class="action-section">
-        <a [href]="job.applicationLink" target="_blank" class="apply-btn-primary" *ngIf="job.applicationLink">
-          Apply on Company Site
-        </a>
-        <button class="apply-btn-internal" (click)="applyInternally()" *ngIf="!job.applicationLink">
-          Apply Now
-        </button>
+    </div>
+    <div class="info-item">
+      <span class="info-icon">💼</span>
+      <div>
+        <p class="info-label">Job Type</p>
+        <p class="info-value">{{ job.jobType || job.workType || 'Full Time' }}</p>
+      </div>
+    </div>
+    <div class="info-item">
+      <span class="info-icon">📅</span>
+      <div>
+        <p class="info-label">Posted</p>
+        <p class="info-value">{{ job.createdAt | date:'short' }}</p>
+      </div>
+    </div>
+    <div class="info-item">
+      <span class="info-icon">🌐</span>
+      <div>
+        <p class="info-label">Work Mode</p>
+        <p class="info-value">{{ job.workType || 'Flexible' }}</p>
       </div>
     </div>
   </div>
 
-  <div class="job-content-grid">
-    <div class="main-content">
-      <div class="description-card card">
-        <h2>Job Description</h2>
-        <div class="markdown-body" [innerHTML]="renderedDescription"></div>
-      </div>
-    </div>
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Job Description Section -->
+      <section class="content-section">
+        <h2>About the Role</h2>
+        <div class="description-text" [innerHTML]="renderedDescription || job.description"></div>
+      </section>
 
-    <div class="side-content">
-      <div class="quick-facts-card card">
-        <h3>Quick Facts</h3>
-        <ul class="facts-list">
-          <li><strong>Role:</strong> {{ job.title }}</li>
-          <li><strong>Location:</strong> {{ job.location }}</li>
-          <li><strong>Status:</strong> Accepting Applications</li>
-        </ul>
+      <!-- Requirements Section (if available) -->
+      <section class="content-section" *ngIf="job.requiredSkills">
+        <h2>Requirements</h2>
+        <div class="description-text">{{ job.requiredSkills }}</div>
+      </section>
+
+      <!-- Company Info Section -->
+      <section class="content-section" *ngIf="job.postedBy">
+        <h2>About the Company</h2>
+        <div class="company-info">
+          <h3>{{ job.postedBy.username }}</h3>
+          <p *ngIf="job.postedBy.companyName">{{ job.postedBy.companyName }}</p>
+          <p *ngIf="!job.postedBy.companyName" class="no-info">Company information not available</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Apply Card -->
+      <div class="sidebar-card apply-card">
+        <h3>Ready to Apply?</h3>
+        <p class="apply-description">Take the next step in your career by applying now.</p>
+        
+        <a [href]="job.applicationLink" target="_blank" class="btn btn-primary" *ngIf="job.applicationLink">
+          Apply on Company Site
+        </a>
+        <button class="btn btn-primary" (click)="applyInternally()" *ngIf="!job.applicationLink">
+          Apply Now
+        </button>
       </div>
 
-      <div class="share-card card">
-        <h3>Share this job</h3>
-        <div class="share-buttons">
-          <button (click)="shareJob()">Copy Link</button>
+      <!-- Quick Facts Card -->
+      <div class="sidebar-card facts-card">
+        <h3>Key Details</h3>
+        <div class="facts-list">
+          <div class="fact-item">
+            <span class="fact-label">Position</span>
+            <span class="fact-value">{{ job.title }}</span>
+          </div>
+          <div class="fact-item">
+            <span class="fact-label">Location</span>
+            <span class="fact-value">{{ job.location }}</span>
+          </div>
+          <div class="fact-item">
+            <span class="fact-label">Job Type</span>
+            <span class="fact-value">{{ job.jobType || job.workType || 'Full Time' }}</span>
+          </div>
+          <div class="fact-item">
+            <span class="fact-label">Experience</span>
+            <span class="fact-value">{{ job.experienceRequired ? (job.experienceRequired + ' years') : 'Not specified' }}</span>
+          </div>
+          <div class="fact-item">
+            <span class="fact-label">Salary Range</span>
+            <span class="fact-value" *ngIf="job.salaryMin && job.salaryMax">
+              ${{ job.salaryMin | number }} - ${{ job.salaryMax | number }}
+            </span>
+            <span class="fact-value" *ngIf="!job.salaryMin || !job.salaryMax">Competitive</span>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- Share Card -->
+      <div class="sidebar-card share-card">
+        <h3>Share This Job</h3>
+        <button class="share-btn" (click)="shareJob()">
+          📋 Copy Link
+        </button>
+      </div>
+
+    </aside>
   </div>
 </div>
 
 <div class="loading-state" *ngIf="loading">
-  <app-spinner></app-spinner>
+  <div class="spinner"></div>
   <p>Loading job details...</p>
 </div>
 
 <div class="error-state" *ngIf="error">
+  <div class="error-icon">⚠️</div>
   <h2>Job Not Found</h2>
   <p>{{ error }}</p>
-  <button routerLink="/jobs">Back to Job Board</button>
+  <a routerLink="/jobs" class="btn btn-primary">Back to Jobs</a>
 </div>

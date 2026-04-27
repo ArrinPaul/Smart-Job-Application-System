@@ -5,12 +5,11 @@ import { HttpService } from '../services/http.service';
 import { Job } from '../models/job.model';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ToastService } from '../services/toast.service';
-import { SpinnerComponent } from '../components/spinner.component';
 
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpinnerComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './job-details.component.html',
   styleUrls: ['./job-details.component.css']
 })

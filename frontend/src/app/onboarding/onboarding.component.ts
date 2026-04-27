@@ -39,6 +39,37 @@ export class OnboardingComponent implements OnInit {
   role: UserRole | null = null;
   UserRole = UserRole;
 
+  // Dropdown Options
+  headlineOptions = [
+    'Software Engineer', 'Senior Software Engineer', 'Full Stack Developer', 'Backend Engineer', 'Frontend Engineer',
+    'DevOps Engineer', 'Site Reliability Engineer (SRE)', 'Data Engineer', 'Machine Learning Engineer', 'Mobile Developer (iOS/Android)',
+    'Embedded Systems Engineer', 'Cloud Architect', 'Security Engineer', 'QA Automation Engineer', 'Systems Programmer',
+    'Game Developer', 'Blockchain Engineer', 'Computer Vision Engineer', 'NLP Engineer', 'Firmware Engineer',
+    'Solutions Architect', 'Staff Software Engineer', 'Principal Software Engineer', 'Engineering Manager', 'Director of Engineering',
+    'CTO (Chief Technology Officer)', 'Infrastructure Engineer', 'Platform Engineer', 'Database Administrator (DBA)', 'UI/UX Designer'
+  ];
+
+  skillsOptions = [
+    'JavaScript', 'Python', 'Java', 'C++', 'C#', 'TypeScript', 'HTML/CSS', 'React', 'Angular', 'Vue.js',
+    'Node.js', 'SQL', 'NoSQL', 'Git', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'Google Cloud', 'Machine Learning',
+    'Data Analysis', 'Agile Methodologies', 'RESTful APIs', 'GraphQL', 'Linux', 'Testing/QA', 'CI/CD',
+    'Cybersecurity', 'System Design', 'Problem Solving'
+  ];
+
+  companyOptions = [
+    'Google', 'Microsoft', 'Apple', 'Amazon', 'Meta', 'Netflix', 'IBM', 'Oracle', 'SAP', 'Salesforce',
+    'Adobe', 'Intel', 'Cisco', 'TCS', 'Infosys', 'Wipro', 'Accenture', 'Cognizant', 'Capgemini', 'Deloitte',
+    'HCL', 'Tech Mahindra', 'Uber', 'Airbnb', 'Twitter', 'LinkedIn', 'Tesla', 'Spotify', 'PayPal', 'Stripe'
+  ];
+
+  educationOptions = [
+    'High School Diploma', 'Associate Degree', 'Bachelor of Science (B.Sc.)', 'Bachelor of Arts (B.A.)', 'Bachelor of Engineering (B.E.)',
+    'Bachelor of Technology (B.Tech)', 'Bachelor of Computer Applications (BCA)', 'Master of Science (M.Sc.)', 'Master of Arts (M.A.)',
+    'Master of Engineering (M.E.)', 'Master of Technology (M.Tech)', 'Master of Computer Applications (MCA)', 'Master of Business Administration (MBA)',
+    'Doctor of Philosophy (Ph.D.)', 'Diploma in Computer Science', 'Post Graduate Diploma', 'Bootcamp Graduate', 'Self-Taught',
+    'Some College (No Degree)', 'Professional Certification'
+  ];
+
   status: OnboardingStatus = {
     currentStep: 1,
     completionPercentage: 0,

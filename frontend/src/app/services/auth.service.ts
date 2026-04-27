@@ -114,8 +114,8 @@ export class AuthService {
   /**
    * Check if user is Job Applicant
    */
-  isJobApplicant(): boolean {
-    return this.getRole() === UserRole.JOB_APPLICANT;
+  isJobSeeker(): boolean {
+    return this.getRole() === UserRole.JOB_SEEKER;
   }
 
   /**

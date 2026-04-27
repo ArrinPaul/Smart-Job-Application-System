@@ -295,6 +295,29 @@ export class JobListComponent implements OnInit, OnDestroy {
     this.insightJobId = null;
   }
 
+  editJob(jobId: number): void {
+    this.toastService.showInfo(`Edit workflow for job #${jobId} is available in the admin area.`);
+  }
+
+  deleteJob(jobId: number): void {
+    const confirmed = window.confirm('Delete this job listing permanently?');
+    if (!confirmed) {
+      return;
+    }
+
+    this.httpService.deleteJobAdmin(jobId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toastService.showSuccess('Job deleted successfully.');
+          this.loadJobs(false);
+        },
+        error: () => {
+          this.toastService.showError('Failed to delete job.');
+        }
+      });
+  }
+
   logout(): void {
     this.authService.logout();
   }

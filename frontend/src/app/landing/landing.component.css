@@ -1,11 +1,11 @@
 .landing-page {
   --nav-height: 80px;
-  --primary: #ff6b35;
-  --primary-dark: #e85a2a;
-  --bg: #faf8f5;
-  --ink: #1a1410;
-  --ink-soft: #6b6157;
-  --border: #e8dfd0;
+  --primary: #bb3e2d;
+  --primary-dark: #962f21;
+  --bg: #f4efe6;
+  --ink: #1f1d18;
+  --ink-soft: #655f51;
+  --border: #d8c8ae;
   
   background: var(--bg);
   color: var(--ink);
@@ -212,7 +212,7 @@ h1, h2, h3 {
 
 .highlight {
   color: var(--primary);
-  background: linear-gradient(135deg, var(--primary), #ff8c42);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
