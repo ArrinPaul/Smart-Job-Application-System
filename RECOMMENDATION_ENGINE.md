@@ -446,10 +446,10 @@ No additional tables required. The system uses existing:
 
 ## Security Considerations
 
-- ✅ Only job seekers can access recommendations
-- ✅ Users only see recommendations for themselves
-- ✅ All endpoints require JWT authentication
-- ✅ No sensitive data exposed in recommendations
+- Only job seekers can access recommendations
+- Users only see recommendations for themselves
+- All endpoints require JWT authentication
+- No sensitive data exposed in recommendations
 
 ## Support
 

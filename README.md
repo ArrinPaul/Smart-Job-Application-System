@@ -2,7 +2,7 @@
 
 A modern, production-ready recruitment platform that connects job seekers, recruiters, and administrators with real-time data synchronization and intelligent job scraping.
 
-## ✨ Key Features
+## Key Features
 
 - **User Management**: Role-based access (Admin, Recruiter, Job Seeker) with secure JWT authentication
 - **Job Management**: Post, edit, delete jobs with full recruiter control
@@ -12,7 +12,7 @@ A modern, production-ready recruitment platform that connects job seekers, recru
 - **Job Scraping**: Automated scraper that ingests jobs from Indeed, Internshala, and other portals
 - **Data Normalization**: Structured, cleaned job data automatically stored in PostgreSQL/Supabase
 
-## 🏗️ Technology Stack
+## Technology Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -23,7 +23,7 @@ A modern, production-ready recruitment platform that connects job seekers, recru
 | **Job Scraping** | Jsoup, Selenium WebDriver (for dynamic content) |
 | **Runtime** | Java 21 LTS |
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 smart-job-portal-system/
@@ -57,7 +57,7 @@ smart-job-portal-system/
     └── migrations/
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -136,7 +136,7 @@ ng build --configuration=production
 npx serve dist/jobportal-frontend/browser --port 80
 ```
 
-## 🔧 Admin Panel Features
+## Admin Panel Features
 
 ### Dashboard Overview
 - **KPI Cards**: Total users, jobs, applications, active metrics
@@ -163,7 +163,7 @@ npx serve dist/jobportal-frontend/browser --port 80
 - JVM uptime and Java version info
 - Backend health endpoint details
 
-## 🕷️ Job Scraper Architecture
+## Job Scraper Architecture
 
 The system includes an intelligent job scraper that automatically collects jobs from multiple portals:
 
@@ -209,7 +209,7 @@ public class JobScraperService {
 5. **Store**: Save to `jobs` table with `posted_by = SYSTEM` for automation
 6. **Frontend**: Jobs appear instantly in job list and admin dashboard
 
-## 🔐 Authentication Flow
+## Authentication Flow
 
 1. User registers with username, email, password, and role
 2. System creates account and stores hashed password
@@ -217,7 +217,7 @@ public class JobScraperService {
 4. All API requests include JWT for authorization
 5. Roles: ADMIN (full access), RECRUITER (job management), JOB_SEEKER (browse/apply)
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Create account
@@ -246,7 +246,7 @@ public class JobScraperService {
 - `GET /api/admin/dashboard/summary` - Analytics dashboard
 - `GET /api/admin/system/status` - Health & system info
 
-## 🧪 Testing
+## Testing
 
 ### Run Backend Tests
 ```bash
@@ -273,7 +273,7 @@ curl -X POST http://localhost:8080/api/recruiter/jobs \
   -d '{"title":"Senior Engineer","description":"...","location":"Remote"}'
 ```
 
-## 📱 Routing & Navigation
+## Routing & Navigation
 
 ### Routes
 - `/` → Redirect to `/login`
@@ -293,7 +293,7 @@ curl -X POST http://localhost:8080/api/recruiter/jobs \
 - **AuthGuard**: Redirects unauthenticated users to `/login`
 - **RoleGuard**: Restricts routes by user role (ADMIN, RECRUITER, JOB_SEEKER)
 
-## 🌐 Deployment
+## Deployment
 
 ### Option 1: Local Server
 ```bash
@@ -323,7 +323,7 @@ Set environment variables and deploy:
 - `SUPABASE_DB_*` credentials
 - `CORS_ALLOWED_ORIGINS` for frontend URL
 
-## 🛠️ Maintenance & Admin Commands
+## Maintenance & Admin Commands
 
 ### Database Migrations
 ```bash
@@ -342,15 +342,15 @@ tail -f backend/logs/app.log
 POST /api/admin/scraper/trigger-now
 ```
 
-## 📝 License
+## License
 
 This project is provided as-is for educational and commercial use.
 
-## 👥 Support
+## Support
 
 For issues or questions, please refer to the GitHub repository issues section.
 
 ---
 
-**Last Updated:** April 2026 | **Status:** Production Ready ✅
+**Last Updated:** April 2026 | **Status:** Production Ready
 

@@ -84,7 +84,7 @@
             <!-- Top Bar with Insight Button -->
             <div class="card-header" *ngIf="!isAdmin">
               <button type="button" class="insight-btn" (click)="fetchInsights(job.id)" [class.insight-btn--active]="insightJobId === job.id">
-                <span class="insight-icon">💡</span>
+                <span class="insight-icon">Insight</span>
               </button>
             </div>
 
@@ -96,8 +96,8 @@
 
             <!-- Location & Type -->
             <div class="job-meta">
-              <span class="meta-item">📍 {{ job.location }}</span>
-              <span class="meta-item" *ngIf="isRemoteOrHybrid(job)">🌍 Remote/Hybrid</span>
+              <span class="meta-item">{{ job.location }}</span>
+              <span class="meta-item" *ngIf="isRemoteOrHybrid(job)">Remote/Hybrid</span>
             </div>
 
             <!-- Description -->

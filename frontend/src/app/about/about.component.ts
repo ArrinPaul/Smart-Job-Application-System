@@ -19,22 +19,22 @@ export class AboutComponent {
 
   values = [
     {
-      icon: '🎯',
+      icon: 'Mission',
       title: 'Mission-Driven',
       description: 'We connect talented professionals with life-changing opportunities.'
     },
     {
-      icon: '🤝',
+      icon: 'Collaboration',
       title: 'People First',
       description: 'Your success is our success. We prioritize your career growth.'
     },
     {
-      icon: '🔒',
+      icon: 'Security',
       title: 'Transparent',
       description: 'Honest matching, clear processes, and fair opportunities for all.'
     },
     {
-      icon: '⚡',
+      icon: 'Speed',
       title: 'Innovative',
       description: 'Using AI and data to revolutionize job matching.'
     }
@@ -44,25 +44,25 @@ export class AboutComponent {
     {
       name: 'Sarah Johnson',
       role: 'Founder & CEO',
-      image: '👩‍💼',
+      image: '',
       bio: 'Former HR Director with 15 years of recruitment experience'
     },
     {
       name: 'Aryan Patel',
       role: 'CTO & Co-founder',
-      image: '👨‍💻',
+      image: '',
       bio: 'AI/ML expert building intelligent matching algorithms'
     },
     {
       name: 'Emma Wilson',
       role: 'Head of Operations',
-      image: '👩‍🔬',
+      image: '',
       bio: 'Operations strategist ensuring seamless platform experience'
     },
     {
       name: 'Marcus Chen',
       role: 'Head of Product',
-      image: '👨‍🎨',
+      image: '',
       bio: 'Product visionary designing user-centric features'
     }
   ];

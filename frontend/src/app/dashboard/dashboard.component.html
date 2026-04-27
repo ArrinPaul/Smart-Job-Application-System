@@ -11,7 +11,7 @@
   <div class="stats-grid">
     <!-- Profile Completion -->
     <div class="stat-card profile-card">
-      <div class="stat-icon">👤</div>
+      <div class="stat-icon">Profile</div>
       <div class="stat-content">
         <p class="stat-label">Profile Complete</p>
         <p class="stat-number">{{ profileCompletionPercent }}%</p>
@@ -25,7 +25,7 @@
 
     <!-- Jobs Viewed -->
     <div class="stat-card">
-      <div class="stat-icon">👁️</div>
+      <div class="stat-icon">Views</div>
       <div class="stat-content">
         <p class="stat-label">Jobs Viewed</p>
         <p class="stat-number">{{ jobsViewed }}</p>
@@ -34,7 +34,7 @@
 
     <!-- Jobs Applied -->
     <div class="stat-card">
-      <div class="stat-icon">📝</div>
+      <div class="stat-icon">Apps</div>
       <div class="stat-content">
         <p class="stat-label">Applications</p>
         <p class="stat-number">{{ jobsApplied }}</p>
@@ -43,7 +43,7 @@
 
     <!-- Jobs Schemes/Opportunities -->
     <div class="stat-card">
-      <div class="stat-icon">⭐</div>
+      <div class="stat-icon">Top</div>
       <div class="stat-content">
         <p class="stat-label">Opportunities</p>
         <p class="stat-number">{{ recommendations.length }}</p>
@@ -63,7 +63,7 @@
       </div>
       <a routerLink="/profile" class="complete-profile-btn" *ngIf="profileCompletionPercent < 100">Complete Now</a>
       <div class="profile-complete-badge" *ngIf="profileCompletionPercent === 100">
-        ✓ Profile Complete
+        Profile Complete
       </div>
     </div>
   </div>
@@ -74,26 +74,26 @@
     <div class="quick-access-grid">
       <!-- Browse All Jobs -->
       <a routerLink="/jobs" class="quick-access-card">
-        <div class="access-icon">🔍</div>
+        <div class="access-icon">Search</div>
         <h3>Browse All Jobs</h3>
         <p>Explore the complete job listing with filters and search</p>
-        <span class="access-arrow">→</span>
+        <span class="access-arrow">&rarr;</span>
       </a>
 
       <!-- Update Profile -->
       <a routerLink="/profile" class="quick-access-card">
-        <div class="access-icon">✏️</div>
+        <div class="access-icon">Edit</div>
         <h3>Update Profile</h3>
         <p>Keep your information fresh for better recommendations</p>
-        <span class="access-arrow">→</span>
+        <span class="access-arrow">&rarr;</span>
       </a>
 
       <!-- Recent Activities -->
       <a routerLink="/applications" class="quick-access-card">
-        <div class="access-icon">📊</div>
+        <div class="access-icon">Status</div>
         <h3>Recent Activities</h3>
         <p>Check your application status and updates</p>
-        <span class="access-arrow">→</span>
+        <span class="access-arrow">&rarr;</span>
       </a>
     </div>
   </div>
@@ -133,9 +133,9 @@
         <div class="card-content">
           <h4 class="job-title">{{ rec.jobTitle }}</h4>
           <p class="company-name">{{ rec.companyName }}</p>
-          <p class="job-location">📍 {{ rec.location }}</p>
+          <p class="job-location">{{ rec.location }}</p>
           <p class="work-type">{{ rec.workType }}</p>
-          <p class="salary-range">💰 {{ formatSalary(rec.salaryMin) }} - {{ formatSalary(rec.salaryMax) }}</p>
+          <p class="salary-range">{{ formatSalary(rec.salaryMin) }} - {{ formatSalary(rec.salaryMax) }}</p>
         </div>
 
         <!-- Card Footer -->
