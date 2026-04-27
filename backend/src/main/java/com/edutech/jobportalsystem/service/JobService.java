@@ -69,6 +69,33 @@ public class JobService {
         jobRepository.deleteById(jobId);
     }
 
+    public Job adminUpdateJob(Long jobId, Job updatedJob) {
+        logger.info("Admin Updating job ID: {}", jobId);
+        Job existingJob = jobRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "id", jobId));
+        
+        if (updatedJob.getTitle() != null) existingJob.setTitle(sanitize(updatedJob.getTitle()));
+        if (updatedJob.getDescription() != null) existingJob.setDescription(sanitize(updatedJob.getDescription()));
+        if (updatedJob.getLocation() != null) existingJob.setLocation(sanitize(updatedJob.getLocation()));
+        if (updatedJob.getJobType() != null) existingJob.setJobType(updatedJob.getJobType());
+        if (updatedJob.getWorkType() != null) existingJob.setWorkType(updatedJob.getWorkType());
+        if (updatedJob.getSalaryMin() != null) existingJob.setSalaryMin(updatedJob.getSalaryMin());
+        if (updatedJob.getSalaryMax() != null) existingJob.setSalaryMax(updatedJob.getSalaryMax());
+        if (updatedJob.getExperienceRequired() != null) existingJob.setExperienceRequired(updatedJob.getExperienceRequired());
+        if (updatedJob.getRequiredSkills() != null) existingJob.setRequiredSkills(updatedJob.getRequiredSkills());
+        if (updatedJob.getIsActive() != null) existingJob.setIsActive(updatedJob.getIsActive());
+        
+        return jobRepository.save(existingJob);
+    }
+
+    public void adminDeleteJob(Long jobId) {
+        logger.info("Admin Deleting job ID: {}", jobId);
+        if (!jobRepository.existsById(jobId)) {
+            throw new ResourceNotFoundException("Job", "id", jobId);
+        }
+        jobRepository.deleteById(jobId);
+    }
+
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
     }

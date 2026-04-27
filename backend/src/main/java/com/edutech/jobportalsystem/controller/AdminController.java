@@ -40,10 +40,55 @@ public class AdminController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/users/{id}")
+    public ResponseEntity<?> getUserById(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@org.springframework.web.bind.annotation.PathVariable Long id, @org.springframework.web.bind.annotation.RequestBody com.edutech.jobportalsystem.entity.User user) {
+        return ResponseEntity.ok(userService.updateUser(id, user));
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(java.util.Map.of("message", "User deleted successfully"));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/users/{id}/password")
+    public ResponseEntity<?> updatePassword(@org.springframework.web.bind.annotation.PathVariable Long id, @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> request) {
+        String newPassword = request.get("password");
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new com.edutech.jobportalsystem.exception.BadRequestException("Password is required");
+        }
+        userService.adminUpdatePassword(id, newPassword);
+        return ResponseEntity.ok(java.util.Map.of("message", "Password updated successfully"));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/users/{id}/role")
+    public ResponseEntity<?> updateRole(@org.springframework.web.bind.annotation.PathVariable Long id, @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> request) {
+        String newRole = request.get("role");
+        com.edutech.jobportalsystem.entity.User user = new com.edutech.jobportalsystem.entity.User();
+        user.setRole(newRole);
+        return ResponseEntity.ok(userService.updateUser(id, user));
+    }
+
     @GetMapping("/jobs")
     public ResponseEntity<?> getAllJobs() {
         logger.info("Admin request: fetching all jobs");
         return ResponseEntity.ok(jobService.getAllJobs());
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/jobs/{id}")
+    public ResponseEntity<?> updateJob(@org.springframework.web.bind.annotation.PathVariable Long id, @org.springframework.web.bind.annotation.RequestBody com.edutech.jobportalsystem.entity.Job job) {
+        return ResponseEntity.ok(jobService.adminUpdateJob(id, job));
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/jobs/{id}")
+    public ResponseEntity<?> deleteJob(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        jobService.adminDeleteJob(id);
+        return ResponseEntity.ok(java.util.Map.of("message", "Job deleted successfully"));
     }
 
     @GetMapping("/dashboard/summary")

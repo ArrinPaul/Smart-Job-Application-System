@@ -16,6 +16,7 @@
             <th>Username</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -28,11 +29,98 @@
                 {{ getRoleLabel(user.role) }}
               </span>
             </td>
+            <td>
+              <div class="action-buttons">
+                <button type="button" class="btn--icon" (click)="openEditModal(user)" title="Edit User">✏️</button>
+                <button type="button" class="btn--icon" (click)="openPasswordModal(user)" title="Reset Password">🔑</button>
+                <button type="button" class="btn--icon btn--danger" (click)="openDeleteConfirm(user)" title="Delete User">🗑️</button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </article>
+
+  <!-- Edit User Modal -->
+  <div class="modal-backdrop" *ngIf="showEditModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit User: {{ editingUser?.username }}</h3>
+        <button type="button" class="close-btn" (click)="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body" *ngIf="editingUser">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" [(ngModel)]="editingUser.email" [class.invalid]="editErrors['email']">
+          <span class="error-text" *ngIf="editErrors['email']">{{ editErrors['email'] }}</span>
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" [(ngModel)]="editingUser.username" [class.invalid]="editErrors['username']">
+          <span class="error-text" *ngIf="editErrors['username']">{{ editErrors['username'] }}</span>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select [(ngModel)]="editingUser.role" [class.invalid]="editErrors['role']">
+            <option value="JOB_APPLICANT">Job Applicant</option>
+            <option value="RECRUITER">Recruiter</option>
+            <option value="ADMIN">Administrator</option>
+          </select>
+          <span class="error-text" *ngIf="editErrors['role']">{{ editErrors['role'] }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn--secondary" (click)="closeEditModal()">Cancel</button>
+        <button type="button" (click)="saveUserChanges()" [disabled]="isLoading">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Password Reset Modal -->
+  <div class="modal-backdrop" *ngIf="showPasswordModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button type="button" class="close-btn" (click)="closePasswordModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Set a new password for this user.</p>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" [(ngModel)]="passwordReset.newPassword" [class.invalid]="passwordErrors['newPassword']">
+          <span class="error-text" *ngIf="passwordErrors['newPassword']">{{ passwordErrors['newPassword'] }}</span>
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" [(ngModel)]="passwordReset.confirmPassword" [class.invalid]="passwordErrors['confirmPassword']">
+          <span class="error-text" *ngIf="passwordErrors['confirmPassword']">{{ passwordErrors['confirmPassword'] }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn--secondary" (click)="closePasswordModal()">Cancel</button>
+        <button type="button" (click)="saveNewPassword()" [disabled]="isLoading">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation -->
+  <div class="modal-backdrop" *ngIf="showDeleteConfirm">
+    <div class="modal modal--small">
+      <div class="modal-header">
+        <h3>Confirm Deletion</h3>
+        <button type="button" class="close-btn" (click)="closeDeleteConfirm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete user <strong>{{ userToDelete?.username }}</strong>?</p>
+        <p class="warning-text small">This action cannot be undone and will remove all associated data.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn--secondary" (click)="closeDeleteConfirm()">Cancel</button>
+        <button type="button" class="btn--danger" (click)="confirmDelete()" [disabled]="isLoading">Delete Account</button>
+      </div>
+    </div>
+  </div>
 
   <ng-template #noUsersTpl>
     <div class="empty-state" *ngIf="!isLoading">

@@ -216,6 +216,34 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+
+    public User updateUser(Long id, User updatedUser) {
+        User user = getUserById(id);
+        if (updatedUser.getUsername() != null) user.setUsername(normalizeUsername(updatedUser.getUsername()));
+        if (updatedUser.getEmail() != null) user.setEmail(normalizeEmail(updatedUser.getEmail()));
+        if (updatedUser.getRole() != null) user.setRole(updatedUser.getRole());
+        if (updatedUser.getFullName() != null) user.setFullName(updatedUser.getFullName());
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User", "id", id);
+        }
+        userRepository.deleteById(id);
+    }
+
+    public void adminUpdatePassword(Long id, String newPassword) {
+        User user = getUserById(id);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setTokenVersion((user.getTokenVersion() == null ? 0L : user.getTokenVersion()) + 1L);
+        userRepository.save(user);
+    }
+
     public User completeOnboarding(String username, Map<String, Object> profileData) {
         User user = getUserByUsername(username);
         
