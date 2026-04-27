@@ -1,14 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpService } from '../../services/http.service';
-import { JobRecommendation } from '../../models/recommendation.model';
+import { RouterModule } from '@angular/router';
+import { HttpService } from '../services/http.service';
+import { JobRecommendation } from '../models/recommendation.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-recommendations',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './recommendations.component.html',
   styleUrls: ['./recommendations.component.css']
 })

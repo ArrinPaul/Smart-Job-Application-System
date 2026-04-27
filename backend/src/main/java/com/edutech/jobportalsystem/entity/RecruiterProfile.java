@@ -21,26 +21,27 @@ public class RecruiterProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     
-    @Column(length = 255)
+    @Column(name = "company_name", length = 255)
     private String companyName;
     
-    @Column(length = 255)
+    @Column(name = "company_website", length = 255)
     private String companyWebsite;
     
-    @Column(length = 512)
+    @Column(name = "company_logo_url", length = 512)
     private String companyLogoUrl;
     
     @Column(length = 100)
     private String industry;
     
-    @Column(length = 50)
+    @Column(name = "company_size", length = 50)
     private String companySize;
     
     @Column(nullable = false)
     private Boolean verified = false;
     
+    @Column(name = "verified_at")
     private LocalDateTime verifiedAt;
     
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

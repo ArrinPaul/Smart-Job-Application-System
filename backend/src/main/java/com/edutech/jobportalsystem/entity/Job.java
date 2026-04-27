@@ -1,7 +1,5 @@
 package com.edutech.jobportalsystem.entity;
 
-// File: src/main/java/com/edutech/jobportalsystem/entity/Job.java
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +25,33 @@ public class Job {
 
     private String location;
 
+    @Column(name = "job_type")
+    private String jobType; // e.g., Full-time, Part-time
+
+    @Column(name = "work_type")
+    private String workType; // e.g., Remote, On-site, Hybrid
+
+    @Column(name = "experience_required")
+    private Integer experienceRequired;
+
+    @Column(name = "required_skills", columnDefinition = "TEXT")
+    private String requiredSkills;
+
+    @Column(name = "education_required")
+    private String educationRequired;
+
+    @Column(name = "salary_min", precision = 12, scale = 2)
+    private java.math.BigDecimal salaryMin;
+
+    @Column(name = "salary_max", precision = 12, scale = 2)
+    private java.math.BigDecimal salaryMax;
+
+    @Column(name = "salary_currency")
+    private String salaryCurrency = "INR";
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
     @Column(name = "application_link")
     private String applicationLink;
 
@@ -43,5 +68,14 @@ public class Job {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.isActive == null) this.isActive = true;
+    }
+
+    // Explicit getters to match service expectations if Lombok is acting up
+    public String getJobTitle() { return title; }
+    public String getCompanyName() { 
+        return (postedBy != null && postedBy.getCompanyName() != null) 
+            ? postedBy.getCompanyName() 
+            : "Unknown Company"; 
     }
 }

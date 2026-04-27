@@ -22,42 +22,43 @@ public class JobSeekerProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     
-    @Column(length = 255)
+    @Column(name = "professional_headline", length = 255)
     private String professionalHeadline;
     
     @Column(columnDefinition = "TEXT")
     private String skills;
     
+    @Column(name = "experience_years")
     private Integer experienceYears = 0;
     
-    @Column(length = 255)
+    @Column(name = "current_company", length = 255)
     private String currentCompany;
     
-    @Column(length = 255)
+    @Column(name = "current_designation", length = 255)
     private String currentDesignation;
     
     @Column(columnDefinition = "TEXT")
     private String education;
     
-    @Column(nullable = false)
+    @Column(name = "profile_completion_percentage", nullable = false)
     private Integer profileCompletionPercentage = 0;
     
-    @Column(nullable = false)
+    @Column(name = "open_to_opportunities", nullable = false)
     private Boolean openToOpportunities = true;
     
-    @Column(precision = 12, scale = 2)
+    @Column(name = "expected_salary_min", precision = 12, scale = 2)
     private BigDecimal expectedSalaryMin;
     
-    @Column(precision = 12, scale = 2)
+    @Column(name = "expected_salary_max", precision = 12, scale = 2)
     private BigDecimal expectedSalaryMax;
     
-    @Column(length = 10)
+    @Column(name = "salary_currency", length = 10)
     private String salaryCurrency = "INR";
     
-    @Column(length = 50)
+    @Column(name = "work_preference", length = 50)
     private String workPreference;
     
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
     
     public void setProfileCompletionPercentage(Integer profileCompletionPercentage) { 

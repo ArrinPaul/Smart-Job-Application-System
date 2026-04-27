@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.*;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,28 +79,30 @@ public class JobRecommendationService {
         int maxScore = 0;
         List<String> matchReasons = new ArrayList<>();
 
-        // 1. SKILLS MATCH (25 points max)
+        // 1. SKILLS MATCH (40 points max - Increased weight)
         if (profile != null && profile.getSkills() != null && !profile.getSkills().isEmpty()) {
             int skillsScore = scoreSkillsMatch(profile.getSkills(), job.getRequiredSkills());
             totalScore += skillsScore;
-            maxScore += 25;
+            maxScore += 40;
             if (skillsScore > 0) {
-                matchReasons.add("Skills match (" + (skillsScore * 4) + "%)");
+                matchReasons.add("Matched key skills: " + getMatchedSkills(profile.getSkills(), job.getRequiredSkills()));
             }
         } else {
-            maxScore += 25;
+            maxScore += 40;
         }
 
-        // 2. EXPERIENCE LEVEL (20 points max)
+        // 2. EXPERIENCE LEVEL (25 points max)
         if (profile != null && profile.getExperienceYears() != null) {
             int experienceScore = scoreExperienceMatch(profile.getExperienceYears(), job.getExperienceRequired());
             totalScore += experienceScore;
-            maxScore += 20;
-            if (experienceScore > 0) {
-                matchReasons.add("Experience match (" + (experienceScore * 5) + "%)");
+            maxScore += 25;
+            if (experienceScore >= 20) {
+                matchReasons.add("Perfect experience match");
+            } else if (experienceScore > 0) {
+                matchReasons.add("Experience is a close match");
             }
         } else {
-            maxScore += 20;
+            maxScore += 25;
         }
 
         // 3. JOB TITLE/DESIGNATION SIMILARITY (15 points max)
@@ -108,32 +110,32 @@ public class JobRecommendationService {
             int titleScore = scoreJobTitleSimilarity(profile.getCurrentDesignation(), job.getJobTitle());
             totalScore += titleScore;
             maxScore += 15;
-            if (titleScore > 0) {
-                matchReasons.add("Role match (" + Math.round((titleScore / 15.0) * 100) + "%)");
+            if (titleScore >= 10) {
+                matchReasons.add("Role matches your background");
             }
         } else {
             maxScore += 15;
         }
 
-        // 4. SALARY EXPECTATIONS (15 points max)
-        if (profile != null && profile.getExpectedSalaryMin() != null && profile.getExpectedSalaryMax() != null) {
+        // 4. SALARY EXPECTATIONS (10 points max)
+        if (profile != null && profile.getExpectedSalaryMin() != null) {
             int salaryScore = scoreSalaryMatch(profile.getExpectedSalaryMin(), profile.getExpectedSalaryMax(), job.getSalaryMin(), job.getSalaryMax());
             totalScore += salaryScore;
-            maxScore += 15;
-            if (salaryScore > 0) {
-                matchReasons.add("Salary match (" + (salaryScore * Math.round(100.0 / 15)) + "%)");
+            maxScore += 10;
+            if (salaryScore >= 8) {
+                matchReasons.add("Fits your salary expectations");
             }
         } else {
-            maxScore += 15;
+            maxScore += 10;
         }
 
-        // 5. LOCATION/WORK PREFERENCE (10 points max)
-        if (profile != null && profile.getWorkPreference() != null && user.getLocation() != null) {
+        // 5. WORK PREFERENCE (10 points max)
+        if (profile != null && profile.getWorkPreference() != null) {
             int locationScore = scoreLocationMatch(user.getLocation(), profile.getWorkPreference(), job.getLocation(), job.getWorkType());
             totalScore += locationScore;
             maxScore += 10;
-            if (locationScore > 0) {
-                matchReasons.add("Location/work type match (" + (locationScore * 10) + "%)");
+            if (locationScore >= 5) {
+                matchReasons.add("Matches your " + job.getWorkType() + " preference");
             }
         } else {
             maxScore += 10;
@@ -194,7 +196,29 @@ public class JobRecommendationService {
 
         // Percentage of required skills matched
         int percentage = (int) Math.round((matchedCount * 100.0) / requiredSkillsArray.length);
-        return (int) Math.round((percentage / 100.0) * 25); // Convert to 0-25 scale
+        return (int) Math.round((percentage / 100.0) * 40); // Convert to 0-40 scale
+    }
+
+    /**
+     * Helper to get a string of matched skills for feedback
+     */
+    private String getMatchedSkills(String userSkills, String requiredSkills) {
+        if (userSkills == null || userSkills.isEmpty() || requiredSkills == null || requiredSkills.isEmpty()) {
+            return "none";
+        }
+        String[] userSkillsArray = userSkills.toLowerCase().split(",");
+        String[] requiredSkillsArray = requiredSkills.toLowerCase().split(",");
+        Set<String> userSkillSet = new HashSet<>();
+        for (String skill : userSkillsArray) userSkillSet.add(skill.trim());
+        
+        List<String> matched = new ArrayList<>();
+        for (String req : requiredSkillsArray) {
+            String reqTrim = req.trim();
+            if (userSkillSet.stream().anyMatch(s -> s.contains(reqTrim) || reqTrim.contains(s))) {
+                matched.add(reqTrim);
+            }
+        }
+        return matched.isEmpty() ? "none" : String.join(", ", matched);
     }
 
     /**
@@ -261,18 +285,22 @@ public class JobRecommendationService {
     /**
      * Score salary match (0-15 points)
      */
-    private int scoreSalaryMatch(Long userMin, Long userMax, Long jobMin, Long jobMax) {
+    private int scoreSalaryMatch(BigDecimal userMin, BigDecimal userMax, BigDecimal jobMin, BigDecimal jobMax) {
         if (userMin == null || userMax == null || jobMin == null || jobMax == null) {
             return 0;
         }
 
         // Check if job salary range overlaps with user expectations
-        if (jobMax >= userMin && jobMin <= userMax) {
+        // jobMax >= userMin && jobMin <= userMax
+        if (jobMax.compareTo(userMin) >= 0 && jobMin.compareTo(userMax) <= 0) {
             return 15; // Good match
         }
 
-        // Partial credit if close
-        if (jobMax >= userMin - (userMin * 0.2) || jobMin <= userMax + (userMax * 0.2)) {
+        // Partial credit if close (within 20%)
+        BigDecimal userMinThreshold = userMin.multiply(new BigDecimal("0.8"));
+        BigDecimal userMaxThreshold = userMax.multiply(new BigDecimal("1.2"));
+
+        if (jobMax.compareTo(userMinThreshold) >= 0 || jobMin.compareTo(userMaxThreshold) <= 0) {
             return 8; // Close but not perfect
         }
 

@@ -21,33 +21,34 @@ public class OnboardingProgress {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     
-    @Column(nullable = false)
+    @Column(name = "current_step", nullable = false)
     private Integer currentStep = 1;
     
-    @Column(nullable = false)
+    @Column(name = "max_step_reached", nullable = false)
     private Integer maxStepReached = 1;
     
-    @Column(nullable = false)
+    @Column(name = "step1_completed", nullable = false)
     private Boolean step1Completed = false;
     
-    @Column(nullable = false)
+    @Column(name = "step2_completed", nullable = false)
     private Boolean step2Completed = false;
     
-    @Column(nullable = false)
+    @Column(name = "step3_completed", nullable = false)
     private Boolean step3Completed = false;
     
-    @Column(nullable = false)
+    @Column(name = "step4_completed", nullable = false)
     private Boolean step4Completed = false;
     
-    @Column(nullable = false)
+    @Column(name = "step5_completed", nullable = false)
     private Boolean step5Completed = false;
     
-    @Column(nullable = false)
+    @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt = LocalDateTime.now();
     
-    @Column(nullable = false)
+    @Column(name = "last_updated_at", nullable = false)
     private LocalDateTime lastUpdatedAt = LocalDateTime.now();
     
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
     
     public boolean isCompleted() {
