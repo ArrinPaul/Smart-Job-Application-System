@@ -1,0 +1,497 @@
+.dashboard-container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* Header Section */
+.dashboard-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%);
+  padding: 3rem 2rem;
+  color: white;
+  text-align: center;
+}
+
+.header-content h1 {
+  font-size: 2.2rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.header-content p {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.9;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: -2rem auto 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Profile Card Special Styling */
+.profile-card {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.profile-card .stat-icon {
+  font-size: 2rem;
+}
+
+.stat-progress {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+/* Complete Profile Progress Section */
+.complete-profile-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+}
+
+.profile-progress-content {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 2px solid #3b82f6;
+}
+
+.profile-progress-content.completed {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border-color: #10b981;
+}
+
+.progress-info {
+  margin-bottom: 1.5rem;
+}
+
+.progress-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1.3rem;
+}
+
+.progress-info p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.progress-bar-large {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progress-fill-large {
+  height: 100%;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.complete-profile-btn {
+  display: inline-block;
+  background: #3b82f6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.complete-profile-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.profile-complete-badge {
+  display: inline-block;
+  background: #10b981;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Quick Access Section */
+.quick-access-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+}
+
+.quick-access-section h2 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0 0 1.5rem 0;
+}
+
+.quick-access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.quick-access-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-access-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.3s ease;
+}
+
+.quick-access-card:hover::before {
+  left: 100%;
+}
+
+.quick-access-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+.access-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.quick-access-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1.2rem;
+}
+
+.quick-access-card p {
+  margin: 0 0 1rem 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.access-arrow {
+  color: #3b82f6;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* Recommendations Section */
+.recommendations-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+.view-all-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.view-all-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 2rem;
+  background: #fee2e2;
+  border: 2px solid #f87171;
+  border-radius: 12px;
+  color: #991b1b;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #e5e7eb;
+  color: #6b7280;
+}
+
+/* Recommendations Grid */
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.recommendation-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.match-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.match-percent {
+  font-size: 1.8rem;
+}
+
+.card-content {
+  padding: 1.5rem 1.5rem 1rem;
+  flex: 1;
+}
+
+.job-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: #1f2937;
+  font-weight: 700;
+  padding-right: 50px;
+}
+
+.company-name {
+  margin: 0 0 1rem 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.job-location,
+.work-type,
+.salary-range {
+  margin: 0.5rem 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.card-action-btn {
+  display: block;
+  text-align: center;
+  background: #3b82f6;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.card-action-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 2rem 1rem;
+  }
+
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    margin: -1rem auto 1rem;
+  }
+
+  .quick-access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    flex-direction: row;
+  }
+
+  .profile-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .stat-progress {
+    width: auto;
+    flex: 1;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

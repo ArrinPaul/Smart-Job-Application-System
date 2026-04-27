@@ -25,6 +25,8 @@ export class JobListComponent implements OnInit, OnDestroy {
   selectedCategory = 'All Categories';
   selectedJobType = 'All Types';
   
+  Math = Math; // Make Math available in template
+  
   categories = [
     'All Categories',
     'Engineering',

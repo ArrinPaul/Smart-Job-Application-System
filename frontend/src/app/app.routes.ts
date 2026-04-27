@@ -17,6 +17,16 @@ export const routes: Routes = [
     loadComponent: () => import('./registration/registration.component').then(m => m.RegistrationComponent)
   },
   {
+    path: 'about',
+    loadComponent: () => import('./about/about.component').then(m => m.AboutComponent)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [UserRole.JOB_SEEKER] }
+  },
+  {
     path: 'onboarding',
     loadComponent: () => import('./onboarding/onboarding.component').then(m => m.OnboardingComponent),
     canActivate: [AuthGuard]

@@ -77,97 +77,85 @@
       </div>
     </section>
 
-    <section class="job-cards" *ngIf="jobs.length > 0">
-      <article class="job-card" *ngFor="let job of paginatedJobs">
-        <div class="match-score-wrap" *ngIf="!isAdmin">
-          <button type="button" class="insight-btn" (click)="fetchInsights(job.id)" [class.insight-btn--active]="insightJobId === job.id">
-            <span class="insight-label">{{ insightJobId === job.id && selectedInsights ? 'Closing Insights' : 'Smart Insight' }}</span>
-          </button>
-        </div>
-
-        <h3 [routerLink]="['/jobs', job.slug]" class="clickable-title">{{ job.title }}</h3>
-        <div class="pill-row">
-          <span class="status-pill status-pill--neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
-          <span class="status-pill status-pill--good" *ngIf="isRemoteOrHybrid(job)">Remote/Hybrid</span>
-        </div>
-        <p class="description-preview">{{ job.description | slice:0:150 }}{{ job.description.length > 150 ? '...' : '' }}</p>
-
-        <!-- Dynamic Smart Insights Panel -->
-        <div class="insight-panel" *ngIf="insightJobId === job.id && selectedInsights && !selectedInsights.error">
-          <div class="insight-header">
-            <div class="insight-score-circle">
-              <svg viewBox="0 0 36 36" class="circular-chart">
-                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="circle" [attr.stroke-dasharray]="selectedInsights.compatibilityScore + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <text x="18" y="20.35" class="percentage">{{ selectedInsights.compatibilityScore }}%</text>
-              </svg>
+    <section class="jobs-grid-section" *ngIf="jobs.length > 0">
+      <div class="jobs-grid">
+        <article class="job-card" *ngFor="let job of paginatedJobs">
+          <div class="job-card-inner">
+            <!-- Top Bar with Insight Button -->
+            <div class="card-header" *ngIf="!isAdmin">
+              <button type="button" class="insight-btn" (click)="fetchInsights(job.id)" [class.insight-btn--active]="insightJobId === job.id">
+                <span class="insight-icon">💡</span>
+              </button>
             </div>
-            <div>
-              <h4 class="match-level">{{ selectedInsights.matchLevel }}</h4>
-              <p class="match-subtitle">Based on your uploaded resume</p>
+
+            <!-- Job Title -->
+            <h3 [routerLink]="['/jobs', job.slug]" class="job-title">{{ job.title }}</h3>
+
+            <!-- Company Name -->
+            <p class="company-name">{{ job.postedBy?.username || 'Company' }}</p>
+
+            <!-- Location & Type -->
+            <div class="job-meta">
+              <span class="meta-item">📍 {{ job.location }}</span>
+              <span class="meta-item" *ngIf="isRemoteOrHybrid(job)">🌍 Remote/Hybrid</span>
             </div>
-          </div>
-          
-          <div class="insight-grid">
-            <div class="insight-col">
-              <h5>Strong Matches</h5>
-              <div class="tag-row">
-                <span class="tag-green" *ngFor="let skill of selectedInsights.topMatches">{{ skill }}</span>
+
+            <!-- Description -->
+            <p class="description-preview">{{ job.description | slice:0:120 }}{{ job.description.length > 120 ? '...' : '' }}</p>
+
+            <!-- Badges -->
+            <div class="badges">
+              <span class="badge-neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
+              <span class="badge-date">Posted {{ job.createdAt | date:'short' }}</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card-actions" *ngIf="!isAdmin">
+              <a [routerLink]="['/jobs', job.slug]" class="btn-details">View Details</a>
+              <button type="button" class="btn-apply" (click)="onApply(job.id)">Apply</button>
+            </div>
+
+            <!-- Insights Panel -->
+            <div class="insight-panel" *ngIf="insightJobId === job.id && selectedInsights && !selectedInsights.error">
+              <div class="insight-content">
+                <h4>Your Match: {{ selectedInsights.compatibilityScore }}%</h4>
+                <p>{{ selectedInsights.matchLevel }}</p>
               </div>
             </div>
-            <div class="insight-col">
-              <h5>Missing Keywords</h5>
-              <div class="tag-row">
-                <span class="tag-orange" *ngFor="let skill of selectedInsights.improvementAreas">{{ skill }}</span>
-              </div>
-            </div>
           </div>
-
-          <div class="recommendations">
-            <h5>Coach Recommendations</h5>
-            <ul>
-              <li *ngFor="let rec of selectedInsights.recommendations">{{ rec }}</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="meta-row">
-          <span><strong>Location:</strong> {{ job.location }}</span>
-          <span><strong>Posted:</strong> {{ job.createdAt | date:'mediumDate' }}</span>
-        </div>
-
-        <div class="action-row" *ngIf="!isAdmin">
-          <button type="button" class="btn-secondary" [routerLink]="['/jobs', job.slug]">View Details</button>
-          <button type="button" class="btn-accent" (click)="onApply(job.id)">Apply Now</button>
-        </div>
-
-        <div class="meta-row" *ngIf="isAdmin">
-          <span><strong>Posted By:</strong> {{ job.postedBy?.username }}</span>
-        </div>
-      </article>
+        </article>
+      </div>
     </section>
 
     <!-- Pagination Controls -->
-    <div class="pagination" *ngIf="totalPages > 1">
-      <button 
-        type="button" 
-        class="pagination-btn" 
-        [disabled]="currentPage === 1" 
-        (click)="setPage(currentPage - 1)">
-        &laquo; Previous
-      </button>
-      
-      <span class="pagination-info">Page {{ currentPage }} of {{ totalPages }}</span>
-      
-      <button 
-        type="button" 
-        class="pagination-btn" 
-        [disabled]="currentPage === totalPages" 
-        (click)="setPage(currentPage + 1)">
-        Next &raquo;
-      </button>
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-wrapper">
+        <button 
+          type="button" 
+          class="pagination-btn pagination-prev" 
+          [disabled]="currentPage === 1" 
+          (click)="setPage(currentPage - 1)">
+          ← Previous
+        </button>
+        
+        <div class="pagination-info">
+          <span class="current-page">{{ currentPage }}</span>
+          <span class="divider">/</span>
+          <span class="total-pages">{{ totalPages }}</span>
+        </div>
+        
+        <button 
+          type="button" 
+          class="pagination-btn pagination-next" 
+          [disabled]="currentPage === totalPages" 
+          (click)="setPage(currentPage + 1)">
+          Next →
+        </button>
+      </div>
+      <div class="pagination-summary">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, filteredJobs.length) }} of {{ filteredJobs.length }} jobs
+      </div>
     </div>
-
 
     <div class="empty-state" *ngIf="jobs.length === 0 && !isLoading">
       <h3>No jobs found</h3>

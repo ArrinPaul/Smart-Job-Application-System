@@ -1,0 +1,177 @@
+<div class="about-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>About SmartJobPortal</h1>
+      <p>Revolutionizing how talent meets opportunity through intelligent matching</p>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission-section">
+    <div class="container">
+      <div class="mission-content">
+        <div class="mission-text">
+          <h2>Our Mission</h2>
+          <p>
+            At SmartJobPortal, we believe that every talented professional deserves to find their perfect job match, 
+            and every recruiter deserves access to the best talent. We've built an AI-powered platform that makes 
+            this happen—efficiently, fairly, and transparently.
+          </p>
+          <p>
+            Founded in 2024, SmartJobPortal has grown from a simple idea to a comprehensive job matching platform 
+            serving thousands of professionals and companies across multiple industries.
+          </p>
+        </div>
+        <div class="mission-image">
+          <div class="image-placeholder">🚀</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <h2>By The Numbers</h2>
+      <div class="stats-grid">
+        <div *ngFor="let stat of stats" class="stat-box">
+          <div class="stat-number">{{ stat.number }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="values-section">
+    <div class="container">
+      <h2>Our Core Values</h2>
+      <div class="values-grid">
+        <div *ngFor="let value of values" class="value-card">
+          <div class="value-icon">{{ value.icon }}</div>
+          <h3>{{ value.title }}</h3>
+          <p>{{ value.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works-section">
+    <div class="container">
+      <h2>How SmartJobPortal Works</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-number">1</div>
+          <div class="timeline-content">
+            <h3>Create Your Profile</h3>
+            <p>Job seekers add their skills, experience, and preferences. Recruiters set up company profiles.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-number">2</div>
+          <div class="timeline-content">
+            <h3>AI Analysis</h3>
+            <p>Our algorithms analyze profiles and job requirements to find the best matches.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-number">3</div>
+          <div class="timeline-content">
+            <h3>Smart Recommendations</h3>
+            <p>Personalized job suggestions and candidate recommendations appear in real-time.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-number">4</div>
+          <div class="timeline-content">
+            <h3>Easy Application</h3>
+            <p>Apply to jobs with confidence knowing you're a strong match for the role.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team-section">
+    <div class="container">
+      <h2>Meet The Team</h2>
+      <p class="team-intro">Passionate individuals driving innovation in recruitment</p>
+      <div class="team-grid">
+        <div *ngFor="let member of team" class="team-card">
+          <div class="team-image">{{ member.image }}</div>
+          <h3>{{ member.name }}</h3>
+          <p class="team-role">{{ member.role }}</p>
+          <p class="team-bio">{{ member.bio }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technology Section -->
+  <section class="technology-section">
+    <div class="container">
+      <h2>Our Technology</h2>
+      <div class="tech-content">
+        <div class="tech-text">
+          <h3>Built on Modern Architecture</h3>
+          <ul class="tech-list">
+            <li><strong>AI & Machine Learning:</strong> Advanced matching algorithms for precision recommendations</li>
+            <li><strong>Real-time Processing:</strong> Instant job matching and notifications</li>
+            <li><strong>Secure Infrastructure:</strong> Enterprise-grade security for your data</li>
+            <li><strong>Scalable Platform:</strong> Handles thousands of concurrent users</li>
+            <li><strong>Mobile-First Design:</strong> Seamless experience across all devices</li>
+            <li><strong>Data Analytics:</strong> Insights to help you make better career decisions</li>
+          </ul>
+        </div>
+        <div class="tech-image">
+          <div class="image-placeholder">⚙️</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to Find Your Perfect Match?</h2>
+      <p>Join thousands of professionals already using SmartJobPortal</p>
+      <div class="cta-buttons">
+        <a routerLink="/register" class="btn-primary">Get Started</a>
+        <a routerLink="/jobs" class="btn-secondary">Browse Jobs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section">
+    <div class="container">
+      <h2>Get In Touch</h2>
+      <div class="contact-content">
+        <div class="contact-info">
+          <h3>Contact Information</h3>
+          <p>
+            <strong>Email:</strong> <a href="mailto:hello@smartjobportal.com">hello@smartjobportal.com</a>
+          </p>
+          <p>
+            <strong>Address:</strong> Tech Park, Innovation Drive, San Francisco, CA 94105
+          </p>
+          <p>
+            <strong>Phone:</strong> <a href="tel:+1-800-JOBS-NOW">+1-800-JOBS-NOW</a>
+          </p>
+        </div>
+        <div class="social-links">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+            <a href="#" class="social-icon">🐦</a>
+            <a href="#" class="social-icon">💼</a>
+            <a href="#" class="social-icon">📘</a>
+            <a href="#" class="social-icon">📷</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
