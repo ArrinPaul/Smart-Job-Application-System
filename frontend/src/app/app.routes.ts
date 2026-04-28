@@ -33,6 +33,11 @@ export const routes: Routes = [
     canActivate: [OnboardingGuard]
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./onboarding/onboarding.component').then(m => m.OnboardingComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'jobs',
     loadComponent: () => import('./job-list/job-list.component').then(m => m.JobListComponent),
     canActivate: [AuthGuard]

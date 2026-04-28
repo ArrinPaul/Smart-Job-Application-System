@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -38,6 +38,9 @@ export class OnboardingComponent implements OnInit {
   totalSteps = 5;
   role: UserRole | null = null;
   UserRole = UserRole;
+  isEditMode = false;
+  selectedFile: File | null = null;
+  existingResumes: any[] = [];
 
   // Dropdown Options
   headlineOptions = [
@@ -113,31 +116,39 @@ export class OnboardingComponent implements OnInit {
     private httpService: HttpService,
     private authService: AuthService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
     this.role = this.authService.getRole();
+    this.isEditMode = this.router.url.includes('/profile');
     
-    if (this.authService.isOnboardingCompleted()) {
+    if (!this.isEditMode && this.authService.isOnboardingCompleted()) {
       this.navigateHome();
     }
     
     this.loadOnboardingStatus();
+    
+    if (this.isEditMode) {
+      this.loadProfileData();
+    }
   }
 
   loadOnboardingStatus(): void {
     this.httpService.getOnboardingStatus().subscribe({
       next: (response: OnboardingStatus) => {
         this.status = response;
-        this.currentStep = response.currentStep;
+        if (!this.isEditMode) {
+          this.currentStep = response.currentStep;
+        }
         
         // Ensure role is synced if auth service was empty
         if (!this.role && response.userRole) {
           this.role = response.userRole as UserRole;
         }
 
-        if (response.isCompleted) {
+        if (!this.isEditMode && response.isCompleted) {
           this.navigateHome();
         }
       },
@@ -145,6 +156,44 @@ export class OnboardingComponent implements OnInit {
         // Continue with default step 1
       }
     });
+  }
+
+  loadProfileData(): void {
+    this.isLoading = true;
+    this.httpService.getOnboardingProfile().subscribe({
+      next: (profile) => {
+        this.isLoading = false;
+        // Map profile to formData
+        this.formData = {
+          ...this.formData,
+          ...profile
+        };
+
+        if (this.role === UserRole.JOB_SEEKER && profile.id) {
+            this.loadExistingResumes(profile.id);
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.toastService.showError('Failed to load profile data');
+      }
+    });
+  }
+
+  loadExistingResumes(userId: number): void {
+    this.httpService.getResumes(userId).subscribe({
+        next: (resumes) => {
+            this.existingResumes = resumes;
+        },
+        error: () => {}
+    });
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+    }
   }
 
   nextStep(): void {
@@ -161,7 +210,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   goToStep(step: number): void {
-    if (step <= this.currentStep || step === this.currentStep + 1) {
+    if (this.isEditMode || step <= this.currentStep || step === this.currentStep + 1) {
       this.currentStep = step;
       this.errors = {};
       window.scrollTo(0, 0);
@@ -169,12 +218,17 @@ export class OnboardingComponent implements OnInit {
   }
 
   closeOnboarding(): void {
+    if (this.isEditMode) {
+      this.navigateHome();
+      return;
+    }
     if (confirm('Are you sure you want to close onboarding? You can complete it later from your profile.')) {
       this.navigateHome();
     }
   }
 
   skipOnboarding(): void {
+    if (this.isEditMode) return;
     if (confirm('Are you sure you want to skip the onboarding? You can complete it later.')) {
       this.isLoading = true;
       this.httpService.skipOnboarding().subscribe({
@@ -193,7 +247,6 @@ export class OnboardingComponent implements OnInit {
 
   saveCurrentStep(): void {
     this.isLoading = true;
-    const endpoint = `/onboarding/step/${this.currentStep}`;
     
     this.httpService.saveOnboardingStep(this.currentStep, this.formData).subscribe({
       next: (response: any) => {
@@ -218,16 +271,40 @@ export class OnboardingComponent implements OnInit {
 
   completeOnboarding(): void {
     this.isLoading = true;
+    
+    // If a resume was selected, upload it first
+    if (this.role === UserRole.JOB_SEEKER && this.selectedFile) {
+        this.httpService.uploadResume(this.selectedFile, this.selectedFile.name).subscribe({
+            next: () => {
+                this.finalizeOnboarding();
+            },
+            error: (err) => {
+                this.isLoading = false;
+                this.toastService.showError('Resume upload failed, but profile was saved.');
+                this.finalizeOnboarding();
+            }
+        });
+    } else {
+        this.finalizeOnboarding();
+    }
+  }
+
+  private finalizeOnboarding(): void {
+    this.isLoading = true;
     this.httpService.completeOnboardingFinal().subscribe({
       next: () => {
         this.isLoading = false;
-        this.authService.setOnboardingCompleted(true);
-        this.toastService.showSuccess('Onboarding complete! Welcome to SmartJobPortal!');
+        if (!this.isEditMode) {
+          this.authService.setOnboardingCompleted(true);
+          this.toastService.showSuccess('Onboarding complete! Welcome to SmartJobPortal!');
+        } else {
+          this.toastService.showSuccess('Profile updated successfully!');
+        }
         setTimeout(() => this.navigateHome(), 1500);
       },
       error: () => {
         this.isLoading = false;
-        this.toastService.showError('Failed to complete onboarding');
+        this.toastService.showError('Failed to complete update');
       }
     });
   }
@@ -283,11 +360,16 @@ export class OnboardingComponent implements OnInit {
   }
 
   private navigateHome(): void {
+    if (this.isEditMode) {
+      this.location.back();
+      return;
+    }
+
     const role = this.authService.getRole();
     if (role === UserRole.RECRUITER) {
       this.router.navigate(['/post-job']);
     } else if (role === UserRole.JOB_SEEKER) {
-      this.router.navigate(['/job-list']);
+      this.router.navigate(['/dashboard']);
     } else {
       this.router.navigate(['/']);
     }

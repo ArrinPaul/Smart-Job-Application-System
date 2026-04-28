@@ -34,14 +34,14 @@ public class User {
     @Column(nullable = false)
     private String role; // ADMIN, RECRUITER, JOB_SEEKER
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     @JsonIgnore
     private Integer failedLoginAttempts = 0;
 
     @JsonIgnore
     private LocalDateTime lockUntil;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean emailVerified = false;
 
     @Column(length = 128)
@@ -58,18 +58,18 @@ public class User {
     @JsonIgnore
     private LocalDateTime passwordResetExpiry;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bigint default 0")
     @JsonIgnore
     private Long tokenVersion = 0L;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean mfaEnabled = false;
 
     @Column(length = 64)
     @JsonIgnore
     private String mfaSecret;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean onboardingCompleted = false;
 
     private LocalDateTime onboardingCompletedAt;

@@ -13,11 +13,11 @@
           </div>
           <div class="pill">
             <div class="pill-number">{{ jobsViewed }}</div>
-            <div class="pill-label">Schemes viewed</div>
+            <div class="pill-label">Jobs viewed</div>
           </div>
           <div class="pill">
             <div class="pill-number">{{ jobsApplied }}</div>
-            <div class="pill-label">Saved schemes</div>
+            <div class="pill-label">Saved jobs</div>
           </div>
         </div>
       </div>
@@ -31,7 +31,12 @@
       <div class="left-col">
         <div class="profile-progress-card">
           <div class="pp-top">
-            <div class="pp-title">Complete your profile for better matches</div>
+            <div class="pp-title">
+              Complete your profile for better matches
+              <a routerLink="/profile" class="pp-edit-link" title="Update Profile">
+                <span class="arrow-icon">→</span>
+              </a>
+            </div>
             <div class="pp-percent">{{ profileCompletionPercent }}%</div>
           </div>
           <div class="pp-bar">
@@ -54,8 +59,17 @@
 
           <div *ngFor="let rec of recommendations" class="rec-item">
             <div class="rec-body">
-              <div class="rec-title">{{ rec.jobTitle }}</div>
+              <div class="rec-title-row">
+                <div class="rec-title">{{ rec.jobTitle }}</div>
+                <div class="match-percentage-badge" [style.color]="getMatchColor(rec.matchPercentage)">
+                  {{ rec.matchPercentage }}% Match
+                </div>
+              </div>
               <div class="rec-excerpt">{{ rec.companyName }} • {{ rec.location }}</div>
+              
+              <div class="match-reasons" *ngIf="rec.matchReasons && rec.matchReasons.length > 0">
+                <span *ngFor="let reason of rec.matchReasons.slice(0, 2)" class="reason-tag">{{ reason }}</span>
+              </div>
             </div>
             <div class="rec-meta">
               <span class="badge-type">{{ rec.workType }}</span>
@@ -68,16 +82,9 @@
       <aside class="right-col">
         <div class="quick-access">
           <h4>QUICK ACCESS</h4>
-          <a routerLink="/jobs" class="qa-item">Browse All Schemes</a>
-          <a routerLink="/recommendations" class="qa-item">AI Assistant</a>
+          <a routerLink="/jobs" class="qa-item">Browse All Jobs</a>
           <a routerLink="/profile" class="qa-item">Update Profile</a>
           <a routerLink="/applications" class="qa-item">Recent Activity</a>
-        </div>
-
-        <div class="ask-card">
-          <h4>Ask Prahar AI</h4>
-          <p>Chat with our AI to instantly find schemes you qualify for.</p>
-          <a routerLink="/recommendations" class="btn-primary md">Start a conversation</a>
         </div>
       </aside>
     </div>

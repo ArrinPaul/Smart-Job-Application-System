@@ -72,11 +72,9 @@ public class SecurityConfig {
                 )
                 .anonymous(anonConfig -> {})
                 .headers(headers -> headers
-                        .contentSecurityPolicy("default-src 'self'")
-                        .and()
-                        .xssProtection()
-                        .and()
-                        .frameOptions().deny()
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
+                        .xssProtection(xss -> xss.headerValue(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                        .frameOptions(frame -> frame.deny())
                 );
 
             http.addFilterBefore(payloadSizeFilter, UsernamePasswordAuthenticationFilter.class);

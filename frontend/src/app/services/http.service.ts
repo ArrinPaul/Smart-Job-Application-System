@@ -45,6 +45,13 @@ export class HttpService {
   }
 
   /**
+   * Get current onboarding/profile data for the user
+   */
+  getOnboardingProfile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/onboarding/profile`);
+  }
+
+  /**
    * Save onboarding step data
    */
   saveOnboardingStep(step: number, data: any): Observable<any> {

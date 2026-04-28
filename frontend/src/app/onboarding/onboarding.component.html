@@ -8,8 +8,8 @@
       <div class="step-counter">STEP {{ currentStep }} OF {{ totalSteps }}</div>
       
       <div class="step-title">
-        <h2>{{ getStepTitle() }}</h2>
-        <p>{{ getStepDescription() }}</p>
+        <h2>{{ isEditMode ? 'Update Profile' : getStepTitle() }}</h2>
+        <p>{{ isEditMode ? 'Keep your profile up to date for the best job matches' : getStepDescription() }}</p>
       </div>
 
       <!-- Step Tabs -->
@@ -346,7 +346,36 @@
               </div>
             </div>
 
-            <p class="completion-text">Click "Complete Setup" to finalize your profile and start exploring opportunities!</p>
+            <!-- Resume Upload Section -->
+            <div class="resume-upload-section" *ngIf="role === UserRole.JOB_SEEKER">
+              <h4>Upload Your CV / Resume</h4>
+              <p class="section-hint">Adding a resume helps our engine find better matches for you.</p>
+              
+              <div class="file-upload-box" [class.has-file]="selectedFile">
+                <input 
+                  type="file" 
+                  id="resumeFile" 
+                  (change)="onFileSelected($event)" 
+                  accept=".pdf,.doc,.docx"
+                  class="file-input">
+                <label for="resumeFile" class="file-label">
+                  <span class="upload-icon">📄</span>
+                  <span class="upload-text">{{ selectedFile ? selectedFile.name : 'Choose a file or drag it here' }}</span>
+                  <span class="upload-subtext">PDF, DOC, DOCX (Max 5MB)</span>
+                </label>
+              </div>
+
+              <!-- Existing Resumes -->
+              <div class="existing-resumes" *ngIf="existingResumes.length > 0">
+                <p class="existing-label">Already uploaded:</p>
+                <div class="resume-pill" *ngFor="let resume of existingResumes">
+                    <span>{{ resume.fileName }}</span>
+                    <span class="resume-date">{{ resume.createdAt | date:'shortDate' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="completion-text">Click "{{ isEditMode ? 'Update Profile' : 'Complete Setup' }}" to finalize your profile and start exploring opportunities!</p>
           </div>
         </div>
       </form>
@@ -367,6 +396,7 @@
         type="button" 
         class="btn-ghost"
         (click)="skipOnboarding()"
+        *ngIf="!isEditMode"
         [disabled]="isLoading">
         SKIP FOR NOW
       </button>
@@ -388,7 +418,7 @@
         (click)="completeOnboarding()"
         *ngIf="currentStep === totalSteps"
         [disabled]="isLoading">
-        {{ isLoading ? 'Finishing...' : 'COMPLETE SETUP ->' }}
+        {{ isLoading ? 'Saving...' : (isEditMode ? 'UPDATE PROFILE ->' : 'COMPLETE SETUP ->') }}
       </button>
     </div>
   </div>

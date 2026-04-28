@@ -58,7 +58,7 @@ public class JobRecommendationService {
         // Score each job and filter by minimum threshold
         List<JobRecommendationDTO> recommendations = allJobs.stream()
                 .map(job -> scoreJobForUser(user, profile, job))
-                .filter(rec -> rec.getMatchPercentage() >= 50) // Minimum 50% match
+                .filter(rec -> rec.getMatchPercentage() >= 0) // Show all potential matches, sorted by score
                 .sorted(Comparator.comparingInt(JobRecommendationDTO::getMatchPercentage).reversed())
                 .limit(limit)
                 .collect(Collectors.toList());
@@ -137,20 +137,25 @@ public class JobRecommendationService {
             if (locationScore >= 5) {
                 matchReasons.add("Matches your " + job.getWorkType() + " preference");
             }
+        } else if (user.getLocation() != null && job.getLocation() != null) {
+            // Fallback to user location even if profile is null
+            if (user.getLocation().toLowerCase().contains(job.getLocation().toLowerCase()) || 
+                job.getLocation().toLowerCase().contains(user.getLocation().toLowerCase())) {
+                totalScore += 5;
+                matchReasons.add("Located in " + job.getLocation());
+            }
+            maxScore += 10;
         } else {
             maxScore += 10;
         }
 
-        // 6. EDUCATION (10 points max)
-        if (profile != null && profile.getEducation() != null) {
-            int educationScore = scoreEducationMatch(profile.getEducation(), job.getEducationRequired());
-            totalScore += educationScore;
-            maxScore += 10;
-            if (educationScore > 0) {
-                matchReasons.add("Education match (" + (educationScore * 10) + "%)");
-            }
+        // 6. RECENTLY POSTED BONUS (5 points)
+        if (job.getCreatedAt() != null && job.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(7))) {
+            totalScore += 5;
+            maxScore += 5;
+            matchReasons.add("Recently posted");
         } else {
-            maxScore += 10;
+            maxScore += 5;
         }
 
         // Calculate percentage

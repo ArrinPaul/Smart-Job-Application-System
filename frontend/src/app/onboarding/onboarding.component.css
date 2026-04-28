@@ -385,6 +385,105 @@ textarea.form-input {
   line-height: 1.6;
 }
 
+/* Resume Upload Section */
+.resume-upload-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e8dfd0;
+    text-align: left;
+}
+
+.resume-upload-section h4 {
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #8b7355;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-hint {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.file-upload-box {
+    border: 2px dashed #e8dfd0;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s ease;
+    background: rgba(0,0,0,0.01);
+}
+
+.file-upload-box:hover, .file-upload-box.has-file {
+    border-color: #ff6b35;
+    background: rgba(255, 107, 53, 0.03);
+}
+
+.file-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.upload-icon {
+    font-size: 32px;
+    margin-bottom: 4px;
+}
+
+.upload-text {
+    font-weight: 600;
+    color: #1a1410;
+}
+
+.upload-subtext {
+    font-size: 12px;
+    color: #666;
+}
+
+.existing-resumes {
+    margin-top: 16px;
+}
+
+.existing-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #8b7355;
+    margin-bottom: 8px;
+}
+
+.resume-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #faf8f5;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #e8dfd0;
+    font-size: 13px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+.resume-date {
+    font-size: 11px;
+    color: #666;
+}
+
 /* Action Buttons */
 .action-buttons {
   display: flex;

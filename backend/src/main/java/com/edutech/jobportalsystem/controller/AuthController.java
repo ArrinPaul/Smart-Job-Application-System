@@ -141,6 +141,13 @@ public class AuthController {
         return ResponseEntity.ok(onboardingService.getOnboardingStatus(username));
     }
 
+    @GetMapping("/onboarding/profile")
+    public ResponseEntity<?> getOnboardingProfile() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Fetching onboarding profile for user: {}", username);
+        return ResponseEntity.ok(onboardingService.getCurrentUserProfile(username));
+    }
+
     @PostMapping("/onboarding/step/1")
     public ResponseEntity<?> saveStep1(@Valid @RequestBody OnboardingStepRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -259,6 +259,42 @@ public class OnboardingService {
         return status;
     }
 
+    public Map<String, Object> getCurrentUserProfile(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("fullName", user.getFullName());
+        profile.put("location", user.getLocation());
+        profile.put("bio", user.getBio());
+        profile.put("headline", user.getHeadline());
+        profile.put("skills", user.getSkills());
+        profile.put("companyName", user.getCompanyName());
+        profile.put("website", user.getWebsite());
+        profile.put("role", user.getRole());
+
+        if ("RECRUITER".equals(user.getRole())) {
+            recruiterProfileRepository.findByUser(user).ifPresent(p -> {
+                profile.put("industry", p.getIndustry());
+                profile.put("companySize", p.getCompanySize());
+            });
+        } else if ("JOB_SEEKER".equals(user.getRole())) {
+            jobSeekerProfileRepository.findByUser(user).ifPresent(p -> {
+                profile.put("experienceYears", p.getExperienceYears());
+                profile.put("currentCompany", p.getCurrentCompany());
+                profile.put("currentDesignation", p.getCurrentDesignation());
+                profile.put("education", p.getEducation());
+                profile.put("openToOpportunities", p.getOpenToOpportunities());
+                profile.put("workPreference", p.getWorkPreference());
+                profile.put("expectedSalaryMin", p.getExpectedSalaryMin());
+                profile.put("expectedSalaryMax", p.getExpectedSalaryMax());
+                profile.put("salaryCurrency", p.getSalaryCurrency());
+            });
+        }
+        
+        return profile;
+    }
+
     public void skipOnboarding(String username) {
         logger.warn("User {} skipped onboarding", username);
         User user = userRepository.findByUsername(username)
