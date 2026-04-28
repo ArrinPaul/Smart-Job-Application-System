@@ -12,3 +12,13 @@
 2026-04-28 00:21:22 [http-nio-8080-exec-3] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
 2026-04-28 00:21:22 [http-nio-8080-exec-3] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
 2026-04-28 00:21:27 [http-nio-8080-exec-3] INFO  c.e.j.s.JobRecommendationService - Found 0 recommendations for user 15
+2026-04-28 00:32:05 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=6m25s346ms324µs100ns).
+2026-04-28 09:50:13 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=9h18m11s2ms388µs200ns).
+2026-04-28 09:51:18 [http-nio-8080-exec-10] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-28 09:51:18 [http-nio-8080-exec-9] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-28 09:51:18 [http-nio-8080-exec-10] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60021ms.
+2026-04-28 09:51:18 [http-nio-8080-exec-9] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60021ms.
+2026-04-28 09:51:18 [http-nio-8080-exec-9] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-28 09:51:18 [http-nio-8080-exec-10] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-28 09:51:18 [http-nio-8080-exec-9] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60021ms.] [n/a]
+2026-04-28 09:51:18 [http-nio-8080-exec-10] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60021ms.] [n/a]

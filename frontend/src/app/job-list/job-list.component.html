@@ -1,12 +1,30 @@
 <div class="jobs-container">
   <!-- Header Section -->
   <div class="jobs-header">
-    <div class="header-content">
-      <span class="header-chip">EXPLORE OPPORTUNITIES</span>
-      <h1 *ngIf="!isAdmin">Discover Your Next Role</h1>
-      <h1 *ngIf="isAdmin">Manage All Listings</h1>
-      <p *ngIf="!isAdmin">Find roles that match your skills and career goals from {{ totalJobs }} open positions.</p>
-      <p *ngIf="isAdmin">Monitor, edit, or remove job postings across the platform.</p>
+    <div class="header-shell">
+      <div class="header-content">
+        <span class="header-chip">EXPLORE OPPORTUNITIES</span>
+        <h1 *ngIf="!isAdmin">Discover Your Next Role</h1>
+        <h1 *ngIf="isAdmin">Manage All Listings</h1>
+        <p *ngIf="!isAdmin">Find roles that match your skills and career goals from {{ totalJobs }} open positions.</p>
+        <p *ngIf="isAdmin">Monitor, edit, or remove job postings across the platform.</p>
+      </div>
+
+      <div class="header-panel" *ngIf="!isAdmin">
+        <div class="panel-title">Search Snapshot</div>
+        <div class="panel-item">
+          <span class="panel-label">Active results</span>
+          <strong>{{ filteredJobs.length }}</strong>
+        </div>
+        <div class="panel-item">
+          <span class="panel-label">Current page</span>
+          <strong>{{ currentPage }} / {{ totalPages || 1 }}</strong>
+        </div>
+        <div class="panel-item">
+          <span class="panel-label">Refresh</span>
+          <strong>12s</strong>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -112,6 +130,10 @@
           <!-- Description Preview -->
           <p class="description">{{ job.description | slice:0:100 }}{{ job.description.length > 100 ? '...' : '' }}</p>
 
+          <p class="salary" *ngIf="job.salaryMin || job.salaryMax">
+            Salary: {{ job.salaryCurrency || 'USD' }} {{ job.salaryMin || 0 }} - {{ job.salaryMax || 0 }}
+          </p>
+
           <!-- Meta Info -->
           <div class="job-meta">
             <span class="role-badge">{{ getRoleSignal(job.title) }}</span>
@@ -121,6 +143,9 @@
 
         <!-- Card Actions -->
         <div class="card-footer" *ngIf="!isAdmin">
+          <button type="button" class="btn btn-muted" (click)="fetchInsights(job.id)">
+            {{ insightJobId === job.id ? 'Hide Match' : 'Match Insight' }}
+          </button>
           <a [routerLink]="['/jobs', job.slug]" class="btn btn-secondary">View Details</a>
           <button type="button" class="btn btn-primary" (click)="onApply(job.id)">Apply Now</button>
         </div>
