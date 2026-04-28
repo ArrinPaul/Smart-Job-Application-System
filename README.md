@@ -201,6 +201,24 @@ Contributions are welcome! Please open an issue to discuss a new feature or bug.
 
 ---
 
+## Automated Job Scraper
+
+This repository includes a scheduled job-scraper that collects job postings from multiple external sources and ingests them into the backend or directly into Supabase.
+
+- Workflow: `.github/workflows/job-scraper.yml` — runs every 12 hours and on manual dispatch.
+- Local tool: `tools/scraper/scrape_and_sync.js` — collects and posts to the backend ingest endpoint.
+- Optional Supabase sync: `tools/scraper/sync_to_supabase.js` (requires `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`).
+
+Recommended secrets for GitHub Actions:
+- `BACKEND_URL` — URL to the backend API (used for triggering ingest)
+- `SCRAPER_TRIGGER_TOKEN` — optional bearer token
+- `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` — optional; enable direct Supabase sync
+- `WEBHOOK_NOTIFY_URL` — optional webhook to receive run summaries
+
+See `tools/scraper/README.md` for details and run instructions.
+
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

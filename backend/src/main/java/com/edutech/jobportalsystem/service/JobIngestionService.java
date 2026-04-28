@@ -108,10 +108,12 @@ public class JobIngestionService {
     }
 
     @Transactional
-    public List<Job> ingestJobs(List<Map<String, String>> jobDataList) {
+    public java.util.Map<String, Object> ingestJobs(List<Map<String, String>> jobDataList) {
         User recruiter = getOrCreateGlobalRecruiter();
         List<Job> jobsToSave = new ArrayList<>();
         java.util.Set<String> seenSlugs = new java.util.HashSet<>();
+        int createdCount = 0;
+        int updatedCount = 0;
 
         for (Map<String, String> data : jobDataList) {
             String title = data.get("title");
@@ -143,6 +145,7 @@ public class JobIngestionService {
                 job.setCompanyName(companyName != null ? companyName : job.getCompanyName());
                 job.setIsActive(true);
                 jobsToSave.add(job);
+                updatedCount++;
             } else {
                 Job job = new Job();
                 job.setTitle(title);
@@ -167,20 +170,31 @@ public class JobIngestionService {
                 job.setSlug(uniqueSlug);
                 seenSlugs.add(uniqueSlug);
                 jobsToSave.add(job);
+                createdCount++;
             }
         }
 
         List<Job> savedJobs = jobRepository.saveAll(jobsToSave);
         logger.info("Successfully ingested {} jobs in batch.", savedJobs.size());
-
         // Perform cleanup of stale/closed postings after ingestion
+        int deletedCount = 0;
+        int markedInactiveCount = 0;
         try {
-            cleanupStaleJobs();
+            java.util.Map<String, Integer> cleanup = cleanupStaleJobs();
+            deletedCount = cleanup.getOrDefault("deleted", 0);
+            markedInactiveCount = cleanup.getOrDefault("marked_inactive", 0);
         } catch (Exception e) {
             logger.warn("Stale job cleanup failed: {}", e.getMessage());
         }
 
-        return savedJobs;
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("saved", savedJobs.size());
+        result.put("created", createdCount);
+        result.put("updated", updatedCount);
+        result.put("deleted", deletedCount);
+        result.put("marked_inactive", markedInactiveCount);
+        result.put("jobs", savedJobs);
+        return result;
     }
 
     /**
@@ -188,9 +202,11 @@ public class JobIngestionService {
      * then delete job only if there are no applications; otherwise mark as inactive.
      */
     @Transactional
-    public void cleanupStaleJobs() {
+    public java.util.Map<String, Integer> cleanupStaleJobs() {
         logger.info("Starting stale job cleanup sweep...");
         List<Job> allJobs = jobRepository.findAll();
+        int deleted = 0;
+        int markedInactive = 0;
         for (Job job : allJobs) {
             String link = job.getApplicationLink();
             if (link == null || link.isEmpty()) continue;
@@ -210,10 +226,12 @@ public class JobIngestionService {
                     if (apps == null || apps.isEmpty()) {
                         logger.info("Deleting job id={} title='{}' because application link indicates closed and no applications found.", job.getId(), job.getTitle());
                         jobRepository.delete(job);
+                        deleted++;
                     } else {
                         logger.info("Marking job id={} as inactive (closed) but preserving due to existing applications.", job.getId());
                         job.setIsActive(false);
                         jobRepository.save(job);
+                        markedInactive++;
                     }
                 }
             } catch (org.springframework.web.client.HttpClientErrorException.NotFound nf) {
@@ -221,16 +239,22 @@ public class JobIngestionService {
                 if (apps == null || apps.isEmpty()) {
                     logger.info("Deleting job id={} due to 404 on application link.", job.getId());
                     jobRepository.delete(job);
+                    deleted++;
                 } else {
                     logger.info("Marking job id={} inactive due to 404 on application link but has applications.", job.getId());
                     job.setIsActive(false);
                     jobRepository.save(job);
+                    markedInactive++;
                 }
             } catch (Exception e) {
                 logger.debug("Failed to validate job link for id={} url={} err={}", job.getId(), link, e.getMessage());
             }
         }
         logger.info("Stale job cleanup completed.");
+        java.util.Map<String, Integer> out = new java.util.HashMap<>();
+        out.put("deleted", deleted);
+        out.put("marked_inactive", markedInactive);
+        return out;
     }
 
     private User getOrCreateGlobalRecruiter() {

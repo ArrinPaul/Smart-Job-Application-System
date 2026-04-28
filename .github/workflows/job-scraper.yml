@@ -35,7 +35,18 @@ jobs:
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           SCRAPER_TRIGGER_TOKEN: ${{ secrets.SCRAPER_TRIGGER_TOKEN }}
+          WEBHOOK_NOTIFY_URL: ${{ secrets.WEBHOOK_NOTIFY_URL }}
         working-directory: tools/scraper
         run: |
           npm ci
           node scrape_and_sync.js
+
+      - name: Sync to Supabase (optional)
+        if: secrets.SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_KEY != ''
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        working-directory: tools/scraper
+        run: |
+          npm ci
+          node sync_to_supabase.js
