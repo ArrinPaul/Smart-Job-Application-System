@@ -6,6 +6,9 @@ import com.edutech.jobportalsystem.repository.JobRepository;
 import com.edutech.jobportalsystem.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
+import com.edutech.jobportalsystem.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,7 +34,12 @@ public class JobIngestionService {
     private UserRepository userRepository;
 
     @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${app.data-loader.enabled:false}")
     private boolean dataLoaderEnabled;
@@ -117,38 +125,112 @@ public class JobIngestionService {
 
             if (title == null || title.isEmpty()) continue;
 
-            Job job = new Job();
-            job.setTitle(title);
-            job.setLocation(location != null ? location : "Remote");
-            job.setDescription(description != null ? description : "No description provided.");
-            job.setApplicationLink(applicationLink);
-            job.setCompanyName(companyName);
-            job.setHowToApply(howToApply);
-            job.setRequiredSkills(requiredSkills);
-            job.setJobType(jobType);
-            job.setPostedBy(recruiter);
-            
-            // Generate extremely unique slug
-            String baseSlug = title.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
-            if (baseSlug.isEmpty()) baseSlug = "job";
-            
-            String uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
-            
-            // Avoid duplicates within the same batch
-            int attempts = 0;
-            while (seenSlugs.contains(uniqueSlug) && attempts < 10) {
-                uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
-                attempts++;
+            // Check for existing job by title + company (case-insensitive)
+            java.util.Optional<Job> existing = java.util.Optional.empty();
+            if (companyName != null && !companyName.isEmpty()) {
+                existing = jobRepository.findFirstByTitleIgnoreCaseAndCompanyNameIgnoreCase(title, companyName);
             }
-            
-            job.setSlug(uniqueSlug);
-            seenSlugs.add(uniqueSlug);
-            jobsToSave.add(job);
+
+            if (existing.isPresent()) {
+                // Update existing job instead of inserting duplicate
+                Job job = existing.get();
+                job.setLocation(location != null ? location : job.getLocation());
+                job.setDescription(description != null ? description : job.getDescription());
+                job.setApplicationLink(applicationLink != null ? applicationLink : job.getApplicationLink());
+                job.setHowToApply(howToApply != null ? howToApply : job.getHowToApply());
+                job.setRequiredSkills(requiredSkills != null ? requiredSkills : job.getRequiredSkills());
+                job.setJobType(jobType != null ? jobType : job.getJobType());
+                job.setCompanyName(companyName != null ? companyName : job.getCompanyName());
+                job.setIsActive(true);
+                jobsToSave.add(job);
+            } else {
+                Job job = new Job();
+                job.setTitle(title);
+                job.setLocation(location != null ? location : "Remote");
+                job.setDescription(description != null ? description : "No description provided.");
+                job.setApplicationLink(applicationLink);
+                job.setCompanyName(companyName);
+                job.setHowToApply(howToApply);
+                job.setRequiredSkills(requiredSkills);
+                job.setJobType(jobType);
+                job.setPostedBy(recruiter);
+
+                // Generate slug
+                String baseSlug = title.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+                if (baseSlug.isEmpty()) baseSlug = "job";
+                String uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
+                int attempts = 0;
+                while (seenSlugs.contains(uniqueSlug) && attempts < 10) {
+                    uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
+                    attempts++;
+                }
+                job.setSlug(uniqueSlug);
+                seenSlugs.add(uniqueSlug);
+                jobsToSave.add(job);
+            }
         }
 
         List<Job> savedJobs = jobRepository.saveAll(jobsToSave);
         logger.info("Successfully ingested {} jobs in batch.", savedJobs.size());
+
+        // Perform cleanup of stale/closed postings after ingestion
+        try {
+            cleanupStaleJobs();
+        } catch (Exception e) {
+            logger.warn("Stale job cleanup failed: {}", e.getMessage());
+        }
+
         return savedJobs;
+    }
+
+    /**
+     * Cleanup stale job postings: if application link returns 404 or page contains 'closed' keywords,
+     * then delete job only if there are no applications; otherwise mark as inactive.
+     */
+    @Transactional
+    public void cleanupStaleJobs() {
+        logger.info("Starting stale job cleanup sweep...");
+        List<Job> allJobs = jobRepository.findAll();
+        for (Job job : allJobs) {
+            String link = job.getApplicationLink();
+            if (link == null || link.isEmpty()) continue;
+            try {
+                org.springframework.http.ResponseEntity<String> resp = restTemplate.getForEntity(link, String.class);
+                String body = resp.getBody() != null ? resp.getBody().toLowerCase() : "";
+                boolean closed = resp.getStatusCode().is4xxClientError() || resp.getStatusCode().is5xxServerError();
+                if (!closed) {
+                    // simple keyword heuristics
+                    if (body.contains("application closed") || body.contains("no longer accepting") || body.contains("applications are closed") || body.contains("expired")) {
+                        closed = true;
+                    }
+                }
+
+                if (closed) {
+                    List<com.edutech.jobportalsystem.entity.Application> apps = applicationRepository.findByJob(job);
+                    if (apps == null || apps.isEmpty()) {
+                        logger.info("Deleting job id={} title='{}' because application link indicates closed and no applications found.", job.getId(), job.getTitle());
+                        jobRepository.delete(job);
+                    } else {
+                        logger.info("Marking job id={} as inactive (closed) but preserving due to existing applications.", job.getId());
+                        job.setIsActive(false);
+                        jobRepository.save(job);
+                    }
+                }
+            } catch (org.springframework.web.client.HttpClientErrorException.NotFound nf) {
+                List<com.edutech.jobportalsystem.entity.Application> apps = applicationRepository.findByJob(job);
+                if (apps == null || apps.isEmpty()) {
+                    logger.info("Deleting job id={} due to 404 on application link.", job.getId());
+                    jobRepository.delete(job);
+                } else {
+                    logger.info("Marking job id={} inactive due to 404 on application link but has applications.", job.getId());
+                    job.setIsActive(false);
+                    jobRepository.save(job);
+                }
+            } catch (Exception e) {
+                logger.debug("Failed to validate job link for id={} url={} err={}", job.getId(), link, e.getMessage());
+            }
+        }
+        logger.info("Stale job cleanup completed.");
     }
 
     private User getOrCreateGlobalRecruiter() {

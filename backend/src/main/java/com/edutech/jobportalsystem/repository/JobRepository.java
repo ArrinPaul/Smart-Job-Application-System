@@ -30,4 +30,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     long countDistinctRecruitersSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
     List<Job> findByIsActiveTrue();
+
+    Optional<Job> findFirstByTitleIgnoreCaseAndCompanyNameIgnoreCase(String title, String companyName);
 }

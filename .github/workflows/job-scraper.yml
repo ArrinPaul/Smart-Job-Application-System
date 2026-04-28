@@ -1,0 +1,41 @@
+name: Job Scraper & Ingest
+
+on:
+  schedule:
+    # Every 12 hours
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape-and-ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run built-in backend scraper trigger (if BACKEND_URL provided)
+        if: secrets.BACKEND_URL != ''
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          SCRAPER_TRIGGER_TOKEN: ${{ secrets.SCRAPER_TRIGGER_TOKEN }}
+        run: |
+          echo "Triggering backend scraper at $BACKEND_URL/public/trigger-scrape"
+          if [ -n "$SCRAPER_TRIGGER_TOKEN" ]; then
+            curl -s -X POST "$BACKEND_URL/public/trigger-scrape" -H "Authorization: Bearer $SCRAPER_TRIGGER_TOKEN" -H "Content-Type: application/json" -d '{}' || true
+          else
+            curl -s -X POST "$BACKEND_URL/public/trigger-scrape" -H "Content-Type: application/json" -d '{}' || true
+          fi
+
+      - name: Run included Node scraper (fallback / optional)
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          SCRAPER_TRIGGER_TOKEN: ${{ secrets.SCRAPER_TRIGGER_TOKEN }}
+        working-directory: tools/scraper
+        run: |
+          npm ci
+          node scrape_and_sync.js
