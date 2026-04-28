@@ -1,0 +1,205 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading your profile...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="profile-card">
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="profile-cover"></div>
+      <div class="profile-info-main">
+        <div class="profile-avatar">
+          {{ userProfile.fullName?.charAt(0) || 'U' }}
+        </div>
+        <div class="profile-titles">
+          <h1>{{ userProfile.fullName }}</h1>
+          <p class="role-badge">{{ role }}</p>
+          <p class="location-text" *ngIf="userProfile.location">
+            <span class="icon">📍</span> {{ userProfile.location }}
+          </p>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-edit" (click)="toggleEdit()">
+            {{ isEditing ? 'Cancel' : 'Edit Profile' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Mode -->
+    <div *ngIf="!isEditing" class="profile-content">
+      <div class="profile-section">
+        <h3>About Me</h3>
+        <p class="bio-text">{{ userProfile.bio || 'No bio provided.' }}</p>
+      </div>
+
+      <div class="profile-section">
+        <h3>Professional Headlines</h3>
+        <div class="chips-display">
+          <span *ngFor="let h of selectedHeadlines" class="chip">{{ h }}</span>
+          <p *ngIf="selectedHeadlines.length === 0" class="empty-text">No headlines set.</p>
+        </div>
+      </div>
+
+      <div class="profile-section" *ngIf="role === UserRole.JOB_SEEKER">
+        <h3>Skills</h3>
+        <div class="chips-display">
+          <span *ngFor="let s of selectedSkills" class="chip skill-chip">{{ s }}</span>
+          <p *ngIf="selectedSkills.length === 0" class="empty-text">No skills listed.</p>
+        </div>
+      </div>
+
+      <!-- Job Seeker Specifics -->
+      <div class="profile-grid" *ngIf="role === UserRole.JOB_SEEKER">
+        <div class="grid-item">
+          <label>Current Company</label>
+          <p>{{ userProfile.currentCompany || 'Not specified' }}</p>
+        </div>
+        <div class="grid-item">
+          <label>Designation</label>
+          <p>{{ userProfile.currentDesignation || 'Not specified' }}</p>
+        </div>
+        <div class="grid-item">
+          <label>Education</label>
+          <p>{{ userProfile.education || 'Not specified' }}</p>
+        </div>
+        <div class="grid-item">
+          <label>Experience</label>
+          <p>{{ userProfile.experienceYears ? userProfile.experienceYears + ' Years' : 'Fresher' }}</p>
+        </div>
+      </div>
+
+      <!-- Recruiter Specifics -->
+      <div class="profile-grid" *ngIf="role === UserRole.RECRUITER">
+        <div class="grid-item">
+          <label>Company Name</label>
+          <p>{{ userProfile.companyName || 'Not specified' }}</p>
+        </div>
+        <div class="grid-item">
+          <label>Industry</label>
+          <p>{{ userProfile.industry || 'Not specified' }}</p>
+        </div>
+        <div class="grid-item">
+          <label>Company Size</label>
+          <p>{{ userProfile.companySize || 'Not specified' }}</p>
+        </div>
+        <div class="grid-item">
+          <label>Website</label>
+          <p><a [href]="userProfile.website" target="_blank" *ngIf="userProfile.website">{{ userProfile.website }}</a><span *ngIf="!userProfile.website">Not specified</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <div *ngIf="isEditing" class="profile-content edit-mode">
+      <form (ngSubmit)="saveProfile()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" [(ngModel)]="userProfile.fullName" name="fullName" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" [(ngModel)]="userProfile.location" name="location" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea [(ngModel)]="userProfile.bio" name="bio" class="form-input" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Professional Headlines</label>
+          <div class="chips-container">
+            <button 
+              type="button"
+              *ngFor="let option of headlineOptions" 
+              class="chip-item"
+              [class.selected]="isSelected('headline', option)"
+              (click)="toggleSelection('headline', option)">
+              {{ option }}
+            </button>
+          </div>
+          <div class="custom-input-group">
+            <input type="text" #customH placeholder="Add custom..." class="form-input-small">
+            <button type="button" class="btn-add" (click)="addCustomOption('headline', customH.value); customH.value = ''">+ Add</button>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="role === UserRole.JOB_SEEKER">
+          <label>Skills</label>
+          <div class="chips-container">
+            <button 
+              type="button"
+              *ngFor="let option of skillsOptions" 
+              class="chip-item"
+              [class.selected]="isSelected('skills', option)"
+              (click)="toggleSelection('skills', option)">
+              {{ option }}
+            </button>
+          </div>
+          <div class="custom-input-group">
+            <input type="text" #customS placeholder="Add custom..." class="form-input-small">
+            <button type="button" class="btn-add" (click)="addCustomOption('skills', customS.value); customS.value = ''">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Job Seeker Fields -->
+        <div class="form-grid" *ngIf="role === UserRole.JOB_SEEKER">
+          <div class="form-group">
+            <label>Current Company</label>
+            <input type="text" [(ngModel)]="userProfile.currentCompany" name="currentCompany" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Designation</label>
+            <input type="text" [(ngModel)]="userProfile.currentDesignation" name="currentDesignation" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Education</label>
+            <select [(ngModel)]="userProfile.education" name="education" class="form-input">
+              <option *ngFor="let opt of educationOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience (Years)</label>
+            <input type="number" [(ngModel)]="userProfile.experienceYears" name="experienceYears" class="form-input">
+          </div>
+        </div>
+
+        <!-- Recruiter Fields -->
+        <div class="form-grid" *ngIf="role === UserRole.RECRUITER">
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" [(ngModel)]="userProfile.companyName" name="companyName" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Website</label>
+            <input type="url" [(ngModel)]="userProfile.website" name="website" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Industry</label>
+            <input type="text" [(ngModel)]="userProfile.industry" name="industry" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Company Size</label>
+            <select [(ngModel)]="userProfile.companySize" name="companySize" class="form-input">
+              <option value="startup">Startup (1-50)</option>
+              <option value="small">Small (51-200)</option>
+              <option value="medium">Medium (201-1000)</option>
+              <option value="large">Large (1000+)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-save" [disabled]="isSaving">
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

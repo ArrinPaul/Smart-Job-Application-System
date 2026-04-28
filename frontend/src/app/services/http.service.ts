@@ -39,6 +39,13 @@ export class HttpService {
   }
 
   /**
+   * Update current user profile
+   */
+  updateProfile(profileData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/onboarding/complete`, profileData);
+  }
+
+  /**
    * Get onboarding status and progress
    */
   getOnboardingStatus(): Observable<any> {

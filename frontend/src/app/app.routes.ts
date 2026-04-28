@@ -34,7 +34,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    loadComponent: () => import('./onboarding/onboarding.component').then(m => m.OnboardingComponent),
+    loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AuthGuard]
   },
   {
