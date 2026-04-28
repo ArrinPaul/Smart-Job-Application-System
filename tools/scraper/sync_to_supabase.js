@@ -129,10 +129,13 @@ async function main() {
     database: process.env.SUPABASE_DB_NAME || 'postgres',
     user: process.env.SUPABASE_DB_USER,
     password: process.env.SUPABASE_DB_PASSWORD,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 15000, // 15s timeout
   });
 
+  LOG.info(`Connecting to Supabase at ${process.env.SUPABASE_DB_HOST}...`);
   await client.connect();
+  LOG.info('Connected to database successfully.');
   try {
     const columns = await getTableColumns(client, 'jobs');
     const recruiterId = await ensureRecruiter(client);

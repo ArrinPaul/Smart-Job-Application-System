@@ -1,8 +1,9 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-
 const path = require('path');
-// Load backend .env if present and not already loaded
+const fs = require('fs');
+
+// Load backend .env if present
 try {
   const dotenvPath = path.resolve(__dirname, '../../backend/.env');
   require('dotenv').config({ path: dotenvPath });
@@ -13,8 +14,11 @@ try {
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
 const INGEST_ENDPOINT = `${BACKEND_URL.replace(/\/$/, '')}/public/ingest-real-jobs`;
 const LOG = console;
-const fs = require('fs');
 const OUT_FILE = path.join(__dirname, 'last_scrape.json');
+
+/**
+ * CORE STABLE SOURCES
+ */
 
 async function fetchRemotive(limit = 200) {
   try {
@@ -30,7 +34,7 @@ async function fetchRemotive(limit = 200) {
       description: j.description
     }));
   } catch (e) {
-    LOG.warn('Remotive fetch failed', e.message || e);
+    LOG.warn('Remotive fetch failed', e.message);
     return [];
   }
 }
@@ -52,7 +56,7 @@ async function fetchArbeitnow(pages = 3) {
         });
       }
     } catch (e) {
-      LOG.warn('ArbeitNow page', p, 'failed', e.message || e);
+      LOG.warn('ArbeitNow page', p, 'failed', e.message);
     }
     await new Promise(r => setTimeout(r, 500));
   }
@@ -76,7 +80,7 @@ async function fetchWWR(limit = 200) {
     });
     return out.slice(0, limit);
   } catch (e) {
-    LOG.warn('WWR fetch failed', e.message || e);
+    LOG.warn('WWR fetch failed', e.message);
     return [];
   }
 }
@@ -107,7 +111,7 @@ async function fetchRemoteCo(limit = 200) {
         await new Promise(r => setTimeout(r, 1500));
         continue;
       }
-      LOG.warn('Remote.co fetch failed', e.message || e);
+      LOG.warn('Remote.co fetch failed', e.message);
       return [];
     }
   }
@@ -140,7 +144,7 @@ async function fetchRemoteOK(limit = 200) {
     }
     return out;
   } catch (e) {
-    LOG.warn('RemoteOK fetch failed', e.message || e);
+    LOG.warn('RemoteOK fetch failed', e.message);
     return [];
   }
 }
@@ -180,12 +184,12 @@ async function fetchMuseJobs(pages = 3, limit = 200) {
     }
     return out;
   } catch (e) {
-    LOG.warn('The Muse fetch failed', e.message || e);
+    LOG.warn('The Muse fetch failed', e.message);
     return [];
   }
 }
 
-async function fetchHackerNews(maxPages = 3) {
+async function fetchHackerNews(maxPages = 5) {
   const out = [];
   try {
     for (let p = 1; p <= maxPages; p++) {
@@ -193,7 +197,7 @@ async function fetchHackerNews(maxPages = 3) {
       const res = await axios.get(url, { timeout: 15000 });
       const $ = cheerio.load(res.data);
       $('tr.athing').each((i, el) => {
-        const a = $(el).find('td.title a.storylink');
+        const a = $(el).find('span.titleline a').first();
         if (a.length === 0) return;
         const fullTitle = a.text().trim();
         let company = 'HN Startup';
@@ -201,27 +205,148 @@ async function fetchHackerNews(maxPages = 3) {
           company = fullTitle.split(' is hiring ')[0];
         } else if (fullTitle.includes('|')) {
           company = fullTitle.split('|')[0].trim();
+        } else if (fullTitle.includes('(')) {
+          company = fullTitle.split('(')[0].trim();
         }
         out.push({ title: fullTitle, companyName: company, location: 'Remote Friendly / Global', applicationLink: a.attr('href'), description: '' });
       });
       await new Promise(r => setTimeout(r, 1200));
     }
-  } catch (e) { LOG.warn('HN fetch failed', e.message || e); }
+  } catch (e) { LOG.warn('HN fetch failed', e.message); }
   return out;
 }
 
+/**
+ * UPDATED / FIXED SOURCES
+ */
+
+async function fetchJustjoinitJobs(limit = 150) {
+  try {
+    const res = await axios.get('https://justjoin.it/api/offers?remote=true', {
+      timeout: 20000,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const jobs = Array.isArray(res.data) ? res.data : (res.data?.offers || []);
+    const out = [];
+    for (const job of jobs) {
+      if (out.length >= limit) break;
+      out.push({
+        title: (job.title || job.position || '').trim(),
+        companyName: (job.company_name || job.company || 'Justjoin.it Employer').trim(),
+        location: 'Remote',
+        applicationLink: job.slug ? `https://justjoin.it/offers/${job.slug}` : (job.url || job.link || ''),
+        requiredSkills: job.skills ? (Array.isArray(job.skills) ? job.skills.map(s => s.name || s).join(', ') : String(job.skills)) : undefined,
+        description: (job.description || '').substring(0, 500)
+      });
+    }
+    return out;
+  } catch (e) {
+    LOG.warn('Justjoin.it fetch failed (likely rate-limited or changed)', e.message);
+    return [];
+  }
+}
+
+async function fetchGoRemotely(limit = 150) {
+  try {
+    const res = await axios.get('https://goremotely.com/api/jobs', {
+      timeout: 20000,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const jobs = (res.data && res.data.jobs) || (Array.isArray(res.data) ? res.data : []);
+    const out = [];
+    for (const job of jobs) {
+      if (out.length >= limit) break;
+      out.push({
+        title: (job.title || '').trim(),
+        companyName: (job.company_name || job.company || 'GoRemotely Employer').trim(),
+        location: (job.location || 'Remote').trim(),
+        applicationLink: job.url || job.job_url || '',
+        description: (job.description || '').substring(0, 500)
+      });
+    }
+    return out;
+  } catch (e) {
+    LOG.warn('GoRemotely fetch failed', e.message);
+    return [];
+  }
+}
+
+async function fetchDevToJobs(limit = 100) {
+  try {
+    const res = await axios.get('https://dev.to/api/articles?tag=jobs', {
+      timeout: 20000,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const articles = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+    const out = [];
+    for (const article of articles) {
+      if (out.length >= limit) break;
+      if (article.title && article.title.toLowerCase().includes('job')) {
+        out.push({
+          title: (article.title || '').trim(),
+          companyName: (article.user?.name || 'Dev.to Employer').trim(),
+          location: 'Remote',
+          applicationLink: article.url || '',
+          description: (article.description || article.body_markdown || '').substring(0, 500)
+        });
+      }
+    }
+    return out;
+  } catch (e) {
+    LOG.warn('Dev.to fetch failed', e.message);
+    return [];
+  }
+}
+
+async function fetchJustRemote(limit = 150) {
+  try {
+    const res = await axios.get('https://justremote.co/api/v1/remote_jobs', {
+      timeout: 20000,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const jobs = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+    const out = [];
+    for (const job of jobs) {
+      if (out.length >= limit) break;
+      out.push({
+        title: (job.title || job.job_title || '').trim(),
+        companyName: (job.company_name || job.company || 'JustRemote Employer').trim(),
+        location: 'Remote',
+        applicationLink: job.url || job.link || '',
+        requiredSkills: job.tags ? (Array.isArray(job.tags) ? job.tags.join(', ') : String(job.tags)) : undefined,
+        description: (job.description || job.summary || '').substring(0, 500)
+      });
+    }
+    return out;
+  } catch (e) {
+    LOG.warn('JustRemote fetch failed', e.message);
+    return [];
+  }
+}
+
+/**
+ * DISABLED SOURCES (Require API Keys or constant 404)
+ */
+async function fetchIndieHackersJobs() { return []; }
+async function fetchCodementorJobs() { return []; }
+async function fetchFlexJobsPartner() { return []; }
+async function fetchDribbbleJobs() { return []; }
+async function fetchUpworkJobs() { return []; }
+async function fetchJobspireJobs() { return []; }
+
+/**
+ * UTILITIES
+ */
+
 function formatTemplate(job) {
-  // Build a structured description similar to the Lemon.io example when possible
   const company = job.companyName || 'Company';
   const title = job.title || 'Role';
-  const about = job.companyOverview || `About ${company}\n\n${company} is an employer listed on our platform.`;
+  const about = `About ${company}\n\n${company} is an employer listed on our platform.`;
   const role = `The Role\n\nYou will work as ${title} and be responsible for the primary engineering deliverables.`;
-  const responsibilities = job.highlights || job.description ? `What You'll Do:\n\n${(job.description || '').split('\n').slice(0,6).join('\n\n')}` : '';
+  const responsibilities = job.description ? `What You'll Do:\n\n${(job.description || '').split('\n').slice(0,6).join('\n\n')}` : '';
   const qualifications = job.requiredSkills ? `Who You Are:\n\n• ${job.requiredSkills.split(',').slice(0,10).join('\n• ')}` : '';
-  const why = job.why || '';
-
-  const out = [about, '\n\n', role, '\n\n', responsibilities, '\n\n', qualifications, '\n\n', why].join('');
-  // Append application link
+  
+  const out = [about, '\n\n', role, '\n\n', responsibilities, '\n\n', qualifications].join('');
   const app = job.applicationLink ? `\n\nApplication Link: ${job.applicationLink}` : '';
   return out + app;
 }
@@ -239,7 +364,7 @@ function normalizeJobs(jobs) {
   return jobs
     .map(job => {
       const title = typeof job.title === 'string' ? job.title.trim() : '';
-      if (!title) return null;
+      if (!title || title.length < 3) return null;
       return {
         ...job,
         title,
@@ -254,61 +379,71 @@ function normalizeJobs(jobs) {
 }
 
 async function postToBackend(jobs) {
-  if (!jobs || jobs.length === 0) {
-    LOG.info('No jobs to post');
-    return;
-  }
+  if (!jobs || jobs.length === 0) return;
   try {
     const res = await axios.post(INGEST_ENDPOINT, jobs, { timeout: 60000 });
-    LOG.info('Backend ingestion response:', res.status, res.data?.length || 'ok');
+    LOG.info('Backend ingestion response:', res.status);
   } catch (e) {
-    LOG.warn('Backend post skipped or failed:', e.response ? e.response.status : e.code || e.message);
+    LOG.warn('Backend post skipped or failed:', e.code || e.message);
   }
 }
 
 async function run() {
-  LOG.info('Starting scrape run...');
-  const [r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
-    fetchRemotive(500),
-    fetchArbeitnow(3),
-    fetchWWR(200),
-    fetchRemoteCo(200),
-    fetchHackerNews(5),
-    fetchRemoteOK(250),
-    fetchMuseJobs(3, 200)
-  ]);
-  let jobs = [...r1, ...r2, ...r3, ...r4, ...r5, ...r6, ...r7];
-  LOG.info('Raw jobs collected:', jobs.length);
-  jobs = dedupeJobs(jobs);
-  LOG.info('After dedupe:', jobs.length);
-  jobs = normalizeJobs(jobs);
-  LOG.info('After normalization:', jobs.length);
+  LOG.info('🚀 Starting Job Scrape Run...');
+  
+  const sources = [
+    { name: 'Remotive', fn: fetchRemotive(500) },
+    { name: 'ArbeitNow', fn: fetchArbeitnow(3) },
+    { name: 'WeWorkRemotely', fn: fetchWWR(200) },
+    { name: 'Remote.co', fn: fetchRemoteCo(200) },
+    { name: 'HackerNews', fn: fetchHackerNews(5) },
+    { name: 'RemoteOK', fn: fetchRemoteOK(250) },
+    { name: 'The Muse', fn: fetchMuseJobs(3, 200) },
+    { name: 'Justjoin.it', fn: fetchJustjoinitJobs(150) },
+    { name: 'GoRemotely', fn: fetchGoRemotely(150) },
+    { name: 'Dev.to', fn: fetchDevToJobs(100) },
+    { name: 'JustRemote', fn: fetchJustRemote(150) }
+  ];
 
-  // Format job descriptions into Lemon-like template where possible
-  jobs = jobs.map(j => {
-    const copy = Object.assign({}, j);
-    copy.description = formatTemplate(copy);
-    return copy;
-  });
+  LOG.info(`Active sources: ${sources.map(s => s.name).join(', ')}`);
+
+  const results = await Promise.all(sources.map(s => s.fn));
+  let allJobs = results.flat();
+
+  LOG.info('📊 Raw jobs collected:', allJobs.length);
+  allJobs = dedupeJobs(allJobs);
+  LOG.info('📊 After deduplication:', allJobs.length);
+  allJobs = normalizeJobs(allJobs);
+  LOG.info('📊 After normalization:', allJobs.length);
+
+  // Format descriptions
+  allJobs = allJobs.map(j => ({ ...j, description: formatTemplate(j) }));
+
   try {
-    fs.writeFileSync(OUT_FILE, JSON.stringify(jobs, null, 2), 'utf8');
-    LOG.info('Wrote last_scrape.json for downstream sync');
-  } catch (e) { LOG.warn('Failed to write last_scrape.json', e.message || e); }
-  await postToBackend(jobs);
-  LOG.info('Scrape run complete');
+    fs.writeFileSync(OUT_FILE, JSON.stringify(allJobs, null, 2), 'utf8');
+    LOG.info('💾 Saved results to last_scrape.json');
+  } catch (e) { 
+    LOG.error('❌ Failed to write last_scrape.json', e.message); 
+  }
 
-  // Optional webhook notification if WEBHOOK_NOTIFY_URL provided
+  await postToBackend(allJobs);
+  LOG.info('✅ Scrape run complete');
+
   const webhook = process.env.WEBHOOK_NOTIFY_URL;
   if (webhook) {
     try {
-      const summary = { collected: jobs.length, timestamp: new Date().toISOString() };
-      await axios.post(webhook, summary, { timeout: 10000 });
-      LOG.info('Sent summary to webhook');
-    } catch (e) { LOG.warn('Webhook notify failed', e.message || e); }
+      await axios.post(webhook, { 
+        event: 'scraper_success',
+        jobs_count: allJobs.length, 
+        timestamp: new Date().toISOString() 
+      }, { timeout: 10000 });
+    } catch (e) { 
+      LOG.warn('⚠️ Webhook notify failed', e.message); 
+    }
   }
 }
 
 run().catch(e => {
-  LOG.error('Scraper failed', e.message || e);
+  LOG.error('💥 Scraper failed', e.message);
   process.exit(1);
 });

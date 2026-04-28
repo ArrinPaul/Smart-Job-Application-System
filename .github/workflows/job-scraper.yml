@@ -1,13 +1,13 @@
-name: Job Scraper & Ingest
+name: Job Scraper & Sync to Supabase
 
 on:
   schedule:
-    # Every 12 hours
+    # Every 12 hours - at 00:00 and 12:00 UTC
     - cron: '0 */12 * * *'
   workflow_dispatch:
 
 jobs:
-  scrape-and-ingest:
+  scrape-and-sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,35 +18,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Run built-in backend scraper trigger (if BACKEND_URL provided)
-        if: secrets.BACKEND_URL != ''
-        env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          SCRAPER_TRIGGER_TOKEN: ${{ secrets.SCRAPER_TRIGGER_TOKEN }}
-        run: |
-          echo "Triggering backend scraper at $BACKEND_URL/public/trigger-scrape"
-          if [ -n "$SCRAPER_TRIGGER_TOKEN" ]; then
-            curl -s -X POST "$BACKEND_URL/public/trigger-scrape" -H "Authorization: Bearer $SCRAPER_TRIGGER_TOKEN" -H "Content-Type: application/json" -d '{}' || true
-          else
-            curl -s -X POST "$BACKEND_URL/public/trigger-scrape" -H "Content-Type: application/json" -d '{}' || true
-          fi
-
-      - name: Run included Node scraper (fallback / optional)
-        env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          SCRAPER_TRIGGER_TOKEN: ${{ secrets.SCRAPER_TRIGGER_TOKEN }}
-          WEBHOOK_NOTIFY_URL: ${{ secrets.WEBHOOK_NOTIFY_URL }}
+      - name: Install dependencies
         working-directory: tools/scraper
-        run: |
-          npm ci
-          node scrape_and_sync.js
+        run: npm ci
 
-      - name: Sync to Supabase (optional)
-        if: secrets.SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_KEY != ''
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      - name: Scrape jobs from all sources
         working-directory: tools/scraper
-        run: |
-          npm ci
-          node sync_to_supabase.js
+        run: node scrape_and_sync.js
+
+      - name: Sync jobs to Supabase database
+        working-directory: tools/scraper
+        run: node sync_to_supabase.js
