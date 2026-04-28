@@ -60,21 +60,35 @@ export class JobDetailsComponent implements OnInit {
     if (!text) return '';
 
     let html = text
+      // Markdown links [text](url)
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="md-link">$1</a>')
       // Headers
       .replace(/### (.*)/g, '<h3 class="md-h3">$1</h3>')
       .replace(/## (.*)/g, '<h2 class="md-h2">$1</h2>')
       // Bold
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
       // Bullet points
       .replace(/• (.*)/g, '<li class="md-li">$1</li>')
-      // Line breaks
+      // Line breaks (preserve structure, convert \n to <br> but keep \n\n as paragraph break)
+      .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>');
+
+    // Wrap in paragraphs if not already
+    if (!html.includes('<p>') && !html.includes('<h')) {
+      html = '<p>' + html + '</p>';
+    }
 
     // Wrap list items in <ul>
     if (html.includes('<li')) {
-        // This is a very basic wrapper logic
-        html = html.replace(/(<li.*<\/li>)/gs, '<ul class="md-ul">$1</ul>');
+      html = html.replace(/(<li.*?<\/li>)/gs, (match) => {
+        return '<ul class="md-ul">' + match + '</ul>';
+      });
     }
+
+    // Add styling to links
+    html = html.replace(/<a href/g, '<a class="md-link" href');
 
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }

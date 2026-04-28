@@ -107,6 +107,10 @@
             <span class="fact-value">{{ job.title }}</span>
           </div>
           <div class="fact-item">
+            <span class="fact-label">Company</span>
+            <span class="fact-value">{{ job.companyName || job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</span>
+          </div>
+          <div class="fact-item">
             <span class="fact-label">Location</span>
             <span class="fact-value">{{ job.location }}</span>
           </div>
@@ -124,6 +128,10 @@
               ${{ job.salaryMin | number }} - ${{ job.salaryMax | number }}
             </span>
             <span class="fact-value" *ngIf="!job.salaryMin || !job.salaryMax">Competitive</span>
+          </div>
+          <div class="fact-item" *ngIf="job.postedDate">
+            <span class="fact-label">Posted</span>
+            <span class="fact-value">{{ job.postedDate | date:'mediumDate' }}</span>
           </div>
         </div>
       </div>

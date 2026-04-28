@@ -229,6 +229,7 @@ async function fetchGoRemotely(limit = 50) {
       companyName: j.company_name || 'GoRemotely Employer',
       location: j.location || 'Remote',
       applicationLink: j.url || '',
+      requiredSkills: j.skills?.join(', ') || '',
       description: j.description || ''
     }));
   } catch (e) {
@@ -238,20 +239,423 @@ async function fetchGoRemotely(limit = 50) {
 }
 
 /**
+ * ADDITIONAL MAJOR PLATFORMS
+ */
+
+async function fetchStackOverflowJobs(limit = 100) {
+  try {
+    const res = await axios.get('https://stackoverflow.com/jobs/feed', {
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const $ = cheerio.load(res.data);
+    const out = [];
+    
+    $('item').each((i, el) => {
+      if (out.length >= limit) return;
+      const $el = $(el);
+      const title = $el.find('title').text().trim();
+      const description = $el.find('description').text().trim();
+      const link = $el.find('link').text().trim();
+      const location = description.match(/Location: ([^<\n]+)/)?.[1]?.trim() || 'Remote';
+      const company = title.split(' - ')[1] || 'Stack Overflow Employer';
+      
+      if (title) {
+        out.push({
+          title: title.split(' - ')[0].trim(),
+          companyName: company.trim(),
+          location: location,
+          applicationLink: link,
+          jobType: 'Full-Time',
+          description: description
+        });
+      }
+    });
+    return out;
+  } catch (e) {
+    LOG.warn('Stack Overflow Jobs fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchYCombinatorJobs(limit = 100) {
+  try {
+    const res = await axios.get('https://www.ycombinator.com/jobs', {
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const $ = cheerio.load(res.data);
+    const out = [];
+    
+    $('[data-id]').each((i, el) => {
+      if (out.length >= limit) return;
+      const $el = $(el);
+      const title = $el.find('[class*="font-medium"]').first().text().trim();
+      const company = $el.find('a[href*="/companies/"]').text().trim();
+      const location = $el.find('[class*="text-gray"]').last().text().trim();
+      const link = $el.find('a').first().attr('href');
+      
+      if (title && company) {
+        out.push({
+          title: title,
+          companyName: company,
+          location: location || 'Remote Friendly',
+          applicationLink: link ? new URL(link, 'https://www.ycombinator.com').toString() : '',
+          jobType: 'Full-Time',
+          description: ''
+        });
+      }
+    });
+    return out;
+  } catch (e) {
+    LOG.warn('Y Combinator Jobs fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchProductHuntJobs(limit = 50) {
+  try {
+    const res = await axios.get('https://www.producthunt.com/jobs', {
+      timeout: 20000,
+      headers: {
+        ...getHeaders(),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      }
+    });
+    const $ = cheerio.load(res.data);
+    const out = [];
+    
+    $('[class*="job"]').each((i, el) => {
+      if (out.length >= limit) return;
+      const $el = $(el);
+      const title = $el.find('[class*="title"]').first().text().trim();
+      const company = $el.find('[class*="company"]').first().text().trim();
+      const link = $el.find('a').first().attr('href');
+      
+      if (title && company) {
+        out.push({
+          title: title,
+          companyName: company,
+          location: 'Remote Friendly',
+          applicationLink: link ? new URL(link, 'https://www.producthunt.com').toString() : '',
+          jobType: 'Full-Time',
+          description: ''
+        });
+      }
+    });
+    return out;
+  } catch (e) {
+    LOG.warn('Product Hunt Jobs fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchAngelListJobs(limit = 150) {
+  try {
+    // AngelList/Wellfound API approach
+    const res = await axios.get('https://api.wellfound.com/jobs', {
+      params: { page: 1, per_page: limit },
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const jobs = (res.data && res.data.jobs) || res.data || [];
+    return Array.isArray(jobs) ? jobs.slice(0, limit).map(j => ({
+      title: j.title || j.job_title,
+      companyName: j.company_name || j.startup?.name || 'AngelList Startup',
+      location: j.locations?.join(', ') || 'Remote',
+      applicationLink: j.url || j.apply_url || '',
+      jobType: j.job_type || 'Full-Time',
+      requiredSkills: Array.isArray(j.skills) ? j.skills.join(', ') : j.role_tags?.join(', ') || '',
+      description: j.description || j.job_description || ''
+    })) : [];
+  } catch (e) {
+    LOG.warn('AngelList/Wellfound fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchBuiltinJobs(limit = 100) {
+  try {
+    const res = await axios.get('https://builtin.com/api/v1/jobs', {
+      params: { remote: true, limit },
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const jobs = (res.data && res.data.data) || (Array.isArray(res.data) ? res.data : []);
+    return jobs.slice(0, limit).map(j => ({
+      title: j.title,
+      companyName: j.company?.name || 'Built.in Company',
+      location: j.location || 'Remote',
+      applicationLink: j.link || j.url || '',
+      jobType: j.job_type || 'Full-Time',
+      requiredSkills: j.skills?.slice(0, 5).join(', ') || '',
+      salaryMin: j.salary?.min,
+      salaryMax: j.salary?.max,
+      salaryPeriod: 'yearly',
+      description: j.description || ''
+    }));
+  } catch (e) {
+    LOG.warn('Built.in fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchDiceJobs(limit = 100) {
+  try {
+    const res = await axios.get('https://api.dice.com/jobs', {
+      params: { 
+        query: 'remote',
+        pageSize: limit,
+        sort: 'date'
+      },
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const jobs = (res.data && res.data.data) || [];
+    return jobs.slice(0, limit).map(j => ({
+      title: j.jobTitle,
+      companyName: j.company,
+      location: j.location || 'Remote',
+      applicationLink: j.detailPageUrl || j.url || '',
+      jobType: 'Full-Time',
+      requiredSkills: j.skills?.join(', ') || '',
+      description: j.jobDescription || j.snippet || ''
+    }));
+  } catch (e) {
+    LOG.warn('Dice fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchLevelsFyiJobs(limit = 80) {
+  try {
+    // LevelsFYI offers a jobs API
+    const res = await axios.get('https://www.levelsfyi.com/api/jobs', {
+      params: { limit, remote: true },
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const jobs = Array.isArray(res.data) ? res.data : (res.data?.jobs || []);
+    return jobs.slice(0, limit).map(j => ({
+      title: j.title || j.position,
+      companyName: j.company || j.company_name || 'LevelsFYI Company',
+      location: 'Remote',
+      applicationLink: j.url || j.apply_link || '',
+      jobType: j.job_type || 'Full-Time',
+      requiredSkills: j.skills?.join(', ') || '',
+      salaryMin: j.salary_min,
+      salaryMax: j.salary_max,
+      salaryPeriod: 'yearly',
+      description: j.description || ''
+    }));
+  } catch (e) {
+    LOG.warn('LevelsFYI fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchGlassdoorJobs(limit = 100) {
+  try {
+    // Glassdoor has anti-scraping, but we can try a basic approach
+    const res = await axios.get('https://www.glassdoor.com/api/jobs', {
+      params: { 
+        keyword: 'software engineer',
+        location: 'remote',
+        pageNumber: 1,
+        pageSize: limit
+      },
+      timeout: 20000,
+      headers: {
+        ...getHeaders(),
+        'Referer': 'https://www.glassdoor.com/'
+      }
+    });
+    const jobs = (res.data && res.data.jobs) || [];
+    return jobs.slice(0, limit).map(j => ({
+      title: j.jobTitle,
+      companyName: j.employer || 'Glassdoor Employer',
+      location: j.location || 'Remote',
+      applicationLink: j.jobUrl || '',
+      jobType: 'Full-Time',
+      salaryMin: j.salaryRange?.min,
+      salaryMax: j.salaryRange?.max,
+      salaryPeriod: 'yearly',
+      description: j.jobDescription || j.excerpt || ''
+    }));
+  } catch (e) {
+    LOG.warn('Glassdoor fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchLinkedinJobs(limit = 80) {
+  try {
+    // LinkedIn has heavy anti-scraping; trying REST-API pattern
+    const res = await axios.get('https://www.linkedin.com/jobs/api/jobs', {
+      params: {
+        keywords: 'software engineer',
+        location: 'remote',
+        pageNumber: 0,
+        pageSize: limit
+      },
+      timeout: 20000,
+      headers: {
+        ...getHeaders(),
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+    const jobs = (res.data && res.data.jobs) || [];
+    return jobs.slice(0, limit).map(j => ({
+      title: j.title || j.jobTitle,
+      companyName: j.company?.name || j.company_name || 'LinkedIn Company',
+      location: j.location || 'Remote',
+      applicationLink: j.applyUrl || j.url || '',
+      jobType: j.jobType || 'Full-Time',
+      description: j.description || j.jobDescription || ''
+    }));
+  } catch (e) {
+    LOG.warn('LinkedIn fetch failed:', e.message);
+    return [];
+  }
+}
+
+async function fetchUpworkRemoteJobs(limit = 100) {
+  try {
+    // Upwork jobs endpoint
+    const res = await axios.get('https://www.upwork.com/api/jobs/v1', {
+      params: {
+        skills: ['javascript', 'java', 'python', 'react', 'node.js'],
+        work_type: 'remote',
+        page_size: limit,
+        page: 0
+      },
+      timeout: 20000,
+      headers: getHeaders()
+    });
+    const jobs = (res.data && res.data.jobs) || [];
+    return jobs.slice(0, limit).map(j => ({
+      title: j.title,
+      companyName: j.client?.company_name || 'Upwork Client',
+      location: 'Remote',
+      applicationLink: j.profile_url || j.url || '',
+      jobType: 'Contract',
+      requiredSkills: j.required_skills?.join(', ') || j.skills?.join(', ') || '',
+      description: j.snippet || j.description || ''
+    }));
+  } catch (e) {
+    LOG.warn('Upwork fetch failed:', e.message);
+    return [];
+  }
+}
+
+/**
  * UTILITIES
  */
 
-function formatTemplate(job) {
-  const company = job.companyName || 'Company';
-  const title = job.title || 'Role';
-  const about = `About ${company}\n\n${company} is an employer listed on our platform.`;
-  const role = `The Role\n\nYou will work as ${title} and be responsible for the primary engineering deliverables.`;
-  const responsibilities = job.description ? `What You'll Do:\n\n${(job.description || '').split('\n').slice(0,6).join('\n\n')}` : '';
-  const qualifications = job.requiredSkills ? `Who You Are:\n\n• ${job.requiredSkills.split(',').slice(0,10).join('\n• ')}` : '';
+// Strip HTML tags and decode HTML entities
+function stripHtml(html) {
+  if (!html) return '';
+  // Remove HTML tags
+  let text = String(html)
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&[a-z]+;/g, ''); // Remove other HTML entities
   
-  const out = [about, '\n\n', role, '\n\n', responsibilities, '\n\n', qualifications].join('');
-  const app = job.applicationLink ? `\n\nApplication Link: ${job.applicationLink}` : '';
-  return out + app;
+  // Clean up excessive whitespace
+  text = text.replace(/\s+/g, ' ').trim();
+  return text;
+}
+
+// Extract first meaningful paragraph from description
+function extractFirstParagraph(desc) {
+  if (!desc) return '';
+  const sentences = stripHtml(desc).split(/[.!?]+/).slice(0, 3).join('. ').trim();
+  return sentences.length > 500 ? sentences.substring(0, 500) + '...' : sentences;
+}
+
+// Format job description in a clean, structured way
+function formatTemplate(job) {
+  if (!job) return '';
+  
+  const company = (job.companyName || '').trim() || 'Company';
+  const title = (job.title || '').trim() || 'Role';
+  const location = (job.location || '').trim() || 'Remote';
+  const skills = (job.requiredSkills || '').trim();
+  const jobType = (job.jobType || 'Full-Time').trim();
+  
+  // Clean and process description
+  let descText = stripHtml(job.description || '');
+  
+  // Build clean, structured description
+  let description = '';
+  
+  // Section 1: Company overview
+  description += `## About ${company}\n\n`;
+  if (descText.length > 0) {
+    const firstPara = extractFirstParagraph(descText);
+    description += firstPara + '\n\n';
+  } else {
+    description += `${company} is hiring for a talented individual to join their team.\n\n`;
+  }
+  
+  // Section 2: Role title and basic info
+  description += `## The Role\n\n`;
+  description += `**Position**: ${title}\n`;
+  description += `**Location**: ${location}\n`;
+  description += `**Employment Type**: ${jobType}\n`;
+  
+  // Section 3: Salary if available
+  if (job.salaryMin || job.salaryMax) {
+    description += `**Salary Range**: `;
+    if (job.salaryMin && job.salaryMax) {
+      description += `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`;
+    } else if (job.salaryMin) {
+      description += `From $${job.salaryMin.toLocaleString()}`;
+    } else if (job.salaryMax) {
+      description += `Up to $${job.salaryMax.toLocaleString()}`;
+    }
+    if (job.salaryPeriod) {
+      description += ` ${job.salaryPeriod === 'yearly' ? 'per year' : job.salaryPeriod}`;
+    }
+    description += `\n`;
+  }
+  
+  description += '\n';
+  
+  // Section 4: Get more details from description
+  if (descText.length > 200) {
+    // Try to extract meaningful content (skip first paragraph which was already used)
+    const remainingText = descText.substring(extractFirstParagraph(descText).length + 50);
+    if (remainingText.length > 100) {
+      // Get next 2-3 sentences
+      const details = remainingText.split(/[.!?]+/).slice(0, 3).join('. ').trim();
+      if (details && details.length > 20) {
+        description += `## Description\n\n${details}\n\n`;
+      }
+    }
+  }
+  
+  // Section 5: Required skills
+  if (skills) {
+    description += `## Key Skills\n\n`;
+    const skillList = skills.split(/[,;]/).map(s => s.trim()).filter(Boolean).slice(0, 10);
+    skillList.forEach(skill => {
+      description += `• ${skill}\n`;
+    });
+    description += '\n';
+  }
+  
+  // Section 6: Application link
+  if (job.applicationLink) {
+    description += `**[🎯 Apply Now →](${job.applicationLink})**`;
+  }
+  
+  return description.trim();
 }
 
 function dedupeJobs(jobs) {
@@ -263,18 +667,77 @@ function dedupeJobs(jobs) {
   return Array.from(seen.values());
 }
 
+/**
+ * NORMALIZE JOB OBJECT
+ * Ensures consistent structure with all expected fields for frontend rendering
+ */
+function normalizeJob(job) {
+  return {
+    // Core fields (required)
+    title: (job.title || 'Untitled Position').trim(),
+    companyName: (job.companyName || 'Company').trim(),
+    location: (job.location || 'Remote').trim(),
+    applicationLink: (job.applicationLink || '#').trim(),
+    
+    // Optional fields with defaults
+    description: (job.description || 'No description available').trim(),
+    jobType: (job.jobType || 'Full-Time').trim(),
+    requiredSkills: (job.requiredSkills || '').trim(),
+    
+    // Salary fields (optional)
+    salaryMin: job.salaryMin ? parseInt(job.salaryMin) : null,
+    salaryMax: job.salaryMax ? parseInt(job.salaryMax) : null,
+    salaryPeriod: (job.salaryPeriod || 'yearly').toLowerCase(),
+    
+    // Metadata
+    source: (job.source || 'Job Portal').trim(),
+    postedDate: job.postedDate || new Date().toISOString(),
+    
+    // Frontend-specific computed fields
+    salaryDisplay: (() => {
+      if (job.salaryMin && job.salaryMax) {
+        return `$${parseInt(job.salaryMin).toLocaleString()} - $${parseInt(job.salaryMax).toLocaleString()}`;
+      } else if (job.salaryMin) {
+        return `From $${parseInt(job.salaryMin).toLocaleString()}`;
+      } else if (job.salaryMax) {
+        return `Up to $${parseInt(job.salaryMax).toLocaleString()}`;
+      }
+      return null;
+    })(),
+    
+    skillsList: (job.requiredSkills || '')
+      .split(/[,;]/)
+      .map(s => s.trim())
+      .filter(Boolean)
+      .slice(0, 10)
+  };
+}
+
 async function run() {
   LOG.info('🚀 Starting Resilient Job Scrape Run...');
   
   const sources = [
-    { name: 'Remotive', fn: fetchRemotive() },
-    { name: 'ArbeitNow', fn: fetchArbeitnow() },
-    { name: 'WWR', fn: fetchWWR() },
-    { name: 'RemoteOK', fn: fetchRemoteOK() },
-    { name: 'HackerNews', fn: fetchHackerNews() },
-    { name: 'Justjoin.it', fn: fetchJustjoinitJobs() },
-    { name: 'GoRemotely', fn: fetchGoRemotely() },
-    { name: 'Remote.co', fn: fetchRemoteCo() }
+    // Core Stable Remote Job Boards
+    { name: 'Remotive', fn: fetchRemotive(200) },
+    { name: 'ArbeitNow', fn: fetchArbeitnow(150) },
+    { name: 'WWR', fn: fetchWWR(100) },
+    { name: 'RemoteOK', fn: fetchRemoteOK(150) },
+    { name: 'HackerNews', fn: fetchHackerNews(2) },
+    { name: 'Justjoin.it', fn: fetchJustjoinitJobs(100) },
+    { name: 'GoRemotely', fn: fetchGoRemotely(50) },
+    { name: 'Remote.co', fn: fetchRemoteCo(100) },
+    
+    // Major Tech Job Platforms
+    { name: 'Stack Overflow', fn: fetchStackOverflowJobs(100) },
+    { name: 'Y Combinator', fn: fetchYCombinatorJobs(100) },
+    { name: 'ProductHunt', fn: fetchProductHuntJobs(50) },
+    { name: 'AngelList/Wellfound', fn: fetchAngelListJobs(150) },
+    { name: 'Built.in', fn: fetchBuiltinJobs(100) },
+    { name: 'Dice', fn: fetchDiceJobs(100) },
+    { name: 'LevelsFYI', fn: fetchLevelsFyiJobs(80) },
+    { name: 'Glassdoor', fn: fetchGlassdoorJobs(100) },
+    { name: 'LinkedIn', fn: fetchLinkedinJobs(80) },
+    { name: 'Upwork', fn: fetchUpworkRemoteJobs(100) }
   ];
 
   const results = await Promise.all(sources.map(async s => {
@@ -288,11 +751,13 @@ async function run() {
   allJobs = dedupeJobs(allJobs);
   LOG.info('📊 Unique jobs:', allJobs.length);
 
-  allJobs = allJobs.map(j => ({ ...j, description: formatTemplate(j) }));
+  // Format descriptions and normalize structure
+  allJobs = allJobs.map(j => normalizeJob({ ...j, description: formatTemplate(j) }));
 
   try {
     fs.writeFileSync(OUT_FILE, JSON.stringify(allJobs, null, 2), 'utf8');
-    LOG.info('💾 Results saved.');
+    LOG.info('💾 Results saved to', OUT_FILE);
+    LOG.info(`✅ Successfully collected ${allJobs.length} job listings from ${sources.length} sources`);
   } catch (e) { LOG.error('❌ Write failed:', e.message); }
 }
 

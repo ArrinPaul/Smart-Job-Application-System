@@ -338,6 +338,77 @@
   }
 }
 
+/* Markdown Rendering Styles */
+.description-text {
+  line-height: 1.8;
+  color: #333;
+}
+
+.description-text h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.8rem 0;
+  color: #2c2420;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.description-text h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 1.2rem 0 0.6rem 0;
+  color: #3a3530;
+}
+
+.description-text p {
+  margin: 0.8rem 0;
+  color: #555;
+}
+
+.description-text strong {
+  font-weight: 600;
+  color: #2c2420;
+}
+
+.description-text em {
+  font-style: italic;
+  color: #666;
+}
+
+.description-text .md-link {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid #0066cc;
+  transition: all 0.2s ease;
+}
+
+.description-text .md-link:hover {
+  background-color: rgba(0, 102, 204, 0.1);
+  border-bottom-color: #0047a3;
+}
+
+.description-text .md-ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.8rem 0;
+}
+
+.description-text .md-li {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: #555;
+}
+
+.description-text .md-li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #0066cc;
+  font-weight: bold;
+}
+
 /* Skills Tags */
 .skills-tags {
   display: flex;
