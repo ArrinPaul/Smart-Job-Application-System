@@ -110,6 +110,10 @@ public class JobIngestionService {
             String location = data.get("location");
             String description = data.get("description");
             String applicationLink = data.get("applicationLink");
+            String companyName = data.get("companyName");
+            String howToApply = data.get("howToApply");
+            String requiredSkills = data.get("requiredSkills");
+            String jobType = data.get("jobType");
 
             if (title == null || title.isEmpty()) continue;
 
@@ -118,6 +122,10 @@ public class JobIngestionService {
             job.setLocation(location != null ? location : "Remote");
             job.setDescription(description != null ? description : "No description provided.");
             job.setApplicationLink(applicationLink);
+            job.setCompanyName(companyName);
+            job.setHowToApply(howToApply);
+            job.setRequiredSkills(requiredSkills);
+            job.setJobType(jobType);
             job.setPostedBy(recruiter);
             
             // Generate extremely unique slug

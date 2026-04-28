@@ -14,6 +14,8 @@ export interface Job {
   salaryCurrency?: string;
   isActive?: boolean;
   applicationLink?: string;
+  companyName?: string;
+  howToApply?: string;
   slug: string;
   postedBy?: {
     id: number;

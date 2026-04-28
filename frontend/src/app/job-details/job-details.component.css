@@ -337,3 +337,59 @@
     padding: 0 1rem;
   }
 }
+
+/* Skills Tags */
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.skill-tag {
+  background: #f0f7ff;
+  color: #0066cc;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #cce3ff;
+}
+
+/* How to Apply Box */
+.how-to-apply-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 15px;
+}
+
+.apply-text {
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  font-size: 15px;
+}
+
+.apply-portal-link {
+  display: inline-block;
+  color: #ff6b35;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.apply-portal-link:hover {
+  color: #e85a2a;
+  text-decoration: underline;
+}
+
+.scraped-info {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 8px;
+}
+

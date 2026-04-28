@@ -65,20 +65,21 @@ public class JobScraperScheduler {
             if (response != null && response.containsKey("jobs")) {
                 List<Map<String, Object>> jobsList = (List<Map<String, Object>>) response.get("jobs");
                 for (Map<String, Object> jobData : jobsList) {
-                    String cleanDesc = Jsoup.parse((String) jobData.get("description")).text();
-                    if (cleanDesc.length() > 800) cleanDesc = cleanDesc.substring(0, 800) + "...";
+                    // Preserve HTML but sanitize slightly
+                    String rawDesc = (String) jobData.get("description");
                     
+                    List<String> tags = (List<String>) jobData.get("tags");
+                    String skills = (tags != null) ? String.join(", ", tags) : "IT, Software";
+
                     jobs.add(Map.of(
                         "title", (String) jobData.get("title"),
+                        "companyName", (String) jobData.get("company_name"),
                         "location", jobData.get("candidate_required_location") != null ? (String) jobData.get("candidate_required_location") : "Remote",
                         "applicationLink", (String) jobData.get("url"),
-                        "description", "### ROLE OVERVIEW\n" + cleanDesc + "\n\n" +
-                                       "### JOB SPECIFICS\n" +
-                                       "• **Company:** " + jobData.get("company_name") + "\n" +
-                                       "• **Category:** " + jobData.get("category") + "\n" +
-                                       "• **Type:** " + (jobData.get("job_type") != null ? jobData.get("job_type") : "Full-time") + "\n\n" +
-                                       "### HOW TO APPLY\n" +
-                                       "Please click the link below to apply directly on Remotive."
+                        "jobType", (String) jobData.get("job_type") != null ? (String) jobData.get("job_type") : "Full-time",
+                        "requiredSkills", skills,
+                        "howToApply", "Apply directly on Remotive via the link below.",
+                        "description", rawDesc // Full HTML description
                     ));
                     if (jobs.size() >= limit) break;
                 }
@@ -96,21 +97,24 @@ public class JobScraperScheduler {
                 if (response != null && response.containsKey("data")) {
                     List<Map<String, Object>> jobsList = (List<Map<String, Object>>) response.get("data");
                     for (Map<String, Object> jobData : jobsList) {
+                        String companyName = (String) jobData.get("company_name");
+                        List<String> tags = (List<String>) jobData.get("tags");
+                        String skills = (tags != null) ? String.join(", ", tags) : "Technology";
+                        String rawDesc = (String) jobData.get("description");
+                        
                         jobs.add(Map.of(
                             "title", (String) jobData.get("title"),
+                            "companyName", companyName != null ? companyName : "Company",
                             "location", (String) jobData.get("location"),
                             "applicationLink", (String) jobData.get("url"),
-                            "description", "### ROLE SUMMARY\nDiscover this high-impact opportunity at **" + jobData.get("company_name") + "**. This role involves working with cross-functional teams to drive innovation.\n\n" +
-                                           "### KEY HIGHLIGHTS\n" +
-                                           "• **Remote Status:** Verified " + (jobData.get("remote") != null ? "Remote" : "Hybrid/Office") + "\n" +
-                                           "• **Source:** Arbeitnow European Job Board\n\n" +
-                                           "### APPLICATION\n" +
-                                           "Access the direct application portal via the link below."
+                            "requiredSkills", skills,
+                            "howToApply", "Apply via the official Arbeitnow portal.",
+                            "description", rawDesc // Full HTML description
                         ));
                         if (jobs.size() >= limit) break;
                     }
                 }
-                Thread.sleep(500); // Politeness
+                Thread.sleep(500); 
                 if (jobs.size() >= limit) break;
             }
         } catch (Exception e) { logger.error("Arbeitnow failed: {}", e.getMessage()); }
@@ -124,20 +128,28 @@ public class JobScraperScheduler {
             Elements jobLinks = doc.select("section.jobs article ul li a[href^=/remote-jobs/]");
             for (Element a : jobLinks) {
                 if (a.selectFirst("span.title") == null) continue;
+                String detailUrl = a.absUrl("href");
                 String company = a.selectFirst("span.company").text();
                 String title = a.selectFirst("span.title").text();
                 String region = a.selectFirst("span.region") != null ? a.selectFirst("span.region").text() : "Remote";
                 
+                // Second hop to get full description
+                String fullDesc = "<h3>About the Role</h3><p>Full details available on the application portal.</p>";
+                try {
+                    Document detailDoc = Jsoup.connect(detailUrl).timeout(10000).get();
+                    Element descElement = detailDoc.selectFirst("#job-details");
+                    if (descElement != null) {
+                        fullDesc = descElement.html();
+                    }
+                } catch (Exception e) { logger.warn("Failed to fetch WWR detail: {}", detailUrl); }
+
                 jobs.add(Map.of(
                     "title", title,
+                    "companyName", company,
                     "location", region,
-                    "applicationLink", a.absUrl("href"),
-                    "description", "### POSITION AT " + company.toUpperCase() + "\n" +
-                                   "An exciting opportunity for a **" + title + "** to join a remote-first organization.\n\n" +
-                                   "### CORE DETAILS\n" +
-                                   "• **Company:** " + company + "\n" +
-                                   "• **Location:** " + region + "\n" +
-                                   "• **Source:** Verified We Work Remotely"
+                    "applicationLink", detailUrl,
+                    "howToApply", "Click apply on the WWR detail page.",
+                    "description", fullDesc
                 ));
                 if (jobs.size() >= limit) break;
             }
@@ -149,18 +161,34 @@ public class JobScraperScheduler {
         List<Map<String, String>> jobs = new ArrayList<>();
         try {
             Document doc = Jsoup.connect("https://remote.co/remote-jobs/it")
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                    .userAgent("Mozilla/5.0")
                     .timeout(20000).get();
             Elements cards = doc.select("a.job_listing");
             for (Element card : cards) {
+                String detailUrl = card.absUrl("href");
                 Element titleElement = card.selectFirst("h3");
+                Element companyElement = card.selectFirst("div.company_name");
+                
                 if (titleElement != null) {
+                    String company = companyElement != null ? companyElement.text() : "Remote.co Employer";
+                    
+                    // Second hop
+                    String fullDesc = "<h3>Job Description</h3><p>Please view details on Remote.co</p>";
+                    try {
+                        Document detailDoc = Jsoup.connect(detailUrl).timeout(10000).get();
+                        Element descElement = detailDoc.selectFirst(".job_description");
+                        if (descElement != null) {
+                            fullDesc = descElement.html();
+                        }
+                    } catch (Exception e) { logger.warn("Failed Remote.co detail: {}", detailUrl); }
+
                     jobs.add(Map.of(
                         "title", titleElement.text(),
+                        "companyName", company,
                         "location", "Remote",
-                        "applicationLink", card.absUrl("href"),
-                        "description", "### REMOTE.CO LISTING\nProfessional IT role sourced from Remote.co. " +
-                                       "Full details and specific technical requirements are hosted on the employer's official portal."
+                        "applicationLink", detailUrl,
+                        "howToApply", "Apply on Remote.co portal.",
+                        "description", fullDesc
                     ));
                 }
                 if (jobs.size() >= limit) break;
@@ -179,12 +207,24 @@ public class JobScraperScheduler {
                 for (Element row : rows) {
                     Element a = row.selectFirst("td.title a.storylink");
                     if (a != null) {
+                        String fullTitle = a.text();
+                        String company = "HN Startup";
+                        if (fullTitle.contains(" is hiring ")) {
+                            company = fullTitle.split(" is hiring ")[0];
+                        } else if (fullTitle.contains("|")) {
+                            company = fullTitle.split("\\|")[0].trim();
+                        }
+                        
                         jobs.add(Map.of(
-                            "title", a.text(),
+                            "title", fullTitle,
+                            "companyName", company,
                             "location", "Remote Friendly / Global",
                             "applicationLink", a.absUrl("href"),
-                            "description", "### STARTUP ROLE (HN/YC)\n" + a.text() + "\n\n" +
+                            "requiredSkills", "Startups, Engineering",
+                            "howToApply", "Check the YC/HN link for specific application instructions (usually email or a portal).",
+                            "description", "### STARTUP ROLE (HN/YC)\n" + fullTitle + "\n\n" +
                                            "### HIGHLIGHTS\n" +
+                                           "• **Company:** " + company + "\n" +
                                            "• **Source:** Y Combinator / Hacker News\n" +
                                            "• **Ecosystem:** High-growth tech startup"
                         ));

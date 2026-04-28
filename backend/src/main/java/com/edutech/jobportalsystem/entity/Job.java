@@ -55,6 +55,12 @@ public class Job {
     @Column(name = "application_link")
     private String applicationLink;
 
+    @Column(name = "company_name")
+    private String companyName;
+
+    @Column(name = "how_to_apply", columnDefinition = "TEXT")
+    private String howToApply;
+
     @Column(unique = true)
     private String slug;
 
@@ -74,6 +80,9 @@ public class Job {
     // Explicit getters to match service expectations if Lombok is acting up
     public String getJobTitle() { return title; }
     public String getCompanyName() { 
+        if (companyName != null && !companyName.isEmpty()) {
+            return companyName;
+        }
         return (postedBy != null && postedBy.getCompanyName() != null) 
             ? postedBy.getCompanyName() 
             : "Unknown Company"; 
