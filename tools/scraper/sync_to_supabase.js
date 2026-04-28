@@ -5,7 +5,13 @@ const { Client } = require('pg');
 
 try {
   const dotenvPath = path.resolve(__dirname, '../../backend/.env');
-  require('dotenv').config({ path: dotenvPath });
+  const dotenvPathAlt = path.resolve(__dirname, '../../Backend/.env');
+  
+  if (fs.existsSync(dotenvPath)) {
+    require('dotenv').config({ path: dotenvPath });
+  } else if (fs.existsSync(dotenvPathAlt)) {
+    require('dotenv').config({ path: dotenvPathAlt });
+  }
 } catch (e) {
   // ignore
 }
