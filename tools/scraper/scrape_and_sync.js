@@ -244,9 +244,14 @@ async function fetchGoRemotely(limit = 50) {
 function formatTemplate(job) {
   const company = job.companyName || 'Company';
   const title = job.title || 'Role';
-  const desc = job.description || '';
-  const skills = job.requiredSkills ? `\n\nSkills: ${job.requiredSkills}` : '';
-  return `About ${company}\n\nThis role for ${title} was collected from our automated scanner. \n\nDetails:\n${desc}${skills}\n\nApplication Link: ${job.applicationLink}`;
+  const about = `About ${company}\n\n${company} is an employer listed on our platform.`;
+  const role = `The Role\n\nYou will work as ${title} and be responsible for the primary engineering deliverables.`;
+  const responsibilities = job.description ? `What You'll Do:\n\n${(job.description || '').split('\n').slice(0,6).join('\n\n')}` : '';
+  const qualifications = job.requiredSkills ? `Who You Are:\n\n• ${job.requiredSkills.split(',').slice(0,10).join('\n• ')}` : '';
+  
+  const out = [about, '\n\n', role, '\n\n', responsibilities, '\n\n', qualifications].join('');
+  const app = job.applicationLink ? `\n\nApplication Link: ${job.applicationLink}` : '';
+  return out + app;
 }
 
 function dedupeJobs(jobs) {
