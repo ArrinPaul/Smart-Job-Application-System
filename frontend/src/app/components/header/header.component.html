@@ -1,33 +1,27 @@
-<header class="main-header" *ngIf="isVisible">
-  <div class="container">
-    <div class="logo" routerLink="/">
-      <span class="logo-text">SmartJob<span class="highlight">Portal</span></span>
-    </div>
+<header class="app-header" *ngIf="isVisible">
+  <div class="header-shell">
+    <a routerLink="/" class="brand">
+      <span class="brand-mark">S</span>
+      <span class="brand-copy">
+        <span class="brand-title">Smart Job Portal</span>
+        <span class="brand-subtitle">Hiring made clearer</span>
+      </span>
+    </a>
 
-    <nav class="nav-links" *ngIf="isLoggedIn">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <i class="fas fa-th-large"></i> Dashboard
-      </a>
-      <a routerLink="/jobs" routerLinkActive="active" class="nav-item">
-        <i class="fas fa-briefcase"></i> Job Listings
-      </a>
-      <a routerLink="/about" routerLinkActive="active" class="nav-item">
-        <i class="fas fa-info-circle"></i> About
-      </a>
-      <a routerLink="/profile" routerLinkActive="active" class="nav-item">
-        <i class="fas fa-user"></i> Profile
-      </a>
+    <nav class="main-nav" *ngIf="isLoggedIn">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a routerLink="/jobs" routerLinkActive="active" class="nav-item">Jobs</a>
+      <a routerLink="/about" routerLinkActive="active" class="nav-item">About</a>
+      <a routerLink="/profile" routerLinkActive="active" class="nav-item">Profile</a>
     </nav>
 
-    <div class="auth-actions">
+    <div class="header-actions">
       <ng-container *ngIf="isLoggedIn; else guestActions">
-        <button class="btn-logout" (click)="logout()">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <button class="btn-action btn-ghost" (click)="logout()">Logout</button>
       </ng-container>
       <ng-template #guestActions>
-        <a routerLink="/login" class="btn-login">Login</a>
-        <a routerLink="/register" class="btn-register">Register</a>
+        <a routerLink="/login" class="btn-action btn-ghost">Login</a>
+        <a routerLink="/register" class="btn-action btn-primary">Sign Up</a>
       </ng-template>
     </div>
   </div>

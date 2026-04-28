@@ -8,12 +8,19 @@ import { UserRole } from '../models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly SESSION_LAST_ACTIVITY_KEY = 'jobportal_session_last_activity';
+  private readonly SESSION_EVENT_KEY = 'jobportal_session_event';
+  private readonly SESSION_DURATION_MS = 4 * 60 * 60 * 1000;
   private readonly ROLE_KEY = 'jobportal_role';
   private readonly TOKEN_KEY = 'jobportal_token';
   private readonly MFA_KEY = 'jobportal_mfa_enabled';
   private readonly ONBOARDING_KEY = 'jobportal_onboarding_completed';
   private readonly MFA_OTP_KEY = 'jobportal_mfa_otp_code';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
+
+  get isLoggedIn$(): Observable<boolean> {
+    return this.loggedIn$.asObservable();
+  }
 
   constructor(
     private router: Router,
@@ -34,6 +41,7 @@ export class AuthService {
     } else {
       localStorage.removeItem(this.TOKEN_KEY);
     }
+    this.touchSessionActivity();
     // Push true to notify all subscribers immediately
     this.loggedIn$.next(true);
   }
@@ -50,7 +58,41 @@ export class AuthService {
    * Check if user is logged in
    */
   isLoggedIn(): boolean {
-    return this.hasSessionMetadata();
+    return this.hasSessionMetadata() && !this.isSessionExpired();
+  }
+
+  touchSessionActivity(): void {
+    localStorage.setItem(this.SESSION_LAST_ACTIVITY_KEY, String(Date.now()));
+  }
+
+  getSessionRemainingMs(): number {
+    const lastActivityRaw = localStorage.getItem(this.SESSION_LAST_ACTIVITY_KEY);
+    if (!lastActivityRaw) {
+      return 0;
+    }
+
+    const lastActivity = Number(lastActivityRaw);
+    if (Number.isNaN(lastActivity)) {
+      return 0;
+    }
+
+    const elapsed = Date.now() - lastActivity;
+    return Math.max(0, this.SESSION_DURATION_MS - elapsed);
+  }
+
+  isSessionExpired(): boolean {
+    if (!this.hasSessionMetadata()) {
+      return false;
+    }
+    return this.getSessionRemainingMs() <= 0;
+  }
+
+  broadcastSessionEvent(eventType: 'expired' | 'logout'): void {
+    localStorage.setItem(this.SESSION_EVENT_KEY, JSON.stringify({ type: eventType, at: Date.now() }));
+  }
+
+  getSessionEventKey(): string {
+    return this.SESSION_EVENT_KEY;
   }
 
   /**
@@ -165,12 +207,14 @@ export class AuthService {
     localStorage.removeItem(this.ROLE_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.MFA_KEY);
+    localStorage.removeItem(this.ONBOARDING_KEY);
+    localStorage.removeItem(this.SESSION_LAST_ACTIVITY_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
     sessionStorage.removeItem(this.MFA_OTP_KEY);
     this.loggedIn$.next(false);
 
-    this.router.navigate(['/login']).catch(() => {
+    this.router.navigate(['/login'], { replaceUrl: true }).catch(() => {
       window.location.href = '/login';
     });
   }

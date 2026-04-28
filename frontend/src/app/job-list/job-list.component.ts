@@ -15,7 +15,8 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-job-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './job-list.component.html'
+  templateUrl: './job-list.component.html',
+  styleUrls: ['./job-list.component.css']
 })
 export class JobListComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];
@@ -56,7 +57,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   
   // Pagination
   currentPage = 1;
-  pageSize = 50;
+  pageSize = 15;
   
   private destroy$ = new Subject<void>();
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -246,6 +247,105 @@ export class JobListComponent implements OnInit, OnDestroy {
       return 'Leadership Track';
     }
     return 'Core Role';
+  }
+
+  getJobCategory(job: Job): string {
+    const text = `${job.title} ${job.description} ${job.requiredSkills || ''}`.toLowerCase();
+
+    if (text.includes('intern') || text.includes('trainee') || text.includes('junior')) {
+      return 'Internships';
+    }
+    if (text.includes('design') || text.includes('ui') || text.includes('ux')) {
+      return 'Design';
+    }
+    if (text.includes('market') || text.includes('seo') || text.includes('content')) {
+      return 'Marketing';
+    }
+    if (text.includes('sales') || text.includes('business development')) {
+      return 'Sales';
+    }
+    if (text.includes('product')) {
+      return 'Product';
+    }
+    if (text.includes('support') || text.includes('customer success')) {
+      return 'Support';
+    }
+
+    return 'Engineering';
+  }
+
+  getStatusLabel(job: Job): string {
+    return job.isActive === false ? 'Closed' : 'Open';
+  }
+
+  formatPostedDate(dateValue?: string): string {
+    if (!dateValue) {
+      return 'Recently posted';
+    }
+
+    const createdAt = new Date(dateValue);
+    if (Number.isNaN(createdAt.getTime())) {
+      return 'Recently posted';
+    }
+
+    const now = new Date();
+    const difference = Math.max(0, now.getTime() - createdAt.getTime());
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      return 'Posted today';
+    }
+
+    if (days === 1) {
+      return 'Posted 1 day ago';
+    }
+
+    return `Posted ${days} days ago`;
+  }
+
+  formatSalary(job: Job): string {
+    if (!job.salaryMin && !job.salaryMax) {
+      return 'Salary on request';
+    }
+
+    const currency = job.salaryCurrency || 'USD';
+    const formatter = new Intl.NumberFormat('en-US');
+    const minValue = job.salaryMin ? formatter.format(job.salaryMin) : '';
+    const maxValue = job.salaryMax ? formatter.format(job.salaryMax) : '';
+
+    if (minValue && maxValue) {
+      return `${currency} ${minValue} - ${maxValue}`;
+    }
+
+    return `${currency} ${minValue || maxValue}`;
+  }
+
+  formatExperience(experienceRequired?: number): string {
+    if (experienceRequired === undefined || experienceRequired === null) {
+      return 'Open experience';
+    }
+
+    if (experienceRequired <= 0) {
+      return 'Freshers welcome';
+    }
+
+    if (experienceRequired === 1) {
+      return '1 year exp';
+    }
+
+    return `${experienceRequired}+ years exp`;
+  }
+
+  getMatchColor(score: number): string {
+    if (score >= 80) {
+      return '#0d6774';
+    }
+
+    if (score >= 60) {
+      return '#bb7a2e';
+    }
+
+    return '#9b251b';
   }
 
   toggleView(view: string): void {
