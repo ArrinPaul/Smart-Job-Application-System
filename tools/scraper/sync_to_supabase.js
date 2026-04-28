@@ -119,8 +119,12 @@ async function main() {
   const dbName = process.env.SUPABASE_DB_NAME || 'postgres';
   const dbPort = process.env.SUPABASE_DB_PORT || 5432;
 
+  if (!dbHost) { LOG.error('Missing SUPABASE_DB_HOST'); }
+  if (!dbUser) { LOG.error('Missing SUPABASE_DB_USER'); }
+  if (!dbPass) { LOG.error('Missing SUPABASE_DB_PASSWORD'); }
+
   if (!dbHost || !dbUser || !dbPass) {
-    LOG.error('Missing database credentials. Ensure SUPABASE_DB_HOST, SUPABASE_DB_USER, and SUPABASE_DB_PASSWORD are set via environment variables or backend/.env');
+    LOG.error('Database credentials are missing. Check your GitHub Secrets or local .env file.');
     process.exit(1);
   }
 
