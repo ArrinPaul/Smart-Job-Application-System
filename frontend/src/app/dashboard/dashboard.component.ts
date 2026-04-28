@@ -17,7 +17,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   userName: string = 'User';
-  profileCompletionPercent: number = 46;
+  profileCompletionPercent: number = 0;
   jobsViewed: number = 0;
   jobsApplied: number = 0;
   recommendations: JobRecommendation[] = [];

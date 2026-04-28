@@ -96,32 +96,34 @@
         <!-- STEP 2: Professional Details -->
         <div *ngIf="currentStep === 2" class="form-step" [@fadeInOut]>
           <div class="form-group">
-            <label for="headline">Professional Headline *</label>
-            <select 
-              id="headline" 
-              [(ngModel)]="formData.headline"
-              name="headline"
-              class="form-input"
-              [class.error]="errors['headline']">
-              <option value="">Select Professional Headline</option>
-              <option *ngFor="let option of headlineOptions" [value]="option">{{ option }}</option>
-            </select>
+            <label>Professional Headlines *</label>
+            <div class="chips-container">
+              <button 
+                type="button"
+                *ngFor="let option of headlineOptions" 
+                class="chip-item"
+                [class.selected]="isSelected('headline', option)"
+                (click)="toggleSelection('headline', option)">
+                {{ option }}
+              </button>
+            </div>
             <span *ngIf="errors['headline']" class="error-text">{{ errors['headline'] }}</span>
           </div>
 
           <!-- Job Applicant Fields -->
           <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
-              <label for="skills">Skills *</label>
-              <select 
-                id="skills" 
-                [(ngModel)]="formData.skills"
-                name="skills"
-                class="form-input"
-                [class.error]="errors['skills']">
-                <option value="">Select Primary Skill</option>
-                <option *ngFor="let option of skillsOptions" [value]="option">{{ option }}</option>
-              </select>
+              <label>Skills *</label>
+              <div class="chips-container">
+                <button 
+                  type="button"
+                  *ngFor="let option of skillsOptions" 
+                  class="chip-item"
+                  [class.selected]="isSelected('skills', option)"
+                  (click)="toggleSelection('skills', option)">
+                  {{ option }}
+                </button>
+              </div>
               <span *ngIf="errors['skills']" class="error-text">{{ errors['skills'] }}</span>
             </div>
           </div>

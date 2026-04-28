@@ -81,15 +81,15 @@ export class OnboardingComponent implements OnInit {
   };
 
   // Form Data
-  formData = {
+  formData: any = {
     // Step 1
     fullName: '',
     location: '',
     bio: '',
     
     // Step 2
-    headline: '',
-    skills: '',
+    headline: [] as string[],
+    skills: [] as string[],
     companyName: '',
     companyWebsite: '',
     industry: '',
@@ -164,10 +164,22 @@ export class OnboardingComponent implements OnInit {
       next: (profile) => {
         this.isLoading = false;
         // Map profile to formData
-        this.formData = {
-          ...this.formData,
-          ...profile
-        };
+        const mappedData = { ...this.formData, ...profile };
+        
+        // Convert comma strings to arrays for multi-select
+        if (profile.headline) {
+          mappedData.headline = profile.headline.split(',').map((s: string) => s.trim()).filter((s: string) => s !== '');
+        } else {
+          mappedData.headline = [];
+        }
+
+        if (profile.skills) {
+          mappedData.skills = profile.skills.split(',').map((s: string) => s.trim()).filter((s: string) => s !== '');
+        } else {
+          mappedData.skills = [];
+        }
+
+        this.formData = mappedData;
 
         if (this.role === UserRole.JOB_SEEKER && profile.id) {
             this.loadExistingResumes(profile.id);
@@ -194,6 +206,20 @@ export class OnboardingComponent implements OnInit {
     if (file) {
       this.selectedFile = file;
     }
+  }
+
+  toggleSelection(field: 'headline' | 'skills', value: string): void {
+    const current = this.formData[field] as string[];
+    const index = current.indexOf(value);
+    if (index > -1) {
+      current.splice(index, 1);
+    } else {
+      current.push(value);
+    }
+  }
+
+  isSelected(field: 'headline' | 'skills', value: string): boolean {
+    return (this.formData[field] as string[]).includes(value);
   }
 
   nextStep(): void {
@@ -248,7 +274,14 @@ export class OnboardingComponent implements OnInit {
   saveCurrentStep(): void {
     this.isLoading = true;
     
-    this.httpService.saveOnboardingStep(this.currentStep, this.formData).subscribe({
+    // Prepare data for backend (convert arrays back to comma-separated strings)
+    const payload = {
+      ...this.formData,
+      headline: Array.isArray(this.formData.headline) ? this.formData.headline.join(', ') : this.formData.headline,
+      skills: Array.isArray(this.formData.skills) ? this.formData.skills.join(', ') : this.formData.skills
+    };
+
+    this.httpService.saveOnboardingStep(this.currentStep, payload).subscribe({
       next: (response: any) => {
         this.isLoading = false;
         this.status = response;
@@ -324,8 +357,8 @@ export class OnboardingComponent implements OnInit {
     }
 
     if (this.currentStep === 2) {
-      if (!this.formData.headline?.trim()) {
-        this.errors['headline'] = 'Professional headline is required';
+      if (!this.formData.headline || this.formData.headline.length === 0) {
+        this.errors['headline'] = 'At least one professional headline is required';
         return false;
       }
       
@@ -335,8 +368,8 @@ export class OnboardingComponent implements OnInit {
           return false;
         }
       } else if (this.role === UserRole.JOB_SEEKER) {
-        if (!this.formData.skills?.trim()) {
-          this.errors['skills'] = 'Skills are required';
+        if (!this.formData.skills || this.formData.skills.length === 0) {
+          this.errors['skills'] = 'At least one skill is required';
           return false;
         }
       }
