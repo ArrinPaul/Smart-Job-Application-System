@@ -32,7 +32,10 @@ jobs:
 
       - name: Sync jobs to Supabase database
         working-directory: tools/scraper
-        # Using environment variables from repo .env by default in the script,
-        # but we can also pass them here if they were secrets.
-        # The script sync_to_supabase.js loads ../../backend/.env
+        env:
+          SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
+          SUPABASE_DB_USER: ${{ secrets.SUPABASE_DB_USER }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
+          SUPABASE_DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
         run: node sync_to_supabase.js

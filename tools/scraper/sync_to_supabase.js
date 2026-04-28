@@ -106,12 +106,16 @@ function buildInsertPlan(columns, recruiterId, job) {
 }
 
 async function main() {
-  if (!process.env.SUPABASE_DB_HOST || !process.env.SUPABASE_DB_USER || !process.env.SUPABASE_DB_PASSWORD) {
-    throw new Error('Supabase Postgres credentials are missing from backend/.env');
-  }
+  // Prioritize environment variables (e.g. from GitHub Secrets), fallback to .env for local dev
+  const dbHost = process.env.SUPABASE_DB_HOST;
+  const dbUser = process.env.SUPABASE_DB_USER;
+  const dbPass = process.env.SUPABASE_DB_PASSWORD;
+  const dbName = process.env.SUPABASE_DB_NAME || 'postgres';
+  const dbPort = process.env.SUPABASE_DB_PORT || 5432;
 
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-    LOG.info('Supabase REST service key not found; using direct Postgres sync from backend .env.');
+  if (!dbHost || !dbUser || !dbPass) {
+    LOG.error('Missing database credentials. Ensure SUPABASE_DB_HOST, SUPABASE_DB_USER, and SUPABASE_DB_PASSWORD are set via environment variables or backend/.env');
+    process.exit(1);
   }
 
   let jobs = loadJobsFromFile();
@@ -124,11 +128,11 @@ async function main() {
   LOG.info(`Loaded ${jobs.length} normalized jobs from last_scrape.json`);
 
   const client = new Client({
-    host: process.env.SUPABASE_DB_HOST,
-    port: Number(process.env.SUPABASE_DB_PORT || 5432),
-    database: process.env.SUPABASE_DB_NAME || 'postgres',
-    user: process.env.SUPABASE_DB_USER,
-    password: process.env.SUPABASE_DB_PASSWORD,
+    host: dbHost,
+    port: Number(dbPort),
+    database: dbName,
+    user: dbUser,
+    password: dbPass,
     ssl: { rejectUnauthorized: false },
     connectionTimeoutMillis: 15000, // 15s timeout
   });
