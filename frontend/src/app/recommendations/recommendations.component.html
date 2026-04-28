@@ -100,7 +100,7 @@
           <button class="action-button share-btn" (click)="shareRecommendation(rec, $event)">
             Share
           </button>
-          <button class="action-button details-btn" [routerLink]="['/job-details', rec.jobId]">
+          <button class="action-button details-btn" [routerLink]="['/jobs', rec.slug]">
             Details
           </button>
         </div>

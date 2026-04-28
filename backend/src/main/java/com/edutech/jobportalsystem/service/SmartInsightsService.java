@@ -3,14 +3,18 @@ package com.edutech.jobportalsystem.service;
 import com.edutech.jobportalsystem.entity.Job;
 import com.edutech.jobportalsystem.entity.Resume;
 import com.edutech.jobportalsystem.entity.User;
+import com.edutech.jobportalsystem.entity.JobSeekerProfile;
 import com.edutech.jobportalsystem.repository.JobRepository;
 import com.edutech.jobportalsystem.repository.ResumeRepository;
 import com.edutech.jobportalsystem.repository.UserRepository;
+import com.edutech.jobportalsystem.repository.JobSeekerProfileRepository;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,6 +22,7 @@ import java.util.stream.Collectors;
 public class SmartInsightsService {
 
     private static final Logger logger = LoggerFactory.getLogger(SmartInsightsService.class);
+    private final Tika tika = new Tika();
 
     @Autowired
     private JobRepository jobRepository;
@@ -28,8 +33,11 @@ public class SmartInsightsService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JobSeekerProfileRepository profileRepository;
+
     /**
-     * Match a user's resume against a specific job and return insights.
+     * Match a user's resume and profile against a specific job and return insights.
      */
     public Map<String, Object> getMatchInsights(Long jobId, String username) {
         User user = userRepository.findByUsername(username)
@@ -37,66 +45,81 @@ public class SmartInsightsService {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
         
+        JobSeekerProfile profile = profileRepository.findByUser(user).orElse(null);
         Optional<Resume> resumeOpt = resumeRepository.findByOwner(user);
-        if (resumeOpt.isEmpty()) {
-            return Map.of("error", "No resume found. Please upload a resume first to get insights.");
+
+        String resumeContent = "";
+        if (resumeOpt.isPresent()) {
+            try {
+                resumeContent = tika.parseToString(new ByteArrayInputStream(resumeOpt.get().getData()));
+            } catch (Exception e) {
+                logger.error("Failed to parse resume for user {}: {}", username, e.getMessage());
+            }
         }
 
-        Resume resume = resumeOpt.get();
-        // For a real implementation, we would use an LLM or a library to extract text from PDF/Doc
-        // Here we simulate the analysis based on keywords.
-        String jobTitle = job.getTitle().toLowerCase();
-        String jobDesc = job.getDescription().toLowerCase();
-        String resumeName = resume.getFileName().toLowerCase();
+        // Combine profile skills and resume content for broader matching
+        String userSkills = profile != null ? (profile.getSkills() != null ? profile.getSkills() : "") : "";
+        String fullUserContext = (userSkills + " " + resumeContent).toLowerCase();
+        
+        String requiredSkillsStr = job.getRequiredSkills() != null ? job.getRequiredSkills() : "";
+        List<String> requiredSkills = Arrays.stream(requiredSkillsStr.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
 
-        int score = calculateMatchScore(jobTitle, jobDesc, resumeName);
-        List<String> matchingSkills = identifyMatchingSkills(jobDesc, resumeName);
-        List<String> missingSkills = identifyMissingSkills(jobDesc, matchingSkills);
+        List<String> matchingSkills = requiredSkills.stream()
+                .filter(skill -> fullUserContext.contains(skill.toLowerCase()))
+                .collect(Collectors.toList());
+
+        List<String> missingSkills = requiredSkills.stream()
+                .filter(skill -> !fullUserContext.contains(skill.toLowerCase()))
+                .collect(Collectors.toList());
+
+        int score = calculateMatchScore(job, profile, matchingSkills, requiredSkills.size());
 
         Map<String, Object> insights = new LinkedHashMap<>();
         insights.put("jobTitle", job.getTitle());
         insights.put("compatibilityScore", score);
         insights.put("matchLevel", getMatchLevel(score));
-        insights.put("topMatches", matchingSkills);
-        insights.put("improvementAreas", missingSkills);
-        insights.put("recommendations", generateRecommendations(score, missingSkills));
+        insights.put("topMatches", matchingSkills.stream().limit(6).collect(Collectors.toList()));
+        insights.put("improvementAreas", missingSkills.stream().limit(5).collect(Collectors.toList()));
+        insights.put("recommendations", generateRecommendations(score, missingSkills, job, profile));
         
         return insights;
     }
 
-    private int calculateMatchScore(String title, String desc, String resume) {
-        int score = 40; // Base score
-        if (resume.contains("resume") || resume.contains("cv")) score += 5;
+    private int calculateMatchScore(Job job, JobSeekerProfile profile, List<String> matchingSkills, int totalRequired) {
+        int score = 0;
         
-        // Simple keyword simulation
-        String[] keywords = {"java", "python", "javascript", "ai", "cloud", "aws", "data", "engineer", "scientist", "mlops", "react", "spring"};
-        for (String kw : keywords) {
-            if (desc.contains(kw) && (resume.contains(kw) || Math.random() > 0.7)) {
+        // 1. Skills Match (60% weight)
+        if (totalRequired > 0) {
+            score += (int) ((matchingSkills.size() * 60.0) / totalRequired);
+        } else {
+            score += 30; // Default if no specific skills listed
+        }
+
+        // 2. Experience Match (30% weight)
+        if (profile != null && job.getExperienceRequired() != null) {
+            int userExp = profile.getExperienceYears() != null ? profile.getExperienceYears() : 0;
+            int reqExp = job.getExperienceRequired();
+            
+            if (userExp >= reqExp) {
+                score += 30;
+            } else if (userExp >= reqExp - 2) {
+                score += 15;
+            }
+        }
+
+        // 3. Location/Work Type Match (10% weight)
+        if (profile != null && job.getWorkType() != null && profile.getWorkPreference() != null) {
+            if (job.getWorkType().equalsIgnoreCase(profile.getWorkPreference())) {
+                score += 10;
+            } else if (job.getWorkType().equalsIgnoreCase("Hybrid") || job.getWorkType().equalsIgnoreCase("Remote")) {
                 score += 5;
             }
         }
-        
+
         return Math.min(score, 100);
-    }
-
-    private List<String> identifyMatchingSkills(String desc, String resume) {
-        String[] skills = {"Java", "Python", "SQL", "Cloud", "Agile", "Microservices", "API", "React", "Docker", "Kubernetes"};
-        return Arrays.stream(skills)
-                .filter(skill -> desc.contains(skill.toLowerCase()))
-                .limit(4)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> identifyMissingSkills(String desc, List<String> matches) {
-        String[] allPossible = {"Terraform", "Jenkins", "Machine Learning", "Big Data", "System Design", "Security"};
-        List<String> missing = new ArrayList<>();
-        for (String s : allPossible) {
-            if (desc.contains(s.toLowerCase()) && !matches.contains(s)) {
-                missing.add(s);
-            }
-        }
-        if (missing.isEmpty()) missing.add("Advanced Certifications");
-        return missing.stream().limit(3).collect(Collectors.toList());
     }
 
     private String getMatchLevel(int score) {
@@ -106,15 +129,28 @@ public class SmartInsightsService {
         return "Low Match - Needs Optimization";
     }
 
-    private List<String> generateRecommendations(int score, List<String> missing) {
+    private List<String> generateRecommendations(int score, List<String> missing, Job job, JobSeekerProfile profile) {
         List<String> recs = new ArrayList<>();
-        if (score < 70) {
-            recs.add("Highlight more experience with " + (missing.isEmpty() ? "industry-specific tools" : missing.get(0)));
-            recs.add("Quantify your achievements with data (e.g., 'Improved performance by 20%')");
-        } else {
-            recs.add("Your resume is well-aligned. Focus on cultural fit in your application.");
+        
+        if (!missing.isEmpty()) {
+            recs.add("Update your profile to highlight experience with: " + String.join(", ", missing.stream().limit(3).collect(Collectors.toList())));
         }
-        recs.add("Tailor your summary to mention the specific job title.");
+
+        if (profile != null && job.getExperienceRequired() != null) {
+            int userExp = profile.getExperienceYears() != null ? profile.getExperienceYears() : 0;
+            if (userExp < job.getExperienceRequired()) {
+                recs.add("The role requires " + job.getExperienceRequired() + " years of experience, but your profile shows " + userExp + ". Emphasize relevant projects.");
+            }
+        }
+
+        if (score < 70) {
+            recs.add("Consider taking a certification or course in " + (missing.isEmpty() ? "related technologies" : missing.get(0)));
+        }
+
+        if (recs.isEmpty()) {
+            recs.add("Your profile is a great match! Ensure your cover letter highlights your recent success in " + job.getTitle());
+        }
+
         return recs;
     }
 }

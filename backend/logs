@@ -1473,3 +1473,8 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
 2026-04-28 11:12:55 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - Fetching onboarding profile for user: Paul
 2026-04-28 11:13:06 [http-nio-8080-exec-9] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
 2026-04-28 11:13:06 [http-nio-8080-exec-3] INFO  c.e.j.controller.AuthController - Fetching onboarding profile for user: Paul
+2026-04-28 11:18:24 [http-nio-8080-exec-5] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-28 11:18:24 [http-nio-8080-exec-7] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-28 11:18:25 [http-nio-8080-exec-4] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-28 11:18:25 [http-nio-8080-exec-4] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-28 11:18:34 [http-nio-8080-exec-4] INFO  c.e.j.s.JobRecommendationService - Found 6 recommendations for user 15

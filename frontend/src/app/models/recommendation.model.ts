@@ -8,4 +8,5 @@ export interface JobRecommendation {
   salaryMax: number;
   matchPercentage: number;
   matchReasons: string[];
+  slug: string;
 }

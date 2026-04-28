@@ -28,6 +28,52 @@ public class JobRecommendationService {
     @Autowired
     private JobSeekerProfileRepository jobSeekerProfileRepository;
 
+    private Map<String, Double> globalSkillWeights = new HashMap<>();
+
+    /**
+     * "Retrain" the recommendation engine by refreshing global skill weights 
+     * and clearing any cached matching logic.
+     */
+    @Transactional
+    public void retrain() {
+        logger.info("Retraining recommendation engine...");
+        
+        // 1. Analyze all active jobs to find "Rare" vs "Common" skills
+        // Rare skills will carry more weight in the match
+        List<Job> activeJobs = jobRepository.findAll().stream()
+                .filter(Job::getIsActive)
+                .collect(Collectors.toList());
+        
+        Map<String, Integer> skillFrequency = new HashMap<>();
+        for (Job job : activeJobs) {
+            String skills = job.getRequiredSkills();
+            if (skills != null) {
+                for (String s : skills.split(",")) {
+                    String cleanSkill = s.trim().toLowerCase();
+                    if (!cleanSkill.isEmpty()) {
+                        skillFrequency.put(cleanSkill, skillFrequency.getOrDefault(cleanSkill, 0) + 1);
+                    }
+                }
+            }
+        }
+
+        // 2. Calculate weights (IDF-like approach)
+        int totalJobs = activeJobs.size();
+        globalSkillWeights.clear();
+        skillFrequency.forEach((skill, count) -> {
+            // Skills that appear in fewer jobs are more "indicative" of a specific match
+            double weight = Math.log((double) totalJobs / (count + 1)) + 1.0;
+            globalSkillWeights.put(skill, weight);
+        });
+
+        logger.info("Retraining complete. Weighted {} unique skills.", globalSkillWeights.size());
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        retrain();
+    }
+
     /**
      * Get job recommendations for a specific user
      * @param userId User ID
@@ -171,12 +217,14 @@ public class JobRecommendationService {
                 job.getSalaryMin(),
                 job.getSalaryMax(),
                 matchPercentage,
-                matchReasons
+                matchReasons,
+                job.getSlug()
         );
     }
 
     /**
-     * Score skills match (0-25 points)
+     * Score skills match (0-40 points)
+     * Uses a weighted approach where rare skills carry more weight.
      */
     private int scoreSkillsMatch(String userSkills, String requiredSkills) {
         if (userSkills == null || userSkills.isEmpty() || requiredSkills == null || requiredSkills.isEmpty()) {
@@ -191,17 +239,23 @@ public class JobRecommendationService {
             userSkillSet.add(skill.trim());
         }
 
-        int matchedCount = 0;
+        double totalRequiredWeight = 0;
+        double matchedWeight = 0;
+
         for (String required : requiredSkillsArray) {
             String requiredTrimmed = required.trim();
+            double skillWeight = globalSkillWeights.getOrDefault(requiredTrimmed, 1.0);
+            totalRequiredWeight += skillWeight;
+
             if (userSkillSet.stream().anyMatch(s -> s.contains(requiredTrimmed) || requiredTrimmed.contains(s))) {
-                matchedCount++;
+                matchedWeight += skillWeight;
             }
         }
 
-        // Percentage of required skills matched
-        int percentage = (int) Math.round((matchedCount * 100.0) / requiredSkillsArray.length);
-        return (int) Math.round((percentage / 100.0) * 40); // Convert to 0-40 scale
+        if (totalRequiredWeight == 0) return 20; // Neutral score
+
+        double percentage = matchedWeight / totalRequiredWeight;
+        return (int) Math.round(percentage * 40);
     }
 
     /**
