@@ -30,6 +30,18 @@ public class JobRecommendationService {
 
     private Map<String, Double> globalSkillWeights = new HashMap<>();
 
+    // Cache for recommendations: userId -> (timestamp, recommendations)
+    private static class CacheEntry {
+        long timestamp;
+        List<JobRecommendationDTO> data;
+        CacheEntry(List<JobRecommendationDTO> data) {
+            this.timestamp = System.currentTimeMillis();
+            this.data = data;
+        }
+    }
+    private Map<Long, CacheEntry> recommendationCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long CACHE_TTL = 300000; // 5 minutes
+
     /**
      * "Retrain" the recommendation engine by refreshing global skill weights 
      * and clearing any cached matching logic.
@@ -67,6 +79,7 @@ public class JobRecommendationService {
         });
 
         logger.info("Retraining complete. Weighted {} unique skills.", globalSkillWeights.size());
+        recommendationCache.clear();
     }
 
     @jakarta.annotation.PostConstruct
@@ -81,6 +94,13 @@ public class JobRecommendationService {
      * @return List of recommended jobs with match scores
      */
     public List<JobRecommendationDTO> getRecommendationsForUser(Long userId, int limit) {
+        // Check cache
+        CacheEntry cached = recommendationCache.get(userId);
+        if (cached != null && (System.currentTimeMillis() - cached.timestamp < CACHE_TTL)) {
+            logger.info("Returning cached recommendations for user: {}", userId);
+            return cached.data.stream().limit(limit).collect(Collectors.toList());
+        }
+
         logger.info("Fetching job recommendations for user: {}", userId);
 
         User user = userRepository.findById(userId)
@@ -96,21 +116,21 @@ public class JobRecommendationService {
         JobSeekerProfile profile = jobSeekerProfileRepository.findByUserId(userId)
                 .orElse(null);
 
-        // Get all active jobs
-        List<Job> allJobs = jobRepository.findAll().stream()
-                .filter(job -> job.getIsActive())
-                .collect(Collectors.toList());
+        // Get all active jobs efficiently
+        List<Job> allJobs = jobRepository.findByIsActiveTrue();
 
         // Score each job and filter by minimum threshold
         List<JobRecommendationDTO> recommendations = allJobs.stream()
                 .map(job -> scoreJobForUser(user, profile, job))
                 .filter(rec -> rec.getMatchPercentage() >= 0) // Show all potential matches, sorted by score
                 .sorted(Comparator.comparingInt(JobRecommendationDTO::getMatchPercentage).reversed())
-                .limit(limit)
                 .collect(Collectors.toList());
 
+        // Cache full results
+        recommendationCache.put(userId, new CacheEntry(recommendations));
+
         logger.info("Found {} recommendations for user {}", recommendations.size(), userId);
-        return recommendations;
+        return recommendations.stream().limit(limit).collect(Collectors.toList());
     }
 
     /**

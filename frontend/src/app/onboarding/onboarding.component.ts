@@ -73,6 +73,13 @@ export class OnboardingComponent implements OnInit {
     'Some College (No Degree)', 'Professional Certification'
   ];
 
+  // Tracking for custom input fields
+  showCustom = {
+    currentCompany: false,
+    currentDesignation: false,
+    education: false
+  };
+
   status: OnboardingStatus = {
     currentStep: 1,
     completionPercentage: 0,
@@ -179,6 +186,17 @@ export class OnboardingComponent implements OnInit {
           mappedData.skills = [];
         }
 
+        // Check if existing values are in dropdowns, if not, enable custom mode
+        if (profile.currentCompany && !this.companyOptions.includes(profile.currentCompany)) {
+          this.showCustom.currentCompany = true;
+        }
+        if (profile.currentDesignation && !this.headlineOptions.includes(profile.currentDesignation)) {
+          this.showCustom.currentDesignation = true;
+        }
+        if (profile.education && !this.educationOptions.includes(profile.education)) {
+          this.showCustom.education = true;
+        }
+
         this.formData = mappedData;
 
         if (this.role === UserRole.JOB_SEEKER && profile.id) {
@@ -208,6 +226,18 @@ export class OnboardingComponent implements OnInit {
     }
   }
 
+  onDropdownChange(field: 'currentCompany' | 'currentDesignation' | 'education'): void {
+    if (this.formData[field] === 'OTHER') {
+      this.showCustom[field] = true;
+      this.formData[field] = ''; // Clear to let user type
+    }
+  }
+
+  toggleCustom(field: 'currentCompany' | 'currentDesignation' | 'education'): void {
+    this.showCustom[field] = !this.showCustom[field];
+    this.formData[field] = '';
+  }
+
   toggleSelection(field: 'headline' | 'skills', value: string): void {
     const current = this.formData[field] as string[];
     const index = current.indexOf(value);
@@ -220,6 +250,24 @@ export class OnboardingComponent implements OnInit {
 
   isSelected(field: 'headline' | 'skills', value: string): boolean {
     return (this.formData[field] as string[]).includes(value);
+  }
+
+  addCustomOption(field: 'headline' | 'skills', value: string): void {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) return;
+
+    const currentOptions = field === 'headline' ? this.headlineOptions : this.skillsOptions;
+    
+    // Add to options list if not already there
+    if (!currentOptions.includes(trimmedValue)) {
+      currentOptions.push(trimmedValue);
+    }
+
+    // Select it
+    const selected = this.formData[field] as string[];
+    if (!selected.includes(trimmedValue)) {
+      selected.push(trimmedValue);
+    }
   }
 
   nextStep(): void {

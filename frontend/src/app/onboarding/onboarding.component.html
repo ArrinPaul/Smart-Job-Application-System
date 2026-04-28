@@ -107,6 +107,21 @@
                 {{ option }}
               </button>
             </div>
+            <!-- Custom Headline Input -->
+            <div class="custom-input-group">
+              <input 
+                type="text" 
+                #customHeadline
+                placeholder="Add custom headline..."
+                class="form-input-small"
+                (keyup.enter)="addCustomOption('headline', customHeadline.value); customHeadline.value = ''">
+              <button 
+                type="button" 
+                class="btn-add" 
+                (click)="addCustomOption('headline', customHeadline.value); customHeadline.value = ''">
+                + Add
+              </button>
+            </div>
             <span *ngIf="errors['headline']" class="error-text">{{ errors['headline'] }}</span>
           </div>
 
@@ -122,6 +137,21 @@
                   [class.selected]="isSelected('skills', option)"
                   (click)="toggleSelection('skills', option)">
                   {{ option }}
+                </button>
+              </div>
+              <!-- Custom Skill Input -->
+              <div class="custom-input-group">
+                <input 
+                  type="text" 
+                  #customSkill
+                  placeholder="Add custom skill..."
+                  class="form-input-small"
+                  (keyup.enter)="addCustomOption('skills', customSkill.value); customSkill.value = ''">
+                <button 
+                  type="button" 
+                  class="btn-add" 
+                  (click)="addCustomOption('skills', customSkill.value); customSkill.value = ''">
+                  + Add
                 </button>
               </div>
               <span *ngIf="errors['skills']" class="error-text">{{ errors['skills'] }}</span>
@@ -179,41 +209,82 @@
           <div *ngIf="role === UserRole.JOB_SEEKER">
             <div class="form-group">
               <label for="currentCompany">Current/Last Company</label>
-              <select 
-                id="currentCompany" 
-                [(ngModel)]="formData.currentCompany"
-                name="currentCompany"
-                class="form-input">
-                <option value="">Select Company</option>
-                <option *ngFor="let option of companyOptions" [value]="option">{{ option }}</option>
-              </select>
+              <div *ngIf="!showCustom.currentCompany">
+                <select 
+                  id="currentCompany" 
+                  [(ngModel)]="formData.currentCompany"
+                  name="currentCompany"
+                  class="form-input"
+                  (change)="onDropdownChange('currentCompany')">
+                  <option value="">Select Company</option>
+                  <option *ngFor="let option of companyOptions" [value]="option">{{ option }}</option>
+                  <option value="OTHER">Other (Type manually)</option>
+                </select>
+              </div>
+              <div *ngIf="showCustom.currentCompany" class="custom-input-wrapper">
+                <input 
+                  type="text"
+                  id="currentCompanyCustom" 
+                  [(ngModel)]="formData.currentCompany"
+                  name="currentCompany"
+                  placeholder="Type your company name"
+                  class="form-input">
+                <button type="button" class="btn-link" (click)="toggleCustom('currentCompany')">Choose from list</button>
+              </div>
             </div>
 
             <div class="form-group">
               <label for="currentDesignation">Current/Last Designation</label>
-              <select 
-                id="currentDesignation" 
-                [(ngModel)]="formData.currentDesignation"
-                name="currentDesignation"
-                class="form-input">
-                <option value="">Select Designation</option>
-                <option *ngFor="let option of headlineOptions" [value]="option">{{ option }}</option>
-              </select>
+              <div *ngIf="!showCustom.currentDesignation">
+                <select 
+                  id="currentDesignation" 
+                  [(ngModel)]="formData.currentDesignation"
+                  name="currentDesignation"
+                  class="form-input"
+                  (change)="onDropdownChange('currentDesignation')">
+                  <option value="">Select Designation</option>
+                  <option *ngFor="let option of headlineOptions" [value]="option">{{ option }}</option>
+                  <option value="OTHER">Other (Type manually)</option>
+                </select>
+              </div>
+              <div *ngIf="showCustom.currentDesignation" class="custom-input-wrapper">
+                <input 
+                  type="text"
+                  id="currentDesignationCustom" 
+                  [(ngModel)]="formData.currentDesignation"
+                  name="currentDesignation"
+                  placeholder="Type your designation"
+                  class="form-input">
+                <button type="button" class="btn-link" (click)="toggleCustom('currentDesignation')">Choose from list</button>
+              </div>
             </div>
 
             <div class="form-group">
               <label for="education">Highest Education</label>
-              <select 
-                id="education" 
-                [(ngModel)]="formData.education"
-                name="education"
-                class="form-input">
-                <option value="">Select Education</option>
-                <option *ngFor="let option of educationOptions" [value]="option">{{ option }}</option>
-              </select>
+              <div *ngIf="!showCustom.education">
+                <select 
+                  id="education" 
+                  [(ngModel)]="formData.education"
+                  name="education"
+                  class="form-input"
+                  (change)="onDropdownChange('education')">
+                  <option value="">Select Education</option>
+                  <option *ngFor="let option of educationOptions" [value]="option">{{ option }}</option>
+                  <option value="OTHER">Other (Type manually)</option>
+                </select>
+              </div>
+              <div *ngIf="showCustom.education" class="custom-input-wrapper">
+                <input 
+                  type="text"
+                  id="educationCustom" 
+                  [(ngModel)]="formData.education"
+                  name="education"
+                  placeholder="Type your education"
+                  class="form-input">
+                <button type="button" class="btn-link" (click)="toggleCustom('education')">Choose from list</button>
+              </div>
             </div>
           </div>
-
           <!-- Recruiter Fields -->
           <div *ngIf="role === UserRole.RECRUITER">
             <div class="form-group">

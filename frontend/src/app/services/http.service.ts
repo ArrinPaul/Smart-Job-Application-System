@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/user.model';
 import { Job, Application, UpdateApplicationStatusRequest } from '../models/job.model';
@@ -14,6 +14,7 @@ import { AdminDashboardSummary, AdminSystemStatus } from '../models/admin.model'
 })
 export class HttpService {
   private apiUrl = environment.apiUrl;
+  private onboardingStatus$: Observable<any> | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -41,7 +42,19 @@ export class HttpService {
    * Get onboarding status and progress
    */
   getOnboardingStatus(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/auth/onboarding/status`);
+    if (!this.onboardingStatus$) {
+      this.onboardingStatus$ = this.http.get(`${this.apiUrl}/auth/onboarding/status`).pipe(
+        shareReplay(1)
+      );
+    }
+    return this.onboardingStatus$;
+  }
+
+  /**
+   * Clear onboarding status cache
+   */
+  clearOnboardingCache(): void {
+    this.onboardingStatus$ = null;
   }
 
   /**
@@ -55,6 +68,7 @@ export class HttpService {
    * Save onboarding step data
    */
   saveOnboardingStep(step: number, data: any): Observable<any> {
+    this.clearOnboardingCache();
     return this.http.post(`${this.apiUrl}/auth/onboarding/step/${step}`, data);
   }
 
@@ -62,6 +76,7 @@ export class HttpService {
    * Complete onboarding final step
    */
   completeOnboardingFinal(): Observable<any> {
+    this.clearOnboardingCache();
     return this.http.post(`${this.apiUrl}/auth/onboarding/step/5`, {});
   }
 
@@ -69,6 +84,7 @@ export class HttpService {
    * Skip onboarding
    */
   skipOnboarding(): Observable<any> {
+    this.clearOnboardingCache();
     return this.http.post(`${this.apiUrl}/auth/onboarding/skip`, {});
   }
 

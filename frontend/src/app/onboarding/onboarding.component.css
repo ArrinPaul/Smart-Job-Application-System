@@ -668,3 +668,57 @@ button:disabled {
   color: white;
   box-shadow: 0 2px 4px rgba(187, 62, 45, 0.2);
 }
+
+/* Custom Input Additions */
+.custom-input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.form-input-small {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e8dfd0;
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+}
+
+.btn-add {
+  padding: 8px 16px;
+  background: #2c2420;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add:hover {
+  background: #4a3f38;
+}
+
+.custom-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #ff6b35;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: #e85a2a;
+}
