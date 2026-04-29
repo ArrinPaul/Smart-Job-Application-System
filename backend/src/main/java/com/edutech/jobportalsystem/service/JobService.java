@@ -96,29 +96,38 @@ public class JobService {
         jobRepository.deleteById(jobId);
     }
 
+    public List<Job> getAllJobs(int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending());
+        return jobRepository.findAll(pageable).getContent();
+    }
+
+    public List<Job> searchJobs(String title, String location, int page, int size) {
+        title = sanitize(title);
+        location = sanitize(location);
+        logger.debug("Searching jobs - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
+        
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending());
+        
+        boolean hasTitle = title != null && !title.isBlank();
+        boolean hasLocation = location != null && !location.isBlank();
+
+        if (hasTitle && hasLocation) {
+            return jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(title, location, pageable);
+        } else if (hasTitle) {
+            return jobRepository.findByTitleContainingIgnoreCase(title, pageable);
+        } else if (hasLocation) {
+            return jobRepository.findByLocationContainingIgnoreCase(location, pageable);
+        } else {
+            return jobRepository.findAll(pageable).getContent();
+        }
+    }
+
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
     }
 
     public List<Job> searchJobs(String title, String location) {
-        title = sanitize(title);
-        location = sanitize(location);
-        logger.debug("Searching jobs - title: {}, location: {}", title, location);
-        if (title != null && !title.isBlank() && location != null && !location.isBlank()) {
-            final String normalizedTitle = title.toLowerCase(Locale.ROOT);
-            final String normalizedLocation = location.toLowerCase(Locale.ROOT);
-            return jobRepository.findAll().stream()
-                    .filter(j -> j.getTitle() != null && j.getLocation() != null)
-                    .filter(j -> j.getTitle().toLowerCase(Locale.ROOT).contains(normalizedTitle)
-                            && j.getLocation().toLowerCase(Locale.ROOT).contains(normalizedLocation))
-                    .collect(Collectors.toList());
-        } else if (title != null && !title.isBlank()) {
-            return jobRepository.findByTitleContainingIgnoreCase(title);
-        } else if (location != null && !location.isBlank()) {
-            return jobRepository.findByLocationContainingIgnoreCase(location);
-        } else {
-            return jobRepository.findAll();
-        }
+        return searchJobs(title, location, 0, 100);
     }
 
     public List<Job> getJobsByRecruiter(String recruiterUsername) {

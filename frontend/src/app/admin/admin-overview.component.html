@@ -25,27 +25,27 @@
   <div class="kpi-grid" *ngIf="summary">
     <article class="kpi-card">
       <h3>Total Users</h3>
-      <p>{{ summary.kpis.totalUsers }}</p>
+      <p>{{ summary.kpis?.totalUsers || 0 }}</p>
     </article>
     <article class="kpi-card">
       <h3>Total Jobs</h3>
-      <p>{{ summary.kpis.totalJobs }}</p>
+      <p>{{ summary.kpis?.totalJobs || 0 }}</p>
     </article>
     <article class="kpi-card">
       <h3>Total Applications</h3>
-      <p>{{ summary.kpis.totalApplications }}</p>
+      <p>{{ summary.kpis?.totalApplications || 0 }}</p>
     </article>
     <article class="kpi-card">
       <h3>Active Users (30d)</h3>
-      <p>{{ summary.kpis.activeUsers }}</p>
+      <p>{{ summary.kpis?.activeUsers || 0 }}</p>
     </article>
     <article class="kpi-card">
       <h3>Active Jobs (30d)</h3>
-      <p>{{ summary.kpis.activeJobs }}</p>
+      <p>{{ summary.kpis?.activeJobs || 0 }}</p>
     </article>
     <article class="kpi-card">
       <h3>Jobs Posted Today</h3>
-      <p>{{ summary.kpis.jobsPostedToday }}</p>
+      <p>{{ summary.kpis?.jobsPostedToday || 0 }}</p>
     </article>
   </div>
 
@@ -73,19 +73,19 @@
         <div class="data-bar-wrap">
           <div class="data-bar-label">
             <span>Job Fulfillment</span>
-            <span>{{ (summary.kpis.totalJobs > 0 ? (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) : 0) | number:'1.0-0' }}%</span>
+            <span>{{ (summary.kpis?.totalJobs && summary.kpis?.activeJobs ? (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) : 0) | number:'1.0-0' }}%</span>
           </div>
           <div class="data-bar-bg">
-            <div class="data-bar-fill" [style.width.%]="(summary.kpis.totalJobs > 0 ? (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) : 0)"></div>
+            <div class="data-bar-fill" [style.width.%]="(summary.kpis?.totalJobs && summary.kpis?.activeJobs ? (summary.kpis.activeJobs / summary.kpis.totalJobs * 100) : 0)"></div>
           </div>
         </div>
         <div class="data-bar-wrap">
           <div class="data-bar-label">
             <span>User Retention</span>
-            <span>{{ (summary.kpis.totalUsers > 0 ? (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) : 0) | number:'1.0-0' }}%</span>
+            <span>{{ (summary.kpis?.totalUsers && summary.kpis?.activeUsers ? (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) : 0) | number:'1.0-0' }}%</span>
           </div>
           <div class="data-bar-bg">
-            <div class="data-bar-fill data-bar-fill--accent" [style.width.%]="(summary.kpis.totalUsers > 0 ? (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) : 0)"></div>
+            <div class="data-bar-fill data-bar-fill--accent" [style.width.%]="(summary.kpis?.totalUsers && summary.kpis?.activeUsers ? (summary.kpis.activeUsers / summary.kpis.totalUsers * 100) : 0)"></div>
           </div>
         </div>
       </div>
@@ -165,8 +165,8 @@
 
   <article class="insight-card" *ngIf="summary">
     <h3>Metric Notes</h3>
-    <p><strong>Active Users:</strong> {{ summary.metricDefinitions['activeUsers'] }}</p>
-    <p><strong>Active Jobs:</strong> {{ summary.metricDefinitions['activeJobs'] }}</p>
+    <p><strong>Active Users:</strong> {{ summary?.metricDefinitions?.['activeUsers'] }}</p>
+    <p><strong>Active Jobs:</strong> {{ summary?.metricDefinitions?.['activeJobs'] }}</p>
   </article>
 
   <div class="empty-state" *ngIf="isLoading && !summary">

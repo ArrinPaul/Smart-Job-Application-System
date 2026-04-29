@@ -209,7 +209,8 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
 
   getRoleLabel(role: string): string {
     switch (role) {
-      case 'JOB_APPLICANT': return 'Job Applicant';
+      case 'JOB_APPLICANT': 
+      case 'JOB_SEEKER': return 'Job Applicant';
       case 'RECRUITER': return 'Recruiter';
       case 'ADMIN': return 'Administrator';
       default: return role;

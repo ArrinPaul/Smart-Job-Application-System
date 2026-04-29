@@ -4,7 +4,15 @@
       <h2>Job Management</h2>
       <p>Monitor all live and historical postings across recruiters.</p>
     </div>
-    <button type="button" (click)="loadJobs()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+    <div class="header-actions">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTitle" placeholder="Search by title..." (keyup.enter)="onSearch()">
+        <input type="text" [(ngModel)]="searchLocation" placeholder="Search by location..." (keyup.enter)="onSearch()">
+        <button type="button" class="btn--primary" (click)="onSearch()">Search</button>
+        <button type="button" class="btn--secondary" (click)="clearSearch()">Clear</button>
+      </div>
+      <button type="button" (click)="loadJobs()" [disabled]="isLoading">{{ isLoading ? 'Refreshing...' : 'Refresh' }}</button>
+    </div>
   </div>
 
   <article class="panel" *ngIf="jobs.length > 0; else noJobsTpl">

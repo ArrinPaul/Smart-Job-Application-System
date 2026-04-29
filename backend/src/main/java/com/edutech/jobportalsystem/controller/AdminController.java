@@ -75,9 +75,16 @@ public class AdminController {
     }
 
     @GetMapping("/jobs")
-    public ResponseEntity<?> getAllJobs() {
-        logger.info("Admin request: fetching all jobs");
-        return ResponseEntity.ok(jobService.getAllJobs());
+    public ResponseEntity<?> getAllJobs(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String title,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String location,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "50") int size) {
+        logger.info("Admin request: fetching jobs with filters - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
+        if ((title != null && !title.isBlank()) || (location != null && !location.isBlank())) {
+            return ResponseEntity.ok(jobService.searchJobs(title, location, page, size));
+        }
+        return ResponseEntity.ok(jobService.getAllJobs(page, size));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/jobs/{id}")

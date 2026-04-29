@@ -27,6 +27,34 @@ section {
   font-size: 0.95rem;
 }
 
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  background: #f5f3f0;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #e8dfd0;
+}
+
+.search-bar input {
+  padding: 8px 12px;
+  border: 1px solid #e8dfd0;
+  border-radius: 6px;
+  min-width: 200px;
+  font-size: 0.9rem;
+}
+
+.search-bar button {
+  padding: 8px 16px;
+}
+
 .page-header button {
   padding: 10px 20px;
   background: #ff6b35;

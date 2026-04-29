@@ -18,6 +18,10 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];
   isLoading = false;
   
+  // Search
+  searchTitle = '';
+  searchLocation = '';
+
   // Modals
   showEditModal = false;
   showDeleteConfirm = false;
@@ -38,7 +42,7 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
 
   loadJobs(): void {
     this.isLoading = true;
-    this.httpService.getAllJobsAdmin()
+    this.httpService.getAllJobsAdmin(this.searchTitle, this.searchLocation)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: Job[]) => {
@@ -50,6 +54,16 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
           this.toastService.showError('Failed to load jobs');
         }
       });
+  }
+
+  onSearch(): void {
+    this.loadJobs();
+  }
+
+  clearSearch(): void {
+    this.searchTitle = '';
+    this.searchLocation = '';
+    this.loadJobs();
   }
 
   openEditModal(job: Job): void {

@@ -19,9 +19,9 @@ export interface AdminSystemStatus {
 
 export interface AdminDashboardSummary {
   generatedAt: string;
-  kpis: AdminKpis;
-  usersByRole: Record<string, number>;
-  applicationsByStatus: Record<string, number>;
+  kpis?: AdminKpis;
+  usersByRole?: Record<string, number>;
+  applicationsByStatus?: Record<string, number>;
   recentJobs: Array<{
     id: number;
     title: string;
@@ -29,19 +29,19 @@ export interface AdminDashboardSummary {
     createdAt: string;
     postedBy: string;
   }>;
-  jobTrends: {
+  jobTrends?: {
     labels: string[];
     data: number[];
   };
-  recruiterActivity: {
+  recruiterActivity?: {
     labels: string[];
     recruiters: number[];
     jobs: number[];
   };
-  applicationFunnel: {
+  applicationFunnel?: {
     labels: string[];
     data: number[];
   };
-  metricDefinitions: Record<string, string>;
-  systemStatus: AdminSystemStatus;
+  metricDefinitions?: Record<string, string>;
+  systemStatus?: AdminSystemStatus;
 }

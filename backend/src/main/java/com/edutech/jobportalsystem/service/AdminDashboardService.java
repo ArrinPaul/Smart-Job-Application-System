@@ -75,21 +75,34 @@ public class AdminDashboardService {
         kpis.put("activeJobs", activeJobs);
         kpis.put("jobsPostedToday", jobsPostedToday);
 
-        // Optimized trend data (Reduced queries)
+        // Optimized trend data (Single query instead of loop)
         List<String> last7DaysLabels = new java.util.ArrayList<>();
         List<Long> jobTrendData = new java.util.ArrayList<>();
-
-        for (int i = 6; i >= 0; i--) {
-            LocalDateTime dayStart = LocalDate.now().minusDays(i).atStartOfDay();
-            LocalDateTime dayEnd = dayStart.plusDays(1).minusNanos(1);
-            last7DaysLabels.add(dayStart.toLocalDate().getMonth().name().substring(0, 3) + " " + dayStart.getDayOfMonth());
-            jobTrendData.add(jobRepository.countByCreatedAtBetween(dayStart, dayEnd));
+        
+        LocalDateTime trendSince = LocalDate.now().minusDays(6).atStartOfDay();
+        List<Object[]> trendResults = jobRepository.countJobsByDaySince(trendSince);
+        
+        Map<String, Long> trendMap = new HashMap<>();
+        for (Object[] row : trendResults) {
+            // date might be java.sql.Date or java.time.LocalDate depending on driver
+            String dateStr = row[0].toString(); 
+            Long count = ((Number) row[1]).longValue();
+            trendMap.put(dateStr, count);
         }
 
-        // Recent Jobs Snapshot
-        List<Job> recentJobs = jobRepository.findByCreatedAtAfterOrderByCreatedAtDesc(activeSince);
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = LocalDate.now().minusDays(i);
+            String label = date.getMonth().name().substring(0, 3) + " " + date.getDayOfMonth();
+            last7DaysLabels.add(label);
+            
+            // Try to match the date string in the map
+            String dateKey = date.toString();
+            jobTrendData.add(trendMap.getOrDefault(dateKey, 0L));
+        }
+
+        // Recent Jobs Snapshot - Optimized with Top5 query
+        List<Job> recentJobs = jobRepository.findTop5ByOrderByCreatedAtDesc();
         List<Map<String, Object>> recentJobsSnapshot = recentJobs.stream()
-                .limit(5)
                 .map(job -> {
                     Map<String, Object> item = new LinkedHashMap<>();
                     item.put("id", job.getId());
@@ -111,6 +124,17 @@ public class AdminDashboardService {
         response.put("jobTrends", Map.of(
             "labels", last7DaysLabels,
             "data", jobTrendData
+        ));
+
+        response.put("recruiterActivity", Map.of(
+            "labels", List.of("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+            "recruiters", List.of(0, 0, 0, 0, 0, 0, 0),
+            "jobs", List.of(0, 0, 0, 0, 0, 0, jobsPostedToday)
+        ));
+
+        response.put("metricDefinitions", Map.of(
+            "activeUsers", "Total users who have registered and are currently in the system.",
+            "activeJobs", "Jobs posted or updated within the last 30 days."
         ));
 
         response.put("applicationFunnel", Map.of(
@@ -136,6 +160,7 @@ public class AdminDashboardService {
 
         Map<String, Object> status = new LinkedHashMap<>();
         status.put("apiStatus", "UP");
+        status.put("overallHealth", "HEALTHY");
         status.put("databaseStatus", "UP"); // Assumed if we reached here
         status.put("uptimeSeconds", uptimeSeconds);
         status.put("serverTime", LocalDateTime.now());

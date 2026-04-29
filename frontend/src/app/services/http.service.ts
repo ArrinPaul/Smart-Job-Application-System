@@ -257,10 +257,18 @@ export class HttpService {
   }
 
   /**
-   * Get all jobs (Admin only)
+   * Get all jobs (Admin only) with optional filtering
    */
-  getAllJobsAdmin(): Observable<Job[]> {
-    return this.http.get<Job[]>(`${this.apiUrl}/admin/jobs`);
+  getAllJobsAdmin(title?: string, location?: string): Observable<Job[]> {
+    let url = `${this.apiUrl}/admin/jobs`;
+    const params = new URLSearchParams();
+    if (title) params.append('title', title);
+    if (location) params.append('location', location);
+    
+    if (params.toString()) {
+      url += '?' + params.toString();
+    }
+    return this.http.get<Job[]>(url);
   }
 
   /**

@@ -14,15 +14,19 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     
     Optional<Job> findBySlug(String slug);
 
-    List<Job> findByTitleContainingIgnoreCase(String title);
+    List<Job> findByTitleContainingIgnoreCase(String title, org.springframework.data.domain.Pageable pageable);
 
-    List<Job> findByLocationContainingIgnoreCase(String location);
+    List<Job> findByLocationContainingIgnoreCase(String location, org.springframework.data.domain.Pageable pageable);
 
     List<Job> findByPostedBy(User recruiter);
+
+    List<Job> findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(String title, String location, org.springframework.data.domain.Pageable pageable);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<Job> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime createdAt);
+
+    List<Job> findTop5ByOrderByCreatedAtDesc();
 
     long countByCreatedAtAfter(LocalDateTime createdAt);
 
@@ -30,6 +34,13 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     long countDistinctRecruitersSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
     List<Job> findByIsActiveTrue();
+
+    @org.springframework.data.jpa.repository.Query(value = "SELECT CAST(created_at AS DATE) as date, COUNT(*) as count " +
+            "FROM jobs " +
+            "WHERE created_at >= :since " +
+            "GROUP BY CAST(created_at AS DATE) " +
+            "ORDER BY CAST(created_at AS DATE) ASC", nativeQuery = true)
+    List<Object[]> countJobsByDaySince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
     Optional<Job> findFirstByTitleIgnoreCaseAndCompanyNameIgnoreCase(String title, String companyName);
 }
