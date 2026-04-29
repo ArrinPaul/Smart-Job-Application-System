@@ -17,9 +17,14 @@ export class AuthService {
   private readonly ONBOARDING_KEY = 'jobportal_onboarding_completed';
   private readonly MFA_OTP_KEY = 'jobportal_mfa_otp_code';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSessionMetadata());
+  private currentUserSubject = new BehaviorSubject<any>(this.hasSessionMetadata() ? { username: this.getUsername() } : null);
 
   get isLoggedIn$(): Observable<boolean> {
     return this.loggedIn$.asObservable();
+  }
+
+  get currentUser$(): Observable<any> {
+    return this.currentUserSubject.asObservable();
   }
 
   constructor(
@@ -44,6 +49,7 @@ export class AuthService {
     this.touchSessionActivity();
     // Push true to notify all subscribers immediately
     this.loggedIn$.next(true);
+    this.currentUserSubject.next({ username, role, userId });
   }
 
   isOnboardingCompleted(): boolean {
@@ -209,6 +215,7 @@ export class AuthService {
     localStorage.removeItem('userId');
     sessionStorage.removeItem(this.MFA_OTP_KEY);
     this.loggedIn$.next(false);
+    this.currentUserSubject.next(null);
 
     // Return the router navigation promise so callers can await if desired.
     return this.router.navigate(['/login'], { replaceUrl: true }).then(() => true).catch(() => {

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/chat")
@@ -24,5 +25,13 @@ public class ChatController {
         
         String response = chatService.getChatResponse(message, username);
         return ResponseEntity.ok(Map.of("response", response));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<?> getHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.ok(List.of());
+        }
+        return ResponseEntity.ok(chatService.getChatHistory(userDetails.getUsername()));
     }
 }

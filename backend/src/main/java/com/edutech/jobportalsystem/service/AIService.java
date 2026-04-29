@@ -31,9 +31,18 @@ public class AIService {
     private LocalDate lastResetDate = LocalDate.now();
     
     // Limits (Free Tier safe)
+    private static final int GEMINI_DAILY_LIMIT = 1500;
     private static final int GROQ_DAILY_LIMIT = 100;
     private static final int HF_DAILY_LIMIT = 500;
     private static final int OPENROUTER_DAILY_LIMIT = 100;
+
+    // Gemini Config
+    @Value("${app.ai.gemini.api-key}")
+    private String geminiApiKey;
+    @Value("${app.ai.gemini.model}")
+    private String geminiModel;
+    @Value("${app.ai.gemini.url}")
+    private String geminiUrl;
 
     // Groq Config
     @Value("${app.ai.groq.api-key}")
@@ -60,16 +69,21 @@ public class AIService {
     public String generateContent(String prompt) {
         checkAndResetDailyLimits();
 
-        // Try Groq (Primary - LPU Speed)
-        String response = tryGroq(prompt);
+        // Try Direct Gemini (Primary - Best Quality)
+        String response = tryGemini(prompt);
         if (response != null) return response;
 
-        // Try Hugging Face (Fallback 1)
+        // Try Groq (Fallback 1 - LPU Speed)
+        logger.warn("Gemini failed or limit reached. Trying Groq fallback...");
+        response = tryGroq(prompt);
+        if (response != null) return response;
+
+        // Try Hugging Face (Fallback 2)
         logger.warn("Groq failed or limit reached. Trying Hugging Face fallback...");
         response = tryHuggingFace(prompt);
         if (response != null) return response;
 
-        // Try OpenRouter (Fallback 2)
+        // Try OpenRouter (Fallback 3)
         logger.warn("Hugging Face failed or limit reached. Trying OpenRouter fallback...");
         response = tryOpenRouter(prompt);
         if (response != null) return response;
@@ -105,6 +119,46 @@ public class AIService {
     private void incrementUsage(String provider) {
         dailyUsage.put(provider, dailyUsage.getOrDefault(provider, 0) + 1);
         lastRequestTime.put(provider, System.currentTimeMillis());
+    }
+
+    private String tryGemini(String prompt) {
+        if (!isAllowed("gemini", GEMINI_DAILY_LIMIT)) return null;
+        if (isKeyInvalid(geminiApiKey)) return null;
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> body = new HashMap<>();
+            List<Map<String, Object>> contents = new ArrayList<>();
+            Map<String, Object> content = new HashMap<>();
+            content.put("role", "user");
+            List<Map<String, String>> parts = new ArrayList<>();
+            parts.add(Map.of("text", prompt));
+            content.put("parts", parts);
+            contents.add(content);
+            body.put("contents", contents);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            Map<String, Object> response = restTemplate.postForObject(geminiUrl, entity, Map.class);
+
+            if (response != null && response.containsKey("candidates")) {
+                List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
+                if (!candidates.isEmpty()) {
+                    Map<String, Object> cand = candidates.get(0);
+                    Map<String, Object> contentRes = (Map<String, Object>) cand.get("content");
+                    List<Map<String, String>> partsRes = (List<Map<String, String>>) contentRes.get("parts");
+                    if (!partsRes.isEmpty()) {
+                        incrementUsage("gemini");
+                        return partsRes.get(0).get("text");
+                    }
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            logger.error("Gemini error: {}", e.getMessage());
+            return null;
+        }
     }
 
     private String tryGroq(String prompt) {

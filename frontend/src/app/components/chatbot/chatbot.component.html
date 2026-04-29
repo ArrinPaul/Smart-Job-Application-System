@@ -12,10 +12,11 @@
       <p>Powered by Gemini AI</p>
     </div>
 
-    <div class="chat-messages" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+    <div class="chat-messages" #scrollMe>
       <div *ngFor="let msg of messages" class="message" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'">
         <div class="message-content">
-          {{ msg.text }}
+          <div *ngIf="msg.sender === 'bot'" [innerHTML]="msg.html"></div>
+          <div *ngIf="msg.sender === 'user'">{{ msg.text }}</div>
           <div class="message-time">{{ msg.timestamp | date:'shortTime' }}</div>
         </div>
       </div>

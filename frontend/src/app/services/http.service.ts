@@ -357,4 +357,11 @@ export class HttpService {
   sendMessage(message: string): Observable<{ response: string }> {
     return this.http.post<{ response: string }>(`${this.apiUrl}/chat/message`, { message });
   }
+
+  /**
+   * Get chat history for the current user
+   */
+  getChatHistory(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/chat/history`);
+  }
 }

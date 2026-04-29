@@ -1,15 +1,15 @@
 package com.edutech.jobportalsystem.service;
 
-import com.edutech.jobportalsystem.entity.Job;
-import com.edutech.jobportalsystem.entity.JobSeekerProfile;
-import com.edutech.jobportalsystem.entity.User;
-import com.edutech.jobportalsystem.repository.JobRepository;
-import com.edutech.jobportalsystem.repository.JobSeekerProfileRepository;
-import com.edutech.jobportalsystem.repository.UserRepository;
+import com.edutech.jobportalsystem.entity.*;
+import com.edutech.jobportalsystem.repository.*;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,33 +27,97 @@ public class ChatService {
     @Autowired
     private JobSeekerProfileRepository profileRepository;
 
+    @Autowired
+    private ResumeRepository resumeRepository;
+
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
+    private final Tika tika = new Tika();
+
     public String getChatResponse(String message, String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         JobSeekerProfile profile = user != null ? profileRepository.findByUser(user).orElse(null) : null;
         List<Job> recentJobs = jobRepository.findTop5ByIsActiveTrueOrderByCreatedAtDesc();
-
-        StringBuilder context = new StringBuilder();
-        context.append("You are a helpful Career Assistant for the Smart Job Portal.\n");
         
+        // 1. Get Conversation History
+        List<ChatMessage> history = user != null ? 
+            chatMessageRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, 10)) : 
+            List.of();
+
+        // 2. Get Resume Content
+        String resumeContent = "";
         if (user != null) {
-            context.append("Current User: ").append(user.getUsername()).append("\n");
-            context.append("Location: ").append(user.getLocation() != null ? user.getLocation() : "Unknown").append("\n");
-        }
-        
-        if (profile != null) {
-            context.append("Skills: ").append(profile.getSkills()).append("\n");
-            context.append("Experience: ").append(profile.getExperienceYears()).append(" years\n");
-            context.append("Current Designation: ").append(profile.getCurrentDesignation()).append("\n");
+            Optional<Resume> resumeOpt = resumeRepository.findByOwner(user);
+            if (resumeOpt.isPresent()) {
+                try {
+                    resumeContent = tika.parseToString(new ByteArrayInputStream(resumeOpt.get().getData()));
+                } catch (Exception e) {
+                    // Log error but continue
+                }
+            }
         }
 
-        context.append("\nRecent Job Openings:\n");
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("System: You are an expert Career Assistant for 'Smart Job Portal'.\n");
+        prompt.append("Guidelines:\n- Be concise and professional.\n- Use Markdown for formatting (bold, lists).\n");
+        prompt.append("- If recommending jobs, reference the ones provided below.\n");
+        prompt.append("- Use the user's profile and resume content to personalize advice.\n\n");
+
+        if (user != null) {
+            prompt.append("User Profile:\n");
+            prompt.append("- Username: ").append(user.getUsername()).append("\n");
+            prompt.append("- Location: ").append(user.getLocation() != null ? user.getLocation() : "Unknown").append("\n");
+            
+            if (profile != null) {
+                prompt.append("- Skills: ").append(profile.getSkills()).append("\n");
+                prompt.append("- Experience: ").append(profile.getExperienceYears()).append(" years\n");
+                prompt.append("- Headline: ").append(profile.getProfessionalHeadline()).append("\n");
+            }
+
+            if (!resumeContent.isBlank()) {
+                prompt.append("\nResume Highlights (Parsed Text):\n");
+                prompt.append(resumeContent.length() > 2000 ? resumeContent.substring(0, 2000) + "..." : resumeContent).append("\n");
+            }
+        }
+
+        prompt.append("\nAvailable Jobs:\n");
         for (Job job : recentJobs) {
-            context.append("- ").append(job.getTitle()).append(" at ").append(job.getCompanyName()).append(" (").append(job.getLocation()).append(")\n");
+            prompt.append("- ").append(job.getTitle()).append(" at ").append(job.getCompanyName()).append(" in ").append(job.getLocation()).append(" (Type: ").append(job.getWorkType()).append(")\n");
         }
 
-        context.append("\nUser message: ").append(message).append("\n");
-        context.append("\nAssistant: ");
+        if (!history.isEmpty()) {
+            prompt.append("\nRecent Conversation History (Oldest to Newest):\n");
+            List<ChatMessage> chronoHistory = history.stream()
+                .sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()))
+                .collect(Collectors.toList());
+            for (ChatMessage msg : chronoHistory) {
+                prompt.append("User: ").append(msg.getMessage()).append("\n");
+                prompt.append("Assistant: ").append(msg.getResponse()).append("\n");
+            }
+        }
 
-        return aiService.generateContent(context.toString());
+        prompt.append("\nCurrent User Message: ").append(message).append("\n");
+        prompt.append("Assistant: ");
+
+        String response = aiService.generateContent(prompt.toString());
+
+        // 3. Persist History
+        if (user != null && response != null && !response.startsWith("AI career services")) {
+            ChatMessage chatMessage = ChatMessage.builder()
+                .user(user)
+                .message(message)
+                .response(response)
+                .build();
+            chatMessageRepository.save(chatMessage);
+        }
+
+        return response;
+    }
+
+    public List<ChatMessage> getChatHistory(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return List.of();
+        return chatMessageRepository.findByUserOrderByCreatedAtAsc(user);
     }
 }
