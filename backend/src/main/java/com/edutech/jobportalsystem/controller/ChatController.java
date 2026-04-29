@@ -21,9 +21,12 @@ public class ChatController {
     public ResponseEntity<?> sendMessage(@RequestBody Map<String, String> request, 
                                        @AuthenticationPrincipal UserDetails userDetails) {
         String message = request.get("message");
+        String jobIdStr = request.get("jobId");
+        Long jobId = (jobIdStr != null && !jobIdStr.isBlank()) ? Long.parseLong(jobIdStr) : null;
+        
         String username = userDetails != null ? userDetails.getUsername() : "Guest";
         
-        String response = chatService.getChatResponse(message, username);
+        String response = chatService.getChatResponse(message, username, jobId);
         return ResponseEntity.ok(Map.of("response", response));
     }
 

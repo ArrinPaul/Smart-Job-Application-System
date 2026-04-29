@@ -35,11 +35,13 @@ public class ChatService {
 
     private final Tika tika = new Tika();
 
-    public String getChatResponse(String message, String username) {
+    public String getChatResponse(String message, String username, Long jobId) {
         User user = userRepository.findByUsername(username).orElse(null);
         JobSeekerProfile profile = user != null ? profileRepository.findByUser(user).orElse(null) : null;
         List<Job> recentJobs = jobRepository.findTop5ByIsActiveTrueOrderByCreatedAtDesc();
         
+        Job focusedJob = (jobId != null) ? jobRepository.findById(jobId).orElse(null) : null;
+
         // 1. Get Conversation History
         List<ChatMessage> history = user != null ? 
             chatMessageRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, 10)) : 
@@ -61,7 +63,12 @@ public class ChatService {
         StringBuilder prompt = new StringBuilder();
         prompt.append("System: You are an expert Career Assistant for 'Smart Job Portal'.\n");
         prompt.append("Guidelines:\n- Be concise and professional.\n- Use Markdown for formatting (bold, lists).\n");
-        prompt.append("- If recommending jobs, reference the ones provided below.\n");
+        
+        if (focusedJob != null) {
+            prompt.append("- Focus your response on the specific job application mentioned below.\n");
+        } else {
+            prompt.append("- If recommending jobs, reference the ones provided below.\n");
+        }
         prompt.append("- Use the user's profile and resume content to personalize advice.\n\n");
 
         if (user != null) {
@@ -81,9 +88,18 @@ public class ChatService {
             }
         }
 
-        prompt.append("\nAvailable Jobs:\n");
-        for (Job job : recentJobs) {
-            prompt.append("- ").append(job.getTitle()).append(" at ").append(job.getCompanyName()).append(" in ").append(job.getLocation()).append(" (Type: ").append(job.getWorkType()).append(")\n");
+        if (focusedJob != null) {
+            prompt.append("\nFOCUSED JOB CONTEXT:\n");
+            prompt.append("- Title: ").append(focusedJob.getTitle()).append("\n");
+            prompt.append("- Company: ").append(focusedJob.getCompanyName()).append("\n");
+            prompt.append("- Location: ").append(focusedJob.getLocation()).append(" (").append(focusedJob.getWorkType()).append(")\n");
+            prompt.append("- Description: ").append(focusedJob.getDescription().length() > 1000 ? focusedJob.getDescription().substring(0, 1000) + "..." : focusedJob.getDescription()).append("\n");
+            prompt.append("- Required Skills: ").append(focusedJob.getRequiredSkills()).append("\n");
+        } else {
+            prompt.append("\nAvailable Jobs:\n");
+            for (Job job : recentJobs) {
+                prompt.append("- ").append(job.getTitle()).append(" at ").append(job.getCompanyName()).append(" in ").append(job.getLocation()).append(" (Type: ").append(job.getWorkType()).append(")\n");
+            }
         }
 
         if (!history.isEmpty()) {

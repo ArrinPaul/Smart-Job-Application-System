@@ -354,8 +354,10 @@ export class HttpService {
   /**
    * Send a message to the AI chatbot
    */
-  sendMessage(message: string): Observable<{ response: string }> {
-    return this.http.post<{ response: string }>(`${this.apiUrl}/chat/message`, { message });
+  sendMessage(message: string, jobId?: number): Observable<{ response: string }> {
+    const payload: any = { message };
+    if (jobId) payload.jobId = jobId.toString();
+    return this.http.post<{ response: string }>(`${this.apiUrl}/chat/message`, payload);
   }
 
   /**

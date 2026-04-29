@@ -53,7 +53,7 @@ class ChatServiceTest {
         when(jobRepository.findTop5ByIsActiveTrueOrderByCreatedAtDesc()).thenReturn(Collections.emptyList());
         when(aiService.generateContent(anyString())).thenReturn("AI Response");
 
-        String response = chatService.getChatResponse(message, "Guest");
+        String response = chatService.getChatResponse(message, "Guest", null);
 
         assertEquals("AI Response", response);
         verify(chatMessageRepository, never()).save(any());
@@ -73,7 +73,7 @@ class ChatServiceTest {
         when(resumeRepository.findByOwner(user)).thenReturn(Optional.empty());
         when(aiService.generateContent(anyString())).thenReturn("Sure, I can help!");
 
-        String response = chatService.getChatResponse(message, "testuser");
+        String response = chatService.getChatResponse(message, "testuser", null);
 
         assertEquals("Sure, I can help!", response);
         verify(chatMessageRepository, times(1)).save(any(ChatMessage.class));

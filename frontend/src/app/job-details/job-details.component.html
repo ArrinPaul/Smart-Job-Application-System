@@ -1,218 +1,251 @@
-<div class="job-details-container" *ngIf="job">
-  <!-- Header Section -->
-  <div class="job-details-header">
-    <a routerLink="/jobs" class="breadcrumb">← Back to Jobs</a>
-    <h1>{{ job.title }}</h1>
-    <p class="company-name">{{ job.companyName || job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</p>
-    <div class="insights-header">
-      <button class="insight-btn" (click)="fetchInsights()" [disabled]="insightLoading">
-        {{ selectedInsights ? 'Hide insights' : (insightLoading ? 'Loading insights...' : 'See match insights') }}
-      </button>
-      <span *ngIf="selectedInsights" class="insight-pill" [style.borderColor]="getMatchColor(selectedInsights.compatibilityScore)">
-        {{ selectedInsights.compatibilityScore }}% Match
-      </span>
-    </div>
-  </div>
+<div class="job-details-page" *ngIf="job; else stateBlock">
+  <div class="job-details-shell">
+    <a routerLink="/jobs" class="back-link">← Back to Jobs</a>
 
-  <!-- Quick Info Bar -->
-  <div class="quick-info-bar">
-    <div class="info-item">
-      <span class="info-icon">📍</span>
-      <div>
-        <p class="info-label">Location</p>
-        <p class="info-value">{{ job.location }}</p>
-      </div>
-    </div>
-    <div class="info-item">
-      <span class="info-icon">💼</span>
-      <div>
-        <p class="info-label">Job Type</p>
-        <p class="info-value">{{ job.jobType || job.workType || 'Full Time' }}</p>
-      </div>
-    </div>
-    <div class="info-item">
-      <span class="info-icon">📅</span>
-      <div>
-        <p class="info-label">Posted</p>
-        <p class="info-value">{{ job.createdAt | date:'short' }}</p>
-      </div>
-    </div>
-    <div class="info-item">
-      <span class="info-icon">🌐</span>
-      <div>
-        <p class="info-label">Work Mode</p>
-        <p class="info-value">{{ job.workType || 'Flexible' }}</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Grid -->
-  <div class="content-grid">
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Job Description Section -->
-      <section class="content-section">
-        <h2>About the Role</h2>
-        <div class="description-text" [innerHTML]="renderedDescription || job.description"></div>
-      </section>
-
-      <!-- Requirements Section (if available) -->
-      <section class="content-section" *ngIf="job.requiredSkills">
-        <h2>Requirements</h2>
-        <div class="skills-tags">
-          <span *ngFor="let skill of job.requiredSkills.split(',')" class="skill-tag">
-            {{ skill.trim() }}
+    <section class="hero-card">
+      <div class="hero-copy">
+        <div class="hero-topline">
+          <span class="category-pill">{{ getCategoryLabel() }}</span>
+          <span class="status-pill" *ngIf="job.isActive !== undefined" [class.is-closed]="!job.isActive">
+            {{ job.isActive ? 'Open Role' : 'Closed Role' }}
           </span>
         </div>
-      </section>
 
-      <!-- How to Apply Section -->
-      <section class="content-section" *ngIf="job.howToApply || job.applicationLink">
-        <h2>How to Apply</h2>
-        <div class="how-to-apply-box">
-          <p class="apply-text">{{ job.howToApply || 'To apply for this position, please follow the link below to the official application portal.' }}</p>
-          <a [href]="job.applicationLink" target="_blank" class="apply-portal-link" *ngIf="job.applicationLink">
-            Go to Application Portal →
-          </a>
+        <h1>{{ job.title }}</h1>
+        <p class="hero-company">{{ getCompanyName() }}</p>
+        <p class="hero-summary">{{ getDescriptionPreview() }}</p>
+
+        <div class="hero-actions">
+          <button type="button" class="hero-action hero-action-secondary" (click)="shareJob()">Copy Link</button>
+          <button type="button" class="hero-action hero-action-primary" (click)="fetchInsights()" [disabled]="insightLoading">
+            {{ selectedInsights ? 'Hide Insights' : (insightLoading ? 'Loading Insights...' : 'See Match Insights') }}
+          </button>
         </div>
-      </section>
-
-      <!-- Company Info Section -->
-      <section class="content-section">
-        <h2>About the Company</h2>
-        <div class="company-info">
-          <h3>{{ job.companyName || job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</h3>
-          <p *ngIf="job.postedBy?.companyName">{{ job.postedBy?.companyName }}</p>
-          <p *ngIf="job.companyName && !job.postedBy?.companyName" class="scraped-info">
-            This job was sourced directly from the employer's portal.
-          </p>
-          <p *ngIf="!job.postedBy?.companyName && !job.companyName" class="no-info">Company information not available</p>
-        </div>
-      </section>
-    </main>
-
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <!-- Apply Card -->
-      <div class="sidebar-card apply-card">
-        <h3>Ready to Apply?</h3>
-        <p class="apply-description">Take the next step in your career by applying now.</p>
-        
-        <a [href]="job.applicationLink" target="_blank" class="btn btn-primary" *ngIf="job.applicationLink">
-          Apply on Company Site
-        </a>
-        <button class="btn btn-primary" (click)="applyInternally()" *ngIf="!job.applicationLink">
-          Apply Now
-        </button>
       </div>
 
-      <!-- Quick Facts Card -->
-      <div class="sidebar-card facts-card">
-        <h3>Key Details</h3>
-        <div class="facts-list">
-          <div class="fact-item">
-            <span class="fact-label">Position</span>
-            <span class="fact-value">{{ job.title }}</span>
+      <div class="hero-aside">
+        <div class="hero-stat">
+          <span>Location</span>
+          <strong>{{ job.location }}</strong>
+        </div>
+        <div class="hero-stat">
+          <span>Work Mode</span>
+          <strong>{{ getWorkModeLabel() }}</strong>
+        </div>
+        <div class="hero-stat">
+          <span>Posted</span>
+          <strong>{{ getPostedLabel() }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-strip">
+      <article class="info-tile">
+        <span class="info-icon">📍</span>
+        <div>
+          <p class="info-label">Location</p>
+          <p class="info-value">{{ job.location }}</p>
+        </div>
+      </article>
+      <article class="info-tile">
+        <span class="info-icon">💼</span>
+        <div>
+          <p class="info-label">Job Type</p>
+          <p class="info-value">{{ job.jobType || 'Full Time' }}</p>
+        </div>
+      </article>
+      <article class="info-tile">
+        <span class="info-icon">📅</span>
+        <div>
+          <p class="info-label">Posted</p>
+          <p class="info-value">{{ getPostedLabel() }}</p>
+        </div>
+      </article>
+      <article class="info-tile">
+        <span class="info-icon">🌐</span>
+        <div>
+          <p class="info-label">Salary</p>
+          <p class="info-value">{{ getSalaryLabel() }}</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <main class="main-column">
+        <article class="content-card content-card-feature">
+          <h2>About the Role</h2>
+          <div class="section-stack" *ngIf="roleSections.length; else roleFallback">
+            <section class="description-section" *ngFor="let section of roleSections">
+              <h3>{{ section.title }}</h3>
+              <div class="description-text" [innerHTML]="section.html"></div>
+            </section>
           </div>
-          <div class="fact-item">
-            <span class="fact-label">Company</span>
-            <span class="fact-value">{{ job.companyName || job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</span>
+
+          <ng-template #roleFallback>
+            <div class="description-text" [innerHTML]="renderedDescription"></div>
+          </ng-template>
+        </article>
+
+        <article class="content-card" *ngIf="getRequirementsList().length">
+          <h2>Eligibility Criteria</h2>
+          <ul class="bullet-list">
+            <li *ngFor="let requirement of getRequirementsList()">{{ requirement }}</li>
+          </ul>
+        </article>
+
+        <article class="content-card" *ngIf="job.howToApply || job.applicationLink">
+          <h2>How to Apply</h2>
+          <div class="apply-panel">
+            <p>{{ job.howToApply || 'Use the official application portal below to submit your application.' }}</p>
+            <a
+              *ngIf="job.applicationLink"
+              [href]="job.applicationLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="portal-link">
+              Go to Application Portal →
+            </a>
+            <button *ngIf="!job.applicationLink" type="button" class="portal-link portal-link-button" (click)="applyInternally()">
+              Apply Now
+            </button>
           </div>
-          <div class="fact-item">
-            <span class="fact-label">Location</span>
-            <span class="fact-value">{{ job.location }}</span>
+        </article>
+
+        <article class="content-card">
+          <h2>About the Company</h2>
+          <div class="section-stack" *ngIf="companySection; else companyFallback">
+            <section class="description-section">
+              <h3>{{ companySection.title }}</h3>
+              <div class="description-text" [innerHTML]="companySection.html"></div>
+            </section>
           </div>
-          <div class="fact-item">
-            <span class="fact-label">Job Type</span>
-            <span class="fact-value">{{ job.jobType || job.workType || 'Full Time' }}</span>
-          </div>
-          <div class="fact-item">
-            <span class="fact-label">Experience</span>
-            <span class="fact-value">{{ job.experienceRequired ? (job.experienceRequired + ' years') : 'Not specified' }}</span>
-          </div>
-          <div class="fact-item">
-            <span class="fact-label">Salary Range</span>
-            <span class="fact-value" *ngIf="job.salaryMin && job.salaryMax">
-              ${{ job.salaryMin | number }} - ${{ job.salaryMax | number }}
+
+          <ng-template #companyFallback>
+            <div class="company-block">
+              <h3>{{ getCompanyName() }}</h3>
+              <p *ngIf="job.postedBy?.companyName">{{ job.postedBy?.companyName }}</p>
+              <p *ngIf="job.companyName && !job.postedBy?.companyName" class="muted-note">
+                This job was sourced directly from the employer's portal.
+              </p>
+              <p *ngIf="!job.postedBy?.companyName && !job.companyName" class="muted-note">Company information not available</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="content-card insights-card" *ngIf="selectedInsights as insights">
+          <div class="insights-head">
+            <h2>Match Insights</h2>
+            <span class="insight-badge" [style.borderColor]="getMatchColor(insights.compatibilityScore)">
+              {{ insights.compatibilityScore }}% Match
             </span>
-            <span class="fact-value" *ngIf="!job.salaryMin || !job.salaryMax">Competitive</span>
           </div>
-          <div class="fact-item" *ngIf="job.createdAt">
-            <span class="fact-label">Posted</span>
-            <span class="fact-value">{{ job.createdAt | date:'mediumDate' }}</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Share Card -->
-      <div class="sidebar-card share-card">
-        <h3>Share This Job</h3>
-        <button class="share-btn" (click)="shareJob()">
-          📋 Copy Link
-        </button>
-      </div>
-
-      <!-- Insights Card -->
-      <div class="sidebar-card insights-card">
-        <h3>Smart Insights</h3>
-        <p class="insight-description">See how well your profile matches this role and get improvement suggestions.</p>
-        <button class="btn btn-secondary" (click)="fetchInsights()" [disabled]="insightLoading">
-          {{ selectedInsights ? 'Hide insights' : (insightLoading ? 'Loading...' : 'See match insights') }}
-        </button>
-
-        <div *ngIf="selectedInsights" class="insight-panel">
-          <div class="insight-header">
-            <div class="insight-score-circle" [style.borderColor]="getMatchColor(selectedInsights.compatibilityScore)">
-              <strong>{{ selectedInsights.compatibilityScore }}%</strong>
-            </div>
-            <div class="insight-title">
-              <h4>{{ selectedInsights.jobTitle }}</h4>
-              <p class="insight-level">{{ selectedInsights.matchLevel }}</p>
-            </div>
-          </div>
+          <p class="insight-level">{{ insights.jobTitle }} · {{ insights.matchLevel }}</p>
 
           <div class="insight-grid">
-            <div class="insight-col">
-              <h5>Top Matches</h5>
+            <section class="insight-col">
+              <h3>Top Matches</h3>
               <ul>
-                <li *ngFor="let s of selectedInsights.topMatches">{{ s }}</li>
+                <li *ngFor="let item of insights.topMatches">{{ item }}</li>
               </ul>
-            </div>
-            <div class="insight-col">
-              <h5>Improve</h5>
+            </section>
+            <section class="insight-col">
+              <h3>Improve</h3>
               <ul>
-                <li *ngFor="let s of selectedInsights.improvementAreas">{{ s }}</li>
+                <li *ngFor="let item of insights.improvementAreas">{{ item }}</li>
               </ul>
-            </div>
+            </section>
           </div>
 
           <div class="insight-recs">
-            <h5>Recommendations</h5>
+            <h3>Recommendations</h3>
             <ul>
-              <li *ngFor="let r of selectedInsights.recommendations">{{ r }}</li>
+              <li *ngFor="let item of insights.recommendations">{{ item }}</li>
             </ul>
           </div>
 
-          <!-- New AI powered insights -->
-          <div class="insight-ai" *ngIf="selectedInsights.aiInsights">
-            <h5>AI Career Advisor Analysis</h5>
-            <div class="ai-text">{{ selectedInsights.aiInsights }}</div>
+          <div class="insight-ai" *ngIf="insights.aiInsights">
+            <h3>AI Career Advisor Analysis</h3>
+            <div class="ai-text">{{ insights.aiInsights }}</div>
           </div>
-        </div>
-      </div>
+        </article>
 
-    </aside>
+        <article class="content-card" *ngIf="getReferenceLinks().length">
+          <h2>Official References</h2>
+          <div class="reference-list">
+            <a *ngFor="let link of getReferenceLinks()" [href]="link.href" target="_blank" rel="noopener noreferrer" class="reference-item">
+              <span>{{ link.label }}</span>
+              <span class="reference-arrow">↗</span>
+            </a>
+          </div>
+        </article>
+      </main>
+
+      <aside class="sidebar">
+        <section class="side-card">
+          <h3>Quick Information</h3>
+          <div class="facts-list">
+            <div class="fact-item">
+              <span class="fact-label">Category</span>
+              <span class="fact-value">{{ getCategoryLabel() }}</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-label">Company</span>
+              <span class="fact-value">{{ getCompanyName() }}</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-label">Location</span>
+              <span class="fact-value">{{ job.location }}</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-label">Job Type</span>
+              <span class="fact-value">{{ job.jobType || 'Full Time' }}</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-label">Work Mode</span>
+              <span class="fact-value">{{ getWorkModeLabel() }}</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-label">Experience</span>
+              <span class="fact-value">{{ job.experienceRequired ? (job.experienceRequired + ' years') : 'Not specified' }}</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-label">Salary Range</span>
+              <span class="fact-value">{{ getSalaryLabel() }}</span>
+            </div>
+            <div class="fact-item" *ngIf="job.createdAt">
+              <span class="fact-label">Posted</span>
+              <span class="fact-value">{{ getPostedLabel() }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- New AI Assistant Section -->
+        <section class="side-card ai-assistant-card">
+          <div class="ai-header">
+            <span class="ai-badge">AI POWERED</span>
+            <h3>Career Assistant</h3>
+          </div>
+          <p>Have questions about this specific role? Our AI assistant can help you understand the requirements, company culture, and application process.</p>
+          <button type="button" class="side-button btn-ai" (click)="chatWithAI()">
+            Ask AI about this job
+          </button>
+        </section>
+      </aside>
+    </section>
   </div>
 </div>
 
-<div class="loading-state" *ngIf="loading">
-  <div class="spinner"></div>
-  <p>Loading job details...</p>
-</div>
+<ng-template #stateBlock>
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading job details...</p>
+  </div>
 
-<div class="error-state" *ngIf="error">
-  <div class="error-icon">⚠️</div>
-  <h2>Job Not Found</h2>
-  <p>{{ error }}</p>
-  <a routerLink="/jobs" class="btn btn-primary">Back to Jobs</a>
-</div>
+  <div class="error-state" *ngIf="error && !loading">
+    <div class="error-icon">⚠️</div>
+    <h2>Job Not Found</h2>
+    <p>{{ error }}</p>
+    <a routerLink="/jobs" class="hero-action hero-action-primary">Back to Jobs</a>
+  </div>
+</ng-template>

@@ -60,6 +60,25 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+
+    this.chatService.jobContext$.subscribe(job => {
+      if (job) {
+        this.messages = [
+          { 
+            text: `Hi! I see you're looking at the **${job.title}** role at **${job.postedBy?.companyName || 'this company'}**. How can I help you with this specific opportunity?`, 
+            html: this.renderMarkdown(`Hi! I see you're looking at the **${job.title}** role at **${job.postedBy?.companyName || 'this company'}**. How can I help you with this specific opportunity?`),
+            sender: 'bot', 
+            timestamp: new Date() 
+          }
+        ];
+        this.suggestions = [
+          `What are the key requirements for ${job.title}?`,
+          `Is my profile a good match for this role?`,
+          `How can I stand out in this application?`,
+          `What is the expected salary range?`
+        ];
+      }
+    });
   }
 
   ngAfterViewChecked() {
@@ -126,8 +145,12 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     if (!text) this.userInput = '';
     this.isLoading = true;
 
+    // Get current job ID from context if any
+    const currentJob = this.chatService.getJobContext();
+    const jobId = currentJob ? currentJob.id : undefined;
+
     // Send to backend
-    this.httpService.sendMessage(messageText).subscribe({
+    this.httpService.sendMessage(messageText, jobId).subscribe({
       next: (res) => {
         this.messages.push({
           text: res.response,
