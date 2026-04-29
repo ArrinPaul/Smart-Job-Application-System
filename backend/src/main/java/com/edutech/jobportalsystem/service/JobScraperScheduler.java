@@ -50,6 +50,7 @@ public class JobScraperScheduler {
                 logger.error("Scrapers failed to find data.");
             } else {
                 jobIngestionService.ingestJobs(allJobs);
+                jobIngestionService.runStaleJobCleanupAsync();
                 logger.info("Supreme Ingestion Success! {} REAL roles with links added.", allJobs.size());
             }
         } catch (Exception e) {

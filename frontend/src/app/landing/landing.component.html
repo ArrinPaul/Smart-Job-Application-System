@@ -45,15 +45,15 @@
 
           <div class="hero-stats">
             <div class="stat-item">
-              <span class="stat-num">2.5k+</span>
+              <span class="stat-num">{{ stats.totalJobs > 1000 ? (stats.totalJobs / 1000 | number:'1.1-1') + 'k' : stats.totalJobs }}+</span>
               <span class="stat-label">Verified Roles</span>
             </div>
             <div class="stat-item">
-              <span class="stat-num">95%</span>
+              <span class="stat-num">{{ stats.matchRate }}%</span>
               <span class="stat-label">Match Rate</span>
             </div>
             <div class="stat-item">
-              <span class="stat-num">12ms</span>
+              <span class="stat-num">{{ stats.matchingSpeedMs }}ms</span>
               <span class="stat-label">Matching Speed</span>
             </div>
           </div>
@@ -159,7 +159,7 @@
     <section class="cta-section">
       <div class="cta-container">
         <h2>Ready to upgrade your career?</h2>
-        <p>Join over 10,000+ professionals already using SmartJobPortal to find their next move.</p>
+        <p>Join over {{ stats.totalUsers > 1000 ? (stats.totalUsers / 1000 | number:'1.1-1') + 'k' : stats.totalUsers }}+ professionals already using SmartJobPortal to find their next move.</p>
         <div class="cta-actions">
           <a routerLink="/register" class="btn-primary lg">Get Started Now</a>
           <a routerLink="/login" class="btn-secondary lg">Sign In</a>

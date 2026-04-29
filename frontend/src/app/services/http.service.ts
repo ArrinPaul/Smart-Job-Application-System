@@ -102,6 +102,13 @@ export class HttpService {
     return this.http.post<{ message: string }>(`${this.apiUrl}/auth/logout`, {});
   }
 
+  /**
+   * Get public portal statistics for the landing page
+   */
+  getPortalStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/public/portal-stats`);
+  }
+
   // ==================== JOB MANAGEMENT ====================
 
   /**

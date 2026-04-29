@@ -53,7 +53,7 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
   loadSummary(isSilent = false): void {
     if (this.isLoading) return;
 
-    if (!isSilent) this.isLoading = true;
+    this.isLoading = true;
     this.loadError = null;
 
     this.httpService.getAdminDashboardSummary().subscribe({

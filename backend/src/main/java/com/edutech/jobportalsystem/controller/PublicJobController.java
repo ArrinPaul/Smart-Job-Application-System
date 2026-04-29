@@ -23,6 +23,15 @@ public class PublicJobController {
     @Autowired
     private JobScraperScheduler jobScraperScheduler;
 
+    @Autowired
+    private com.edutech.jobportalsystem.service.JobService jobService;
+
+    @GetMapping("/portal-stats")
+    public ResponseEntity<?> getPortalStats() {
+        logger.info("Public request: fetching portal stats");
+        return ResponseEntity.ok(jobService.getPublicPortalStats());
+    }
+
     @PostMapping("/ingest-real-jobs")
     public ResponseEntity<?> ingestRealJobs(@RequestBody List<Map<String, String>> jobData) {
         logger.info("Public ingestion request: ingesting {} jobs", jobData.size());

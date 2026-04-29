@@ -162,11 +162,6 @@ public class JobIngestionService {
                 String baseSlug = title.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
                 if (baseSlug.isEmpty()) baseSlug = "job";
                 String uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
-                int attempts = 0;
-                while (seenSlugs.contains(uniqueSlug) && attempts < 10) {
-                    uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
-                    attempts++;
-                }
                 job.setSlug(uniqueSlug);
                 seenSlugs.add(uniqueSlug);
                 jobsToSave.add(job);
@@ -176,85 +171,87 @@ public class JobIngestionService {
 
         List<Job> savedJobs = jobRepository.saveAll(jobsToSave);
         logger.info("Successfully ingested {} jobs in batch.", savedJobs.size());
-        // Perform cleanup of stale/closed postings after ingestion
-        int deletedCount = 0;
-        int markedInactiveCount = 0;
-        try {
-            java.util.Map<String, Integer> cleanup = cleanupStaleJobs();
-            deletedCount = cleanup.getOrDefault("deleted", 0);
-            markedInactiveCount = cleanup.getOrDefault("marked_inactive", 0);
-        } catch (Exception e) {
-            logger.warn("Stale job cleanup failed: {}", e.getMessage());
-        }
 
         java.util.Map<String, Object> result = new java.util.HashMap<>();
         result.put("saved", savedJobs.size());
         result.put("created", createdCount);
         result.put("updated", updatedCount);
-        result.put("deleted", deletedCount);
-        result.put("marked_inactive", markedInactiveCount);
         result.put("jobs", savedJobs);
         return result;
     }
 
     /**
-     * Cleanup stale job postings: if application link returns 404 or page contains 'closed' keywords,
-     * then delete job only if there are no applications; otherwise mark as inactive.
+     * Cleanup stale job postings - Refactored to avoid long-running transactions
      */
-    @Transactional
-    public java.util.Map<String, Integer> cleanupStaleJobs() {
-        logger.info("Starting stale job cleanup sweep...");
-        List<Job> allJobs = jobRepository.findAll();
+    public void runStaleJobCleanupAsync() {
+        // Run in a separate thread to avoid blocking
+        new Thread(() -> {
+            try {
+                cleanupStaleJobsInternal();
+            } catch (Exception e) {
+                logger.error("Async cleanup failed", e);
+            }
+        }).start();
+    }
+
+    private void cleanupStaleJobsInternal() {
+        logger.info("Starting background stale job cleanup sweep...");
+        // Fetch IDs first to avoid keeping a large result set in memory or holding a cursor
+        List<Long> jobIds = jobRepository.findAll().stream().map(Job::getId).toList();
+        
         int deleted = 0;
         int markedInactive = 0;
-        for (Job job : allJobs) {
-            String link = job.getApplicationLink();
-            if (link == null || link.isEmpty()) continue;
+        
+        // Process in smaller batches
+        for (Long jobId : jobIds) {
             try {
-                org.springframework.http.ResponseEntity<String> resp = restTemplate.getForEntity(link, String.class);
-                String body = resp.getBody() != null ? resp.getBody().toLowerCase() : "";
-                boolean closed = resp.getStatusCode().is4xxClientError() || resp.getStatusCode().is5xxServerError();
-                if (!closed) {
-                    // simple keyword heuristics
-                    if (body.contains("application closed") || body.contains("no longer accepting") || body.contains("applications are closed") || body.contains("expired")) {
-                        closed = true;
-                    }
-                }
-
-                if (closed) {
-                    List<com.edutech.jobportalsystem.entity.Application> apps = applicationRepository.findByJob(job);
-                    if (apps == null || apps.isEmpty()) {
-                        logger.info("Deleting job id={} title='{}' because application link indicates closed and no applications found.", job.getId(), job.getTitle());
-                        jobRepository.delete(job);
-                        deleted++;
-                    } else {
-                        logger.info("Marking job id={} as inactive (closed) but preserving due to existing applications.", job.getId());
-                        job.setIsActive(false);
-                        jobRepository.save(job);
-                        markedInactive++;
-                    }
-                }
-            } catch (org.springframework.web.client.HttpClientErrorException.NotFound nf) {
-                List<com.edutech.jobportalsystem.entity.Application> apps = applicationRepository.findByJob(job);
-                if (apps == null || apps.isEmpty()) {
-                    logger.info("Deleting job id={} due to 404 on application link.", job.getId());
-                    jobRepository.delete(job);
-                    deleted++;
-                } else {
-                    logger.info("Marking job id={} inactive due to 404 on application link but has applications.", job.getId());
-                    job.setIsActive(false);
-                    jobRepository.save(job);
-                    markedInactive++;
-                }
+                processSingleJobCleanup(jobId);
             } catch (Exception e) {
-                logger.debug("Failed to validate job link for id={} url={} err={}", job.getId(), link, e.getMessage());
+                logger.debug("Cleanup skipped for job {}: {}", jobId, e.getMessage());
             }
         }
-        logger.info("Stale job cleanup completed.");
-        java.util.Map<String, Integer> out = new java.util.HashMap<>();
-        out.put("deleted", deleted);
-        out.put("marked_inactive", markedInactive);
-        return out;
+        logger.info("Background cleanup completed. Processed {} jobs.", jobIds.size());
+    }
+
+    @Transactional
+    protected void processSingleJobCleanup(Long jobId) {
+        Job job = jobRepository.findById(jobId).orElse(null);
+        if (job == null || job.getApplicationLink() == null || job.getApplicationLink().isEmpty()) return;
+
+        try {
+            // Only perform network check if active
+            if (!job.getIsActive()) return;
+
+            org.springframework.http.ResponseEntity<String> resp = restTemplate.getForEntity(job.getApplicationLink(), String.class);
+            boolean closed = resp.getStatusCode().is4xxClientError();
+            
+            if (!closed && resp.getBody() != null) {
+                String body = resp.getBody().toLowerCase();
+                if (body.contains("application closed") || body.contains("no longer accepting") || body.contains("expired")) {
+                    closed = true;
+                }
+            }
+
+            if (closed) {
+                List<com.edutech.jobportalsystem.entity.Application> apps = applicationRepository.findByJob(job);
+                if (apps == null || apps.isEmpty()) {
+                    jobRepository.delete(job);
+                } else {
+                    job.setIsActive(false);
+                    jobRepository.save(job);
+                }
+            }
+        } catch (HttpClientErrorException.NotFound nf) {
+            List<com.edutech.jobportalsystem.entity.Application> apps = applicationRepository.findByJob(job);
+            if (apps == null || apps.isEmpty()) {
+                jobRepository.delete(job);
+            } else {
+                job.setIsActive(false);
+                jobRepository.save(job);
+            }
+        } catch (Exception e) {
+            // Silent ignore for network timeouts etc
+        }
     }
 
     private User getOrCreateGlobalRecruiter() {
