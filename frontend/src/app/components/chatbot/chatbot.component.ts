@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../../services/http.service';
 import { AuthService } from '../../services/auth.service';
+import { ChatService } from '../../services/chat.service';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -39,6 +40,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   constructor(
     private httpService: HttpService, 
     private authService: AuthService,
+    private chatService: ChatService,
     private sanitizer: DomSanitizer
   ) {}
 
@@ -49,6 +51,13 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
         this.loadHistory();
       } else {
         this.resetChat();
+      }
+    });
+
+    this.chatService.chatOpen$.subscribe(isOpen => {
+      this.isOpen = isOpen;
+      if (isOpen) {
+        setTimeout(() => this.scrollToBottom(), 100);
       }
     });
   }
@@ -100,10 +109,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   }
 
   toggleChat() {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
-      setTimeout(() => this.scrollToBottom(), 100);
-    }
+    this.chatService.toggleChat();
   }
 
   sendMessage(text?: string) {

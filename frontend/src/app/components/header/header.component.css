@@ -1,8 +1,8 @@
 :host {
-  --header-bg: rgba(248, 239, 226, 0.95);
-  --header-border: rgba(111, 82, 52, 0.18);
-  --header-text: #1f1d18;
-  --header-text-muted: #6b5a47;
+  --header-bg: rgba(244, 239, 230, 0.95);
+  --header-border: rgba(187, 62, 45, 0.12);
+  --header-text: #0f1724;
+  --header-text-muted: #7b6f63;
   --brand-primary: #bb3e2d;
   --brand-accent: #0d6774;
 }

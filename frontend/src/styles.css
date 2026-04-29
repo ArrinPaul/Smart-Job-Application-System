@@ -1398,16 +1398,62 @@ button:disabled {
   margin-bottom: 4px;
 }
 
-/* ==================== PAGINATION ==================== */
-.pagination {
-  display: flex;
-  justify-content: center;
+/* Common Smart UI Helpers */
+.smart-card {
+  background: var(--surface);
+  border: 1px solid rgba(187, 62, 45, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+}
+
+.smart-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 32px;
-  padding: 16px;
-  background: rgba(31, 29, 24, 0.03);
-  border-radius: var(--radius-md);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.smart-badge--primary { background: rgba(187, 62, 45, 0.1); color: var(--brand); }
+.smart-badge--accent { background: rgba(13, 103, 116, 0.1); color: var(--accent); }
+.smart-badge--success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.section-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title::before {
+  content: '';
+  width: 6px;
+  height: 24px;
+  background: var(--brand);
+  border-radius: 3px;
+}
+
+/* Animations */
+@keyframes pulse-soft {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-soft 3s infinite ease-in-out;
 }
 
 .pagination-btn {

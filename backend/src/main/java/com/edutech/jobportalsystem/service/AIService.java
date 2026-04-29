@@ -69,23 +69,23 @@ public class AIService {
     public String generateContent(String prompt) {
         checkAndResetDailyLimits();
 
-        // Try Direct Gemini (Primary - Best Quality)
-        String response = tryGemini(prompt);
+        // Try Groq (Primary - Fast & Reliable)
+        String response = tryGroq(prompt);
         if (response != null) return response;
 
-        // Try Groq (Fallback 1 - LPU Speed)
-        logger.warn("Gemini failed or limit reached. Trying Groq fallback...");
-        response = tryGroq(prompt);
-        if (response != null) return response;
-
-        // Try Hugging Face (Fallback 2)
+        // Try Hugging Face (Fallback 1)
         logger.warn("Groq failed or limit reached. Trying Hugging Face fallback...");
         response = tryHuggingFace(prompt);
         if (response != null) return response;
 
-        // Try OpenRouter (Fallback 3)
+        // Try OpenRouter (Fallback 2)
         logger.warn("Hugging Face failed or limit reached. Trying OpenRouter fallback...");
         response = tryOpenRouter(prompt);
+        if (response != null) return response;
+
+        // Try Direct Gemini (Fallback 3 - Last Option)
+        logger.warn("OpenRouter failed or limit reached. Trying Gemini fallback...");
+        response = tryGemini(prompt);
         if (response != null) return response;
 
         logger.error("All AI providers failed or limits exceeded for today.");
@@ -202,15 +202,27 @@ public class AIService {
             body.put("inputs", prompt);
             
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-            List<Map<String, Object>> response = restTemplate.postForObject(hfUrl, entity, List.class);
+            // HF Inference API usually returns a List of Maps
+            Object rawResponse = restTemplate.postForObject(hfUrl, entity, Object.class);
 
-            if (response != null && !response.isEmpty()) {
-                incrementUsage("huggingface");
-                return (String) response.get(0).get("generated_text");
+            if (rawResponse instanceof List) {
+                List<Map<String, Object>> responseList = (List<Map<String, Object>>) rawResponse;
+                if (!responseList.isEmpty()) {
+                    incrementUsage("huggingface");
+                    Object genText = responseList.get(0).get("generated_text");
+                    return genText != null ? genText.toString() : null;
+                }
+            } else if (rawResponse instanceof Map) {
+                Map<String, Object> responseMap = (Map<String, Object>) rawResponse;
+                if (responseMap.containsKey("generated_text")) {
+                    incrementUsage("huggingface");
+                    return responseMap.get("generated_text").toString();
+                }
             }
             return null;
         } catch (Exception e) {
             logger.error("Hugging Face error: {}", e.getMessage());
+            // Log full error for debugging if it's a 4xx/5xx
             return null;
         }
     }
@@ -227,19 +239,23 @@ public class AIService {
         body.put("messages", messages);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-        Map<String, Object> response = restTemplate.postForObject(url, entity, Map.class);
+        try {
+            Map<String, Object> response = restTemplate.postForObject(url, entity, Map.class);
 
-        if (response != null && response.containsKey("choices")) {
-            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
-            if (!choices.isEmpty()) {
-                Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-                return (String) message.get("content");
+            if (response != null && response.containsKey("choices")) {
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+                if (!choices.isEmpty()) {
+                    Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+                    return (String) message.get("content");
+                }
             }
+        } catch (Exception e) {
+            logger.error("API Error ({}): {}", url, e.getMessage());
         }
         return null;
     }
 
     private boolean isKeyInvalid(String key) {
-        return key == null || key.isBlank() || key.contains("YOUR_") || key.length() < 10;
+        return key == null || key.isBlank() || key.startsWith("YOUR_") || key.length() < 8;
     }
 }

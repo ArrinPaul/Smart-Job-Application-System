@@ -71,6 +71,33 @@
 .qa-item{display:block;padding:10px 12px;background:transparent;border-radius:8px;color:var(--ink);text-decoration:none;margin-bottom:8px;border:1px solid rgba(16,24,40,0.03)}
 .qa-item:hover{background:rgba(16,24,40,0.02)}
 
+.chat-ai-item {
+  background: rgba(13, 103, 116, 0.05) !important;
+  border: 1px dashed rgba(13, 103, 116, 0.3) !important;
+  color: var(--accent) !important;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-ai-item:hover {
+  background: rgba(13, 103, 116, 0.1) !important;
+  border-style: solid !important;
+}
+
+.chat-ai-item::after {
+  content: 'AI';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 8px;
+  background: var(--accent);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
 @media (max-width:900px){.container{grid-template-columns:1fr}.hero-right{display:none}.dashboard-main{margin-top:10px}}
 
 /* Recommendations Grid */

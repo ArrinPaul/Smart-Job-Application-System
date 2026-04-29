@@ -96,23 +96,30 @@ public class SmartInsightsService {
         int skillsScore = 0;
         if (totalRequiredWeight > 0) {
             double pct = matchedWeight / totalRequiredWeight;
-            skillsScore = (int) Math.round(pct * 60.0); // skills weight contribution
+            skillsScore = (int) Math.round(pct * 50.0); // Skills are 50% of the score
         } else if (!requiredSkills.isEmpty()) {
-            skillsScore = 30; // neutral
+            skillsScore = 25; // neutral
         }
 
         // Calculate other components using existing helpers
         int experienceScore = 0;
         if (profile != null && job.getExperienceRequired() != null) {
             int userExp = profile.getExperienceYears() != null ? profile.getExperienceYears() : 0;
-            experienceScore = calculateExperienceContribution(userExp, job.getExperienceRequired());
+            // Experience is 25% of the score
+            experienceScore = (int) (calculateExperienceContribution(userExp, job.getExperienceRequired()) * 25.0 / 25.0);
         }
 
-        int locationScore = calculateLocationContribution(user.getLocation(), profile, job);
+        // Location is 15% of the score
+        int locationContribution = calculateLocationContribution(user.getLocation(), profile, job);
+        int locationScore = (int) (locationContribution * 15.0 / 10.0);
 
-        int recentBonus = (job.getCreatedAt() != null && job.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(7))) ? 5 : 0;
+        // Title match is 10%
+        int titleScore = 0;
+        if (profile != null && profile.getCurrentDesignation() != null) {
+            titleScore = (int) (scoreJobTitleSimilarity(profile.getCurrentDesignation(), job.getTitle()) * 10.0 / 15.0);
+        }
 
-        int score = Math.min(100, skillsScore + experienceScore + locationScore + recentBonus);
+        int score = Math.min(100, skillsScore + experienceScore + locationScore + titleScore);
 
         Map<String, Object> insights = new LinkedHashMap<>();
         insights.put("jobTitle", job.getTitle());
@@ -124,14 +131,13 @@ public class SmartInsightsService {
         
         // AI powered insights
         String aiPrompt = String.format(
-            "As a career advisor, analyze this job match.\n" +
-            "Job: %s at %s\n" +
-            "Required Skills: %s\n" +
-            "User's Match Score: %d/100\n" +
-            "Matching Skills: %s\n" +
-            "Missing Skills: %s\n" +
-            "Provide 3-4 concise, actionable recommendations for the candidate to improve their chances for this specific role.",
-            job.getTitle(), job.getCompanyName(), job.getRequiredSkills(), score,
+            "Analyze this job match and provide 3-4 professional, actionable career tips.\n" +
+            "Job Role: %s at %s\n" +
+            "Match Score: %d/100 (%s)\n" +
+            "Candidate's Matching Skills: %s\n" +
+            "Key Missing Skills: %s\n" +
+            "Advice should focus on how to bridge the gap and stand out.",
+            job.getTitle(), job.getCompanyName(), score, getMatchLevel(score),
             String.join(", ", matchingSkills), String.join(", ", missingSkills)
         );
         String aiRecommendations = aiService.generateContent(aiPrompt);
@@ -228,6 +234,38 @@ public class SmartInsightsService {
         }
 
         return Math.min(10, score);
+    }
+
+    private int scoreJobTitleSimilarity(String userTitle, String jobTitle) {
+        if (userTitle == null || userTitle.isEmpty() || jobTitle == null || jobTitle.isEmpty()) {
+            return 0;
+        }
+
+        String userTitleLower = userTitle.toLowerCase();
+        String jobTitleLower = jobTitle.toLowerCase();
+
+        if (userTitleLower.equals(jobTitleLower)) {
+            return 15;
+        }
+
+        String[] userWords = userTitleLower.split("\\s+");
+        String[] jobWords = jobTitleLower.split("\\s+");
+
+        int matchedWords = 0;
+        for (String userWord : userWords) {
+            for (String jobWord : jobWords) {
+                if (userWord.equals(jobWord) && userWord.length() > 2) {
+                    matchedWords++;
+                    break;
+                }
+            }
+        }
+
+        if (matchedWords > 0) {
+            return Math.min(15, matchedWords * 5);
+        }
+
+        return 0;
     }
 
     private List<Job> findSimilarJobs(Job job) {

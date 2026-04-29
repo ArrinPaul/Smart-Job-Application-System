@@ -1,324 +1,145 @@
-.about-page {
-  background: var(--bg);
-  color: var(--ink);
+:root {
+  --bg:#f4efe6;
+  --surface:#fffaf6;
+  --cream:#f6efe4;
+  --ink:#0f1724;
+  --muted:#7b6f63;
+  --brand:#bb3e2d;
+  --accent:#0d6774;
+  --card-shadow: 0 12px 30px rgba(16,24,40,0.08);
 }
 
-.container {
-  max-width: 1200px;
+.about-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 80px 0;
+}
+
+.about-container {
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 24px;
 }
 
 .hero-section {
-  background: linear-gradient(180deg, #0f2a3a 0%, #123046 58%);
-  color: #fff;
-  padding: 5rem 0;
-  text-align: left;
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.eyebrow {
+  display: inline-block;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--brand);
+  margin-bottom: 16px;
+}
+
+.hero-section h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+
+.hero-section p {
+  font-size: 20px;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 80px;
+}
+
+.feature-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 40px;
+  border: 1px solid rgba(187, 62, 45, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--card-shadow);
+  border-color: var(--brand);
+}
+
+.icon-box {
+  width: 56px;
+  height: 56px;
+  background: rgba(187, 62, 45, 0.1);
+  color: var(--brand);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.feature-card h3 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.mission-panel {
+  background: var(--ink);
+  color: white;
+  border-radius: 32px;
+  padding: 80px;
+  text-align: center;
   position: relative;
   overflow: hidden;
 }
 
-.hero-section::before {
+.mission-panel::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(187, 62, 45, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(13, 103, 116, 0.08) 0%, transparent 50%);
-  pointer-events: none;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(187, 62, 45, 0.2) 0%, transparent 70%);
+  filter: blur(40px);
 }
 
-.hero-content {
+.mission-panel h2 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 24px;
   position: relative;
   z-index: 1;
 }
 
-.eyebrow {
-  margin: 0 0 0.7rem;
-  color: #9fb3c0;
-  font-size: 0.82rem;
-  letter-spacing: 1.1px;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-
-.hero-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 1.1rem;
-}
-
-.hero-pill {
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  padding: 0.38rem 0.72rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.hero-content h1 {
-  margin: 0 0 1rem;
-  font-size: clamp(2rem, 5vw, 3rem);
-  max-width: 920px;
-}
-
-.hero-content p {
-  margin: 0;
-  max-width: 760px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.1rem;
-}
-
-.mission-section,
-.values-section,
-.team-section,
-.technology-section,
-.contact-section {
-  padding: 3rem 0;
-}
-
-.stats-section,
-.how-it-works-section,
-.cta-section {
-  padding: 3rem 0;
-  background: linear-gradient(135deg, rgba(187, 62, 45, 0.04) 0%, rgba(13, 103, 116, 0.04) 100%);
-}
-
-.mission-content,
-.tech-content,
-.contact-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  align-items: center;
-}
-
-.mission-text h2,
-.stats-section h2,
-.values-section h2,
-.how-it-works-section h2,
-.team-section h2,
-.technology-section h2,
-.cta-section h2,
-.contact-section h2 {
-  margin: 0 0 1.1rem;
-  color: var(--ink);
-  font-size: clamp(1.4rem, 3vw, 2rem);
-}
-
-.mission-text p,
-.team-intro,
-.timeline-intro,
-.contact-intro,
-.timeline-content p,
-.value-card p,
-.team-bio,
-.tech-text,
-.cta-section p,
-.contact-info p {
-  color: var(--ink-soft);
-  line-height: 1.7;
-}
-
-.image-placeholder {
-  background: var(--surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  min-height: 220px;
-  display: grid;
-  place-items: center;
-  color: var(--brand);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.stats-grid,
-.values-grid,
-.team-grid,
-.timeline {
-  display: grid;
-  gap: 1rem;
-}
-
-.timeline-intro,
-.contact-intro {
-  margin: -0.25rem 0 1rem;
-}
-
-.stats-grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.values-grid,
-.team-grid,
-.timeline {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.stat-box,
-.value-card,
-.team-card,
-.timeline-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  padding: 1.2rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.stat-box:hover,
-.value-card:hover,
-.team-card:hover,
-.timeline-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
-  border-color: var(--brand);
-}
-
-.stat-number {
-  color: var(--brand);
-  font-size: 2rem;
-  font-weight: 800;
-}
-
-.stat-label,
-.value-icon,
-.team-role {
-  color: var(--ink-soft);
-}
-
-.value-card h3,
-.timeline-content h3,
-.team-card h3,
-.tech-text h3,
-.contact-info h3,
-.social-links h3 {
-  color: var(--ink);
-  margin: 0.2rem 0 0.6rem;
-}
-
-.timeline-number {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--brand);
-  color: #fff;
-  font-weight: 700;
-  display: grid;
-  place-items: center;
-  margin-bottom: 0.8rem;
-}
-
-.tech-list {
-  margin: 0;
-  padding-left: 1.2rem;
-  color: var(--ink-soft);
-  line-height: 1.7;
-}
-
-.tech-list strong {
-  color: var(--ink);
-}
-
-.cta-section {
-  text-align: center;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn-primary,
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding: 0 1rem;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  text-decoration: none;
-  border: 1px solid transparent;
-}
-
-.btn-primary {
-  background: var(--brand);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: var(--brand-strong);
-}
-
-.btn-secondary {
-  background: var(--surface);
-  color: var(--ink);
-  border-color: var(--border);
-}
-
-.social-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-
-.social-icon {
-  text-decoration: none;
-  color: var(--brand);
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.4rem 0.7rem;
-  font-weight: 600;
-}
-
-.contact-info a,
-.social-icon:hover {
-  color: var(--brand-strong);
-}
-
-@media (max-width: 900px) {
-  .mission-content,
-  .tech-content,
-  .contact-content {
-    grid-template-columns: 1fr;
-  }
+.mission-panel p {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.8;
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 0 1rem;
-  }
-
-  .hero-section {
-    padding: 3rem 0;
-  }
-
-  .hero-content {
-    text-align: center;
-  }
-
-  .hero-content p,
-  .hero-content h1 {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .hero-pills {
-    justify-content: center;
-  }
-
-  .stats-grid,
-  .values-grid,
-  .team-grid,
-  .timeline {
-    grid-template-columns: 1fr;
-  }
+  .about-page { padding: 40px 0; }
+  .mission-panel { padding: 40px 24px; }
+  .hero-section { margin-bottom: 40px; }
 }

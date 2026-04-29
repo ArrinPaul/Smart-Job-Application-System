@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
+import { ChatService } from '../services/chat.service';
 import { JobRecommendation } from '../models/recommendation.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -28,7 +29,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private httpService: HttpService,
-    private authService: AuthService
+    private authService: AuthService,
+    private chatService: ChatService
   ) {}
 
   ngOnInit(): void {
@@ -38,6 +40,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  openChat(event: Event): void {
+    event.preventDefault();
+    this.chatService.openChat();
   }
 
   loadDashboardData(): void {

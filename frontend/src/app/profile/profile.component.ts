@@ -21,6 +21,7 @@ export class ProfileComponent implements OnInit {
   userProfile: any = {};
   role: UserRole | null = null;
   UserRole = UserRole;
+  profileCompletionPercent: number = 0;
 
   // Dropdown Options (Synced with Onboarding)
   headlineOptions = [
@@ -66,6 +67,16 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.role = this.authService.getRole();
     this.loadProfile();
+    this.loadCompletionStatus();
+  }
+
+  loadCompletionStatus(): void {
+    this.httpService.getOnboardingStatus().subscribe({
+      next: (status) => {
+        this.profileCompletionPercent = status.completionPercentage || 0;
+      },
+      error: () => {}
+    });
   }
 
   loadProfile(): void {
@@ -141,6 +152,7 @@ export class ProfileComponent implements OnInit {
         this.isEditing = false;
         this.toastService.showSuccess('Profile updated successfully');
         this.loadProfile();
+        this.loadCompletionStatus(); // Refresh completion
       },
       error: (err) => {
         this.isSaving = false;

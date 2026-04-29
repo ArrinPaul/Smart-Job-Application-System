@@ -148,38 +148,44 @@ public class JobRecommendationService {
         int maxScore = 0;
         List<String> matchReasons = new ArrayList<>();
 
-        // 1. SKILLS MATCH (40 points max)
+        // 1. SKILLS MATCH (50 points max - Primary Driver)
         boolean skillsApplicable = profile != null && profile.getSkills() != null && !profile.getSkills().isEmpty() && job.getRequiredSkills() != null && !job.getRequiredSkills().isEmpty();
         if (skillsApplicable) {
             int skillsScore = scoreSkillsMatch(profile.getSkills(), job.getRequiredSkills());
             totalScore += skillsScore;
-            maxScore += 40;
-            if (skillsScore > 0) {
+            maxScore += 50;
+            if (skillsScore >= 40) {
+                matchReasons.add("Excellent skill alignment: " + getMatchedSkills(profile.getSkills(), job.getRequiredSkills()));
+            } else if (skillsScore > 0) {
                 matchReasons.add("Matched key skills: " + getMatchedSkills(profile.getSkills(), job.getRequiredSkills()));
             }
         }
 
-        // 2. EXPERIENCE LEVEL (25 points max)
+        // 2. EXPERIENCE LEVEL (20 points max)
         boolean expApplicable = profile != null && profile.getExperienceYears() != null && job.getExperienceRequired() != null;
         if (expApplicable) {
             int experienceScore = scoreExperienceMatch(profile.getExperienceYears(), job.getExperienceRequired());
-            totalScore += experienceScore;
-            maxScore += 25;
+            // Normalize 25-point internal scale to 20-point contribution
+            int normalizedExp = (int) (experienceScore * 20.0 / 25.0);
+            totalScore += normalizedExp;
+            maxScore += 20;
             if (experienceScore >= 20) {
-                matchReasons.add("Perfect experience match");
-            } else if (experienceScore > 0) {
-                matchReasons.add("Experience is a close match");
+                matchReasons.add("Strong experience match");
+            } else if (experienceScore > 10) {
+                matchReasons.add("Experience is relevant");
             }
         }
 
-        // 3. JOB TITLE/DESIGNATION SIMILARITY (15 points max)
+        // 3. JOB TITLE/DESIGNATION SIMILARITY (10 points max)
         boolean titleApplicable = profile != null && profile.getCurrentDesignation() != null && job.getJobTitle() != null;
         if (titleApplicable) {
             int titleScore = scoreJobTitleSimilarity(profile.getCurrentDesignation(), job.getJobTitle());
-            totalScore += titleScore;
-            maxScore += 15;
+            // Normalize 15-point internal scale to 10-point contribution
+            int normalizedTitle = (int) (titleScore * 10.0 / 15.0);
+            totalScore += normalizedTitle;
+            maxScore += 10;
             if (titleScore >= 10) {
-                matchReasons.add("Role matches your background");
+                matchReasons.add("Role matches your career path");
             }
         }
 
@@ -190,7 +196,7 @@ public class JobRecommendationService {
             totalScore += salaryScore;
             maxScore += 10;
             if (salaryScore >= 8) {
-                matchReasons.add("Fits your salary expectations");
+                matchReasons.add("Fits your salary range");
             }
         }
 
@@ -205,14 +211,10 @@ public class JobRecommendationService {
             }
         }
 
-        // 6. RECENTLY POSTED BONUS (5 points)
-        if (job.getCreatedAt() != null && job.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(7))) {
+        // 6. RECENTLY POSTED BONUS (Deleted maxScore contribution to make it a true bonus)
+        if (job.getCreatedAt() != null && job.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(3))) {
             totalScore += 5;
-            maxScore += 5;
-            matchReasons.add("Recently posted");
-        } else {
-            // still add to maxScore to allow newer jobs to gain a small advantage
-            maxScore += 5;
+            matchReasons.add("Fresh posting");
         }
 
         // Calculate percentage
@@ -220,14 +222,14 @@ public class JobRecommendationService {
         matchPercentage = Math.min(100, matchPercentage); // Cap at 100%
 
         String aiExplanation = null;
-        if (matchPercentage >= 70) {
+        // Only generate AI explanation for strong matches to save tokens and avoid noise
+        if (matchPercentage >= 75) {
             String prompt = String.format(
-                "Explain why this job is a good match for the candidate.\n" +
+                "In 2 short sentences, explain why this job is a GREAT match for this candidate.\n" +
                 "Job: %s at %s\n" +
                 "Candidate Skills: %s\n" +
-                "Candidate Experience: %d years\n" +
-                "Match Reasons: %s\n" +
-                "Keep it very short (max 2 sentences).",
+                "Experience: %d years\n" +
+                "Key Strengths: %s",
                 job.getJobTitle(), job.getCompanyName(), 
                 profile != null ? profile.getSkills() : "N/A",
                 profile != null ? profile.getExperienceYears() : 0,
@@ -252,7 +254,7 @@ public class JobRecommendationService {
     }
 
     /**
-     * Score skills match (0-40 points)
+     * Score skills match (0-50 points)
      * Uses a weighted approach where rare skills carry more weight.
      */
     private int scoreSkillsMatch(String userSkills, String requiredSkills) {
@@ -276,15 +278,23 @@ public class JobRecommendationService {
             double skillWeight = globalSkillWeights.getOrDefault(requiredTrimmed, 1.0);
             totalRequiredWeight += skillWeight;
 
-            if (userSkillSet.stream().anyMatch(s -> s.contains(requiredTrimmed) || requiredTrimmed.contains(s))) {
+            // Check for direct match or substring (e.g., "Java" in "Java Developer" or vice versa)
+            boolean isMatched = userSkillSet.stream().anyMatch(s -> {
+                String sTrim = s.trim();
+                return sTrim.equals(requiredTrimmed) || 
+                       (sTrim.length() > 3 && requiredTrimmed.contains(sTrim)) || 
+                       (requiredTrimmed.length() > 3 && sTrim.contains(requiredTrimmed));
+            });
+
+            if (isMatched) {
                 matchedWeight += skillWeight;
             }
         }
 
-        if (totalRequiredWeight == 0) return 20; // Neutral score
+        if (totalRequiredWeight == 0) return 25; // Neutral score
 
         double percentage = matchedWeight / totalRequiredWeight;
-        return (int) Math.round(percentage * 40);
+        return (int) Math.round(percentage * 50);
     }
 
     /**
