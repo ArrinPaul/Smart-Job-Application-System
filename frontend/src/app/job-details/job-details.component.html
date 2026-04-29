@@ -74,7 +74,7 @@
         <h2>About the Company</h2>
         <div class="company-info">
           <h3>{{ job.companyName || job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</h3>
-          <p *ngIf="job.postedBy?.companyName">{{ job.postedBy.companyName }}</p>
+          <p *ngIf="job.postedBy?.companyName">{{ job.postedBy?.companyName }}</p>
           <p *ngIf="job.companyName && !job.postedBy?.companyName" class="scraped-info">
             This job was sourced directly from the employer's portal.
           </p>
@@ -129,9 +129,9 @@
             </span>
             <span class="fact-value" *ngIf="!job.salaryMin || !job.salaryMax">Competitive</span>
           </div>
-          <div class="fact-item" *ngIf="job.postedDate">
+          <div class="fact-item" *ngIf="job.createdAt">
             <span class="fact-label">Posted</span>
-            <span class="fact-value">{{ job.postedDate | date:'mediumDate' }}</span>
+            <span class="fact-value">{{ job.createdAt | date:'mediumDate' }}</span>
           </div>
         </div>
       </div>
