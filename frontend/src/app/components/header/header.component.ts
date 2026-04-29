@@ -24,7 +24,15 @@ export class HeaderComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const url = event.urlAfterRedirects || event.url;
-      this.isVisible = !(['/', '/landing', '/login', '/register', '/onboarding'].some(path => url === path || url.startsWith(path + '?')));
+      const hiddenPaths = [
+        '/', '/landing', '/login', '/register', '/onboarding', 
+        '/admin', '/applications', '/post-job', '/resume'
+      ];
+      this.isVisible = !hiddenPaths.some(path => 
+        url === path || 
+        url.startsWith(path + '/') || 
+        url.startsWith(path + '?')
+      );
     });
   }
 
