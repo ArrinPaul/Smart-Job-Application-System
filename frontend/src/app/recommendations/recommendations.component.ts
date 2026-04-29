@@ -82,7 +82,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
   applyForJob(jobId: number, event: Event): void {
     event.stopPropagation();
     // Emit event or navigate to job details with apply action
-    console.log('Apply for job:', jobId);
   }
 
   shareRecommendation(recommendation: JobRecommendation, event: Event): void {
@@ -93,7 +92,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
       navigator.share({
         title: recommendation.jobTitle,
         text: text
-      }).catch(err => console.log('Error sharing:', err));
+      }).catch(() => {});
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(text).then(() => {

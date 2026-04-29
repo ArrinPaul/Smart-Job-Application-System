@@ -88,6 +88,16 @@
             <span>Match</span>
           </div>
           <p class="insight-text">{{ selectedInsights.matchLevel }}</p>
+          
+          <!-- Match reasons -->
+          <div class="insight-reasons" *ngIf="selectedInsights.topMatches?.length">
+            <span *ngFor="let m of selectedInsights.topMatches | slice:0:3" class="reason-pill">{{ m }}</span>
+          </div>
+
+          <!-- AI Explanation -->
+          <div class="ai-explanation" *ngIf="selectedInsights.aiInsights">
+            <p>{{ selectedInsights.aiInsights }}</p>
+          </div>
         </div>
 
         <div class="card-actions" *ngIf="!isAdmin">

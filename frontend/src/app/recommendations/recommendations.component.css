@@ -345,6 +345,38 @@
   flex-shrink: 0;
 }
 
+/* AI Analysis Styles */
+.ai-analysis {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #10b981;
+}
+
+.ai-analysis h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #047857;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-analysis h5::before {
+  content: '✨';
+}
+
+.ai-analysis p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #374151;
+  line-height: 1.5;
+  font-style: italic;
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid #10b981;
+}
+
 /* Card Footer */
 .card-footer {
   display: grid;

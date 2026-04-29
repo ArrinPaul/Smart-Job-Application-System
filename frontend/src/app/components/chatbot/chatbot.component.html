@@ -1,0 +1,50 @@
+<div class="chatbot-container" [class.open]="isOpen">
+  <!-- Chat Button (Floating Action Button) -->
+  <button class="chat-toggle-btn" (click)="toggleChat()">
+    <span *ngIf="!isOpen">💬</span>
+    <span *ngIf="isOpen">✕</span>
+  </button>
+
+  <!-- Chat Window -->
+  <div class="chat-window" *ngIf="isOpen">
+    <div class="chat-header">
+      <h3>Career Assistant</h3>
+      <p>Powered by Gemini AI</p>
+    </div>
+
+    <div class="chat-messages" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+      <div *ngFor="let msg of messages" class="message" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'">
+        <div class="message-content">
+          {{ msg.text }}
+          <div class="message-time">{{ msg.timestamp | date:'shortTime' }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="isLoading" class="message bot">
+        <div class="message-content loading">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestion Chips -->
+    <div class="suggestions-container" *ngIf="messages.length < 3 && !isLoading">
+      <div *ngFor="let suggest of suggestions" class="suggestion-chip" (click)="sendMessage(suggest)">
+        {{ suggest }}
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input 
+        type="text" 
+        [(ngModel)]="userInput" 
+        (keyup.enter)="sendMessage()" 
+        placeholder="Ask me anything..."
+        [disabled]="isLoading"
+      >
+      <button (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
+        ➤
+      </button>
+    </div>
+  </div>
+</div>

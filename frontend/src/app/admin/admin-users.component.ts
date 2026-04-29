@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../services/http.service';
 import { ToastService } from '../services/toast.service';
-import { User } from '../models/user.model';
+import { User, UserRole } from '../models/user.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -111,8 +111,8 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
     this.httpService.updateUser(this.editingUser.id, {
       email: this.editingUser.email,
       username: this.editingUser.username,
-      role: this.editingUser.role
-    } as any).pipe(takeUntil(this.destroy$)).subscribe({
+      role: this.editingUser.role as UserRole
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isLoading = false;
         this.toastService.showSuccess('User updated successfully');

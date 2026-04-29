@@ -50,14 +50,6 @@ export class RoleGuard implements CanActivate {
     const userRole = this.authService.getRole();
     const isOnboardingCompleted = this.authService.isOnboardingCompleted();
 
-    console.log('[RoleGuard] Checking access:', {
-      url: state.url,
-      requiredRoles,
-      userRole,
-      isLoggedIn,
-      isOnboardingCompleted
-    });
-
     if (!isLoggedIn) {
       console.warn('[RoleGuard] Not logged in, redirecting to login');
       this.router.navigate(['/login']);

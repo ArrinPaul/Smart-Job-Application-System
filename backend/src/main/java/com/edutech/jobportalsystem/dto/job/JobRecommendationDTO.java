@@ -19,5 +19,6 @@ public class JobRecommendationDTO {
     private BigDecimal salaryMax;
     private Integer matchPercentage;
     private List<String> matchReasons;
+    private String aiExplanation;
     private String slug;
 }

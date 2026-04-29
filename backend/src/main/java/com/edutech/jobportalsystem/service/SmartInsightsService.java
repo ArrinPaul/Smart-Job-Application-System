@@ -38,6 +38,9 @@ public class SmartInsightsService {
     @Autowired
     private JobSeekerProfileRepository profileRepository;
 
+    @Autowired
+    private AIService aiService;
+
     /**
      * Match a user's resume and profile against a specific job and return insights.
      */
@@ -118,23 +121,43 @@ public class SmartInsightsService {
         insights.put("matchLevel", getMatchLevel(score));
         insights.put("topMatches", matchingSkills.stream().limit(6).collect(Collectors.toList()));
         insights.put("improvementAreas", missingSkills.stream().limit(5).collect(Collectors.toList()));
+        
+        // AI powered insights
+        String aiPrompt = String.format(
+            "As a career advisor, analyze this job match.\n" +
+            "Job: %s at %s\n" +
+            "Required Skills: %s\n" +
+            "User's Match Score: %d/100\n" +
+            "Matching Skills: %s\n" +
+            "Missing Skills: %s\n" +
+            "Provide 3-4 concise, actionable recommendations for the candidate to improve their chances for this specific role.",
+            job.getTitle(), job.getCompanyName(), job.getRequiredSkills(), score,
+            String.join(", ", matchingSkills), String.join(", ", missingSkills)
+        );
+        String aiRecommendations = aiService.generateContent(aiPrompt);
+        insights.put("aiInsights", aiRecommendations);
+        
         insights.put("recommendations", generateRecommendations(score, missingSkills, job, profile));
 
         // Add weighted skill importance for display
-        List<Map<String, Object>> skillWeightsList = requiredSkills.stream().map(s -> Map.of(
-                "skill", s,
-                "weight", skillWeights.getOrDefault(s.toLowerCase(), 1.0)
-        )).collect(Collectors.toList());
+        List<Map<String, Object>> skillWeightsList = requiredSkills.stream().map(s -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("skill", s);
+            map.put("weight", skillWeights.getOrDefault(s.toLowerCase(), 1.0));
+            return map;
+        }).collect(Collectors.toList());
         insights.put("requiredSkillsWeighted", skillWeightsList);
 
         // Similar jobs (same company or similar title)
         List<Job> similar = findSimilarJobs(job);
-        insights.put("similarJobs", similar.stream().limit(5).map(j -> Map.of(
-                "id", j.getId(),
-                "title", j.getTitle(),
-                "company", j.getCompanyName(),
-                "slug", j.getSlug()
-        )).collect(Collectors.toList()));
+        insights.put("similarJobs", similar.stream().limit(5).map(j -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", j.getId());
+            map.put("title", j.getTitle());
+            map.put("company", j.getCompanyName());
+            map.put("slug", j.getSlug());
+            return map;
+        }).collect(Collectors.toList()));
 
         return insights;
     }
@@ -175,6 +198,36 @@ public class SmartInsightsService {
             return scoreLocationMatch(userLocation, profile != null ? profile.getWorkPreference() : null, job.getLocation(), job.getWorkType());
         }
         return 0;
+    }
+
+    private int scoreLocationMatch(String userLocation, String userWorkPreference, String jobLocation, String jobWorkType) {
+        int score = 0;
+
+        // Work type match (remote, on-site, hybrid)
+        if (userWorkPreference != null && jobWorkType != null) {
+            String prefLower = userWorkPreference.toLowerCase();
+            String jobTypeLower = jobWorkType.toLowerCase();
+
+            if (jobTypeLower.contains("remote") && prefLower.contains("remote")) {
+                score += 5;
+            } else if (jobTypeLower.contains("on-site") && prefLower.contains("on-site")) {
+                score += 5;
+            } else if (jobTypeLower.contains("hybrid")) {
+                score += 5; // Hybrid works for any preference
+            }
+        }
+
+        // Location match
+        if (userLocation != null && jobLocation != null) {
+            String userLocLower = userLocation.toLowerCase();
+            String jobLocLower = jobLocation.toLowerCase();
+
+            if (userLocLower.contains(jobLocLower) || jobLocLower.contains(userLocLower)) {
+                score += 5;
+            }
+        }
+
+        return Math.min(10, score);
     }
 
     private List<Job> findSimilarJobs(Job job) {

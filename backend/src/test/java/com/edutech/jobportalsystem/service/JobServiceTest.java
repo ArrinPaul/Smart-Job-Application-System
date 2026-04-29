@@ -12,12 +12,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -97,7 +100,7 @@ public class JobServiceTest {
     @Test
     void searchJobs_ByTitle_ReturnsFilteredList() {
         // Arrange
-        when(jobRepository.findByTitleContainingIgnoreCase("Java")).thenReturn(List.of(job));
+        when(jobRepository.findByTitleContainingIgnoreCase(eq("Java"), any(Pageable.class))).thenReturn(List.of(job));
 
         // Act
         List<Job> result = jobService.searchJobs("Java", null);
@@ -108,12 +111,24 @@ public class JobServiceTest {
     }
 
     @Test
-    void searchJobs_NoFilter_ReturnsAll() {
+    void searchJobs_ByLocation_ReturnsFilteredList() {
+        // Arrange
+        when(jobRepository.findByLocationContainingIgnoreCase(eq("Bangalore"), any(Pageable.class))).thenReturn(List.of(job));
+
+        // Act
+        List<Job> result = jobService.searchJobs(null, "Bangalore");
+
+        // Assert
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getAllJobs_CallsFindAll() {
         // Arrange
         when(jobRepository.findAll()).thenReturn(List.of(job));
 
         // Act
-        List<Job> result = jobService.searchJobs(null, null);
+        List<Job> result = jobService.getAllJobs();
 
         // Assert
         assertEquals(1, result.size());

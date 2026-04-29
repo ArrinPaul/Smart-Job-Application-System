@@ -89,6 +89,12 @@
                 {{ reason }}
               </li>
             </ul>
+
+            <!-- AI Explanation -->
+            <div *ngIf="rec.aiExplanation" class="ai-analysis">
+              <h5>AI Match Analysis:</h5>
+              <p>{{ rec.aiExplanation }}</p>
+            </div>
           </div>
         </div>
 

@@ -28,6 +28,9 @@ public class JobRecommendationService {
     @Autowired
     private JobSeekerProfileRepository jobSeekerProfileRepository;
 
+    @Autowired
+    private AIService aiService;
+
     private Map<String, Double> globalSkillWeights = new HashMap<>();
 
     // Cache for recommendations: userId -> (timestamp, recommendations)
@@ -216,6 +219,23 @@ public class JobRecommendationService {
         int matchPercentage = maxScore > 0 ? Math.round((totalScore * 100) / (float) maxScore) : 0;
         matchPercentage = Math.min(100, matchPercentage); // Cap at 100%
 
+        String aiExplanation = null;
+        if (matchPercentage >= 70) {
+            String prompt = String.format(
+                "Explain why this job is a good match for the candidate.\n" +
+                "Job: %s at %s\n" +
+                "Candidate Skills: %s\n" +
+                "Candidate Experience: %d years\n" +
+                "Match Reasons: %s\n" +
+                "Keep it very short (max 2 sentences).",
+                job.getJobTitle(), job.getCompanyName(), 
+                profile != null ? profile.getSkills() : "N/A",
+                profile != null ? profile.getExperienceYears() : 0,
+                String.join(", ", matchReasons)
+            );
+            aiExplanation = aiService.generateContent(prompt);
+        }
+
         return new JobRecommendationDTO(
                 job.getId(),
                 job.getJobTitle(),
@@ -226,6 +246,7 @@ public class JobRecommendationService {
                 job.getSalaryMax(),
                 matchPercentage,
                 matchReasons,
+                aiExplanation,
                 job.getSlug()
         );
     }

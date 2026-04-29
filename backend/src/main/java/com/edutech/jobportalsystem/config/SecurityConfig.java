@@ -58,8 +58,8 @@ public class SecurityConfig {
                     .requestMatchers(
                             "/auth/register", "/auth/login", "/auth/verify-email", "/auth/forgot-password", "/auth/reset-password",
                             "/api/auth/register", "/api/auth/login", "/api/auth/verify-email", "/api/auth/forgot-password", "/api/auth/reset-password",
-                            "/public/**", "/api/public/**", "/jobs/**", "/api/jobs/**"
-                    ).permitAll()
+                            "/public/**", "/api/public/**", "/jobs/**", "/api/jobs/**", "/chat/**", "/api/chat/**"
+                            ).permitAll()
                     .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/recruiter/**", "/api/recruiter/**").hasRole("RECRUITER")
                     .requestMatchers(HttpMethod.GET, "/jobs", "/api/jobs").hasAnyRole("JOB_SEEKER", "RECRUITER")

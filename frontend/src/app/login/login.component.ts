@@ -71,31 +71,20 @@ export class LoginComponent implements OnDestroy {
             const onboardingCompleted = response.onboardingCompleted;
 
             if (!onboardingCompleted && role !== UserRole.ADMIN) {
-              console.log('Navigating to onboarding...');
               this.router.navigate(['/onboarding']);
             } else {
-              console.log('Navigating to dashboard based on role:', role);
               this.navigateBasedOnRole(role);
             }
           }, 1000);
         },
         error: (error) => {
           this.isLoading = false;
-          // Interceptor already displays user-facing error toasts.
-          if (isDevMode()) {
-            console.warn('Login failed', {
-              status: error?.status,
-              url: error?.url,
-              message: error?.error?.message || error?.message
-            });
-          }
         }
       });
   }
 
-  private navigateBasedOnRole(role: any): void {
+  private navigateBasedOnRole(role: UserRole | string): void {
     const normalizedRole = String(role).toUpperCase();
-    console.log('[Login] Normalizing role for navigation:', normalizedRole);
 
     switch (normalizedRole) {
       case 'RECRUITER':

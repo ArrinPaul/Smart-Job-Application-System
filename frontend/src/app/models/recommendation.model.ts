@@ -8,5 +8,18 @@ export interface JobRecommendation {
   salaryMax: number;
   matchPercentage: number;
   matchReasons: string[];
+  aiExplanation?: string;
   slug: string;
+}
+
+export interface JobMatchInsights {
+  jobId: number;
+  jobTitle: string;
+  compatibilityScore: number;
+  matchLevel: string;
+  topMatches: string[];
+  improvementAreas: string[];
+  recommendations: string[];
+  aiInsights?: string;
+  error?: string;
 }

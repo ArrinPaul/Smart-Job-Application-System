@@ -21,8 +21,8 @@ export class HeaderComponent implements OnInit {
   ) {
     // Hide header on auth pages
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
       const hiddenPaths = [
         '/', '/landing', '/login', '/register', '/onboarding', 

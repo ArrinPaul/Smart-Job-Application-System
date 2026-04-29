@@ -192,6 +192,12 @@
               <li *ngFor="let r of selectedInsights.recommendations">{{ r }}</li>
             </ul>
           </div>
+
+          <!-- New AI powered insights -->
+          <div class="insight-ai" *ngIf="selectedInsights.aiInsights">
+            <h5>AI Career Advisor Analysis</h5>
+            <div class="ai-text">{{ selectedInsights.aiInsights }}</div>
+          </div>
         </div>
       </div>
 

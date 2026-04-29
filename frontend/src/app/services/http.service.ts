@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/user.model';
 import { Job, Application, UpdateApplicationStatusRequest } from '../models/job.model';
 import { AdminDashboardSummary, AdminSystemStatus } from '../models/admin.model';
+import { JobRecommendation, JobMatchInsights } from '../models/recommendation.model';
 
 /**
  * HTTP Service for all API communication
@@ -243,8 +244,8 @@ export class HttpService {
   /**
    * Get job recommendations for current user
    */
-  getJobRecommendations(limit: number = 10): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/jobseeker/recommendations?limit=${limit}`);
+  getJobRecommendations(limit: number = 10): Observable<JobRecommendation[]> {
+    return this.http.get<JobRecommendation[]>(`${this.apiUrl}/jobseeker/recommendations?limit=${limit}`);
   }
 
   // ==================== ADMIN ====================
@@ -295,8 +296,8 @@ export class HttpService {
   /**
    * Get smart insights for a job (Job Applicant only)
    */
-  getJobMatchInsights(jobId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/jobseeker/insights/match/${jobId}`);
+  getJobMatchInsights(jobId: number): Observable<JobMatchInsights> {
+    return this.http.get<JobMatchInsights>(`${this.apiUrl}/jobseeker/insights/match/${jobId}`);
   }
 
   /**
@@ -346,5 +347,14 @@ export class HttpService {
    */
   updateJobAdmin(jobId: number, jobData: any): Observable<Job> {
     return this.http.put<Job>(`${this.apiUrl}/admin/jobs/${jobId}`, jobData);
+  }
+
+  // ==================== CHATBOT ====================
+
+  /**
+   * Send a message to the AI chatbot
+   */
+  sendMessage(message: string): Observable<{ response: string }> {
+    return this.http.post<{ response: string }>(`${this.apiUrl}/chat/message`, { message });
   }
 }

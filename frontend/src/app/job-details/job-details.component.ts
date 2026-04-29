@@ -1,25 +1,31 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpService } from '../services/http.service';
 import { Job } from '../models/job.model';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ToastService } from '../services/toast.service';
+import { Subject, takeUntil } from 'rxjs';
+
+import { JobMatchInsights } from '../models/recommendation.model';
+
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterModule],
   templateUrl: './job-details.component.html',
   styleUrls: ['./job-details.component.css']
 })
-export class JobDetailsComponent implements OnInit {
+export class JobDetailsComponent implements OnInit, OnDestroy {
   job: Job | null = null;
   renderedDescription: SafeHtml = '';
   loading = true;
   error = '';
-  selectedInsights: any = null;
+  selectedInsights: JobMatchInsights | null = null;
   insightLoading = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -30,7 +36,7 @@ export class JobDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const slug = params['slug'];
       if (slug) {
         this.fetchJobDetails(slug);
@@ -38,32 +44,29 @@ export class JobDetailsComponent implements OnInit {
     });
   }
 
-  fetchJobDetails(slug: string): void {
-    this.selectedInsights = null; // Clear previous
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    this.insightLoading = true;
-    this.httpService.getJobMatchInsights(this.job.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.selectedInsights = response;
-          this.insightLoading = false;
-          if (response.error) {
-            this.toastService.showWarning(response.error);
-          }
-        },
-        error: (err: any) => {
-          this.insightLoading = false;
-          // If unauthorized, prompt login and redirect
-          if (err && err.status === 401) {
-            this.toastService.showWarning('Please login to view match insights.');
-            this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
-            return;
-          }
-          this.toastService.showError('Unable to fetch job insights.');
-          this.insightJobId = null;
-        }
-      });
+  fetchJobDetails(slug: string): void {
+    this.loading = true;
+    this.error = '';
+    this.httpService.getJobBySlug(slug).subscribe({
+      next: (job) => {
+        this.job = job;
+        this.renderedDescription = this.parseMarkdown(job.description);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching job:', err);
+        this.error = 'Job not found or failed to load.';
+        this.loading = false;
+      }
+    });
+  }
+
+  /**
    * Structured markdown-lite renderer for scraped descriptions.
    * Supports headings, bullet lists, bold/italic, links, and clean paragraphs.
    */
@@ -200,9 +203,14 @@ export class JobDetailsComponent implements OnInit {
           this.toastService.showWarning(response.error);
         }
       },
-      error: () => {
-        this.toastService.showError('Unable to fetch job insights.');
+      error: (err: HttpErrorResponse) => {
         this.insightLoading = false;
+        if (err && err.status === 401) {
+          this.toastService.showWarning('Please login to view match insights.');
+          this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+          return;
+        }
+        this.toastService.showError('Unable to fetch job insights.');
       }
     });
   }

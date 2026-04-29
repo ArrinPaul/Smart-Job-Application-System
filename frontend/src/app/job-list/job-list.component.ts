@@ -8,6 +8,7 @@ import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
 import { Job } from '../models/job.model';
 import { User, UserRole } from '../models/user.model';
+import { JobMatchInsights } from '../models/recommendation.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -52,7 +53,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   isLoading = false;
   isAdmin = false;
   showUsers = false;
-  selectedInsights: any = null;
+  selectedInsights: JobMatchInsights | null = null;
   insightJobId: number | null = null;
   
   // Pagination

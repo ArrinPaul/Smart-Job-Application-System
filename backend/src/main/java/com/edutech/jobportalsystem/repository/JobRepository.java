@@ -28,6 +28,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     List<Job> findTop5ByOrderByCreatedAtDesc();
 
+    List<Job> findTop5ByIsActiveTrueOrderByCreatedAtDesc();
+
     long countByCreatedAtAfter(LocalDateTime createdAt);
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT j.postedBy.id) FROM Job j WHERE j.createdAt > :since")

@@ -21,7 +21,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   jobsViewed: number = 0;
   jobsApplied: number = 0;
   recommendations: JobRecommendation[] = [];
-  recentActivities: any[] = [];
   loading = true;
   error: string | null = null;
   

@@ -82,7 +82,6 @@ export class LandingComponent implements OnInit {
     }
 
     if (targetUrl && currentUrl !== targetUrl) {
-      console.log('[Landing] Redirecting logged-in user to:', targetUrl);
       this.router.navigate([targetUrl]);
     }
   }
