@@ -168,20 +168,16 @@ export class AuthService {
   }
 
   /**
-   * Logout and clear session
+   * Logout and clear session. Returns a promise that resolves when navigation completes.
    */
-  logout(): void {
-    // Make logout UX immediate even if network/backend is temporarily unavailable.
-    this.finalizeLogout();
-
+  logout(): Promise<boolean> {
+    // Fire-and-forget server-side logout (do not block UX)
     this.httpService.logout().subscribe({
-      next: () => {
-        // No-op: client state already cleared.
-      },
-      error: () => {
-        // No-op: client state already cleared.
-      }
+      next: () => {},
+      error: () => {}
     });
+
+    return this.finalizeLogout();
   }
 
   /**
@@ -203,7 +199,7 @@ export class AuthService {
     return sessionStorage.getItem(this.MFA_OTP_KEY);
   }
 
-  private finalizeLogout(): void {
+  private finalizeLogout(): Promise<boolean> {
     localStorage.removeItem(this.ROLE_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.MFA_KEY);
@@ -214,8 +210,15 @@ export class AuthService {
     sessionStorage.removeItem(this.MFA_OTP_KEY);
     this.loggedIn$.next(false);
 
-    this.router.navigate(['/login'], { replaceUrl: true }).catch(() => {
-      window.location.href = '/login';
+    // Return the router navigation promise so callers can await if desired.
+    return this.router.navigate(['/login'], { replaceUrl: true }).then(() => true).catch(() => {
+      // Fallback to full-page redirect if router navigation fails.
+      try {
+        window.location.href = '/login';
+      } catch (e) {
+        // ignore
+      }
+      return false;
     });
   }
 }

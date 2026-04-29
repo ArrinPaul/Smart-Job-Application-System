@@ -43,7 +43,7 @@ export class HeaderComponent implements OnInit {
   }
 
   logout(): void {
+    // Delegate navigation to AuthService; avoid duplicate navigations
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 }
