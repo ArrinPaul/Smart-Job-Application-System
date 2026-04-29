@@ -21,6 +21,8 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 *.log
+logs/
+**/logs/
 
 # ============================================
 # NODE & NPM (ANGULAR FRONTEND)

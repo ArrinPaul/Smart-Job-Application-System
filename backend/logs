@@ -7,3 +7,222 @@
 2026-04-29 10:53:50 [main] INFO  c.e.j.JobPortalSystemApplication - Started JobPortalSystemApplication in 33.803 seconds (process running for 35.937)
 2026-04-29 10:53:51 [main] WARN  c.e.j.config.AdminBootstrapConfig - Bootstrap admin account created. Username: admin
 2026-04-29 10:53:51 [main] INFO  c.e.j.config.DataLoader - Data loader is disabled
+2026-04-29 11:02:42 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - User not found in database for JWT token: Paul
+2026-04-29 11:02:42 [http-nio-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-04-29 11:02:43 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-29 11:02:43 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - User admin logged in successfully
+2026-04-29 11:02:45 [http-nio-8080-exec-4] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:02:59 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:03:03 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching all users
+2026-04-29 11:03:06 [http-nio-8080-exec-10] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-29 11:03:08 [http-nio-8080-exec-2] INFO  c.e.j.controller.AdminController - Admin request: fetching system status
+2026-04-29 11:03:10 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-29 11:03:12 [http-nio-8080-exec-3] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-29 11:03:13 [http-nio-8080-exec-4] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-29 11:03:15 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:03:15 [http-nio-8080-exec-6] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:03:45 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:03:46 [http-nio-8080-exec-9] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:04:15 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:04:16 [http-nio-8080-exec-2] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:04:45 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:04:46 [http-nio-8080-exec-3] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:06:55 [main] INFO  c.e.j.JobPortalSystemApplication - Starting JobPortalSystemApplication v0.0.1-SNAPSHOT using Java 21.0.10 with PID 9880 (D:\ON Going Projects\smart-job-portal-system\backend\target\jobportalsystem-0.0.1-SNAPSHOT.jar started by Arrin in D:\ON Going Projects\smart-job-portal-system\backend)
+2026-04-29 11:06:55 [main] INFO  c.e.j.JobPortalSystemApplication - The following 1 profile is active: "supabase"
+2026-04-29 11:07:07 [main] WARN  com.zaxxer.hikari.HikariConfig - HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2026-04-29 11:07:12 [main] WARN  o.f.c.i.database.base.Database - Flyway upgrade recommended: PostgreSQL 17.6 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 15.
+2026-04-29 11:07:17 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-29 11:07:29 [main] INFO  c.e.j.s.JobRecommendationService - Retraining recommendation engine...
+2026-04-29 11:07:34 [main] INFO  c.e.j.s.JobRecommendationService - Retraining complete. Weighted 261 unique skills.
+2026-04-29 11:07:39 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@11f8bff1, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3fb2306, org.springframework.security.web.context.SecurityContextHolderFilter@391133ad, org.springframework.security.web.header.HeaderWriterFilter@4f7c5402, org.springframework.web.filter.CorsFilter@5531484a, org.springframework.security.web.authentication.logout.LogoutFilter@729cb7b, com.edutech.jobportalsystem.security.PayloadSizeFilter@730a140b, com.edutech.jobportalsystem.security.AuthRateLimitFilter@3c2d4274, com.edutech.jobportalsystem.jwt.JwtRequestFilter@4eb313ed, com.edutech.jobportalsystem.security.MfaEnforcementFilter@2aa85cc4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7020deaa, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2d22d4b9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@99caac2, org.springframework.security.web.session.SessionManagementFilter@13666880, org.springframework.security.web.access.ExceptionTranslationFilter@42ef0b7c, org.springframework.security.web.access.intercept.AuthorizationFilter@539f0729]
+2026-04-29 11:07:41 [main] INFO  c.e.j.JobPortalSystemApplication - Started JobPortalSystemApplication in 48.894 seconds (process running for 51.85)
+2026-04-29 11:07:43 [main] INFO  c.e.j.config.AdminBootstrapConfig - Admin bootstrap skipped: user admin already exists
+2026-04-29 11:07:43 [main] INFO  c.e.j.config.DataLoader - Data loader is disabled
+2026-04-29 11:08:00 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:00 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:00 [http-nio-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/admin/dashboard/summary' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-04-29 11:08:01 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:01 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:01 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:01 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:02 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:02 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:02 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:02 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:02 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:02 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:03 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:04 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:05 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:05 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:05 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:05 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:05 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:05 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:06 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:07 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:08 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:08 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:08 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:08 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:08 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:08 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:09 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:09 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:09 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:09 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:09 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:09 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:10 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:10 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:10 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:10 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:11 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:12 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:13 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:14 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:14 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:14 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:14 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:14 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:14 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:15 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:16 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:16 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:16 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:16 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:16 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:16 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:17 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:18 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:18 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:18 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:18 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:18 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:18 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:19 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:20 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:21 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:21 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:21 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:21 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:21 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:21 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-8] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:22 [http-nio-8080-exec-8] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:23 [http-nio-8080-exec-9] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:23 [http-nio-8080-exec-9] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:23 [http-nio-8080-exec-7] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:23 [http-nio-8080-exec-7] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:23 [http-nio-8080-exec-1] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:23 [http-nio-8080-exec-1] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-3] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-3] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-2] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-2] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-6] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-6] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-5] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-5] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-4] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:24 [http-nio-8080-exec-4] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:36 [http-nio-8080-exec-10] WARN  c.e.jobportalsystem.jwt.JwtUtil - Token validation failed for user: admin
+2026-04-29 11:08:36 [http-nio-8080-exec-10] WARN  c.e.j.jwt.JwtRequestFilter - JWT token validation failed for user: admin
+2026-04-29 11:08:37 [http-nio-8080-exec-10] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-29 11:08:39 [http-nio-8080-exec-10] WARN  c.e.j.service.UserService - Unusual device change for user admin
+2026-04-29 11:08:40 [http-nio-8080-exec-10] INFO  c.e.j.controller.AuthController - User admin logged in successfully
+2026-04-29 11:08:42 [http-nio-8080-exec-8] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:09:12 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:09:21 [http-nio-8080-exec-1] INFO  c.e.j.controller.AdminController - Admin request: fetching all users
+2026-04-29 11:09:33 [http-nio-8080-exec-6] INFO  c.e.j.controller.AdminController - Admin request: fetching all users
+2026-04-29 11:09:37 [http-nio-8080-exec-5] INFO  c.e.j.controller.AdminController - Admin request: fetching all jobs
+2026-04-29 11:09:42 [http-nio-8080-exec-4] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:09:53 [http-nio-8080-exec-10] INFO  c.e.j.controller.AdminController - Admin request: fetching system status
+2026-04-29 11:10:57 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - Login request for user: admin
+2026-04-29 11:10:59 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - User admin logged in successfully
+2026-04-29 11:11:02 [http-nio-8080-exec-7] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:11:32 [http-nio-8080-exec-3] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
+2026-04-29 11:12:02 [http-nio-8080-exec-6] INFO  c.e.j.controller.AdminController - Admin request: fetching dashboard summary
