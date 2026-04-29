@@ -343,6 +343,43 @@
   margin-bottom: 8px;
 }
 
+.company-meta-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.company-meta-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid rgba(31, 29, 24, 0.08);
+  border-radius: 16px;
+}
+
+.company-meta-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.company-meta-value,
+.company-meta-link {
+  color: var(--ink);
+  font-weight: 700;
+  text-align: right;
+}
+
+.company-meta-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 .reference-list {
   display: grid;
   gap: 10px;

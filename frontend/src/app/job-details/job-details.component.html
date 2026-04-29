@@ -74,16 +74,7 @@
       <main class="main-column">
         <article class="content-card content-card-feature">
           <h2>About the Role</h2>
-          <div class="section-stack" *ngIf="roleSections.length; else roleFallback">
-            <section class="description-section" *ngFor="let section of roleSections">
-              <h3>{{ section.title }}</h3>
-              <div class="description-text" [innerHTML]="section.html"></div>
-            </section>
-          </div>
-
-          <ng-template #roleFallback>
-            <div class="description-text" [innerHTML]="renderedDescription"></div>
-          </ng-template>
+          <div class="description-text" [innerHTML]="renderedDescription"></div>
         </article>
 
         <article class="content-card" *ngIf="getRequirementsList().length">
@@ -113,23 +104,33 @@
 
         <article class="content-card">
           <h2>About the Company</h2>
-          <div class="section-stack" *ngIf="companySection; else companyFallback">
-            <section class="description-section">
-              <h3>{{ companySection.title }}</h3>
-              <div class="description-text" [innerHTML]="companySection.html"></div>
-            </section>
-          </div>
+          <div class="company-block">
+            <h3>{{ getCompanyName() }}</h3>
+            <p *ngIf="job.postedBy?.companyName">{{ job.postedBy?.companyName }}</p>
+            <p *ngIf="job.companyName && !job.postedBy?.companyName" class="muted-note">
+              This job was sourced directly from the employer's portal.
+            </p>
+            <p *ngIf="!job.postedBy?.companyName && !job.companyName" class="muted-note">Company information not available</p>
 
-          <ng-template #companyFallback>
-            <div class="company-block">
-              <h3>{{ getCompanyName() }}</h3>
-              <p *ngIf="job.postedBy?.companyName">{{ job.postedBy?.companyName }}</p>
-              <p *ngIf="job.companyName && !job.postedBy?.companyName" class="muted-note">
-                This job was sourced directly from the employer's portal.
-              </p>
-              <p *ngIf="!job.postedBy?.companyName && !job.companyName" class="muted-note">Company information not available</p>
+            <div class="company-meta-list">
+              <div class="company-meta-row">
+                <span class="company-meta-label">Location</span>
+                <span class="company-meta-value">{{ job.location }}</span>
+              </div>
+              <div class="company-meta-row">
+                <span class="company-meta-label">Job Type</span>
+                <span class="company-meta-value">{{ job.jobType || 'Full Time' }}</span>
+              </div>
+              <div class="company-meta-row" *ngIf="job.howToApply">
+                <span class="company-meta-label">How to Apply</span>
+                <span class="company-meta-value">{{ job.howToApply }}</span>
+              </div>
+              <div class="company-meta-row" *ngIf="job.applicationLink">
+                <span class="company-meta-label">Application Link</span>
+                <a class="company-meta-link" [href]="job.applicationLink" target="_blank" rel="noopener noreferrer">Open portal ↗</a>
+              </div>
             </div>
-          </ng-template>
+          </div>
         </article>
 
         <article class="content-card insights-card" *ngIf="selectedInsights as insights">

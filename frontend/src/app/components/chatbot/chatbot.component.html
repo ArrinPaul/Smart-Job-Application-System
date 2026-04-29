@@ -1,10 +1,4 @@
 <div class="chatbot-container" [class.open]="isOpen" *ngIf="isLoggedIn">
-  <!-- Chat Button (Floating Action Button) -->
-  <button class="chat-toggle-btn" (click)="toggleChat()">
-    <span *ngIf="!isOpen">💬</span>
-    <span *ngIf="isOpen">✕</span>
-  </button>
-
   <!-- Chat Window -->
   <div class="chat-window" *ngIf="isOpen">
     <div class="chat-header">
@@ -48,4 +42,10 @@
       </button>
     </div>
   </div>
+
+  <!-- Chat Button (Floating Action Button) -->
+  <button class="chat-toggle-btn" (click)="toggleChat()">
+    <span *ngIf="!isOpen">💬</span>
+    <span *ngIf="isOpen">✕</span>
+  </button>
 </div>

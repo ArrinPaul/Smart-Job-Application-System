@@ -63,22 +63,28 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
     this.chatService.jobContext$.subscribe(job => {
       if (job) {
+        this.isOpen = true; // Ensure it opens
         this.messages = [
           { 
-            text: `Hi! I see you're looking at the **${job.title}** role at **${job.postedBy?.companyName || 'this company'}**. How can I help you with this specific opportunity?`, 
-            html: this.renderMarkdown(`Hi! I see you're looking at the **${job.title}** role at **${job.postedBy?.companyName || 'this company'}**. How can I help you with this specific opportunity?`),
+            text: `Hi! I see you're looking at the **${job.title}** role at **${this.getCompanyName(job)}**. How can I help you with this specific opportunity?`, 
+            html: this.renderMarkdown(`Hi! I see you're looking at the **${job.title}** role at **${this.getCompanyName(job)}**. How can I help you with this specific opportunity?`),
             sender: 'bot', 
             timestamp: new Date() 
           }
         ];
         this.suggestions = [
-          `What are the key requirements for ${job.title}?`,
-          `Is my profile a good match for this role?`,
+          `What are the key requirements for this role?`,
+          `Is my profile a good match for ${job.title}?`,
           `How can I stand out in this application?`,
           `What is the expected salary range?`
         ];
+        setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+  }
+
+  private getCompanyName(job: any): string {
+    return job.companyName || job.postedBy?.companyName || 'this company';
   }
 
   ngAfterViewChecked() {

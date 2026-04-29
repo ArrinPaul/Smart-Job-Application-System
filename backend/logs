@@ -4014,3 +4014,38 @@ Caused by: java.io.IOException: An established connection was aborted by the sof
 2026-04-29 17:00:24 [main] INFO  c.e.j.JobPortalSystemApplication - Started JobPortalSystemApplication in 62.09 seconds (process running for 64.487)
 2026-04-29 17:00:25 [main] INFO  c.e.j.config.AdminBootstrapConfig - Admin bootstrap skipped: user admin already exists
 2026-04-29 17:00:25 [main] INFO  c.e.j.config.DataLoader - Data loader is disabled
+2026-04-29 17:00:36 [http-nio-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-04-29 17:00:36 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - Login request for user: Paul
+2026-04-29 17:00:39 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - User Paul logged in successfully
+2026-04-29 17:00:41 [http-nio-8080-exec-6] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-29 17:00:41 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-29 17:00:41 [http-nio-8080-exec-4] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-29 17:00:41 [http-nio-8080-exec-4] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-29 17:00:46 [http-nio-8080-exec-4] INFO  c.e.j.s.JobRecommendationService - Found 1072 recommendations for user 15
+2026-04-29 17:00:48 [http-nio-8080-exec-8] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:00:54 [http-nio-8080-exec-7] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:03:04 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:03:15 [http-nio-8080-exec-7] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:04:54 [http-nio-8080-exec-2] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:05:59 [http-nio-8080-exec-9] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:08:11 [http-nio-8080-exec-4] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:08:38 [http-nio-8080-exec-3] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:09:38 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:10:44 [http-nio-8080-exec-4] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:11:23 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:11:34 [http-nio-8080-exec-3] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:11:38 [http-nio-8080-exec-10] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:11:50 [http-nio-8080-exec-2] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:12:03 [http-nio-8080-exec-6] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:12:14 [http-nio-8080-exec-4] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:13:26 [http-nio-8080-exec-10] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:14:08 [http-nio-8080-exec-6] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:16:51 [http-nio-8080-exec-1] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:16:51 [http-nio-8080-exec-7] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:18:05 [http-nio-8080-exec-2] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: senior-analytics-engineer-gn-243809
+2026-04-29 17:18:29 [http-nio-8080-exec-8] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:18:41 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:18:53 [http-nio-8080-exec-1] INFO  c.e.j.controller.JobSeekerController - Job search - title: null, location: null
+2026-04-29 17:19:01 [http-nio-8080-exec-7] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: crm-automation-marketing-manager-w-m-d-175668
+2026-04-29 17:20:59 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: crm-automation-marketing-manager-w-m-d-175668
+2026-04-29 17:21:31 [http-nio-8080-exec-9] INFO  c.e.j.controller.JobSeekerController - Fetching job details for slug: crm-automation-marketing-manager-w-m-d-175668
