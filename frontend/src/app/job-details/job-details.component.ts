@@ -53,44 +53,106 @@ export class JobDetailsComponent implements OnInit {
   }
 
   /**
-   * Basic Markdown Parser for Pointers and Bold text
-   * Handles ### Headers, • Bullets, and **Bold**
+   * Structured markdown-lite renderer for scraped descriptions.
+   * Supports headings, bullet lists, bold/italic, links, and clean paragraphs.
    */
   private parseMarkdown(text: string): SafeHtml {
     if (!text) return '';
 
-    let html = text
-      // Markdown links [text](url)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="md-link">$1</a>')
-      // Headers
-      .replace(/### (.*)/g, '<h3 class="md-h3">$1</h3>')
-      .replace(/## (.*)/g, '<h2 class="md-h2">$1</h2>')
-      // Bold
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Italic
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Bullet points
-      .replace(/• (.*)/g, '<li class="md-li">$1</li>')
-      // Line breaks (preserve structure, convert \n to <br> but keep \n\n as paragraph break)
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>');
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const output: string[] = [];
+    let inList = false;
 
-    // Wrap in paragraphs if not already
-    if (!html.includes('<p>') && !html.includes('<h')) {
-      html = '<p>' + html + '</p>';
+    const closeList = () => {
+      if (inList) {
+        output.push('</ul>');
+        inList = false;
+      }
+    };
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+
+      if (!line) {
+        closeList();
+        continue;
+      }
+
+      if (line.startsWith('### ')) {
+        closeList();
+        output.push(`<h3 class="md-h3">${this.formatInline(line.slice(4))}</h3>`);
+        continue;
+      }
+
+      if (line.startsWith('## ')) {
+        closeList();
+        output.push(`<h2 class="md-h2">${this.formatInline(line.slice(3))}</h2>`);
+        continue;
+      }
+
+      if (/^[•*-]\s+/.test(line)) {
+        if (!inList) {
+          output.push('<ul class="md-ul">');
+          inList = true;
+        }
+        output.push(`<li class="md-li">${this.formatInline(line.replace(/^[•*-]\s+/, ''))}</li>`);
+        continue;
+      }
+
+      closeList();
+      output.push(`<p>${this.formatInline(line)}</p>`);
     }
 
-    // Wrap list items in <ul>
-    if (html.includes('<li')) {
-      html = html.replace(/(<li.*?<\/li>)/gs, (match) => {
-        return '<ul class="md-ul">' + match + '</ul>';
-      });
-    }
+    closeList();
 
-    // Add styling to links
-    html = html.replace(/<a href/g, '<a class="md-link" href');
-
+    const html = output.join('');
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  private formatInline(value: string): string {
+    const linkPlaceholders: string[] = [];
+
+    const withLinkPlaceholders = value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
+      const safeText = this.escapeHtml(String(text).trim());
+      const safeUrl = this.normalizeLink(String(url).trim());
+      const html = safeUrl
+        ? `<a class="md-link" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeText}</a>`
+        : safeText;
+      const token = `__MD_LINK_${linkPlaceholders.length}__`;
+      linkPlaceholders.push(html);
+      return token;
+    });
+
+    let out = this.escapeHtml(withLinkPlaceholders)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    linkPlaceholders.forEach((linkHtml, idx) => {
+      out = out.replace(`__MD_LINK_${idx}__`, linkHtml);
+    });
+
+    return out;
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private normalizeLink(url: string): string {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return parsed.toString();
+      }
+      return '';
+    } catch {
+      return '';
+    }
   }
 
   applyInternally(): void {

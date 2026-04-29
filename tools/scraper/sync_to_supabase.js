@@ -83,6 +83,44 @@ async function getTableColumns(client, tableName) {
   return new Set(result.rows.map(row => row.column_name));
 }
 
+async function removeDuplicateJobs(client, columns) {
+  const hasId = columns.has('id');
+  const hasTitle = columns.has('title');
+  const hasCompanyName = columns.has('company_name');
+
+  if (!hasId || !hasTitle || !hasCompanyName) {
+    LOG.warn('Skipping duplicate cleanup: jobs table is missing id/title/company_name columns.');
+    return 0;
+  }
+
+  const locationExpression = columns.has('location')
+    ? "LOWER(COALESCE(NULLIF(TRIM(location), ''), 'remote'))"
+    : "'remote'";
+
+  const sql = `
+    WITH ranked AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (
+          PARTITION BY
+            LOWER(COALESCE(NULLIF(TRIM(title), ''), 'untitled')),
+            LOWER(COALESCE(NULLIF(TRIM(company_name), ''), 'unknown')),
+            ${locationExpression}
+          ORDER BY id DESC
+        ) AS rn
+      FROM jobs
+    )
+    DELETE FROM jobs j
+    USING ranked r
+    WHERE j.id = r.id
+      AND r.rn > 1
+    RETURNING j.id
+  `;
+
+  const result = await client.query(sql);
+  return result.rowCount || 0;
+}
+
 function buildInsertPlan(columns, recruiterId, job) {
   const slug = job.slug || slugify(`${job.title}-${job.companyName}`);
   const candidate = {
@@ -153,6 +191,13 @@ async function main() {
   try {
     const columns = await getTableColumns(client, 'jobs');
     const recruiterId = await ensureRecruiter(client);
+
+    const removedDuplicates = await removeDuplicateJobs(client, columns);
+    if (removedDuplicates > 0) {
+      LOG.info(`Removed ${removedDuplicates} duplicate jobs from database before sync.`);
+    } else {
+      LOG.info('No duplicate jobs found before sync.');
+    }
 
     let inserted = 0;
     let updated = 0;
