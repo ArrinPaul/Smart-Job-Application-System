@@ -4,6 +4,14 @@
     <a routerLink="/jobs" class="breadcrumb">← Back to Jobs</a>
     <h1>{{ job.title }}</h1>
     <p class="company-name">{{ job.companyName || job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</p>
+    <div class="insights-header">
+      <button class="insight-btn" (click)="fetchInsights()" [disabled]="insightLoading">
+        {{ selectedInsights ? 'Hide insights' : (insightLoading ? 'Loading insights...' : 'See match insights') }}
+      </button>
+      <span *ngIf="selectedInsights" class="insight-pill" [style.borderColor]="getMatchColor(selectedInsights.compatibilityScore)">
+        {{ selectedInsights.compatibilityScore }}% Match
+      </span>
+    </div>
   </div>
 
   <!-- Quick Info Bar -->
@@ -142,6 +150,49 @@
         <button class="share-btn" (click)="shareJob()">
           📋 Copy Link
         </button>
+      </div>
+
+      <!-- Insights Card -->
+      <div class="sidebar-card insights-card">
+        <h3>Smart Insights</h3>
+        <p class="insight-description">See how well your profile matches this role and get improvement suggestions.</p>
+        <button class="btn btn-secondary" (click)="fetchInsights()" [disabled]="insightLoading">
+          {{ selectedInsights ? 'Hide insights' : (insightLoading ? 'Loading...' : 'See match insights') }}
+        </button>
+
+        <div *ngIf="selectedInsights" class="insight-panel">
+          <div class="insight-header">
+            <div class="insight-score-circle" [style.borderColor]="getMatchColor(selectedInsights.compatibilityScore)">
+              <strong>{{ selectedInsights.compatibilityScore }}%</strong>
+            </div>
+            <div class="insight-title">
+              <h4>{{ selectedInsights.jobTitle }}</h4>
+              <p class="insight-level">{{ selectedInsights.matchLevel }}</p>
+            </div>
+          </div>
+
+          <div class="insight-grid">
+            <div class="insight-col">
+              <h5>Top Matches</h5>
+              <ul>
+                <li *ngFor="let s of selectedInsights.topMatches">{{ s }}</li>
+              </ul>
+            </div>
+            <div class="insight-col">
+              <h5>Improve</h5>
+              <ul>
+                <li *ngFor="let s of selectedInsights.improvementAreas">{{ s }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="insight-recs">
+            <h5>Recommendations</h5>
+            <ul>
+              <li *ngFor="let r of selectedInsights.recommendations">{{ r }}</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
     </aside>

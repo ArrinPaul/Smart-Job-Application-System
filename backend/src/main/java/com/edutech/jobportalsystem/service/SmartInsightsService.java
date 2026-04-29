@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class SmartInsightsService {
@@ -60,32 +62,141 @@ public class SmartInsightsService {
         // Combine profile skills and resume content for broader matching
         String userSkills = profile != null ? (profile.getSkills() != null ? profile.getSkills() : "") : "";
         String fullUserContext = (userSkills + " " + resumeContent).toLowerCase();
-        
+
         String requiredSkillsStr = job.getRequiredSkills() != null ? job.getRequiredSkills() : "";
         List<String> requiredSkills = Arrays.stream(requiredSkillsStr.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        List<String> matchingSkills = requiredSkills.stream()
-                .filter(skill -> fullUserContext.contains(skill.toLowerCase()))
-                .collect(Collectors.toList());
+        // Compute skill importance weights based on job corpus (IDF-like)
+        Map<String, Double> skillWeights = computeSkillWeights();
+
+        double totalRequiredWeight = 0.0;
+        double matchedWeight = 0.0;
+        List<String> matchingSkills = new ArrayList<>();
+
+        for (String req : requiredSkills) {
+            String key = req.toLowerCase();
+            double w = skillWeights.getOrDefault(key, 1.0);
+            totalRequiredWeight += w;
+            if (fullUserContext.contains(key)) {
+                matchedWeight += w;
+                matchingSkills.add(req);
+            }
+        }
 
         List<String> missingSkills = requiredSkills.stream()
-                .filter(skill -> !fullUserContext.contains(skill.toLowerCase()))
+                .filter(skill -> !matchingSkills.contains(skill))
                 .collect(Collectors.toList());
 
-        int score = calculateMatchScore(job, profile, matchingSkills, requiredSkills.size());
+        int skillsScore = 0;
+        if (totalRequiredWeight > 0) {
+            double pct = matchedWeight / totalRequiredWeight;
+            skillsScore = (int) Math.round(pct * 60.0); // skills weight contribution
+        } else if (!requiredSkills.isEmpty()) {
+            skillsScore = 30; // neutral
+        }
+
+        // Calculate other components using existing helpers
+        int experienceScore = 0;
+        if (profile != null && job.getExperienceRequired() != null) {
+            int userExp = profile.getExperienceYears() != null ? profile.getExperienceYears() : 0;
+            experienceScore = calculateExperienceContribution(userExp, job.getExperienceRequired());
+        }
+
+        int locationScore = calculateLocationContribution(user.getLocation(), profile, job);
+
+        int recentBonus = (job.getCreatedAt() != null && job.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(7))) ? 5 : 0;
+
+        int score = Math.min(100, skillsScore + experienceScore + locationScore + recentBonus);
 
         Map<String, Object> insights = new LinkedHashMap<>();
         insights.put("jobTitle", job.getTitle());
+        insights.put("company", job.getCompanyName());
         insights.put("compatibilityScore", score);
         insights.put("matchLevel", getMatchLevel(score));
         insights.put("topMatches", matchingSkills.stream().limit(6).collect(Collectors.toList()));
         insights.put("improvementAreas", missingSkills.stream().limit(5).collect(Collectors.toList()));
         insights.put("recommendations", generateRecommendations(score, missingSkills, job, profile));
-        
+
+        // Add weighted skill importance for display
+        List<Map<String, Object>> skillWeightsList = requiredSkills.stream().map(s -> Map.of(
+                "skill", s,
+                "weight", skillWeights.getOrDefault(s.toLowerCase(), 1.0)
+        )).collect(Collectors.toList());
+        insights.put("requiredSkillsWeighted", skillWeightsList);
+
+        // Similar jobs (same company or similar title)
+        List<Job> similar = findSimilarJobs(job);
+        insights.put("similarJobs", similar.stream().limit(5).map(j -> Map.of(
+                "id", j.getId(),
+                "title", j.getTitle(),
+                "company", j.getCompanyName(),
+                "slug", j.getSlug()
+        )).collect(Collectors.toList()));
+
         return insights;
+    }
+
+    private Map<String, Double> computeSkillWeights() {
+        List<Job> activeJobs = jobRepository.findByIsActiveTrue();
+        Map<String, Integer> freq = new HashMap<>();
+        for (Job j : activeJobs) {
+            String skills = j.getRequiredSkills();
+            if (skills != null) {
+                for (String s : skills.split(",")) {
+                    String key = s.trim().toLowerCase();
+                    if (!key.isEmpty()) freq.put(key, freq.getOrDefault(key, 0) + 1);
+                }
+            }
+        }
+        int total = Math.max(1, activeJobs.size());
+        Map<String, Double> weights = new HashMap<>();
+        for (Map.Entry<String, Integer> e : freq.entrySet()) {
+            double w = Math.log((double) total / (e.getValue() + 1)) + 1.0;
+            weights.put(e.getKey(), w);
+        }
+        return weights;
+    }
+
+    private int calculateExperienceContribution(int userExp, Integer reqExp) {
+        if (reqExp == null) return 0;
+        if (userExp >= reqExp) return 25;
+        int diff = reqExp - userExp;
+        if (diff <= 1) return 23;
+        if (diff <= 2) return 20;
+        if (diff <= 3) return 15;
+        return 0;
+    }
+
+    private int calculateLocationContribution(String userLocation, JobSeekerProfile profile, Job job) {
+        if ((profile != null && profile.getWorkPreference() != null && job.getWorkType() != null) || (userLocation != null && job.getLocation() != null)) {
+            return scoreLocationMatch(userLocation, profile != null ? profile.getWorkPreference() : null, job.getLocation(), job.getWorkType());
+        }
+        return 0;
+    }
+
+    private List<Job> findSimilarJobs(Job job) {
+        List<Job> result = new ArrayList<>();
+        try {
+            Pageable p = PageRequest.of(0, 6);
+            if (job.getCompanyName() != null && !job.getCompanyName().isBlank()) {
+                Optional<Job> same = jobRepository.findFirstByTitleIgnoreCaseAndCompanyNameIgnoreCase(job.getTitle(), job.getCompanyName());
+                same.ifPresent(j -> { if (!j.getId().equals(job.getId())) result.add(j); });
+            }
+            // Fallback: find by title keywords
+            String title = job.getTitle() != null ? job.getTitle().split("\\s+")[0] : "";
+            if (!title.isEmpty()) {
+                List<Job> found = jobRepository.findByTitleContainingIgnoreCase(title, p);
+                for (Job j : found) {
+                    if (!j.getId().equals(job.getId())) result.add(j);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Error finding similar jobs: {}", e.getMessage());
+        }
+        return result;
     }
 
     private int calculateMatchScore(Job job, JobSeekerProfile profile, List<String> matchingSkills, int totalRequired) {

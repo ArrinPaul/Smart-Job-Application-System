@@ -18,6 +18,8 @@ export class JobDetailsComponent implements OnInit {
   renderedDescription: SafeHtml = '';
   loading = true;
   error = '';
+  selectedInsights: any = null;
+  insightLoading = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,22 +39,31 @@ export class JobDetailsComponent implements OnInit {
   }
 
   fetchJobDetails(slug: string): void {
-    this.loading = true;
-    this.httpService.getJobBySlug(slug).subscribe({
-      next: (job) => {
-        this.job = job;
-        this.renderedDescription = this.parseMarkdown(job.description);
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Could not load job details. It may have been removed.';
-        this.loading = false;
-        this.toastService.showError('Error loading job details');
-      }
-    });
-  }
+    this.selectedInsights = null; // Clear previous
 
-  /**
+    this.insightLoading = true;
+    this.httpService.getJobMatchInsights(this.job.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.selectedInsights = response;
+          this.insightLoading = false;
+          if (response.error) {
+            this.toastService.showWarning(response.error);
+          }
+        },
+        error: (err: any) => {
+          this.insightLoading = false;
+          // If unauthorized, prompt login and redirect
+          if (err && err.status === 401) {
+            this.toastService.showWarning('Please login to view match insights.');
+            this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+            return;
+          }
+          this.toastService.showError('Unable to fetch job insights.');
+          this.insightJobId = null;
+        }
+      });
    * Structured markdown-lite renderer for scraped descriptions.
    * Supports headings, bullet lists, bold/italic, links, and clean paragraphs.
    */
@@ -169,5 +180,36 @@ export class JobDetailsComponent implements OnInit {
     navigator.clipboard.writeText(url).then(() => {
       this.toastService.showSuccess('Link copied to clipboard!');
     });
+  }
+
+  fetchInsights(): void {
+    if (!this.job) return;
+
+    if (this.selectedInsights) {
+      // toggle off
+      this.selectedInsights = null;
+      return;
+    }
+
+    this.insightLoading = true;
+    this.httpService.getJobMatchInsights(this.job.id).subscribe({
+      next: (response) => {
+        this.selectedInsights = response;
+        this.insightLoading = false;
+        if (response.error) {
+          this.toastService.showWarning(response.error);
+        }
+      },
+      error: () => {
+        this.toastService.showError('Unable to fetch job insights.');
+        this.insightLoading = false;
+      }
+    });
+  }
+
+  getMatchColor(percent: number): string {
+    if (percent >= 80) return '#10b981';
+    if (percent >= 50) return '#f59e0b';
+    return '#ef4444';
   }
 }
