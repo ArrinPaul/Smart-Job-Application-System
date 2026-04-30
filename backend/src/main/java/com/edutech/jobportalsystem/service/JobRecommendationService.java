@@ -124,16 +124,47 @@ public class JobRecommendationService {
 
         // Score each job and filter by minimum threshold
         List<JobRecommendationDTO> recommendations = allJobs.stream()
-                .map(job -> scoreJobForUser(user, profile, job))
-                .filter(rec -> rec.getMatchPercentage() >= 0) // Show all potential matches, sorted by score
+                .map(job -> scoreJobForUser(user, profile, job, false)) // false = no AI yet
+                .filter(rec -> rec.getMatchPercentage() >= 0)
                 .sorted(Comparator.comparingInt(JobRecommendationDTO::getMatchPercentage).reversed())
+                .limit(Math.max(limit, 20)) // Take enough for potential display
                 .collect(Collectors.toList());
 
-        // Cache full results
+        // Now generate AI explanations ONLY for the top 3 jobs that we will actually show
+        // This avoids long timeouts (3 jobs * 2s cooldown = 6s total)
+        int aiCount = 0;
+        for (JobRecommendationDTO rec : recommendations) {
+            if (aiCount >= 3) break; // Hard limit of 3 AI calls per request
+            
+            if (rec.getMatchPercentage() >= 75) {
+                Job job = jobRepository.findById(rec.getJobId()).orElse(null);
+                if (job != null) {
+                    rec.setAiExplanation(generateAIExplanation(job, profile, rec.getMatchReasons()));
+                    aiCount++;
+                }
+            }
+        }
+
+        // Cache results
         recommendationCache.put(userId, new CacheEntry(recommendations));
 
         logger.info("Found {} recommendations for user {}", recommendations.size(), userId);
         return recommendations.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    private String generateAIExplanation(Job job, JobSeekerProfile profile, List<String> matchReasons) {
+        String prompt = String.format(
+            "In 2 short sentences, explain why this job is a GREAT match for this candidate.\n" +
+            "Job: %s at %s\n" +
+            "Candidate Skills: %s\n" +
+            "Experience: %d years\n" +
+            "Key Strengths: %s",
+            job.getJobTitle(), job.getCompanyName(), 
+            profile != null ? profile.getSkills() : "N/A",
+            profile != null ? profile.getExperienceYears() : 0,
+            String.join(", ", matchReasons)
+        );
+        return aiService.generateContent(prompt);
     }
 
     /**
@@ -141,9 +172,10 @@ public class JobRecommendationService {
      * @param user The user
      * @param profile The user's job applicant profile (can be null)
      * @param job The job to score
+     * @param includeAI Whether to generate AI explanation immediately
      * @return Recommendation with match percentage and explanation
      */
-    private JobRecommendationDTO scoreJobForUser(User user, JobSeekerProfile profile, Job job) {
+    private JobRecommendationDTO scoreJobForUser(User user, JobSeekerProfile profile, Job job, boolean includeAI) {
         int totalScore = 0;
         int maxScore = 0;
         List<String> matchReasons = new ArrayList<>();
@@ -223,19 +255,8 @@ public class JobRecommendationService {
 
         String aiExplanation = null;
         // Only generate AI explanation for strong matches to save tokens and avoid noise
-        if (matchPercentage >= 75) {
-            String prompt = String.format(
-                "In 2 short sentences, explain why this job is a GREAT match for this candidate.\n" +
-                "Job: %s at %s\n" +
-                "Candidate Skills: %s\n" +
-                "Experience: %d years\n" +
-                "Key Strengths: %s",
-                job.getJobTitle(), job.getCompanyName(), 
-                profile != null ? profile.getSkills() : "N/A",
-                profile != null ? profile.getExperienceYears() : 0,
-                String.join(", ", matchReasons)
-            );
-            aiExplanation = aiService.generateContent(prompt);
+        if (includeAI && matchPercentage >= 75) {
+            aiExplanation = generateAIExplanation(job, profile, matchReasons);
         }
 
         return new JobRecommendationDTO(

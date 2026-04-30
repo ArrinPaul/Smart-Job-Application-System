@@ -98,3 +98,5 @@ coverage/
 .idea/
 *.orig
 *.rej
+last_scrape.json
+**/last_scrape.json

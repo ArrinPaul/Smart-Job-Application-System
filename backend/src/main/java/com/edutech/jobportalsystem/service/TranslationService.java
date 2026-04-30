@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,9 @@ public class TranslationService {
     private final String targetLang;
     private final int maxChars;
 
+    @Autowired
+    private AIService aiService;
+
     public TranslationService(ObjectMapper objectMapper,
                               @Value("${app.translate.enabled:true}") boolean enabled,
                               @Value("${app.translate.base-url:https://libretranslate.de}") String baseUrl,
@@ -45,61 +49,77 @@ public class TranslationService {
         this.targetLang = (targetLang == null || targetLang.isBlank()) ? "en" : targetLang.trim();
         this.maxChars = Math.max(500, maxChars);
         this.httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(8))
+            .connectTimeout(Duration.ofSeconds(5))
             .build();
     }
 
     public Job translateJob(Job job) {
-        if (!enabled || job == null || baseUrl.isEmpty()) {
+        if (!enabled || job == null) {
+            return job;
+        }
+
+        // Optimization: Only translate if text looks like it has non-English characters
+        boolean titleNeedsTranslation = needsTranslation(job.getTitle());
+        boolean descNeedsTranslation = needsTranslation(job.getDescription());
+
+        if (!titleNeedsTranslation && !descNeedsTranslation) {
             return job;
         }
 
         Job copy = copyJob(job);
-        copy.setTitle(translateText(job.getTitle()));
-        copy.setDescription(translateText(job.getDescription()));
+        if (titleNeedsTranslation) copy.setTitle(translateText(job.getTitle()));
+        if (descNeedsTranslation) copy.setDescription(translateText(job.getDescription()));
         return copy;
     }
 
     public List<Job> translateJobs(List<Job> jobs) {
-        if (!enabled || jobs == null || baseUrl.isEmpty()) {
+        if (!enabled || jobs == null) {
             return jobs;
         }
 
         List<Job> translated = new ArrayList<>(jobs.size());
+        int translateCount = 0;
+        int maxRealTimeTranslations = 5; // Absolute limit for real-time list translation to avoid timeouts
+
         for (Job job : jobs) {
-            translated.add(translateJob(job));
+            if (translateCount < maxRealTimeTranslations && needsTranslation(job.getJobTitle())) {
+                translated.add(translateJob(job));
+                translateCount++;
+            } else {
+                translated.add(job);
+            }
         }
         return translated;
     }
 
-    private String translateText(String text) {
-        if (text == null) {
-            return null;
-        }
+    private boolean needsTranslation(String text) {
+        if (text == null || text.isBlank()) return false;
+        // Simple regex: contains characters outside the basic Latin range (0-127)
+        // This effectively detects most non-English text (German, Spanish, etc.)
+        return text.chars().anyMatch(c -> c > 127);
+    }
 
-        String trimmed = text.trim();
-        if (trimmed.isEmpty()) {
+    private String translateText(String text) {
+        if (text == null || text.isBlank()) {
             return text;
         }
 
-        List<String> chunks = splitText(trimmed, maxChars);
-        if (chunks.size() == 1) {
-            return translateChunk(chunks.get(0), text);
+        // 1. Try LibreTranslate (if configured/working)
+        if (!baseUrl.isEmpty() && !baseUrl.contains("libretranslate.de")) {
+            String res = translateChunk(text.length() > maxChars ? text.substring(0, maxChars) : text, null);
+            if (res != null && !res.equals(text)) return res;
         }
 
-        StringBuilder out = new StringBuilder(trimmed.length());
-        for (int i = 0; i < chunks.size(); i++) {
-            String translated = translateChunk(chunks.get(i), null);
-            if (translated == null) {
-                return text;
-            }
-            if (i > 0) {
-                out.append('\n');
-            }
-            out.append(translated);
+        // 2. Fallback to AI Service (High quality, handles German/etc perfectly)
+        logger.info("Using AI fallback for translation...");
+        String prompt = "Translate the following Job Title/Description into English. Return ONLY the translated text, no intro or outro:\n\n" + text;
+        String aiRes = aiService.generateContent(prompt);
+        
+        if (aiRes != null && !aiRes.contains("at capacity")) {
+            return aiRes;
         }
 
-        return out.toString();
+        return text;
     }
 
     private String translateChunk(String chunk, String fallback) {

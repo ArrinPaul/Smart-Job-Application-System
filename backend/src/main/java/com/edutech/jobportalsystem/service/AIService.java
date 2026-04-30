@@ -24,7 +24,7 @@ public class AIService {
 
     // Rate Limiting (RPM)
     private final Map<String, Long> lastRequestTime = new ConcurrentHashMap<>();
-    private static final long COOLDOWN_MS = 4000; // 4 seconds (15 RPM) to stay safe within 30 RPM limits
+    private static final long COOLDOWN_MS = 5000; // 5 seconds (12 RPM) for absolute safety
 
     // Daily Limit Tracking (Requests per day)
     private final Map<String, Integer> dailyUsage = new ConcurrentHashMap<>();
@@ -38,7 +38,7 @@ public class AIService {
     // Groq Config (Primary - Groq Cloud)
     @Value("${app.ai.groq.api-key:${GROQ_API_KEY:}}")
     private String groqApiKey;
-    @Value("${app.ai.groq.model:${GROQ_MODEL:llama-3.1-70b-versatile}}")
+    @Value("${app.ai.groq.model:${GROQ_MODEL:llama-3.3-70b-versatile}}")
     private String groqModel;
     @Value("${app.ai.groq.url:${GROQ_URL:https://api.groq.com/openai/v1/chat/completions}}")
     private String groqUrl;
