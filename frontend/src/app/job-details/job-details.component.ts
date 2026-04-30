@@ -152,34 +152,35 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
 
   private normalizeJob(rawJob: unknown): Job {
     const candidate = this.unwrapJob(rawJob);
+    const postedBy = this.asRecord(candidate['postedBy']);
 
     return {
-      id: this.toNumber(candidate.id) ?? 0,
-      title: this.readText(candidate.title) || 'Untitled Role',
+      id: this.toNumber(candidate['id']) ?? 0,
+      title: this.readText(candidate['title']) || 'Untitled Role',
       description: this.readDescription(candidate),
-      location: this.readText(candidate.location) || 'Remote',
-      jobType: this.readText(candidate.jobType ?? candidate.job_type),
-      workType: this.readText(candidate.workType ?? candidate.work_type),
-      experienceRequired: this.toNumber(candidate.experienceRequired ?? candidate.experience_required) ?? undefined,
-      requiredSkills: this.readText(candidate.requiredSkills ?? candidate.required_skills),
-      educationRequired: this.readText(candidate.educationRequired ?? candidate.education_required),
-      salaryMin: this.toNumber(candidate.salaryMin ?? candidate.salary_min) ?? undefined,
-      salaryMax: this.toNumber(candidate.salaryMax ?? candidate.salary_max) ?? undefined,
-      salaryCurrency: this.readText(candidate.salaryCurrency ?? candidate.salary_currency) || undefined,
-      isActive: this.readBoolean(candidate.isActive ?? candidate.is_active),
-      applicationLink: this.readText(candidate.applicationLink ?? candidate.application_link),
-      companyName: this.readText(candidate.companyName ?? candidate.company_name),
-      howToApply: this.readText(candidate.howToApply ?? candidate.how_to_apply),
-      slug: this.readText(candidate.slug) || '',
-      postedBy: candidate.postedBy
+      location: this.readText(candidate['location']) || 'Remote',
+      jobType: this.readText(candidate['jobType'] ?? candidate['job_type']),
+      workType: this.readText(candidate['workType'] ?? candidate['work_type']),
+      experienceRequired: this.toNumber(candidate['experienceRequired'] ?? candidate['experience_required']) ?? undefined,
+      requiredSkills: this.readText(candidate['requiredSkills'] ?? candidate['required_skills']),
+      educationRequired: this.readText(candidate['educationRequired'] ?? candidate['education_required']),
+      salaryMin: this.toNumber(candidate['salaryMin'] ?? candidate['salary_min']) ?? undefined,
+      salaryMax: this.toNumber(candidate['salaryMax'] ?? candidate['salary_max']) ?? undefined,
+      salaryCurrency: this.readText(candidate['salaryCurrency'] ?? candidate['salary_currency']) || undefined,
+      isActive: this.readBoolean(candidate['isActive'] ?? candidate['is_active']),
+      applicationLink: this.readText(candidate['applicationLink'] ?? candidate['application_link']),
+      companyName: this.readText(candidate['companyName'] ?? candidate['company_name']),
+      howToApply: this.readText(candidate['howToApply'] ?? candidate['how_to_apply']),
+      slug: this.readText(candidate['slug']) || '',
+      postedBy: postedBy
         ? {
-            id: this.toNumber(candidate.postedBy.id) ?? 0,
-            username: this.readText(candidate.postedBy.username) || '',
-            companyName: this.readText(candidate.postedBy.companyName ?? candidate.postedBy.company_name)
+            id: this.toNumber(postedBy['id']) ?? 0,
+            username: this.readText(postedBy['username']) || '',
+            companyName: this.readText(postedBy['companyName'] ?? postedBy['company_name'])
           }
         : undefined,
-      createdAt: this.readText(candidate.createdAt ?? candidate.created_at),
-      updatedAt: this.readText(candidate.updatedAt ?? candidate.updated_at)
+      createdAt: this.readText(candidate['createdAt'] ?? candidate['created_at']),
+      updatedAt: this.readText(candidate['updatedAt'] ?? candidate['updated_at'])
     };
   }
 
@@ -199,11 +200,11 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
 
     if (rawJob && typeof rawJob === 'object') {
       const candidate = rawJob as Record<string, unknown>;
-      if (Array.isArray(candidate.data)) {
-        return (candidate.data[0] ?? {}) as Record<string, unknown>;
+      if (Array.isArray(candidate['data'])) {
+        return (candidate['data'][0] ?? {}) as Record<string, unknown>;
       }
-      if (candidate.job && typeof candidate.job === 'object') {
-        return candidate.job as Record<string, unknown>;
+      if (candidate['job'] && typeof candidate['job'] === 'object') {
+        return candidate['job'] as Record<string, unknown>;
       }
       return candidate;
     }
@@ -212,7 +213,7 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
   }
 
   private readDescription(candidate: Record<string, unknown>): string {
-    const descriptionValue = candidate.description ?? candidate['description_html'] ?? candidate['descriptionHtml'];
+    const descriptionValue = candidate['description'] ?? candidate['description_html'] ?? candidate['descriptionHtml'];
 
     if (typeof descriptionValue === 'string') {
       const trimmed = descriptionValue.trim();
@@ -224,7 +225,7 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
         try {
           const parsed = JSON.parse(trimmed);
           const unwrapped = this.unwrapJob(parsed);
-          return this.readText(unwrapped.description) || this.readText(unwrapped.description_html) || descriptionValue;
+          return this.readText(unwrapped['description']) || this.readText(unwrapped['description_html']) || descriptionValue;
         } catch {
           return descriptionValue;
         }
@@ -273,6 +274,14 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     }
 
     return undefined;
+  }
+
+  private asRecord(value: unknown): Record<string, unknown> | null {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+
+    return null;
   }
 
   getDescriptionPreview(): string {
