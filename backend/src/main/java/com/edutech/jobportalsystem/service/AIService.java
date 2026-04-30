@@ -24,16 +24,16 @@ public class AIService {
 
     // Rate Limiting (RPM)
     private final Map<String, Long> lastRequestTime = new ConcurrentHashMap<>();
-    private static final long COOLDOWN_MS = 3000; // 3 seconds (20 RPM)
+    private static final long COOLDOWN_MS = 4000; // 4 seconds (15 RPM) to stay safe within 30 RPM limits
 
     // Daily Limit Tracking (Requests per day)
     private final Map<String, Integer> dailyUsage = new ConcurrentHashMap<>();
     private LocalDate lastResetDate = LocalDate.now();
     
-    // Limits (Free Tier safe)
-    private static final int GROQ_DAILY_LIMIT = 500;
-    private static final int HF_DAILY_LIMIT = 500;
-    private static final int OPENROUTER_DAILY_LIMIT = 200;
+    // Limits (Aggressively safe for Free Tiers)
+    private static final int GROQ_DAILY_LIMIT = 950;       // Groq Cloud Llama 70B limit is 1,000 RPD
+    private static final int HF_DAILY_LIMIT = 1000;        // HF is adaptive, increased for better fallback
+    private static final int OPENROUTER_DAILY_LIMIT = 48;  // OpenRouter free models limit is 50 RPD
 
     // Groq Config (Primary - Groq Cloud)
     @Value("${app.ai.groq.api-key:${GROQ_API_KEY:}}")
