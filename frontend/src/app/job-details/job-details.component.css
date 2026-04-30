@@ -2,6 +2,13 @@
   padding: 28px 0 56px;
 }
 
+.job-details-page h1,
+.job-details-page h2,
+.job-details-page h3,
+.job-details-page h4 {
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+}
+
 .job-details-shell {
   width: min(1140px, calc(100% - 40px));
   margin: 0 auto;
@@ -95,6 +102,9 @@
   margin-top: 14px;
   max-width: 68ch;
   color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .hero-actions {
@@ -241,14 +251,17 @@
 
 .description-text {
   color: var(--ink-soft);
-  line-height: 1.7;
-  font-size: 0.95rem;
+  line-height: 1.6;
+  font-size: 15px;
+  font-weight: 400;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
 }
 
 .description-text * {
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
-  line-height: 1.7;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
 }
 
 .section-stack {
@@ -268,8 +281,8 @@
 
 .description-section h3 {
   margin: 0 0 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 400;
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
 }
 
@@ -282,18 +295,18 @@
   color: var(--ink);
   margin: 0.5rem 0 0.35rem 0;
   padding: 0;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
   letter-spacing: 0 !important;
-  line-height: 1.7 !important;
+  line-height: 1.6 !important;
 }
 
 .description-text p {
   margin: 0.4rem 0;
   padding: 0;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .description-text ul,
@@ -305,14 +318,14 @@
 .description-text li {
   margin: 0.2rem 0;
   padding: 0;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .description-text strong,
 .description-text b {
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .description-text em,

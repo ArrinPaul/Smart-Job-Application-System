@@ -1,7 +1,4 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { marked } from 'marked';
-import * as DOMPurify from 'dompurify';
 
 /**
  * JobCardComponent
@@ -17,24 +14,35 @@ export class JobCardComponent implements OnChanges {
   @Input() job: any | null = null; // minimal, accepts whatever shape the backend provides
   @Input() markdown?: string; // optional markdown override
 
-  renderedDescription: SafeHtml = '';
-
-  constructor(private sanitizer: DomSanitizer) {}
+  previewText = '';
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['job'] || changes['markdown']) {
       const md = (this.markdown !== undefined) ? this.markdown : (this.job?.description || '');
-      this.renderedDescription = this.sanitizeAndConvert(md);
+      this.previewText = this.buildPreviewText(md);
     }
   }
 
-  private sanitizeAndConvert(md: string): SafeHtml {
-    const fixed = this.normalizeMarkdown(this.fixEncoding(md || ''));
-    // Convert markdown -> HTML
-    const html = marked.parse(fixed || '');
-    // Sanitize with DOMPurify (recommended) then trust for binding
-    const clean = DOMPurify.sanitize(html);
-    return this.sanitizer.bypassSecurityTrustHtml(clean);
+  private buildPreviewText(md: string): string {
+    const normalized = this.normalizeMarkdown(this.fixEncoding(md || ''));
+    const plainText = normalized
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/^#+\s+/gm, ' ')
+      .replace(/\n#+\s+/g, ' ')
+      .replace(/#/g, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/[\*_]{1,3}/g, '')
+      .replace(/`{1,3}/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const deduped = this.removeLeadingDupes(plainText);
+    return deduped || 'View role details';
+  }
+
+  private removeLeadingDupes(input: string): string {
+    return input.replace(/^(\b\w+(?:\s+\w+){1,6})\s+\1(\s+\1)*/i, '$1');
   }
 
   private fixEncoding(input: string): string {
@@ -60,12 +68,20 @@ export class JobCardComponent implements OnChanges {
       .replace(/\r\n/g, '\n')
       .replace(/\\n/g, '\n');
 
+    out = out.replace(/\*\*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities)\*\*:/gi, '$1:');
+
     out = out
       .replace(/([^\n])\s*(#{1,6})\s+/g, '$1\n\n$2 ')
-      .replace(/([^\n])\s*(\*\*[^*\n]+\*\*:)/g, '$1\n$2')
-      .replace(/([^\n])\s*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
-      .replace(/([^\n])\s*(•\s+)/g, '$1\n$2')
+      .replace(/(##\s+[^\n]*?)\s+(We|Our|You|This|They|The)\b/g, '$1\n\n$2')
+      .replace(/(##\s+[^\n]*?)\s+(Position|Location|Employment Type):/gi, '$1\n\n$2:')
+      .replace(/([^\n])\s+(Position|Location|Employment Type):/gi, '$1\n$2:')
+      .replace(/([^\n])\s*(Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
+      .replace(/(^|\n)\s*•\s+/g, '$1- ')
+      .replace(/\s+•\s+/g, '\n- ')
+      .replace(/([\S])\s+-\s+/g, '$1\n- ')
       .replace(/\n{3,}/g, '\n\n');
+
+    out = out.replace(/^(Position|Location|Employment Type):/gmi, '- $1:');
 
     const lines = out.split('\n');
     const seenHeadings = new Set<string>();

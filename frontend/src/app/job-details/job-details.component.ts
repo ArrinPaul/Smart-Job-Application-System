@@ -216,13 +216,22 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       .replace(/\r\n/g, '\n')
       .replace(/\\n/g, '\n');
 
-    // Ensure headings and labels start on their own lines.
+    // Remove bold markers around labels and split labels into their own lines.
+    out = out.replace(/\*\*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities)\*\*:/gi, '$1:');
+
     out = out
       .replace(/([^\n])\s*(#{1,6})\s+/g, '$1\n\n$2 ')
-      .replace(/([^\n])\s*(\*\*[^*\n]+\*\*:)/g, '$1\n$2')
-      .replace(/([^\n])\s*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
-      .replace(/([^\n])\s*(•\s+)/g, '$1\n$2')
+      .replace(/(##\s+[^\n]*?)\s+(We|Our|You|This|They|The)\b/g, '$1\n\n$2')
+      .replace(/(##\s+[^\n]*?)\s+(Position|Location|Employment Type):/gi, '$1\n\n$2:')
+      .replace(/([^\n])\s+(Position|Location|Employment Type):/gi, '$1\n$2:')
+      .replace(/([^\n])\s*(Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
+      .replace(/(^|\n)\s*•\s+/g, '$1- ')
+      .replace(/\s+•\s+/g, '\n- ')
+      .replace(/([\S])\s+-\s+/g, '$1\n- ')
       .replace(/\n{3,}/g, '\n\n');
+
+    // Convert key fields into bullet points.
+    out = out.replace(/^(Position|Location|Employment Type):/gmi, '- $1:');
 
     const lines = out.split('\n');
     const seenHeadings = new Set<string>();
@@ -399,7 +408,8 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
 
   getDescriptionPreview(): string {
     const raw = this.fixEncoding(this.job?.description || '');
-    const plainText = raw
+    const normalized = this.normalizeMarkdown(raw);
+    const plainText = normalized
       // strip HTML tags first (if description is already HTML)
       .replace(/<[^>]+>/g, ' ')
       // basic markdown-to-text cleanup (for summaries)
@@ -413,11 +423,17 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       .replace(/\s+/g, ' ')
       .trim();
 
-    if (!plainText) {
+    const deduped = this.removeLeadingDupes(plainText);
+
+    if (!deduped) {
       return 'Review the responsibilities, requirements, and application steps below.';
     }
 
-    return plainText.length > 210 ? `${plainText.slice(0, 207)}...` : plainText;
+    return deduped;
+  }
+
+  private removeLeadingDupes(input: string): string {
+    return input.replace(/^(\b\w+(?:\s+\w+){1,6})\s+\1(\s+\1)*/i, '$1');
   }
 
   getRequirementsList(): string[] {

@@ -14,7 +14,7 @@
     </div>
   </header>
 
-  <section class="job-description" [innerHTML]="renderedDescription"></section>
+  <section class="job-description">{{ previewText }}</section>
 
   <footer class="job-card-footer">
     <a *ngIf="job?.application_link || job?.applicationLink" [href]="job?.application_link || job?.applicationLink" target="_blank" rel="noopener noreferrer" class="apply-btn apply-btn-block">Apply Now</a>

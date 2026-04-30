@@ -491,23 +491,25 @@
 .preview-description {
   white-space: normal;
   color: #4a4a4a;
-  line-height: 1.7;
-  font-size: 0.95rem;
+  line-height: 1.6;
+  font-size: 15px;
+  font-weight: 400;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
 }
 
 .preview-description * {
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
-  font-size: 0.95rem !important;
-  line-height: 1.7 !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
 }
 
 .preview-description h1,
 .preview-description h2,
 .preview-description h3,
 .preview-description h4 {
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
   margin: 0.4rem 0 0.25rem 0 !important;
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
   letter-spacing: 0 !important;
@@ -515,7 +517,7 @@
 
 .preview-description p {
   margin: 0.3rem 0;
-  font-size: 0.95rem;
+  font-size: 15px;
 }
 
 .preview-description ul,
@@ -525,7 +527,7 @@
 
 .preview-description li {
   margin: 0.15rem 0;
-  font-size: 0.95rem;
+  font-size: 15px;
 }
 
 .preview-q-list {
