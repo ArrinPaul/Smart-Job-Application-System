@@ -30,12 +30,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   isLoading = false;
   isLoggedIn = false;
 
-  suggestions = [
-    'Recommend some jobs for me',
-    'How can I improve my resume?',
-    'What are the latest remote jobs?',
-    'Show me high paying jobs'
-  ];
+  suggestions: string[] = [];
 
   constructor(
     private httpService: HttpService, 
@@ -47,6 +42,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
+      this.updateSuggestions();
       if (this.isLoggedIn) {
         this.loadHistory();
       } else {
@@ -62,7 +58,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     });
 
     this.chatService.jobContext$.subscribe(job => {
-      if (job) {
+      if (job && this.isLoggedIn) {
         this.isOpen = true; // Ensure it opens
         this.messages = [
           { 
@@ -81,6 +77,24 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+  }
+
+  private updateSuggestions() {
+    if (this.isLoggedIn) {
+      this.suggestions = [
+        'Recommend some jobs for me',
+        'How can I improve my resume?',
+        'What are the latest remote jobs?',
+        'Show me high paying jobs'
+      ];
+    } else {
+      this.suggestions = [
+        'What is Smart Job Portal?',
+        'How can I register?',
+        'What features do you offer?',
+        'Is it free to use?'
+      ];
+    }
   }
 
   private getCompanyName(job: any): string {
@@ -118,14 +132,25 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   }
 
   resetChat() {
-    this.messages = [
-      { 
-        text: 'Hello! I am your AI Career Assistant. How can I help you today?', 
-        html: this.renderMarkdown('Hello! I am your AI Career Assistant. How can I help you today?'),
-        sender: 'bot', 
-        timestamp: new Date() 
-      }
-    ];
+    if (this.isLoggedIn) {
+      this.messages = [
+        { 
+          text: 'Hello! I am your AI Career Assistant. How can I help you today?', 
+          html: this.renderMarkdown('Hello! I am your AI Career Assistant. How can I help you today?'),
+          sender: 'bot', 
+          timestamp: new Date() 
+        }
+      ];
+    } else {
+      this.messages = [
+        { 
+          text: 'Hello! I am the Smart Job Portal assistant. I can answer questions about our platform and features. Please **Log In** to access personalized job recommendations and career advice!', 
+          html: this.renderMarkdown('Hello! I am the Smart Job Portal assistant. I can answer questions about our platform and features. Please **Log In** to access personalized job recommendations and career advice!'),
+          sender: 'bot', 
+          timestamp: new Date() 
+        }
+      ];
+    }
   }
 
   renderMarkdown(text: string): SafeHtml {

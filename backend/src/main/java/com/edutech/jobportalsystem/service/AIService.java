@@ -31,25 +31,16 @@ public class AIService {
     private LocalDate lastResetDate = LocalDate.now();
     
     // Limits (Free Tier safe)
-    private static final int GEMINI_DAILY_LIMIT = 1500;
-    private static final int GROQ_DAILY_LIMIT = 100;
+    private static final int GROQ_DAILY_LIMIT = 500;
     private static final int HF_DAILY_LIMIT = 500;
-    private static final int OPENROUTER_DAILY_LIMIT = 100;
+    private static final int OPENROUTER_DAILY_LIMIT = 200;
 
-    // Gemini Config
-    @Value("${app.ai.gemini.api-key}")
-    private String geminiApiKey;
-    @Value("${app.ai.gemini.model}")
-    private String geminiModel;
-    @Value("${app.ai.gemini.url}")
-    private String geminiUrl;
-
-    // Groq Config
-    @Value("${app.ai.groq.api-key}")
+    // Groq Config (Primary - Groq Cloud)
+    @Value("${app.ai.groq.api-key:${GROQ_API_KEY:}}")
     private String groqApiKey;
-    @Value("${app.ai.groq.model}")
+    @Value("${app.ai.groq.model:${GROQ_MODEL:llama-3.1-70b-versatile}}")
     private String groqModel;
-    @Value("${app.ai.groq.url}")
+    @Value("${app.ai.groq.url:${GROQ_URL:https://api.groq.com/openai/v1/chat/completions}}")
     private String groqUrl;
 
     // Hugging Face Config
@@ -69,23 +60,18 @@ public class AIService {
     public String generateContent(String prompt) {
         checkAndResetDailyLimits();
 
-        // Try Groq (Primary - Fast & Reliable)
+        // 1. Try Groq (Primary - Fast & Reliable)
         String response = tryGroq(prompt);
         if (response != null) return response;
 
-        // Try Hugging Face (Fallback 1)
+        // 2. Try Hugging Face (Fallback 1)
         logger.warn("Groq failed or limit reached. Trying Hugging Face fallback...");
         response = tryHuggingFace(prompt);
         if (response != null) return response;
 
-        // Try OpenRouter (Fallback 2)
+        // 3. Try OpenRouter (Fallback 2)
         logger.warn("Hugging Face failed or limit reached. Trying OpenRouter fallback...");
         response = tryOpenRouter(prompt);
-        if (response != null) return response;
-
-        // Try Direct Gemini (Fallback 3 - Last Option)
-        logger.warn("OpenRouter failed or limit reached. Trying Gemini fallback...");
-        response = tryGemini(prompt);
         if (response != null) return response;
 
         logger.error("All AI providers failed or limits exceeded for today.");
@@ -121,56 +107,20 @@ public class AIService {
         lastRequestTime.put(provider, System.currentTimeMillis());
     }
 
-    private String tryGemini(String prompt) {
-        if (!isAllowed("gemini", GEMINI_DAILY_LIMIT)) return null;
-        if (isKeyInvalid(geminiApiKey)) return null;
+    private String tryGroq(String prompt) {
+        if (isKeyInvalid(groqApiKey)) return null;
+        if (!isAllowed("groq", GROQ_DAILY_LIMIT)) return null;
 
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, Object> body = new HashMap<>();
-            List<Map<String, Object>> contents = new ArrayList<>();
-            Map<String, Object> content = new HashMap<>();
-            content.put("role", "user");
-            List<Map<String, String>> parts = new ArrayList<>();
-            parts.add(Map.of("text", prompt));
-            content.put("parts", parts);
-            contents.add(content);
-            body.put("contents", contents);
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-            Map<String, Object> response = restTemplate.postForObject(geminiUrl, entity, Map.class);
-
-            if (response != null && response.containsKey("candidates")) {
-                List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
-                if (!candidates.isEmpty()) {
-                    Map<String, Object> cand = candidates.get(0);
-                    Map<String, Object> contentRes = (Map<String, Object>) cand.get("content");
-                    List<Map<String, String>> partsRes = (List<Map<String, String>>) contentRes.get("parts");
-                    if (!partsRes.isEmpty()) {
-                        incrementUsage("gemini");
-                        return partsRes.get(0).get("text");
-                    }
-                }
+            // Groq Cloud is OpenAI compatible
+            String res = callOpenAICompatibleAPI(groqUrl, groqApiKey, groqModel, prompt);
+            if (res != null) {
+                incrementUsage("groq");
+                return res;
             }
             return null;
         } catch (Exception e) {
-            logger.error("Gemini error: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    private String tryGroq(String prompt) {
-        if (!isAllowed("groq", GROQ_DAILY_LIMIT)) return null;
-        if (isKeyInvalid(groqApiKey)) return null;
-        
-        try {
-            String res = callOpenAICompatibleAPI(groqUrl, groqApiKey, groqModel, prompt);
-            if (res != null) incrementUsage("groq");
-            return res;
-        } catch (Exception e) {
-            logger.error("Groq error: {}", e.getMessage());
+            logger.error("Groq API error: {}", e.getMessage());
             return null;
         }
     }
