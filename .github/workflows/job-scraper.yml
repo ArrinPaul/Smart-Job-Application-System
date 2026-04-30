@@ -1,13 +1,13 @@
-name: Job Scraper & Sync to Supabase
+name: Daily Maintenance (Scrape & Normalize)
 
 on:
   schedule:
-    # Twice daily at 00:00 and 12:00 UTC
-    - cron: '0 0,12 * * *'
+    # Daily at 01:00 AM IST (which is 19:30 UTC)
+    - cron: '30 19 * * *'
   workflow_dispatch:
 
 jobs:
-  scrape-and-sync:
+  maintenance:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,19 +22,7 @@ jobs:
         working-directory: tools/scraper
         run: npm ci
 
-      - name: Normalize existing database jobs
-        working-directory: tools/scraper
-        env:
-          SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
-          SUPABASE_DB_USER: ${{ secrets.SUPABASE_DB_USER }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
-          SUPABASE_DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
-          LIBRETRANSLATE_URL: ${{ secrets.LIBRETRANSLATE_URL }}
-          LIBRETRANSLATE_KEY: ${{ secrets.LIBRETRANSLATE_KEY }}
-        run: node normalize_existing_jobs.js
-
-      - name: Scrape, normalize, dedupe, and sync
+      - name: Run Daily Maintenance
         working-directory: tools/scraper
         env:
           SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
@@ -45,4 +33,4 @@ jobs:
           LIBRETRANSLATE_URL: ${{ secrets.LIBRETRANSLATE_URL }}
           LIBRETRANSLATE_KEY: ${{ secrets.LIBRETRANSLATE_KEY }}
           WEBHOOK_NOTIFY_URL: ${{ secrets.WEBHOOK_NOTIFY_URL }}
-        run: node scrape_and_sync.js
+        run: node daily_maintenance.js
