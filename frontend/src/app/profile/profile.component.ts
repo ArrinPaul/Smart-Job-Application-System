@@ -22,6 +22,7 @@ export class ProfileComponent implements OnInit {
   role: UserRole | null = null;
   UserRole = UserRole;
   profileCompletionPercent: number = 0;
+  heroIllustration = 'assets/profile/profile-hero.svg';
 
   // Dropdown Options (Synced with Onboarding)
   headlineOptions = [
@@ -68,6 +69,25 @@ export class ProfileComponent implements OnInit {
     this.role = this.authService.getRole();
     this.loadProfile();
     this.loadCompletionStatus();
+  }
+
+  getUserInitials(): string {
+    const fullName = (this.userProfile.fullName || 'User Name').trim();
+    const parts = fullName.split(/\s+/).filter(Boolean);
+
+    if (parts.length === 0) {
+      return 'U';
+    }
+
+    if (parts.length === 1) {
+      return parts[0].charAt(0).toUpperCase();
+    }
+
+    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+  }
+
+  getDisplayRole(): string {
+    return (this.role || 'Member').toString().replace(/_/g, ' ');
   }
 
   loadCompletionStatus(): void {
