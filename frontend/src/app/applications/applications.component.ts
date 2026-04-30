@@ -24,7 +24,6 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   selectedStatusFilter = 'ALL';
   statusOptions = Object.values(ApplicationStatus);
   private destroy$ = new Subject<void>();
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private httpService: HttpService,
@@ -36,15 +35,6 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     this.isRecruiter = this.authService.isRecruiter();
     this.isJobSeeker = this.authService.isJobSeeker();
     this.loadApplications();
-    this.startAutoRefresh();
-  }
-
-  private startAutoRefresh(): void {
-    this.refreshTimer = setInterval(() => {
-      if (!this.isLoading) {
-        this.loadApplications();
-      }
-    }, 12000);
   }
 
   getStepStatus(appStatus: string, stepName: string): string {
@@ -161,10 +151,6 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }

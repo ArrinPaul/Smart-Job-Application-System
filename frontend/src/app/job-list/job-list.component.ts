@@ -8,7 +8,6 @@ import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
 import { Job } from '../models/job.model';
 import { User, UserRole } from '../models/user.model';
-import { JobMatchInsights } from '../models/recommendation.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -33,11 +32,7 @@ export class JobListComponent implements OnInit, OnDestroy {
     'All Categories',
     'Engineering',
     'Design',
-    'Marketing',
-    'Sales',
-    'Product',
-    'Support',
-    'Internships'
+    'Support'
   ];
 
   jobTypes = [
@@ -53,15 +48,12 @@ export class JobListComponent implements OnInit, OnDestroy {
   isLoading = false;
   isAdmin = false;
   showUsers = false;
-  selectedInsights: JobMatchInsights | null = null;
-  insightJobId: number | null = null;
   
   // Pagination
   currentPage = 1;
   pageSize = 15;
   
   private destroy$ = new Subject<void>();
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private httpService: HttpService,
@@ -72,18 +64,9 @@ export class JobListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
     this.loadJobs();
-    this.startAutoRefresh();
     if (this.isAdmin) {
       this.loadUsers();
     }
-  }
-
-  private startAutoRefresh(): void {
-    this.refreshTimer = setInterval(() => {
-      if (!this.isLoading) {
-        this.loadJobs(false);
-      }
-    }, 12000);
   }
 
   loadJobs(resetPagination: boolean = true): void {
@@ -112,14 +95,11 @@ export class JobListComponent implements OnInit, OnDestroy {
       const title = (job.title || '').toLowerCase();
       const desc = (job.description || '').toLowerCase();
       const loc = (job.location || '').toLowerCase();
+      const skills = (job.requiredSkills || '').toLowerCase();
+      const combinedText = `${title} ${desc} ${skills}`;
 
       if (this.selectedCategory !== 'All Categories') {
-        const cat = this.selectedCategory.toLowerCase();
-        if (cat === 'internships') {
-          matchesCategory = title.includes('intern') || desc.includes('intern') || title.includes('trainee');
-        } else {
-          matchesCategory = title.includes(cat) || desc.includes(cat);
-        }
+        matchesCategory = this.matchesCategory(this.selectedCategory, combinedText);
       }
 
       if (this.selectedJobType !== 'All Types') {
@@ -210,7 +190,6 @@ export class JobListComponent implements OnInit, OnDestroy {
       case 'ENTRY':
         this.searchTitle = 'Intern';
         this.searchLocation = '';
-        this.selectedCategory = 'Internships';
         break;
       default:
         this.searchTitle = '';
@@ -262,26 +241,32 @@ export class JobListComponent implements OnInit, OnDestroy {
   getJobCategory(job: Job): string {
     const text = `${job.title} ${job.description} ${job.requiredSkills || ''}`.toLowerCase();
 
-    if (text.includes('intern') || text.includes('trainee') || text.includes('junior')) {
-      return 'Internships';
-    }
-    if (text.includes('design') || text.includes('ui') || text.includes('ux')) {
+    if (this.matchesCategory('Design', text)) {
       return 'Design';
     }
-    if (text.includes('market') || text.includes('seo') || text.includes('content')) {
-      return 'Marketing';
-    }
-    if (text.includes('sales') || text.includes('business development')) {
-      return 'Sales';
-    }
-    if (text.includes('product')) {
-      return 'Product';
-    }
-    if (text.includes('support') || text.includes('customer success')) {
+    if (this.matchesCategory('Support', text)) {
       return 'Support';
+    }
+    if (this.matchesCategory('Engineering', text)) {
+      return 'Engineering';
     }
 
     return 'Engineering';
+  }
+
+  private matchesCategory(category: string, text: string): boolean {
+    const normalized = text.toLowerCase();
+
+    switch (category) {
+      case 'Design':
+        return /\b(design|designer|ui|ux|graphic|visual|product\s+designer)\b/.test(normalized);
+      case 'Support':
+        return /\b(support|customer\s+success|help\s+desk|service\s+desk|customer\s+care)\b/.test(normalized);
+      case 'Engineering':
+        return /\b(engineer|engineering|developer|software|frontend|back\s*end|backend|full\s*stack|devops|qa|data|mobile|ios|android)\b/.test(normalized);
+      default:
+        return normalized.includes(category.toLowerCase());
+    }
   }
 
   getStatusLabel(job: Job): string {
@@ -346,16 +331,40 @@ export class JobListComponent implements OnInit, OnDestroy {
     return `${experienceRequired}+ years exp`;
   }
 
-  getMatchColor(score: number): string {
-    if (score >= 80) {
-      return '#0d6774';
+  getJobPreview(job: Job, maxLength: number = 115): string {
+    const plainText = this.stripPreviewText(job.description || '');
+
+    if (!plainText) {
+      return 'View the full role details on the job page.';
     }
 
-    if (score >= 60) {
-      return '#bb7a2e';
+    return plainText.length > maxLength ? `${plainText.slice(0, maxLength)}...` : plainText;
+  }
+
+  private stripPreviewText(input: string): string {
+    if (!input) return '';
+    let text = input;
+
+    if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&#')) {
+      try {
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+        text = doc.documentElement.textContent || text;
+      } catch {
+        // keep original text if decoding fails
+      }
     }
 
-    return '#9b251b';
+    return text
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/^#+\s+/gm, ' ')
+      .replace(/\n#+\s+/g, ' ')
+      .replace(/#/g, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/[\*_]{1,3}/g, '')
+      .replace(/`{1,3}/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   toggleView(view: string): void {
@@ -373,36 +382,6 @@ export class JobListComponent implements OnInit, OnDestroy {
           // Error will be handled by interceptor toast
         }
       });
-  }
-
-  fetchInsights(jobId: number): void {
-    if (this.insightJobId === jobId && this.selectedInsights) {
-      this.closeInsights();
-      return;
-    }
-
-    this.insightJobId = jobId;
-    this.selectedInsights = null; // Clear previous
-
-    this.httpService.getJobMatchInsights(jobId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.selectedInsights = response;
-          if (response.error) {
-            this.toastService.showWarning(response.error);
-          }
-        },
-        error: () => {
-          this.toastService.showError('Unable to fetch smart insights.');
-          this.insightJobId = null;
-        }
-      });
-  }
-
-  closeInsights(): void {
-    this.selectedInsights = null;
-    this.insightJobId = null;
   }
 
   editJob(jobId: number): void {
@@ -433,10 +412,6 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }

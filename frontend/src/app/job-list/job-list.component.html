@@ -21,10 +21,22 @@
 
   <section class="filters-panel" *ngIf="!isAdmin">
     <div class="chip-row">
-      <button type="button" class="filter-chip" [class.active]="activeQuickFilter === 'ALL'" (click)="applyQuickFilter('ALL')">All Categories</button>
-      <button type="button" class="filter-chip" [class.active]="activeQuickFilter === 'REMOTE'" (click)="applyQuickFilter('REMOTE')">Remote</button>
-      <button type="button" class="filter-chip" [class.active]="activeQuickFilter === 'ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">Engineering</button>
-      <button type="button" class="filter-chip" [class.active]="activeQuickFilter === 'ENTRY'" (click)="applyQuickFilter('ENTRY')">Entry Level</button>
+      <button type="button" class="filter-chip chip-all" [class.active]="activeQuickFilter === 'ALL'" (click)="applyQuickFilter('ALL')">
+        <span class="chip-icon">☰</span>
+        <span class="chip-label">All Categories</span>
+      </button>
+      <button type="button" class="filter-chip chip-remote" [class.active]="activeQuickFilter === 'REMOTE'" (click)="applyQuickFilter('REMOTE')">
+        <span class="chip-icon">🌐</span>
+        <span class="chip-label">Remote</span>
+      </button>
+      <button type="button" class="filter-chip chip-engineering" [class.active]="activeQuickFilter === 'ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">
+        <span class="chip-icon">⚙️</span>
+        <span class="chip-label">Engineering</span>
+      </button>
+      <button type="button" class="filter-chip chip-entry" [class.active]="activeQuickFilter === 'ENTRY'" (click)="applyQuickFilter('ENTRY')">
+        <span class="chip-icon">📚</span>
+        <span class="chip-label">Entry Level</span>
+      </button>
     </div>
 
     <div class="filter-grid">
@@ -66,14 +78,17 @@
     <div class="jobs-grid" *ngIf="!isLoading && paginatedJobs.length > 0">
       <article class="job-card" *ngFor="let job of paginatedJobs">
         <div class="card-head">
-          <span class="category-pill">{{ getJobCategory(job) }}</span>
+          <span class="category-pill">
+            <span class="pill-dot"></span>
+            <span class="pill-text">{{ getJobCategory(job) }}</span>
+          </span>
           <span class="status-pill" [class.closed]="!job.isActive">{{ getStatusLabel(job) }}</span>
         </div>
 
         <a class="job-title" [routerLink]="['/jobs', job.slug]">{{ job.title }}</a>
         <p class="company-name">{{ job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</p>
 
-        <p class="description">{{ (job.description || '') | slice:0:115 }}{{ (job.description || '').length > 115 ? '...' : '' }}</p>
+        <p class="description">{{ getJobPreview(job) }}</p>
 
         <div class="meta-lines">
           <p><strong>Location:</strong> {{ job.location }}</p>
@@ -82,33 +97,9 @@
           <p *ngIf="job.experienceRequired !== undefined && job.experienceRequired !== null"><strong>Experience:</strong> {{ formatExperience(job.experienceRequired) }}</p>
         </div>
 
-        <div class="insight-card" *ngIf="insightJobId === job.id && selectedInsights && !selectedInsights.error">
-          <div class="insight-score" [style.color]="getMatchColor(selectedInsights.compatibilityScore)">
-            <strong>{{ selectedInsights.compatibilityScore }}%</strong>
-            <span>Match</span>
-          </div>
-          <p class="insight-text">{{ selectedInsights.matchLevel }}</p>
-          
-          <!-- Match reasons -->
-          <div class="insight-reasons" *ngIf="selectedInsights.topMatches?.length">
-            <span *ngFor="let m of selectedInsights.topMatches | slice:0:3" class="reason-pill">{{ m }}</span>
-          </div>
-
-          <!-- AI Explanation -->
-          <div class="ai-explanation" *ngIf="selectedInsights.aiInsights">
-            <p>{{ selectedInsights.aiInsights }}</p>
-          </div>
-        </div>
-
         <div class="card-actions" *ngIf="!isAdmin">
           <a [routerLink]="['/jobs', job.slug]" class="btn btn-light">View Details</a>
           <button type="button" class="btn btn-dark" (click)="onApply(job.id)">Apply</button>
-        </div>
-
-        <div class="sub-actions" *ngIf="!isAdmin">
-          <button type="button" class="match-link" [class.active]="insightJobId === job.id" (click)="fetchInsights(job.id)">
-            {{ insightJobId === job.id ? 'Hide match insight' : 'See match insight' }}
-          </button>
         </div>
 
         <div class="card-actions" *ngIf="isAdmin">

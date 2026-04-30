@@ -7,7 +7,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import { sanitizeHtml } from '../lib/safe-dompurify';
 import { ToastService } from '../services/toast.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, finalize } from 'rxjs';
 
 import { JobMatchInsights } from '../models/recommendation.model';
 import { ChatService } from '../services/chat.service';
@@ -70,33 +70,38 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
   fetchJobDetails(slug: string): void {
     this.loading = true;
     this.error = '';
-    this.httpService.getJobBySlug(slug).subscribe({
-      next: (job) => {
-        const normalizedJob = this.normalizeJob(job);
-        this.job = normalizedJob;
-        // Convert markdown -> HTML, sanitize, and bind. If no description, show preview fallback.
-        const desc = (normalizedJob.description || '').toString();
-        if (desc && desc.trim()) {
-          this.renderedDescription = this.sanitizeAndConvert(desc);
-        } else {
-          this.renderedDescription = this.sanitizer.bypassSecurityTrustHtml(this.getDescriptionPreview());
+    this.httpService.getJobBySlug(slug)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.loading = false; })
+      )
+      .subscribe({
+        next: (job) => {
+          const normalizedJob = this.normalizeJob(job);
+          this.job = normalizedJob;
+          // Convert markdown -> HTML, sanitize, and bind. If no description, show preview fallback.
+          const desc = (normalizedJob.description || '').toString();
+          if (desc && desc.trim()) {
+            this.renderedDescription = this.sanitizeAndConvert(desc);
+          } else {
+            this.renderedDescription = this.sanitizer.bypassSecurityTrustHtml(this.getDescriptionPreview());
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching job:', err);
+          this.error = 'Job not found or failed to load.';
         }
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error fetching job:', err);
-        this.error = 'Job not found or failed to load.';
-        this.loading = false;
-      }
-    });
+      });
   }
 
   applyInternally(): void {
     if (this.job) {
-        this.httpService.applyJob(this.job.id).subscribe({
+        this.httpService.applyJob(this.job.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
             next: () => this.toastService.showSuccess('Applied successfully!'),
             error: () => this.toastService.showError('Failed to apply')
-        });
+          });
     }
   }
 
@@ -343,9 +348,11 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       // strip HTML tags first (if description is already HTML)
       .replace(/<[^>]+>/g, ' ')
       // basic markdown-to-text cleanup (for summaries)
+      .replace(/^#+\s+/gm, ' ')
+      .replace(/\n#+\s+/g, ' ')
+      .replace(/#/g, '')
       .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
       .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-      .replace(/(^|\s)#{1,6}\s+/g, ' ')
       .replace(/[\*_]{1,3}/g, '')
       .replace(/`{1,3}/g, '')
       .replace(/\s+/g, ' ')
@@ -404,24 +411,27 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.insightLoading = true;
-    this.httpService.getJobMatchInsights(this.job.id).subscribe({
-      next: (response) => {
-        this.selectedInsights = response;
-        this.insightLoading = false;
-        if (response.error) {
-          this.toastService.showWarning(response.error);
+    this.httpService.getJobMatchInsights(this.job.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.insightLoading = false; })
+      )
+      .subscribe({
+        next: (response) => {
+          this.selectedInsights = response;
+          if (response.error) {
+            this.toastService.showWarning(response.error);
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err && err.status === 401) {
+            this.toastService.showWarning('Please login to view match insights.');
+            this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+            return;
+          }
+          this.toastService.showError('Unable to fetch job insights.');
         }
-      },
-      error: (err: HttpErrorResponse) => {
-        this.insightLoading = false;
-        if (err && err.status === 401) {
-          this.toastService.showWarning('Please login to view match insights.');
-          this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
-          return;
-        }
-        this.toastService.showError('Unable to fetch job insights.');
-      }
-    });
+      });
   }
 
   getMatchColor(percent: number): string {

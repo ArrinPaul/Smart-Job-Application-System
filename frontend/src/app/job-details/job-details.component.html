@@ -17,9 +17,6 @@
 
         <div class="hero-actions">
           <button type="button" class="hero-action hero-action-secondary" (click)="shareJob()">Copy Link</button>
-          <button type="button" class="hero-action hero-action-primary" (click)="fetchInsights()" [disabled]="insightLoading">
-            {{ selectedInsights ? 'Hide Insights' : (insightLoading ? 'Loading Insights...' : 'See Match Insights') }}
-          </button>
         </div>
       </div>
 
@@ -133,44 +130,6 @@
           </div>
         </article>
 
-        <article class="content-card insights-card" *ngIf="selectedInsights as insights">
-          <div class="insights-head">
-            <h2>Match Insights</h2>
-            <span class="insight-badge" [style.borderColor]="getMatchColor(insights.compatibilityScore)">
-              {{ insights.compatibilityScore }}% Match
-            </span>
-          </div>
-
-          <p class="insight-level">{{ insights.jobTitle }} · {{ insights.matchLevel }}</p>
-
-          <div class="insight-grid">
-            <section class="insight-col">
-              <h3>Top Matches</h3>
-              <ul>
-                <li *ngFor="let item of insights.topMatches">{{ item }}</li>
-              </ul>
-            </section>
-            <section class="insight-col">
-              <h3>Improve</h3>
-              <ul>
-                <li *ngFor="let item of insights.improvementAreas">{{ item }}</li>
-              </ul>
-            </section>
-          </div>
-
-          <div class="insight-recs">
-            <h3>Recommendations</h3>
-            <ul>
-              <li *ngFor="let item of insights.recommendations">{{ item }}</li>
-            </ul>
-          </div>
-
-          <div class="insight-ai" *ngIf="insights.aiInsights">
-            <h3>AI Career Advisor Analysis</h3>
-            <div class="ai-text">{{ insights.aiInsights }}</div>
-          </div>
-        </article>
-
         <article class="content-card" *ngIf="getReferenceLinks().length">
           <h2>Official References</h2>
           <div class="reference-list">
@@ -217,6 +176,52 @@
             <div class="fact-item" *ngIf="job.createdAt">
               <span class="fact-label">Posted</span>
               <span class="fact-value">{{ getPostedLabel() }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="side-card insights-card">
+          <div class="insights-head">
+            <h3>Match Insights</h3>
+            <span class="insight-badge" *ngIf="selectedInsights as insights" [style.borderColor]="getMatchColor(insights.compatibilityScore)">
+              {{ insights.compatibilityScore }}% Match
+            </span>
+          </div>
+
+          <p class="compact-text">Get a personalized fit summary and ways to improve your match for this role.</p>
+
+          <button type="button" class="side-button" (click)="fetchInsights()" [disabled]="insightLoading">
+            {{ selectedInsights ? 'Hide Insights' : (insightLoading ? 'Loading Insights...' : 'See Match Insights') }}
+          </button>
+
+          <div *ngIf="selectedInsights as insights">
+            <p class="insight-level">{{ insights.jobTitle }} · {{ insights.matchLevel }}</p>
+
+            <div class="insight-grid">
+              <section class="insight-col">
+                <h3>Top Matches</h3>
+                <ul>
+                  <li *ngFor="let item of insights.topMatches">{{ item }}</li>
+                </ul>
+              </section>
+              <section class="insight-col">
+                <h3>Improve</h3>
+                <ul>
+                  <li *ngFor="let item of insights.improvementAreas">{{ item }}</li>
+                </ul>
+              </section>
+            </div>
+
+            <div class="insight-recs">
+              <h3>Recommendations</h3>
+              <ul>
+                <li *ngFor="let item of insights.recommendations">{{ item }}</li>
+              </ul>
+            </div>
+
+            <div class="insight-ai" *ngIf="insights.aiInsights">
+              <h3>AI Career Advisor Analysis</h3>
+              <div class="ai-text">{{ insights.aiInsights }}</div>
             </div>
           </div>
         </section>
