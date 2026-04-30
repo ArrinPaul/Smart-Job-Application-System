@@ -162,6 +162,16 @@
   margin-bottom: 20px;
 }
 
+.total-badge {
+  background: var(--cream);
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-left: 10px;
+  font-weight: 700;
+}
+
 .clear-link {
   border: 0;
   background: transparent;

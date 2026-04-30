@@ -50,9 +50,11 @@ public class JobSeekerController {
 
     @GetMapping("/jobs")
     public ResponseEntity<?> searchJobs(@RequestParam(required = false) @Size(max = 120) String title,
-                                       @RequestParam(required = false) @Size(max = 120) String location) {
-        logger.info("Job search - title: {}, location: {}", title, location);
-        return ResponseEntity.ok(jobService.searchJobs(title, location));
+                                       @RequestParam(required = false) @Size(max = 120) String location,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "1000000") int size) {
+        logger.info("Job search - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
+        return ResponseEntity.ok(jobService.searchJobs(title, location, page, size));
     }
 
     @GetMapping("/jobs/{slug}")

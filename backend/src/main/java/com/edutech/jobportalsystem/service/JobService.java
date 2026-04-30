@@ -127,7 +127,7 @@ public class JobService {
     }
 
     public List<Job> searchJobs(String title, String location) {
-        return searchJobs(title, location, 0, 100);
+        return searchJobs(title, location, 0, Integer.MAX_VALUE);
     }
 
     public List<Job> getJobsByRecruiter(String recruiterUsername) {

@@ -155,6 +155,15 @@ export class JobListComponent implements OnInit, OnDestroy {
     }
   }
 
+  get showingStart(): number {
+    if (this.filteredJobs.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get showingEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredJobs.length);
+  }
+
   loadUsers(): void {
     this.httpService.getAllUsers()
       .pipe(takeUntil(this.destroy$))

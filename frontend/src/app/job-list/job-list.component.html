@@ -41,7 +41,7 @@
 
   <section class="results-wrap">
     <div class="results-header" *ngIf="!isLoading">
-      <span>Showing {{ paginatedJobs.length }} of {{ filteredJobs.length }} jobs</span>
+      <span>Showing <strong>{{ showingStart }} – {{ showingEnd }}</strong> of <strong>{{ filteredJobs.length }}</strong> jobs <span class="total-badge">(Total: {{ jobs.length }})</span></span>
       <button
         type="button"
         class="clear-link"

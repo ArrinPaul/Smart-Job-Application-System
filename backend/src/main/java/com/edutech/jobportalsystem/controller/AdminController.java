@@ -79,7 +79,7 @@ public class AdminController {
             @org.springframework.web.bind.annotation.RequestParam(required = false) String title,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String location,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
-            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "50") int size) {
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "1000000") int size) {
         logger.info("Admin request: fetching jobs with filters - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
         if ((title != null && !title.isBlank()) || (location != null && !location.isBlank())) {
             return ResponseEntity.ok(jobService.searchJobs(title, location, page, size));
