@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { HttpService } from '../services/http.service';
 import { Job } from '../models/job.model';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { marked } from 'marked';
+import { sanitizeHtml } from '../lib/safe-dompurify';
 import { ToastService } from '../services/toast.service';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -72,7 +74,13 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       next: (job) => {
         const normalizedJob = this.normalizeJob(job);
         this.job = normalizedJob;
-        this.renderedDescription = this.sanitizer.bypassSecurityTrustHtml(normalizedJob.description || '');
+        // Convert markdown -> HTML, sanitize, and bind. If no description, show preview fallback.
+        const desc = (normalizedJob.description || '').toString();
+        if (desc && desc.trim()) {
+          this.renderedDescription = this.sanitizeAndConvert(desc);
+        } else {
+          this.renderedDescription = this.sanitizer.bypassSecurityTrustHtml(this.getDescriptionPreview());
+        }
         this.loading = false;
       },
       error: (err) => {
@@ -148,6 +156,51 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     }
 
     return 'Competitive';
+  }
+
+  private sanitizeAndConvert(md: string): SafeHtml {
+    let fixed = this.fixEncoding(md || '');
+
+    // If the text contains HTML-escaped entities like &lt;p&gt;..., decode them first
+    if (fixed.includes('&lt;') || fixed.includes('&gt;') || fixed.includes('&#')) {
+      try {
+        const doc = new DOMParser().parseFromString(fixed, 'text/html');
+        const decoded = doc.documentElement.textContent || fixed;
+        fixed = decoded;
+      } catch {
+        // fallback to original
+      }
+    }
+
+    // If the fixed text already looks like HTML, don't run it through the markdown parser
+    const looksLikeHtml = fixed.trim().startsWith('<');
+
+    try {
+      const html = looksLikeHtml ? fixed : marked.parse(fixed || '', { async: false });
+      const clean = sanitizeHtml(String(html));
+      return this.sanitizer.bypassSecurityTrustHtml(clean);
+    } catch {
+      const escaped = fixed
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return this.sanitizer.bypassSecurityTrustHtml(`<p>${escaped}</p>`);
+    }
+  }
+
+  private fixEncoding(input: string): string {
+    if (!input) return input;
+    return input
+      .replace(/â€”|â\u0000\u000a|â\u000a/g, '—')
+      .replace(/â€“/g, '–')
+      .replace(/â€™/g, "'")
+      .replace(/â€œ|â€\\"/g, '"')
+      .replace(/â€˜/g, "'")
+      .replace(/Ã©/g, 'é')
+      .replace(/Ã±/g, 'ñ')
+      .replace(/Â/g, '')
+      .replace(/\r\n/g, '\n')
+      .trim();
   }
 
   private normalizeJob(rawJob: unknown): Job {
@@ -285,9 +338,16 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
   }
 
   getDescriptionPreview(): string {
-    const raw = this.job?.description || '';
+    const raw = this.fixEncoding(this.job?.description || '');
     const plainText = raw
+      // strip HTML tags first (if description is already HTML)
       .replace(/<[^>]+>/g, ' ')
+      // basic markdown-to-text cleanup (for summaries)
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/(^|\s)#{1,6}\s+/g, ' ')
+      .replace(/[\*_]{1,3}/g, '')
+      .replace(/`{1,3}/g, '')
       .replace(/\s+/g, ' ')
       .trim();
 

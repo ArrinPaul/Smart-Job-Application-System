@@ -1,0 +1,22 @@
+<article class="job-card">
+  <header class="job-card-header">
+    <div class="job-head-left">
+      <h3 class="job-title">{{ getTitle() }}</h3>
+      <div class="job-meta">
+        <span class="company">{{ getCompany() }}</span>
+        <span class="sep">•</span>
+        <span class="location">{{ getLocation() }}</span>
+      </div>
+    </div>
+
+    <div class="job-head-right">
+      <a *ngIf="job?.application_link || job?.applicationLink" [href]="job?.application_link || job?.applicationLink" target="_blank" rel="noopener noreferrer" class="apply-btn">Apply Now</a>
+    </div>
+  </header>
+
+  <section class="job-description" [innerHTML]="renderedDescription"></section>
+
+  <footer class="job-card-footer">
+    <a *ngIf="job?.application_link || job?.applicationLink" [href]="job?.application_link || job?.applicationLink" target="_blank" rel="noopener noreferrer" class="apply-btn apply-btn-block">Apply Now</a>
+  </footer>
+</article>
