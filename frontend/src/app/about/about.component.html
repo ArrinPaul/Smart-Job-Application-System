@@ -30,7 +30,7 @@
           </p>
         </div>
         <div class="mission-image">
-          <div class="image-placeholder">Platform Vision</div>
+          <img src="assets/about/mission-vision.svg" alt="SmartJobPortal platform vision illustration" class="section-illustration" />
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@
   <!-- Values Section -->
   <section class="values-section">
     <div class="container">
-      <h2>Our Core Values</h2>
+      <h2>What We Provide</h2>
       <div class="values-grid">
         <div *ngFor="let value of values" class="value-card">
           <div class="value-icon">{{ value.icon }}</div>
@@ -101,40 +101,41 @@
     </div>
   </section>
 
-  <!-- Team Section -->
+  <!-- Services Section -->
   <section class="team-section">
     <div class="container">
-      <h2>Meet The Team</h2>
-      <p class="team-intro">Passionate individuals driving innovation in recruitment</p>
+      <h2>Our Services</h2>
+      <p class="team-intro">Everything we provide is designed to make hiring and job discovery simpler.</p>
       <div class="team-grid">
-        <div *ngFor="let member of team" class="team-card">
-          <div class="team-image">{{ member.image }}</div>
-          <h3>{{ member.name }}</h3>
-          <p class="team-role">{{ member.role }}</p>
-          <p class="team-bio">{{ member.bio }}</p>
+        <div *ngFor="let service of services" class="team-card">
+          <div class="team-image">
+            <img [src]="service.image" [alt]="service.name + ' illustration'" class="card-illustration" />
+          </div>
+          <h3>{{ service.name }}</h3>
+          <p class="team-role">{{ service.role }}</p>
+          <p class="team-bio">{{ service.bio }}</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Technology Section -->
+  <!-- Support Section -->
   <section class="technology-section">
     <div class="container">
-      <h2>Our Technology</h2>
+      <h2>Why People Use SmartJobPortal</h2>
       <div class="tech-content">
         <div class="tech-text">
-          <h3>Built on Modern Architecture</h3>
+          <h3>Built for real hiring needs</h3>
           <ul class="tech-list">
-            <li><strong>AI & Machine Learning:</strong> Advanced matching algorithms for precision recommendations</li>
-            <li><strong>Real-time Processing:</strong> Instant job matching and notifications</li>
-            <li><strong>Secure Infrastructure:</strong> Enterprise-grade security for your data</li>
-            <li><strong>Scalable Platform:</strong> Handles thousands of concurrent users</li>
-            <li><strong>Mobile-First Design:</strong> Seamless experience across all devices</li>
-            <li><strong>Data Analytics:</strong> Insights to help you make better career decisions</li>
+            <li><strong>Fast discovery:</strong> Search jobs by title, category, location, and type in seconds</li>
+            <li><strong>Clear workflows:</strong> Keep hiring steps simple for both candidates and employers</li>
+            <li><strong>Better visibility:</strong> Highlight the right openings with structured, easy-to-read listings</li>
+            <li><strong>Trusted access:</strong> Protect user accounts and application data with secure sign-in</li>
+            <li><strong>All-in-one platform:</strong> Browse, post, apply, and manage opportunities from one place</li>
           </ul>
         </div>
         <div class="tech-image">
-          <div class="image-placeholder">Architecture Stack</div>
+          <img src="assets/about/service-overview.svg" alt="SmartJobPortal service overview illustration" class="section-illustration" />
         </div>
       </div>
     </div>

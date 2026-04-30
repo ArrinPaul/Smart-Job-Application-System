@@ -19,51 +19,51 @@ export class AboutComponent {
 
   values = [
     {
-      icon: 'Mission',
-      title: 'Seamless Matching',
-      description: 'We leverage intelligent algorithms to connect job seekers with the most relevant opportunities instantly.'
+      icon: 'Search',
+      title: 'Job Discovery',
+      description: 'We help candidates quickly find relevant openings through smart search, filters, and curated listings.'
     },
     {
-      icon: 'Collaboration',
-      title: 'Recruiter Empowerment',
-      description: 'Our platform provides recruiters with powerful tools to manage listings and track candidate progress efficiently.'
+      icon: 'Post',
+      title: 'Job Posting',
+      description: 'Employers can create and manage job posts with clear details, locations, and hiring requirements.'
     },
     {
-      icon: 'Security',
-      title: 'Data Integrity',
-      description: 'We prioritize security with JWT-based authentication and secure database migrations using Supabase.'
+      icon: 'Support',
+      title: 'Applicant Support',
+      description: 'Candidates get a smoother application experience with profile building, saved jobs, and guided steps.'
     },
     {
-      icon: 'Speed',
-      title: 'Modern Stack',
-      description: 'Built with Spring Boot 3 and Angular 17, ensuring a high-performance, responsive experience for all users.'
+      icon: 'Shield',
+      title: 'Secure Access',
+      description: 'We keep user accounts, applications, and recruiter workflows protected with secure authentication.'
     }
   ];
 
-  team = [
+  services = [
     {
-      name: 'EduTech System',
-      role: 'Platform Core',
-      image: '',
-      bio: 'The foundational architecture supporting thousands of concurrent job interactions.'
+      name: 'Smart Job Search',
+      role: 'For Job Seekers',
+      image: 'assets/about/job-discovery.svg',
+      bio: 'Find matching roles faster with searchable listings, category filters, and location-based discovery.'
     },
     {
-      name: 'Supabase',
-      role: 'Database Engine',
-      image: '',
-      bio: 'Providing real-time PostgreSQL capabilities and secure data persistence.'
+      name: 'Recruiter Dashboard',
+      role: 'For Employers',
+      image: 'assets/about/job-posting.svg',
+      bio: 'Manage postings, review applicants, and keep hiring activity organized in one place.'
     },
     {
-      name: 'Spring Boot',
-      role: 'Backend Framework',
-      image: '',
-      bio: 'Powering the robust RESTful API and business logic layer.'
+      name: 'Application Tracking',
+      role: 'For Hiring Teams',
+      image: 'assets/about/applicant-support.svg',
+      bio: 'Track applications through a simple workflow so teams can move candidates forward without confusion.'
     },
     {
-      name: 'Angular',
-      role: 'Frontend Framework',
-      image: '',
-      bio: 'Delivering a modular and responsive single-page application interface.'
+      name: 'Secure Profiles',
+      role: 'For Everyone',
+      image: 'assets/about/secure-access.svg',
+      bio: 'Keep profiles, resumes, and account activity protected while users interact with the platform.'
     }
   ];
 }

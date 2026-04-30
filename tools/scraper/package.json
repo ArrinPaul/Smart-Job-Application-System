@@ -5,7 +5,8 @@
   "main": "scrape_and_sync.js",
   "scripts": {
     "start": "node scrape_and_sync.js",
-    "sync:supabase": "node sync_to_supabase.js"
+    "sync:supabase": "node sync_to_supabase.js",
+    "normalize:db": "node normalize_existing_jobs.js"
   },
   "author": "auto",
   "license": "MIT",

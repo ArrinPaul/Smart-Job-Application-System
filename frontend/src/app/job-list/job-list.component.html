@@ -5,49 +5,69 @@
       <h1 *ngIf="!isAdmin">Modern Professional Job Opportunities</h1>
       <h1 *ngIf="isAdmin">Manage Job Opportunities</h1>
     </div>
+  </section>
 
-    <div class="search-block" *ngIf="!isAdmin">
+  <section class="search-section" *ngIf="!isAdmin">
+    <div class="search-bar-wrapper">
       <input
         id="search-title"
         type="text"
         [(ngModel)]="searchTitle"
         placeholder="Search by title or keyword"
         (keyup.enter)="onSearch()" />
-      <button type="button" class="primary-search" (click)="onSearch()" [disabled]="isLoading">
+      <button type="button" class="search-btn" (click)="onSearch()" [disabled]="isLoading">
         {{ isLoading ? 'Searching...' : 'Search' }}
       </button>
     </div>
   </section>
 
   <section class="filters-panel" *ngIf="!isAdmin">
-    <div class="chip-row">
-      <button type="button" class="filter-chip chip-all" [class.active]="activeQuickFilter === 'ALL'" (click)="applyQuickFilter('ALL')">
-        <span class="chip-icon">☰</span>
-        <span class="chip-label">All Categories</span>
-      </button>
-      <button type="button" class="filter-chip chip-remote" [class.active]="activeQuickFilter === 'REMOTE'" (click)="applyQuickFilter('REMOTE')">
-        <span class="chip-icon">🌐</span>
-        <span class="chip-label">Remote</span>
-      </button>
-      <button type="button" class="filter-chip chip-engineering" [class.active]="activeQuickFilter === 'ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">
-        <span class="chip-icon">⚙️</span>
-        <span class="chip-label">Engineering</span>
-      </button>
-      <button type="button" class="filter-chip chip-entry" [class.active]="activeQuickFilter === 'ENTRY'" (click)="applyQuickFilter('ENTRY')">
-        <span class="chip-icon">📚</span>
-        <span class="chip-label">Entry Level</span>
-      </button>
-    </div>
+    <div class="filter-container">
+      <div class="filter-header-row">
+        <div class="chip-row">
+          <button type="button" class="filter-chip chip-all" [class.active]="activeQuickFilter === 'ALL'" (click)="applyQuickFilter('ALL')">
+            <span class="chip-label">All Categories</span>
+          </button>
+          <button type="button" class="filter-chip chip-engineering" [class.active]="activeQuickFilter === 'ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">
+            <span class="chip-label">Engineering</span>
+          </button>
+          <button type="button" class="filter-chip chip-design" [class.active]="activeQuickFilter === 'DESIGN'" (click)="applyQuickFilter('DESIGN')">
+            <span class="chip-label">Design</span>
+          </button>
+          <button type="button" class="filter-chip chip-support" [class.active]="activeQuickFilter === 'SUPPORT'" (click)="applyQuickFilter('SUPPORT')">
+            <span class="chip-label">Support</span>
+          </button>
+          <button type="button" class="filter-chip chip-sales" [class.active]="activeQuickFilter === 'SALES'" (click)="applyQuickFilter('SALES')">
+            <span class="chip-label">Sales</span>
+          </button>
+          <button type="button" class="filter-chip chip-finance" [class.active]="activeQuickFilter === 'FINANCE'" (click)="applyQuickFilter('FINANCE')">
+            <span class="chip-label">Finance</span>
+          </button>
+          <button type="button" class="filter-chip chip-hr" [class.active]="activeQuickFilter === 'HR & OPERATIONS'" (click)="applyQuickFilter('HR & OPERATIONS')">
+            <span class="chip-label">HR & Ops</span>
+          </button>
+          <button type="button" class="filter-chip chip-marketing" [class.active]="activeQuickFilter === 'MARKETING'" (click)="applyQuickFilter('MARKETING')">
+            <span class="chip-label">Marketing</span>
+          </button>
+          <button type="button" class="filter-chip chip-product" [class.active]="activeQuickFilter === 'PRODUCT MANAGEMENT'" (click)="applyQuickFilter('PRODUCT MANAGEMENT')">
+            <span class="chip-label">Product</span>
+          </button>
+          <button type="button" class="filter-chip chip-data" [class.active]="activeQuickFilter === 'DATA SCIENCE'" (click)="applyQuickFilter('DATA SCIENCE')">
+            <span class="chip-label">Data Science</span>
+          </button>
+        </div>
+      </div>
 
-    <div class="filter-grid">
-      <input id="search-location" type="text" [(ngModel)]="searchLocation" placeholder="Location" (keyup.enter)="onSearch()" />
-      <select id="category" [(ngModel)]="selectedCategory" (change)="onSearch()">
-        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-      </select>
-      <select id="job-type" [(ngModel)]="selectedJobType" (change)="onSearch()">
-        <option *ngFor="let type of jobTypes" [value]="type">{{ type }}</option>
-      </select>
-      <button type="button" class="secondary-search" (click)="onSearch()" [disabled]="isLoading">Apply</button>
+      <div class="filter-grid">
+        <input id="search-location" type="text" [(ngModel)]="searchLocation" placeholder="Location" (keyup.enter)="onSearch()" />
+        <select id="job-type" [(ngModel)]="selectedJobType" (change)="onSearch()">
+          <option *ngFor="let type of jobTypes" [value]="type">{{ type }}</option>
+        </select>
+        <select id="category-filter" [(ngModel)]="selectedCategory" (change)="onSearch()">
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+        <button type="button" class="apply-filters-btn" (click)="onSearch()" [disabled]="isLoading">Apply Filters</button>
+      </div>
     </div>
   </section>
 
@@ -72,7 +92,7 @@
       <div class="empty-icon">🔎</div>
       <h3>No opportunities found</h3>
       <p>Try a different category, location, or keyword.</p>
-      <button type="button" class="secondary-search" (click)="clearFilters()">Reset</button>
+      <button type="button" class="action-btn apply-now-btn" (click)="clearFilters()">Reset Filters</button>
     </div>
 
     <div class="jobs-grid" *ngIf="!isLoading && paginatedJobs.length > 0">
@@ -98,13 +118,13 @@
         </div>
 
         <div class="card-actions" *ngIf="!isAdmin">
-          <a [routerLink]="['/jobs', job.slug]" class="btn btn-light">View Details</a>
-          <button type="button" class="btn btn-dark" (click)="onApply(job.id)">Apply</button>
+          <a [routerLink]="['/jobs', job.slug]" class="action-btn view-details-btn">View Details</a>
+          <button type="button" class="action-btn apply-now-btn" (click)="onApply(job.id)">Apply Now</button>
         </div>
 
         <div class="card-actions" *ngIf="isAdmin">
-          <button type="button" class="btn btn-light" (click)="editJob(job.id)">Edit</button>
-          <button type="button" class="btn btn-dark" (click)="deleteJob(job.id)">Delete</button>
+          <button type="button" class="action-btn view-details-btn" (click)="editJob(job.id)">Edit</button>
+          <button type="button" class="action-btn apply-now-btn" (click)="deleteJob(job.id)">Delete</button>
         </div>
       </article>
     </div>

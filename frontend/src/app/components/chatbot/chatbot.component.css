@@ -12,12 +12,12 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #007bff;
+  background: #bb3e2d;
   color: white;
   border: none;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(187, 62, 45, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,9 +31,10 @@
 .chat-window {
   width: 350px;
   height: 500px;
-  background: white;
+  background: #fffaf6;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  border: 1px solid #f6efe4;
+  box-shadow: 0 10px 25px rgba(31, 29, 24, 0.12);
   margin-bottom: 15px;
   display: flex;
   flex-direction: column;
@@ -48,7 +49,7 @@
 
 .chat-header {
   padding: 15px;
-  background: #007bff;
+  background: #bb3e2d;
   color: white;
 }
 
@@ -83,13 +84,14 @@
 
 .message.bot {
   align-self: flex-start;
-  background: #f1f0f0;
+  background: #f6efe4;
+  color: #1f1d18;
   border-bottom-left-radius: 4px;
 }
 
 .message.user {
   align-self: flex-end;
-  background: #007bff;
+  background: #bb3e2d;
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -126,43 +128,60 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f6efe4;
+  background: #fffaf6;
 }
 
 .suggestion-chip {
   padding: 6px 12px;
-  background: #e9ecef;
+  background: #f6efe4;
+  color: #1f1d18;
   border-radius: 16px;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .suggestion-chip:hover {
-  background: #dee2e6;
+  background: #eee4d8;
+  box-shadow: 0 2px 8px rgba(187, 62, 45, 0.1);
 }
 
 .chat-input-area {
   padding: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f6efe4;
+  background: #fffaf6;
   display: flex;
   gap: 8px;
 }
 
 .chat-input-area input {
   flex: 1;
-  border: 1px solid #ddd;
+  border: 2px solid #f6efe4;
+  background: #fffaf6;
+  color: #1f1d18;
   padding: 8px 12px;
   border-radius: 20px;
   outline: none;
+  transition: all 0.2s;
+}
+
+.chat-input-area input:focus {
+  border-color: #bb3e2d;
+  box-shadow: 0 0 0 3px rgba(187, 62, 45, 0.1);
 }
 
 .chat-input-area button {
   background: none;
   border: none;
-  color: #007bff;
+  color: #bb3e2d;
   font-size: 20px;
   cursor: pointer;
+  transition: color 0.2s;
+}
+
+.chat-input-area button:hover {
+  color: #9a2f1f;
 }
 
 /* Loading Animation */
@@ -174,7 +193,7 @@
 .dot {
   width: 6px;
   height: 6px;
-  background: #999;
+  background: #bb3e2d;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out;
 }

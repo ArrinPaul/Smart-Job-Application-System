@@ -32,6 +32,12 @@ BACKEND_URL=http://localhost:8080 node scrape_and_sync.js
 SUPABASE_URL=https://your-project.supabase.co SUPABASE_SERVICE_KEY=<service-role-key> node sync_to_supabase.js
 ```
 
+4. Normalize existing jobs (emoji removal, encoding fix, optional translation)
+
+```bash
+LIBRETRANSLATE_URL=https://libretranslate.de node normalize_existing_jobs.js
+```
+
 GitHub Actions (Automatic)
 
 The workflow `.github/workflows/job-scraper.yml` runs automatically:
@@ -55,3 +61,9 @@ Notes
 - UPSERT by slug ensures no duplicate jobs
 - Recruiter user auto-created on first sync
 - All credentials loaded from backend `.env` (secure & centralized)
+
+Translation settings (optional)
+- `LIBRETRANSLATE_URL` — Base URL for LibreTranslate (free option). Default: https://libretranslate.de
+- `LIBRETRANSLATE_KEY` — Optional API key if your instance requires it
+- `TRANSLATE_DISABLED=true` — Disable translation entirely
+- `TRANSLATE_MAX_CHARS=3800` — Chunk size for translation requests

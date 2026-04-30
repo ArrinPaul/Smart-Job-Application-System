@@ -32,7 +32,13 @@ export class JobListComponent implements OnInit, OnDestroy {
     'All Categories',
     'Engineering',
     'Design',
-    'Support'
+    'Support',
+    'Sales',
+    'Finance',
+    'HR & Operations',
+    'Marketing',
+    'Product Management',
+    'Data Science'
   ];
 
   jobTypes = [
@@ -98,7 +104,10 @@ export class JobListComponent implements OnInit, OnDestroy {
       const skills = (job.requiredSkills || '').toLowerCase();
       const combinedText = `${title} ${desc} ${skills}`;
 
-      if (this.selectedCategory !== 'All Categories') {
+      // Handle quick filter categories
+      if (this.activeQuickFilter !== 'ALL') {
+        matchesCategory = this.matchesCategory(this.activeQuickFilter, combinedText);
+      } else if (this.selectedCategory !== 'All Categories') {
         matchesCategory = this.matchesCategory(this.selectedCategory, combinedText);
       }
 
@@ -171,24 +180,21 @@ export class JobListComponent implements OnInit, OnDestroy {
     this.loadJobs();
   }
 
-  applyQuickFilter(filter: 'ALL' | 'REMOTE' | 'ENGINEERING' | 'ENTRY'): void {
+  applyQuickFilter(filter: 'ALL' | 'ENGINEERING' | 'DESIGN' | 'SUPPORT' | 'SALES' | 'FINANCE' | 'HR & OPERATIONS' | 'MARKETING' | 'PRODUCT MANAGEMENT' | 'DATA SCIENCE'): void {
     this.activeQuickFilter = filter;
-    this.selectedCategory = 'All Categories';
     this.selectedJobType = 'All Types';
 
     switch (filter) {
-      case 'REMOTE':
-        this.searchTitle = '';
-        this.searchLocation = 'Remote';
-        this.selectedJobType = 'Remote';
-        break;
       case 'ENGINEERING':
-        this.searchTitle = 'Engineer';
-        this.searchLocation = '';
-        this.selectedCategory = 'Engineering';
-        break;
-      case 'ENTRY':
-        this.searchTitle = 'Intern';
+      case 'DESIGN':
+      case 'SUPPORT':
+      case 'SALES':
+      case 'FINANCE':
+      case 'HR & OPERATIONS':
+      case 'MARKETING':
+      case 'PRODUCT MANAGEMENT':
+      case 'DATA SCIENCE':
+        this.searchTitle = '';
         this.searchLocation = '';
         break;
       default:
@@ -259,11 +265,32 @@ export class JobListComponent implements OnInit, OnDestroy {
 
     switch (category) {
       case 'Design':
+      case 'DESIGN':
         return /\b(design|designer|ui|ux|graphic|visual|product\s+designer)\b/.test(normalized);
       case 'Support':
-        return /\b(support|customer\s+success|help\s+desk|service\s+desk|customer\s+care)\b/.test(normalized);
+      case 'SUPPORT':
+        return /\b(support|customer\s+success|help\s+desk|service\s+desk|customer\s+care|customer\s+service)\b/.test(normalized);
       case 'Engineering':
+      case 'ENGINEERING':
         return /\b(engineer|engineering|developer|software|frontend|back\s*end|backend|full\s*stack|devops|qa|data|mobile|ios|android)\b/.test(normalized);
+      case 'Sales':
+      case 'SALES':
+        return /\b(sales|account\s+executive|business\s+development|bd|sales\s+manager|sales\s+representative)\b/.test(normalized);
+      case 'Finance':
+      case 'FINANCE':
+        return /\b(finance|accounting|accountant|bookkeeping|financial\s+analyst|cfo|treasurer|auditor|payroll)\b/.test(normalized);
+      case 'HR & Operations':
+      case 'HR & OPERATIONS':
+        return /\b(hr|human\s+resources|operations|ops|operations\s+manager|recruiter|recruitment|admin|administrative)\b/.test(normalized);
+      case 'Marketing':
+      case 'MARKETING':
+        return /\b(marketing|marketing\s+manager|content\s+marketing|digital\s+marketing|seo|sem|brand|marketing\s+coordinator)\b/.test(normalized);
+      case 'Product Management':
+      case 'PRODUCT MANAGEMENT':
+        return /\b(product\s+manager|pm|product\s+owner|product\s+management|product\s+lead)\b/.test(normalized);
+      case 'Data Science':
+      case 'DATA SCIENCE':
+        return /\b(data\s+scientist|data\s+analyst|analytics|bi\s+developer|business\s+intelligence|ml\s+engineer|machine\s+learning)\b/.test(normalized);
       default:
         return normalized.includes(category.toLowerCase());
     }
