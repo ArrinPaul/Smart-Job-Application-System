@@ -64,6 +64,56 @@ function stripHtml(html) {
     .trim();
 }
 
+function normalizeMarkdownBlock(text) {
+  if (!text) return '';
+  let out = String(text)
+    .replace(/\r\n/g, '\n')
+    .replace(/\\n/g, '\n');
+
+  out = out
+    .replace(/([^\n])\s*(#{1,6})\s+/g, '$1\n\n$2 ')
+    .replace(/([^\n])\s*(\*\*[^*\n]+\*\*:)/g, '$1\n$2')
+    .replace(/([^\n])\s*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
+    .replace(/([^\n])\s*(•\s+)/g, '$1\n$2')
+    .replace(/\n{3,}/g, '\n\n');
+
+  const lines = out.split('\n');
+  const seen = new Set();
+  const cleaned = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      cleaned.push('');
+      continue;
+    }
+
+    const headingMatch = trimmed.match(/^#{1,6}\s+(.*)$/);
+    if (headingMatch) {
+      const heading = headingMatch[1].trim();
+      const key = heading.toLowerCase();
+
+      for (let idx = cleaned.length - 1; idx >= 0; idx -= 1) {
+        const previous = cleaned[idx].trim();
+        if (!previous) continue;
+        if (previous.toLowerCase() === key) {
+          cleaned.splice(idx, 1);
+        }
+        break;
+      }
+
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+    }
+
+    cleaned.push(line);
+  }
+
+  return cleaned.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 function firstSentences(text, count = 3) {
   if (!text) return '';
   const parts = text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
@@ -139,23 +189,24 @@ function formatTemplate(job) {
   const location = (job.location || 'Remote').trim();
   const jobType = (job.jobType || 'Full-Time').trim();
   const skills = normalizeSkills(job.requiredSkills);
-  const cleanedDescription = stripHtml(job.description || '');
+  const rawDescription = String(job.description || '').trim();
+  const rawHasMarkdown = /(^|\n)\s*##\s+/m.test(rawDescription) || rawDescription.includes('**Position**');
 
+  // If description is already formatted with markdown headers, preserve and normalize it
+  if (rawHasMarkdown) {
+    return normalizeMarkdownBlock(rawDescription);
+  }
+
+  const cleanedDescription = stripHtml(rawDescription);
+
+  // Otherwise, build from scratch
   let out = '';
-  out += `## About ${company}\n\n`;
-  out += (firstSentences(cleanedDescription, 3) || `${company} is hiring for this position.`) + '\n\n';
+  out += `## About the Role\n\n`;
+  out += (cleanedDescription || `${company} is hiring for this position.`) + '\n\n';
 
-  out += '## The Role\n\n';
   out += `**Position**: ${title}\n`;
   out += `**Location**: ${location}\n`;
   out += `**Employment Type**: ${jobType}\n\n`;
-
-  if (cleanedDescription.length > 160) {
-    const extra = firstSentences(cleanedDescription.slice(Math.min(240, cleanedDescription.length)), 3);
-    if (extra && extra.length > 30) {
-      out += `## Description\n\n${extra}\n\n`;
-    }
-  }
 
   if (skills) {
     out += '## Key Skills\n\n';

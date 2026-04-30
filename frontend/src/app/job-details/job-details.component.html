@@ -74,12 +74,51 @@
           <div class="description-text" [innerHTML]="renderedDescription"></div>
         </article>
 
-        <article class="content-card" *ngIf="getRequirementsList().length">
-          <h2>Eligibility Criteria</h2>
-          <ul class="bullet-list">
-            <li *ngFor="let requirement of getRequirementsList()">{{ requirement }}</li>
-          </ul>
-        </article>
+        <section class="side-card insights-card">
+          <div class="insights-head">
+            <h3>Match Insights</h3>
+            <span class="insight-badge" *ngIf="selectedInsights as insights" [style.borderColor]="getMatchColor(insights.compatibilityScore)">
+              {{ insights.compatibilityScore }}% Match
+            </span>
+          </div>
+
+          <p class="compact-text">Get a personalized fit summary and ways to improve your match for this role.</p>
+
+          <button type="button" class="side-button" (click)="fetchInsights()" [disabled]="insightLoading">
+            {{ selectedInsights ? 'Hide Insights' : (insightLoading ? 'Loading Insights...' : 'See Match Insights') }}
+          </button>
+
+          <div *ngIf="selectedInsights as insights">
+            <p class="insight-level">{{ insights.jobTitle }} · {{ insights.matchLevel }}</p>
+
+            <div class="insight-grid">
+              <section class="insight-col">
+                <h3>Top Matches</h3>
+                <ul>
+                  <li *ngFor="let item of insights.topMatches">{{ item }}</li>
+                </ul>
+              </section>
+              <section class="insight-col">
+                <h3>Improve</h3>
+                <ul>
+                  <li *ngFor="let item of insights.improvementAreas">{{ item }}</li>
+                </ul>
+              </section>
+            </div>
+
+            <div class="insight-recs">
+              <h3>Recommendations</h3>
+              <ul>
+                <li *ngFor="let item of insights.recommendations">{{ item }}</li>
+              </ul>
+            </div>
+
+            <div class="insight-ai" *ngIf="insights.aiInsights">
+              <h3>AI Career Advisor Analysis</h3>
+              <div class="ai-text">{{ insights.aiInsights }}</div>
+            </div>
+          </div>
+        </section>
 
         <article class="content-card" *ngIf="job.howToApply || job.applicationLink">
           <h2>How to Apply</h2>
@@ -180,50 +219,11 @@
           </div>
         </section>
 
-        <section class="side-card insights-card">
-          <div class="insights-head">
-            <h3>Match Insights</h3>
-            <span class="insight-badge" *ngIf="selectedInsights as insights" [style.borderColor]="getMatchColor(insights.compatibilityScore)">
-              {{ insights.compatibilityScore }}% Match
-            </span>
-          </div>
-
-          <p class="compact-text">Get a personalized fit summary and ways to improve your match for this role.</p>
-
-          <button type="button" class="side-button" (click)="fetchInsights()" [disabled]="insightLoading">
-            {{ selectedInsights ? 'Hide Insights' : (insightLoading ? 'Loading Insights...' : 'See Match Insights') }}
-          </button>
-
-          <div *ngIf="selectedInsights as insights">
-            <p class="insight-level">{{ insights.jobTitle }} · {{ insights.matchLevel }}</p>
-
-            <div class="insight-grid">
-              <section class="insight-col">
-                <h3>Top Matches</h3>
-                <ul>
-                  <li *ngFor="let item of insights.topMatches">{{ item }}</li>
-                </ul>
-              </section>
-              <section class="insight-col">
-                <h3>Improve</h3>
-                <ul>
-                  <li *ngFor="let item of insights.improvementAreas">{{ item }}</li>
-                </ul>
-              </section>
-            </div>
-
-            <div class="insight-recs">
-              <h3>Recommendations</h3>
-              <ul>
-                <li *ngFor="let item of insights.recommendations">{{ item }}</li>
-              </ul>
-            </div>
-
-            <div class="insight-ai" *ngIf="insights.aiInsights">
-              <h3>AI Career Advisor Analysis</h3>
-              <div class="ai-text">{{ insights.aiInsights }}</div>
-            </div>
-          </div>
+        <section class="side-card" *ngIf="getRequirementsList().length">
+          <h3>Eligibility Criteria</h3>
+          <ul class="bullet-list">
+            <li *ngFor="let requirement of getRequirementsList()">{{ requirement }}</li>
+          </ul>
         </section>
 
         <!-- New AI Assistant Section -->

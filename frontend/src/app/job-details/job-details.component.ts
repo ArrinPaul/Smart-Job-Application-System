@@ -165,9 +165,10 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
 
   private sanitizeAndConvert(md: string): SafeHtml {
     let fixed = this.fixEncoding(md || '');
+    fixed = this.normalizeMarkdown(fixed);
 
     // If the text contains HTML-escaped entities like &lt;p&gt;..., decode them first
-    if (fixed.includes('&lt;') || fixed.includes('&gt;') || fixed.includes('&#')) {
+    if (fixed.includes('&lt;') || fixed.includes('&gt;')) {
       try {
         const doc = new DOMParser().parseFromString(fixed, 'text/html');
         const decoded = doc.documentElement.textContent || fixed;
@@ -196,16 +197,70 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
   private fixEncoding(input: string): string {
     if (!input) return input;
     return input
-      .replace(/â€”|â\u0000\u000a|â\u000a/g, '—')
-      .replace(/â€“/g, '–')
-      .replace(/â€™/g, "'")
-      .replace(/â€œ|â€\\"/g, '"')
-      .replace(/â€˜/g, "'")
-      .replace(/Ã©/g, 'é')
-      .replace(/Ã±/g, 'ñ')
-      .replace(/Â/g, '')
+      .replace(/\u00e2\u0080\u0094|â€”|â\u0000\u000a|â\u000a/g, '—')
+      .replace(/\u00e2\u0080\u0093|â€“/g, '–')
+      .replace(/\u00e2\u0080\u0099|\u00e2\u0080\u0098|â€™|â€˜/g, "'")
+      .replace(/\u00e2\u0080\u009c|\u00e2\u0080\u009d|â€œ|â€\\"/g, '"')
+      .replace(/\u00e2\u0080\u00a6/g, '...')
+      .replace(/\u00c3\u00a9|Ã©/g, 'é')
+      .replace(/\u00c3\u00b1|Ã±/g, 'ñ')
+      .replace(/\u00c2|Â/g, '')
       .replace(/\r\n/g, '\n')
       .trim();
+  }
+
+  private normalizeMarkdown(input: string): string {
+    if (!input) return input;
+
+    let out = input
+      .replace(/\r\n/g, '\n')
+      .replace(/\\n/g, '\n');
+
+    // Ensure headings and labels start on their own lines.
+    out = out
+      .replace(/([^\n])\s*(#{1,6})\s+/g, '$1\n\n$2 ')
+      .replace(/([^\n])\s*(\*\*[^*\n]+\*\*:)/g, '$1\n$2')
+      .replace(/([^\n])\s*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
+      .replace(/([^\n])\s*(•\s+)/g, '$1\n$2')
+      .replace(/\n{3,}/g, '\n\n');
+
+    const lines = out.split('\n');
+    const seenHeadings = new Set<string>();
+    const cleaned: string[] = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        cleaned.push('');
+        continue;
+      }
+
+      const headingMatch = trimmed.match(/^#{1,6}\s+(.*)$/);
+      if (headingMatch) {
+        const headingText = headingMatch[1].trim();
+        const headingKey = headingText.toLowerCase();
+
+        // Drop the previous plain line if it duplicates this heading.
+        for (let idx = cleaned.length - 1; idx >= 0; idx -= 1) {
+          const previous = cleaned[idx].trim();
+          if (!previous) continue;
+          if (previous.toLowerCase() === headingKey) {
+            cleaned.splice(idx, 1);
+          }
+          break;
+        }
+
+        if (seenHeadings.has(headingKey)) {
+          continue;
+        }
+
+        seenHeadings.add(headingKey);
+      }
+
+      cleaned.push(line);
+    }
+
+    return cleaned.join('\n').replace(/\n{3,}/g, '\n\n').trim();
   }
 
   private normalizeJob(rawJob: unknown): Job {

@@ -442,23 +442,20 @@ public class JobScraperScheduler {
         String safeJobType = (jobType == null || jobType.isBlank()) ? "Full-Time" : jobType.trim();
 
         String cleanedDescription = description == null ? "" : description.trim();
-        String summary = firstSentences(cleanedDescription, 3);
+        
+        // If description is already formatted with markdown headers, return it as-is
+        if (cleanedDescription.contains("## ") || cleanedDescription.contains("**Position**")) {
+            return cleanedDescription;
+        }
 
+        // Otherwise, build from scratch
         StringBuilder out = new StringBuilder();
-        out.append("## About ").append(safeCompany).append("\n\n");
-        out.append((summary.isBlank() ? safeCompany + " is hiring for this position." : summary)).append("\n\n");
+        out.append("## About the Role\n\n");
+        out.append(cleanedDescription.isBlank() ? safeCompany + " is hiring for this position." : cleanedDescription).append("\n\n");
 
-        out.append("## The Role\n\n");
         out.append("**Position**: ").append(safeTitle).append("\n");
         out.append("**Location**: ").append(safeLocation).append("\n");
         out.append("**Employment Type**: ").append(safeJobType).append("\n\n");
-
-        if (cleanedDescription.length() > 160) {
-            String extra = firstSentences(cleanedDescription.substring(Math.min(240, cleanedDescription.length())), 3);
-            if (extra != null && extra.length() > 30) {
-                out.append("## Description\n\n").append(extra).append("\n\n");
-            }
-        }
 
         String normalizedSkills = normalizeSkills(skills);
         if (!normalizedSkills.isBlank()) {

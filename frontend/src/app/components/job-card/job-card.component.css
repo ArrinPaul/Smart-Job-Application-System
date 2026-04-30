@@ -49,19 +49,53 @@
 
 .job-description {
   color: var(--text, #222);
-  line-height: 1.75;
+  line-height: 1.7;
+  font-size: 0.95rem;
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+.job-description * {
+  font-family: 'Manrope', 'Segoe UI', sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
 }
 
 .job-description h1,
 .job-description h2,
-.job-description h3 {
+.job-description h3,
+.job-description h4 {
   color: var(--text-strong, #111);
-  margin: 0.75rem 0 0.35rem;
+  margin: 0.4rem 0 0.25rem 0;
+  padding: 0;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  font-family: 'Manrope', 'Segoe UI', sans-serif !important;
+  letter-spacing: 0 !important;
 }
 
-.job-description p { margin: 0.5rem 0; }
-.job-description ul, .job-description ol { margin: 0.5rem 0 0.75rem 1.2rem; }
-.job-description a { color: var(--accent, #0d6774); text-decoration: none; border-bottom: 1px solid rgba(13,103,116,0.12); }
+.job-description p {
+  margin: 0.3rem 0;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+.job-description ul,
+.job-description ol {
+  margin: 0.3rem 0 0.5rem 1.2rem;
+  padding: 0;
+}
+
+.job-description li {
+  margin: 0.15rem 0;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+.job-description a {
+  color: var(--accent, #0d6774);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(13, 103, 116, 0.12);
+}
 
 .job-card-footer { display: none; }
 

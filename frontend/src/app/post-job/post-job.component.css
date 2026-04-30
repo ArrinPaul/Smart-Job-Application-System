@@ -489,9 +489,43 @@
 }
 
 .preview-description {
-  white-space: pre-wrap;
+  white-space: normal;
   color: #4a4a4a;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-size: 0.95rem;
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+.preview-description * {
+  font-family: 'Manrope', 'Segoe UI', sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.7 !important;
+}
+
+.preview-description h1,
+.preview-description h2,
+.preview-description h3,
+.preview-description h4 {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  margin: 0.4rem 0 0.25rem 0 !important;
+  font-family: 'Manrope', 'Segoe UI', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+.preview-description p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+}
+
+.preview-description ul,
+.preview-description ol {
+  margin: 0.3rem 0 0.5rem 1.2rem;
+}
+
+.preview-description li {
+  margin: 0.15rem 0;
+  font-size: 0.95rem;
 }
 
 .preview-q-list {
