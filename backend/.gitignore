@@ -3,8 +3,13 @@
 
 # Log files
 *.log
+logs
 logs/
 /logs/
+/logs
+**/logs/
+**/logs
+*.gz
 
 # BlueJ files
 *.ctxt
