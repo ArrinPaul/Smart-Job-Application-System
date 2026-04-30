@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const { Client } = require('pg');
+const { normalizeJobRecord } = require('./text_normalizer');
 
 try {
   const dotenvPath = path.resolve(__dirname, '../../backend/.env');
@@ -38,19 +39,21 @@ function slugify(value) {
     .slice(0, 200) || 'job';
 }
 
-function normalizeJob(job) {
-  const title = typeof job.title === 'string' ? job.title.trim() : '';
-  if (!title) return null;
+async function normalizeJob(job) {
+  const normalized = await normalizeJobRecord(job, { strictEnglish: true });
+  if (!normalized) return null;
+
   return {
     ...job,
-    title,
-    companyName: typeof job.companyName === 'string' && job.companyName.trim() ? job.companyName.trim() : 'Unknown Company',
-    location: typeof job.location === 'string' && job.location.trim() ? job.location.trim() : 'Remote',
-    applicationLink: typeof job.applicationLink === 'string' ? job.applicationLink.trim() : '',
-    description: typeof job.description === 'string' ? job.description.trim() : '',
-    requiredSkills: typeof job.requiredSkills === 'string' ? job.requiredSkills.trim() : job.requiredSkills,
-    jobType: typeof job.jobType === 'string' ? job.jobType.trim() : '',
-    workType: typeof job.workType === 'string' ? job.workType.trim() : ''
+    title: normalized.title,
+    companyName: normalized.companyName,
+    location: normalized.location,
+    applicationLink: normalized.applicationLink || '',
+    description: normalized.description,
+    requiredSkills: normalized.requiredSkills || '',
+    jobType: normalized.jobType || '',
+    workType: typeof job.workType === 'string' ? job.workType.trim() : '',
+    howToApply: normalized.howToApply || (typeof job.howToApply === 'string' ? job.howToApply.trim() : '')
   };
 }
 
@@ -172,7 +175,14 @@ async function main() {
     return;
   }
 
-  jobs = jobs.map(normalizeJob).filter(Boolean);
+  const normalizedJobs = [];
+  for (const job of jobs) {
+    const normalized = await normalizeJob(job);
+    if (normalized) {
+      normalizedJobs.push(normalized);
+    }
+  }
+  jobs = normalizedJobs;
   LOG.info(`Loaded ${jobs.length} normalized jobs from last_scrape.json`);
 
   const client = new Client({

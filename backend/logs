@@ -3316,3 +3316,153 @@ Caused by: java.io.IOException: An established connection was aborted by the sof
 2026-04-30 12:12:54 [http-nio-8080-exec-3] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
 2026-04-30 12:12:54 [http-nio-8080-exec-7] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
 2026-04-30 12:12:54 [http-nio-8080-exec-7] INFO  c.e.j.s.JobRecommendationService - Returning cached recommendations for user: 15
+2026-04-30 12:18:25 [http-nio-8080-exec-1] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@3b62e26 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6cdb6e71 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-5] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@11d7ddcd (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@307a8c41 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-1] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@72ddc27a (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@33c645c2 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-5] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@15a57620 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@4ab13d86 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@2d116ef8 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:25 [http-nio-8080-exec-1] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6e6080c4 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 12:18:28 [http-nio-8080-exec-1] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 12:18:28 [http-nio-8080-exec-5] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 12:18:28 [http-nio-8080-exec-9] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 12:18:29 [http-nio-8080-exec-9] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-30 12:18:34 [http-nio-8080-exec-9] INFO  c.e.j.s.JobRecommendationService - Found 1227 recommendations for user 15
+2026-04-30 13:07:45 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=47m1s498ms703µs200ns).
+2026-04-30 13:08:53 [http-nio-8080-exec-4] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:08:53 [http-nio-8080-exec-4] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60033ms.
+2026-04-30 13:08:53 [http-nio-8080-exec-4] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:08:54 [http-nio-8080-exec-8] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:08:54 [http-nio-8080-exec-8] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60002ms.
+2026-04-30 13:08:54 [http-nio-8080-exec-8] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:08:54 [http-nio-8080-exec-9] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:08:54 [http-nio-8080-exec-9] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60006ms.
+2026-04-30 13:08:54 [http-nio-8080-exec-9] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:08:54 [http-nio-8080-exec-3] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:08:54 [http-nio-8080-exec-3] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60003ms.
+2026-04-30 13:08:54 [http-nio-8080-exec-3] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:08:54 [http-nio-8080-exec-9] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60006ms.] [n/a]
+2026-04-30 13:08:54 [http-nio-8080-exec-4] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60033ms.] [n/a]
+2026-04-30 13:08:54 [http-nio-8080-exec-8] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60002ms.] [n/a]
+2026-04-30 13:08:54 [http-nio-8080-exec-3] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60003ms.] [n/a]
+2026-04-30 13:12:47 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m1s805ms828µs100ns).
+2026-04-30 13:13:41 [http-nio-8080-exec-6] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:13:41 [http-nio-8080-exec-6] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60001ms.
+2026-04-30 13:13:41 [http-nio-8080-exec-6] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:13:41 [http-nio-8080-exec-6] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60001ms.] [n/a]
+2026-04-30 13:13:41 [http-nio-8080-exec-5] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:13:41 [http-nio-8080-exec-1] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:13:41 [http-nio-8080-exec-5] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60004ms.
+2026-04-30 13:13:41 [http-nio-8080-exec-1] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60004ms.
+2026-04-30 13:13:41 [http-nio-8080-exec-5] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:13:41 [http-nio-8080-exec-1] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:13:41 [http-nio-8080-exec-5] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60004ms.] [n/a]
+2026-04-30 13:13:41 [http-nio-8080-exec-1] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60004ms.] [n/a]
+2026-04-30 13:13:41 [http-nio-8080-exec-2] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:13:41 [http-nio-8080-exec-2] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60008ms.
+2026-04-30 13:13:41 [http-nio-8080-exec-2] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:13:41 [http-nio-8080-exec-2] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60008ms.] [n/a]
+2026-04-30 13:20:07 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=4m20s154ms951µs100ns).
+2026-04-30 13:20:50 [http-nio-8080-exec-7] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:20:50 [http-nio-8080-exec-7] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60008ms.
+2026-04-30 13:20:50 [http-nio-8080-exec-7] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:20:50 [http-nio-8080-exec-7] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60008ms.] [n/a]
+2026-04-30 13:20:50 [http-nio-8080-exec-4] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:20:50 [http-nio-8080-exec-4] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60007ms.
+2026-04-30 13:20:50 [http-nio-8080-exec-4] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:20:50 [http-nio-8080-exec-4] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60007ms.] [n/a]
+2026-04-30 13:20:50 [http-nio-8080-exec-8] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:20:50 [http-nio-8080-exec-8] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60006ms.
+2026-04-30 13:20:50 [http-nio-8080-exec-8] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:20:50 [http-nio-8080-exec-8] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60006ms.] [n/a]
+2026-04-30 13:20:50 [http-nio-8080-exec-10] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 08001
+2026-04-30 13:20:50 [http-nio-8080-exec-10] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - HikariPool-1 - Connection is not available, request timed out after 60039ms.
+2026-04-30 13:20:50 [http-nio-8080-exec-10] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - The connection attempt failed.
+2026-04-30 13:20:50 [http-nio-8080-exec-10] ERROR c.e.j.jwt.JwtRequestFilter - JWT filter exception: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 60039ms.] [n/a]
+2026-04-30 13:25:53 [http-nio-8080-exec-6] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@1c151250 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-1] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@7f0a1f95 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@59aaad8c (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@581ea881 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6a34b3cd (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@369722fb (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-1] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@be0405b (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-6] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@58be468e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@2483d116 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:53 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@42ecdc35 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:25:56 [http-nio-8080-exec-1] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 13:25:57 [http-nio-8080-exec-3] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 13:25:58 [http-nio-8080-exec-6] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 13:25:58 [http-nio-8080-exec-6] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-30 13:26:05 [http-nio-8080-exec-6] INFO  c.e.j.s.JobRecommendationService - Found 1227 recommendations for user 15
+2026-04-30 13:26:18 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m10s659ms700µs600ns).
+2026-04-30 13:37:26 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@16177f7a (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@551d399a (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-10] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@52363704 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@4c2d9992 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@44611d38 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@3cf37a42 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-10] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@23e36d2b (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@171c664f (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@7a3a5c9f (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:26 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@41fa5bd0 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:37:29 [http-nio-8080-exec-10] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 13:37:30 [http-nio-8080-exec-3] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 13:37:30 [http-nio-8080-exec-9] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 13:37:30 [http-nio-8080-exec-9] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-30 13:37:31 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m12s413ms430µs).
+2026-04-30 13:37:37 [http-nio-8080-exec-9] INFO  c.e.j.s.JobRecommendationService - Found 1227 recommendations for user 15
+2026-04-30 13:46:19 [http-nio-8080-exec-7] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@11d381ca (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@721a04bb (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-10] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@1224942e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-4] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@4806f04c (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-10] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@75fb0999 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-4] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@4063e932 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-8] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@5e3fb1fc (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-10] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@5994723b (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-7] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@556b939e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:19 [http-nio-8080-exec-4] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6b7c7951 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:46:22 [http-nio-8080-exec-8] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 13:46:23 [http-nio-8080-exec-4] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 13:46:23 [http-nio-8080-exec-10] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 13:46:23 [http-nio-8080-exec-10] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-30 13:46:36 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m5s107ms850µs600ns).
+2026-04-30 13:46:46 [http-nio-8080-exec-10] INFO  c.e.j.s.JobRecommendationService - Found 1227 recommendations for user 15
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@395dfc19 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6beb460c (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@5a0100a7 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@62b43d45 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@18f3699b (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@57d71008 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@5ccd3a82 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@1f507a4b (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@1cec678b (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:31 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@73d4734e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 13:53:37 [http-nio-8080-exec-2] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 13:53:37 [http-nio-8080-exec-8] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 13:53:38 [http-nio-8080-exec-4] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 13:53:38 [http-nio-8080-exec-4] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-30 13:53:44 [http-nio-8080-exec-4] INFO  c.e.j.s.JobRecommendationService - Found 1227 recommendations for user 15
+2026-04-30 13:53:55 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m49s402ms343µs100ns).
+2026-04-30 14:00:14 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@56933ae3 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-6] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6c9fe63e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-5] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@af7555f (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@46f85e9c (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-6] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@434f0fce (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@4b124b9d (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-5] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@7c6389cd (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-9] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@2a9d2b3 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-6] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@49d0e7f8 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:14 [http-nio-8080-exec-3] WARN  com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@d88fde4 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-04-30 14:00:19 [http-nio-8080-exec-9] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 14:00:19 [http-nio-8080-exec-6] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 14:00:19 [http-nio-8080-exec-5] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 14:00:19 [http-nio-8080-exec-5] INFO  c.e.j.s.JobRecommendationService - Fetching job recommendations for user: 15
+2026-04-30 14:00:22 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m26s459ms607µs800ns).
+2026-04-30 14:00:28 [http-nio-8080-exec-5] INFO  c.e.j.s.JobRecommendationService - Found 1227 recommendations for user 15
+2026-04-30 14:03:17 [http-nio-8080-exec-9] INFO  c.e.j.controller.JobSeekerController - User Paul fetching their applications
+2026-04-30 14:03:17 [http-nio-8080-exec-1] INFO  c.e.j.controller.AuthController - Fetching onboarding status for user: Paul
+2026-04-30 14:03:17 [http-nio-8080-exec-6] INFO  c.e.j.controller.JobSeekerController - User 15 requesting 6 job recommendations
+2026-04-30 14:03:17 [http-nio-8080-exec-6] INFO  c.e.j.s.JobRecommendationService - Returning cached recommendations for user: 15

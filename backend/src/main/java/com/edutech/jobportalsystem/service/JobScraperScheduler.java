@@ -271,7 +271,8 @@ public class JobScraperScheduler {
     private Map<String, String> normalizeJobPayload(Map<String, String> job) {
         if (job == null) return null;
 
-        String title = normalizeText(job.get("title"));
+        String originalTitle = normalizeText(job.get("title"));
+        String title = originalTitle;
         if (title == null || title.isBlank()) return null;
 
         String companyName = normalizeText(job.getOrDefault("companyName", "Unknown Company"));
@@ -285,9 +286,17 @@ public class JobScraperScheduler {
         String lang = detectLanguage(title + " " + description);
         if (!"en".equalsIgnoreCase(lang)) {
             title = translateText(title, lang);
+            companyName = translateText(companyName, lang);
+            location = translateText(location, lang);
+            jobType = translateText(jobType, lang);
             description = translateText(description, lang);
             requiredSkills = translateText(requiredSkills, lang);
             howToApply = translateText(howToApply, lang);
+
+            if (title == null || title.isBlank() || title.equalsIgnoreCase(originalTitle)) {
+                logger.warn("Skipping non-English job because translation did not produce usable English text: {}", originalTitle);
+                return null;
+            }
         }
 
         String formattedDescription = formatTemplate(title, companyName, location, jobType, description, requiredSkills, applicationLink);
@@ -320,7 +329,7 @@ public class JobScraperScheduler {
         text = text.replace("\u2026", "...");
         text = text.replace("\u200D", "").replace("\uFE0F", "");
         text = EMOJI_PATTERN.matcher(text).replaceAll("");
-        return text.replaceAll("\s+", " ").trim();
+        return text.replaceAll("\\s+", " ").trim();
     }
 
     private String fixMojibake(String input) {

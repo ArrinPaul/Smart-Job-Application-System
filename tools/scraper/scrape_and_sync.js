@@ -3,6 +3,7 @@ const cheerio = require('cheerio');
 const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
+const { normalizeJobRecord } = require('./text_normalizer');
 
 try {
   const dotenvPath = path.resolve(__dirname, '../../backend/.env');
@@ -22,103 +23,6 @@ const OUT_FILE = path.join(__dirname, 'last_scrape.json');
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = () => delay(1200 + Math.floor(Math.random() * 1200));
 
-const TRANSLATE_URL = (process.env.LIBRETRANSLATE_URL || 'https://libretranslate.de').replace(/\/$/, '');
-const TRANSLATE_KEY = process.env.LIBRETRANSLATE_KEY || '';
-const TRANSLATE_ENABLED = process.env.TRANSLATE_DISABLED !== 'true' && Boolean(TRANSLATE_URL);
-const TRANSLATE_MAX_CHARS = Number(process.env.TRANSLATE_MAX_CHARS || 3800);
-
-const languageCache = new Map();
-
-function countReplacement(text) {
-  const matches = String(text || '').match(/\uFFFD/g);
-  return matches ? matches.length : 0;
-}
-
-function fixMojibake(input) {
-  if (!input) return '';
-  const text = String(input);
-  if (!/[\u00C2\u00C3\u00E2\u00F0\uFFFD]/.test(text)) return text;
-
-  try {
-    const decoded = Buffer.from(text, 'latin1').toString('utf8');
-    if (countReplacement(decoded) <= countReplacement(text)) {
-      return decoded;
-    }
-  } catch {
-    // fallback to original text
-  }
-
-  return text;
-}
-
-function removeEmoji(text) {
-  if (!text) return '';
-  return String(text)
-    .replace(/[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]/gu, '')
-    .replace(/\u200D/g, '')
-    .replace(/\uFE0F/g, '');
-}
-
-function normalizeText(text) {
-  if (!text) return '';
-  let out = fixMojibake(text);
-  out = out.replace(/\u00A0/g, ' ');
-  out = out.replace(/[\u2013\u2014]/g, '-');
-  out = out.replace(/[\u2018\u2019\u201B]/g, "'");
-  out = out.replace(/[\u201C\u201D\u201F]/g, '"');
-  out = out.replace(/\u2026/g, '...');
-  out = removeEmoji(out);
-  return out.replace(/\s+/g, ' ').trim();
-}
-
-async function detectLanguage(text) {
-  if (!TRANSLATE_ENABLED) return 'en';
-  const sample = normalizeText(text).slice(0, 1000).trim();
-  if (!sample) return 'en';
-  if (languageCache.has(sample)) return languageCache.get(sample);
-
-  try {
-    const payload = { q: sample };
-    if (TRANSLATE_KEY) payload.api_key = TRANSLATE_KEY;
-    const res = await axios.post(`${TRANSLATE_URL}/detect`, payload, { timeout: 15000 });
-    const lang = Array.isArray(res.data) && res.data[0] && res.data[0].language ? res.data[0].language : 'en';
-    languageCache.set(sample, lang);
-    return lang;
-  } catch {
-    return 'en';
-  }
-}
-
-async function translateText(text, sourceLang) {
-  if (!TRANSLATE_ENABLED || !text) return text;
-  if (sourceLang && sourceLang.toLowerCase() === 'en') return text;
-
-  const chunks = [];
-  for (let i = 0; i < text.length; i += TRANSLATE_MAX_CHARS) {
-    chunks.push(text.slice(i, i + TRANSLATE_MAX_CHARS));
-  }
-
-  const translatedChunks = [];
-  for (const chunk of chunks) {
-    const payload = {
-      q: chunk,
-      source: sourceLang || 'auto',
-      target: 'en',
-      format: 'text'
-    };
-    if (TRANSLATE_KEY) payload.api_key = TRANSLATE_KEY;
-
-    try {
-      const res = await axios.post(`${TRANSLATE_URL}/translate`, payload, { timeout: 20000 });
-      translatedChunks.push(res.data?.translatedText || chunk);
-    } catch {
-      translatedChunks.push(chunk);
-    }
-  }
-
-  return translatedChunks.join('');
-}
-
 function getHeaders() {
   return {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -129,120 +33,14 @@ function getHeaders() {
   };
 }
 
-function stripHtml(html) {
-  if (!html) return '';
-  return String(html)
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&[a-zA-Z0-9#]+;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function firstSentences(text, count = 3) {
-  if (!text) return '';
-  const parts = text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
-  return parts.slice(0, count).join('. ') + (parts.length ? '.' : '');
-}
-
-function normalizeSkills(requiredSkills) {
-  if (!requiredSkills) return '';
-  return String(requiredSkills)
-    .split(/[,;|]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 10)
-    .join(', ');
-}
-
-function formatTemplate(job) {
-  const company = (job.companyName || 'Company').trim();
-  const title = (job.title || 'Role').trim();
-  const location = (job.location || 'Remote').trim();
-  const jobType = (job.jobType || 'Full-Time').trim();
-  const skills = normalizeSkills(job.requiredSkills);
-  const cleanedDescription = stripHtml(job.description || '');
-
-  let out = '';
-  out += `## About ${company}\n\n`;
-  out += (firstSentences(cleanedDescription, 3) || `${company} is hiring for this position.`) + '\n\n';
-
-  out += '## The Role\n\n';
-  out += `**Position**: ${title}\n`;
-  out += `**Location**: ${location}\n`;
-  out += `**Employment Type**: ${jobType}\n\n`;
-
-  if (cleanedDescription.length > 160) {
-    const extra = firstSentences(cleanedDescription.slice(Math.min(240, cleanedDescription.length)), 3);
-    if (extra && extra.length > 30) {
-      out += `## Description\n\n${extra}\n\n`;
-    }
-  }
-
-  if (skills) {
-    out += '## Key Skills\n\n';
-    skills.split(', ').forEach((skill) => {
-      out += `• ${skill}\n`;
-    });
-    out += '\n';
-  }
-
-  if (job.applicationLink) {
-    out += `**[Apply Now](${job.applicationLink})**`;
-  }
-
-  return out.trim();
-}
-
 async function normalizeJob(job) {
-  const rawTitle = (job.title || '').trim();
-  if (!rawTitle) return null;
-
-  const rawDescription = job.description || '';
-  const rawSkills = normalizeSkills(job.requiredSkills);
-  const rawCompany = job.companyName || 'Unknown Company';
-  const rawLocation = job.location || 'Remote';
-  const rawJobType = job.jobType || 'Full-Time';
-
-  let title = normalizeText(rawTitle);
-  let companyName = normalizeText(rawCompany);
-  let location = normalizeText(rawLocation);
-  let jobType = normalizeText(rawJobType);
-  let description = normalizeText(stripHtml(rawDescription));
-  let requiredSkills = normalizeText(rawSkills);
-
-  const lang = await detectLanguage(`${title} ${description}`);
-  if (lang && lang.toLowerCase() !== 'en') {
-    title = await translateText(title, lang);
-    description = await translateText(description, lang);
-    requiredSkills = await translateText(requiredSkills, lang);
-  }
-
-  const templateDescription = formatTemplate({
-    title,
-    companyName,
-    location,
-    jobType,
-    requiredSkills,
-    description,
-    applicationLink: (job.applicationLink || '').trim()
-  });
+  const normalized = await normalizeJobRecord(job, { strictEnglish: true });
+  if (!normalized) return null;
 
   return {
-    title,
-    companyName: companyName || 'Unknown Company',
-    location: location || 'Remote',
-    applicationLink: (job.applicationLink || '').trim(),
-    description: templateDescription,
-    requiredSkills,
-    jobType: jobType || 'Full-Time',
-    source: (job.source || 'scraper').trim(),
-    postedDate: job.postedDate || new Date().toISOString()
+    ...normalized,
+    source: (normalized.source || job.source || 'scraper').trim(),
+    postedDate: normalized.postedDate || job.postedDate || new Date().toISOString()
   };
 }
 

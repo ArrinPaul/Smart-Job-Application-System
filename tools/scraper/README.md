@@ -20,22 +20,22 @@ cd tools/scraper
 npm ci
 ```
 
-2. Run the scraper and post to backend (default expects `BACKEND_URL` env)
-
-```bash
-BACKEND_URL=http://localhost:8080 node scrape_and_sync.js
-```
-
-3. Directly sync to Supabase (requires service role key)
-
-```bash
-SUPABASE_URL=https://your-project.supabase.co SUPABASE_SERVICE_KEY=<service-role-key> node sync_to_supabase.js
-```
-
-4. Normalize existing jobs (emoji removal, encoding fix, optional translation)
+2. Clean existing jobs, translate non-English rows, and remove duplicates before refresh
 
 ```bash
 LIBRETRANSLATE_URL=https://libretranslate.de node normalize_existing_jobs.js
+```
+
+3. Run the scraper and sync fresh data to Supabase
+
+```bash
+node scrape_and_sync.js
+```
+
+4. Directly sync to Supabase (requires service role key)
+
+```bash
+SUPABASE_URL=https://your-project.supabase.co SUPABASE_SERVICE_KEY=<service-role-key> node sync_to_supabase.js
 ```
 
 GitHub Actions (Automatic)
@@ -45,8 +45,8 @@ The workflow `.github/workflows/job-scraper.yml` runs automatically:
 - **On demand**: Use `workflow_dispatch` button in Actions tab
 - **Actions**:
   1. Install dependencies
-  2. Run `node scrape_and_sync.js` → Collect jobs, write to `last_scrape.json`
-  3. Run `node sync_to_supabase.js` → Sync 525+ jobs to PostgreSQL
+  2. Run `node normalize_existing_jobs.js` → Remove duplicates, fix mojibake, translate existing rows to English
+  3. Run `node scrape_and_sync.js` → Collect fresh jobs, dedupe scraper data, normalize, and sync to PostgreSQL
   4. Report results
 
 **No secrets needed**: Database credentials loaded from backend `.env` in the repo.
@@ -58,7 +58,8 @@ Notes
 - Scraper runs automatically every 12 hours — no manual work needed!
 - Jobs written to `last_scrape.json` for review/audit
 - Sync uses direct PostgreSQL connection (safer than REST API)
-- UPSERT by slug ensures no duplicate jobs
+- Scraper-side dedupe removes duplicates within the scraped batch before normalization
+- Database-side dedupe removes duplicate stored jobs before upsert
 - Recruiter user auto-created on first sync
 - All credentials loaded from backend `.env` (secure & centralized)
 

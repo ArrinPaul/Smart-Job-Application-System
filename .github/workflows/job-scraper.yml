@@ -2,8 +2,8 @@ name: Job Scraper & Sync to Supabase
 
 on:
   schedule:
-    # Every 24 hours - daily at 00:00 UTC
-    - cron: '0 0 * * *'
+    # Twice daily at 00:00 and 12:00 UTC
+    - cron: '0 0,12 * * *'
   workflow_dispatch:
 
 jobs:
@@ -22,15 +22,27 @@ jobs:
         working-directory: tools/scraper
         run: npm ci
 
-      - name: Scrape jobs from all sources
+      - name: Normalize existing database jobs
         working-directory: tools/scraper
         env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          SCRAPER_TRIGGER_TOKEN: ${{ secrets.SCRAPER_TRIGGER_TOKEN }}
-          WEBHOOK_NOTIFY_URL: ${{ secrets.WEBHOOK_NOTIFY_URL }}
           SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
           SUPABASE_DB_USER: ${{ secrets.SUPABASE_DB_USER }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
           SUPABASE_DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
+          LIBRETRANSLATE_URL: ${{ secrets.LIBRETRANSLATE_URL }}
+          LIBRETRANSLATE_KEY: ${{ secrets.LIBRETRANSLATE_KEY }}
+        run: node normalize_existing_jobs.js
+
+      - name: Scrape, normalize, dedupe, and sync
+        working-directory: tools/scraper
+        env:
+          SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
+          SUPABASE_DB_USER: ${{ secrets.SUPABASE_DB_USER }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
+          SUPABASE_DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
+          LIBRETRANSLATE_URL: ${{ secrets.LIBRETRANSLATE_URL }}
+          LIBRETRANSLATE_KEY: ${{ secrets.LIBRETRANSLATE_KEY }}
+          WEBHOOK_NOTIFY_URL: ${{ secrets.WEBHOOK_NOTIFY_URL }}
         run: node scrape_and_sync.js

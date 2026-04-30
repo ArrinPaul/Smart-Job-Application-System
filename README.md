@@ -205,14 +205,13 @@ Contributions are welcome! Please open an issue to discuss a new feature or bug.
 
 This repository includes a scheduled job-scraper that collects job postings from multiple external sources and ingests them into the backend or directly into Supabase.
 
-- Workflow: `.github/workflows/job-scraper.yml` — runs every 12 hours and on manual dispatch.
-- Local tool: `tools/scraper/scrape_and_sync.js` — collects and posts to the backend ingest endpoint.
-- Optional Supabase sync: `tools/scraper/sync_to_supabase.js` (requires `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`).
+- Workflow: `.github/workflows/job-scraper.yml` — cleans existing rows, then runs the latest scrape/normalize/sync flow every 12 hours and on manual dispatch.
+- Local tools: `tools/scraper/normalize_existing_jobs.js` and `tools/scraper/scrape_and_sync.js`.
+- Optional direct Supabase sync: `tools/scraper/sync_to_supabase.js`.
 
 Recommended secrets for GitHub Actions:
-- `BACKEND_URL` — URL to the backend API (used for triggering ingest)
-- `SCRAPER_TRIGGER_TOKEN` — optional bearer token
-- `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` — optional; enable direct Supabase sync
+- `SUPABASE_DB_HOST`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD`, `SUPABASE_DB_NAME`, `SUPABASE_DB_PORT` — database connection for cleanup, normalization, and sync
+- `LIBRETRANSLATE_URL` and `LIBRETRANSLATE_KEY` — optional translation service overrides
 - `WEBHOOK_NOTIFY_URL` — optional webhook to receive run summaries
 
 See `tools/scraper/README.md` for details and run instructions.
