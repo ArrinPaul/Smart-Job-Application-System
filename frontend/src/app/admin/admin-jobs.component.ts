@@ -29,6 +29,10 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
   editingJob: Job | null = null;
   jobToDelete: Job | null = null;
 
+  // Pagination
+  currentPage = 1;
+  pageSize = 15;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -48,12 +52,38 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
         next: (response: Job[]) => {
           this.jobs = response;
           this.isLoading = false;
+          this.currentPage = 1; // Reset to first page on new load
         },
         error: () => {
           this.isLoading = false;
           this.toastService.showError('Failed to load jobs');
         }
       });
+  }
+
+  get paginatedJobs(): Job[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.jobs.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.jobs.length / this.pageSize);
+  }
+
+  setPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  get showingStart(): number {
+    if (this.jobs.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get showingEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.jobs.length);
   }
 
   onSearch(): void {

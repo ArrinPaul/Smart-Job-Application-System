@@ -286,6 +286,52 @@ section {
   text-align: center;
 }
 
+.results-info {
+  padding: 16px 24px;
+  font-size: 0.9rem;
+  color: #8b7a6e;
+  border-bottom: 1px solid #f0ebe6;
+  font-weight: 500;
+}
+
+.pagination {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  border-top: 1px solid #f0ebe6;
+}
+
+.pagination-btn {
+  border: 1px solid #e8dfd0;
+  background: #f5f3f0;
+  color: #1a1410;
+  border-radius: 8px;
+  height: 38px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: #ff6b35;
+  color: #ff6b35;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #8b7a6e;
+  font-weight: 700;
+}
+
 @media (max-width: 768px) {
   section {
     padding: 0 24px 24px 24px;

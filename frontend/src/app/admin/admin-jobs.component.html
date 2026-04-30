@@ -16,6 +16,10 @@
   </div>
 
   <article class="panel" *ngIf="jobs.length > 0; else noJobsTpl">
+    <div class="results-info" *ngIf="!isLoading">
+      Showing <strong>{{ showingStart }} – {{ showingEnd }}</strong> of <strong>{{ jobs.length }}</strong> jobs
+    </div>
+
     <div class="table-wrap">
       <table class="admin-table">
         <thead>
@@ -29,7 +33,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let job of jobs">
+          <tr *ngFor="let job of paginatedJobs">
             <td>{{ job.id }}</td>
             <td>{{ job.title }}</td>
             <td>{{ job.location }}</td>
@@ -44,6 +48,12 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1 && !isLoading">
+      <button type="button" class="pagination-btn" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">Previous</button>
+      <div class="page-info">{{ currentPage }} / {{ totalPages }}</div>
+      <button type="button" class="pagination-btn" [disabled]="currentPage === totalPages" (click)="setPage(currentPage + 1)">Next</button>
     </div>
   </article>
 
