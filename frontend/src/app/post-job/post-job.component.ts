@@ -242,10 +242,40 @@ export class PostJobComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const enrichedDescription = this.buildEnrichedDescription();
 
+    // Parse salary range (e.g., "10 - 15 LPA" -> min: 1000000, max: 1500000)
+    let salaryMin: number | undefined;
+    let salaryMax: number | undefined;
+    if (this.salaryRange && this.salaryRange.includes('LPA')) {
+      const matches = this.salaryRange.match(/(\d+)\s*-\s*(\d+)/);
+      if (matches) {
+        salaryMin = parseInt(matches[1]) * 100000;
+        salaryMax = parseInt(matches[2]) * 100000;
+      } else if (this.salaryRange.includes('+')) {
+        salaryMin = parseInt(this.salaryRange.match(/(\d+)/)?.[0] || '0') * 100000;
+      }
+    }
+
+    // Parse experience level (e.g., "Senior" -> 5)
+    let expRequired = 0;
+    switch(this.experienceLevel) {
+      case 'Entry-level': expRequired = 0; break;
+      case 'Mid-level': expRequired = 3; break;
+      case 'Senior': expRequired = 5; break;
+      case 'Lead': expRequired = 8; break;
+    }
+
     const jobData: CreateJobRequest = {
       title: this.jobTitle,
       description: enrichedDescription,
-      location: this.jobLocation
+      location: this.jobLocation,
+      jobType: this.employmentType,
+      workType: this.workMode,
+      experienceRequired: expRequired,
+      requiredSkills: this.mustHaveSkills.join(', '),
+      salaryMin: salaryMin,
+      salaryMax: salaryMax,
+      salaryCurrency: 'INR',
+      howToApply: this.interviewProcess
     };
 
     if (this.editingJobId) {

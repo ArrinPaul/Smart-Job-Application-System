@@ -63,13 +63,32 @@ public class JobService {
         existingJob.setTitle(sanitize(updatedJob.getTitle()));
         existingJob.setDescription(sanitize(updatedJob.getDescription()));
         existingJob.setLocation(sanitize(updatedJob.getLocation()));
+        
+        // Update new fields
+        existingJob.setJobType(updatedJob.getJobType());
+        existingJob.setWorkType(updatedJob.getWorkType());
+        existingJob.setExperienceRequired(updatedJob.getExperienceRequired());
+        existingJob.setRequiredSkills(updatedJob.getRequiredSkills());
+        existingJob.setEducationRequired(updatedJob.getEducationRequired());
+        existingJob.setSalaryMin(updatedJob.getSalaryMin());
+        existingJob.setSalaryMax(updatedJob.getSalaryMax());
+        existingJob.setSalaryCurrency(updatedJob.getSalaryCurrency());
+        existingJob.setApplicationLink(updatedJob.getApplicationLink());
+        existingJob.setCompanyName(updatedJob.getCompanyName());
+        existingJob.setHowToApply(updatedJob.getHowToApply());
 
-        // Update slug if title changed or if current slug is null
-        if (existingJob.getSlug() == null || existingJob.getSlug().isBlank() || !oldTitle.equalsIgnoreCase(existingJob.getTitle())) {
+        // Update slug ONLY if current slug is null or blank, or if title changed significantly
+        // We use normalizeTitle to compare titles without considering case or extra spaces
+        if (existingJob.getSlug() == null || existingJob.getSlug().isBlank() || !normalizeTitle(oldTitle).equals(normalizeTitle(existingJob.getTitle()))) {
             existingJob.setSlug(generateSlug(existingJob.getTitle(), existingJob.getCompanyName()));
         }
 
         return jobRepository.save(existingJob);
+    }
+
+    private String normalizeTitle(String title) {
+        if (title == null) return "";
+        return title.toLowerCase().replaceAll("[^a-z0-9]", "").trim();
     }
 
     private String generateSlug(String title, String company) {

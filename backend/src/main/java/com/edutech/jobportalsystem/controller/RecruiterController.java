@@ -34,9 +34,7 @@ public class RecruiterController {
         logger.info("Recruiter {} creating job: {}", username, request.getTitle());
 
         Job job = new Job();
-        job.setTitle(request.getTitle());
-        job.setDescription(request.getDescription());
-        job.setLocation(request.getLocation());
+        mapRequestToEntity(request, job);
         return ResponseEntity.ok(jobService.createJob(job, username));
     }
 
@@ -46,10 +44,25 @@ public class RecruiterController {
         logger.info("Recruiter {} updating job ID: {}", username, jobId);
 
         Job updatedJob = new Job();
-        updatedJob.setTitle(request.getTitle());
-        updatedJob.setDescription(request.getDescription());
-        updatedJob.setLocation(request.getLocation());
+        mapRequestToEntity(request, updatedJob);
         return ResponseEntity.ok(jobService.updateJob(jobId, updatedJob, username));
+    }
+
+    private void mapRequestToEntity(JobUpsertRequest request, Job job) {
+        job.setTitle(request.getTitle());
+        job.setDescription(request.getDescription());
+        job.setLocation(request.getLocation());
+        job.setJobType(request.getJobType());
+        job.setWorkType(request.getWorkType());
+        job.setExperienceRequired(request.getExperienceRequired());
+        job.setRequiredSkills(request.getRequiredSkills());
+        job.setEducationRequired(request.getEducationRequired());
+        job.setSalaryMin(request.getSalaryMin());
+        job.setSalaryMax(request.getSalaryMax());
+        job.setSalaryCurrency(request.getSalaryCurrency());
+        job.setApplicationLink(request.getApplicationLink());
+        job.setCompanyName(request.getCompanyName());
+        job.setHowToApply(request.getHowToApply());
     }
 
     @DeleteMapping("/jobs/{jobId}")

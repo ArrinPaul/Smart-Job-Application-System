@@ -30,6 +30,17 @@ export interface CreateJobRequest {
   title: string;
   description: string;
   location: string;
+  jobType?: string;
+  workType?: string;
+  experienceRequired?: number;
+  requiredSkills?: string;
+  educationRequired?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  applicationLink?: string;
+  companyName?: string;
+  howToApply?: string;
 }
 
 export interface Application {
