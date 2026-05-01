@@ -20,11 +20,35 @@ export class LandingComponent implements OnInit {
     matchingSpeedMs: 12
   };
 
+  // State for Job Portal Modules
+  activeModule = 'search';
+  modules = [
+    { id: 'search', title: 'Neural Search', desc: 'Find roles based on skill intent, not just keywords.' },
+    { id: 'track', title: 'Live Tracker', desc: 'Real-time status of every application and recruiter view.' },
+    { id: 'chat', title: 'Talent Messenger', desc: 'Direct, secure communication with hiring managers.' }
+  ];
+
+  // State for AI Smart Tools
+  activeAiTool = 0;
+  aiTools = [
+    { title: 'Resume Score AI', desc: 'Get an instant breakdown of how your profile matches specific market demands.' },
+    { title: 'Match Velocity', desc: 'Our neural engine identifies your career trajectory and predicts your next best move.' },
+    { title: 'Skill Bridge', desc: 'Identifies gaps in your skill graph and recommends targeted paths to close them.' }
+  ];
+
   constructor(
     private authService: AuthService, 
     private router: Router,
     private httpService: HttpService
   ) {}
+
+  setModule(moduleId: string): void {
+    this.activeModule = moduleId;
+  }
+
+  cycleAiTool(): void {
+    this.activeAiTool = (this.activeAiTool + 1) % this.aiTools.length;
+  }
 
   ngOnInit(): void {
     this.loadStats();

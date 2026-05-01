@@ -87,7 +87,7 @@
       </div>
     </section>
 
-    <!-- Ticker Section (Moving Side to Side) -->
+    <!-- Ticker Section (The requested animation) -->
     <section class="ticker-section">
       <div class="ticker-wrapper">
         <div class="ticker-group">
@@ -95,26 +95,25 @@
           <div class="ticker-item"><div class="ticker-dot"></div> Data Science</div>
           <div class="ticker-item"><div class="ticker-dot"></div> Product Management</div>
           <div class="ticker-item"><div class="ticker-dot"></div> UI/UX Design</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> DevOps & Infrastructure</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> Marketing & Sales</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> Finance & Legal</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> Customer Success</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> DevOps</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Marketing</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Finance</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Sales</div>
         </div>
-        <!-- Duplicate for infinite effect -->
         <div class="ticker-group">
           <div class="ticker-item"><div class="ticker-dot"></div> Software Engineering</div>
           <div class="ticker-item"><div class="ticker-dot"></div> Data Science</div>
           <div class="ticker-item"><div class="ticker-dot"></div> Product Management</div>
           <div class="ticker-item"><div class="ticker-dot"></div> UI/UX Design</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> DevOps & Infrastructure</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> Marketing & Sales</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> Finance & Legal</div>
-          <div class="ticker-item"><div class="ticker-dot"></div> Customer Success</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> DevOps</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Marketing</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Finance</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Sales</div>
         </div>
       </div>
     </section>
 
-    <!-- Process Section -->
+    <!-- How It Works Section -->
     <section class="process-section" id="process">
       <div class="process-bg"></div>
       <div class="section-container">
@@ -240,36 +239,191 @@
       </div>
     </section>
 
-    <!-- Users Section -->
-    <section class="users-section" id="users">
-      <div class="section-container">
-        <div class="users-layout">
-          <div class="user-group">
-            <div class="user-card applicant">
-              <div class="user-badge">Applicants</div>
-              <h3>Accelerate your career.</h3>
-              <p>Stop sending resumes into the void. Get matched with roles where you'll actually thrive.</p>
-              <a routerLink="/register" class="btn-text">Create Profile &rarr;</a>
+    <!-- Module Navigation & Selection (Refined) -->
+    <section class="module-showcase">
+      <div class="section-header">
+        <div class="ai-tag" style="margin-bottom: 16px;">Platform Ecosystem</div>
+        <h2 class="section-title">One Hub. <span class="highlight">Three specialized modules.</span></h2>
+        <p class="section-subtitle">Dedicated interfaces engineered for the high-growth career lifecycle.</p>
+      </div>
+
+      <div class="module-grid">
+        <div class="module-list">
+          <div *ngFor="let mod of modules" 
+               class="module-item" 
+               [class.active]="activeModule === mod.id"
+               (mouseenter)="setModule(mod.id)">
+            <h4>{{ mod.title }}</h4>
+            <p>{{ mod.desc }}</p>
+          </div>
+        </div>
+
+        <div class="module-visual">
+          <!-- AI Matching Preview -->
+          <div class="visual-content" [class.active]="activeModule === 'search'">
+            <div style="width: 100%; text-align: left;">
+              <h3 style="font-size: 2rem; margin-bottom: 24px;">Neural Matching Dashboard</h3>
+              <div class="visual-ui-mockup">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                  <span style="font-weight: 800; font-size: 0.9rem;">TOP MATCHES</span>
+                  <span style="color: var(--primary); font-weight: 800; font-size: 0.8rem;">98.4% ACCURACY</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div style="padding: 16px; background: white; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 32px; height: 32px; background: var(--bg); border-radius: 8px;"></div>
+                      <strong style="font-size: 0.9rem;">Lead Systems Architect</strong>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 800; color: var(--primary);">98%</span>
+                  </div>
+                  <div style="padding: 16px; background: white; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; opacity: 0.6;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 32px; height: 32px; background: var(--bg); border-radius: 8px;"></div>
+                      <strong style="font-size: 0.9rem;">Staff Product Engineer</strong>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 800; color: var(--primary);">94%</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="user-card recruiter">
-              <div class="user-badge">Recruiters</div>
-              <h3>Hire with precision.</h3>
-              <p>Access a curated pool of talent ranked by match score and technical proficiency.</p>
-              <a routerLink="/register" class="btn-text">Start Hiring &rarr;</a>
+          </div>
+
+          <!-- Tracking Preview -->
+          <div class="visual-content" [class.active]="activeModule === 'track'">
+             <div style="width: 100%; text-align: left;">
+              <h3 style="font-size: 2rem; margin-bottom: 24px;">Pipeline Intelligence</h3>
+              <div class="visual-ui-mockup" style="background: var(--ink); border: none;">
+                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                  <div style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56;"></div>
+                  <div style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e;"></div>
+                  <div style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f;"></div>
+                </div>
+                <div style="color: rgba(255,255,255,0.9); font-family: monospace; font-size: 0.85rem; line-height: 1.6;">
+                  <div><span style="color: #6366f1;">> monitoring</span> application_stream...</div>
+                  <div><span style="color: #10b981;">[SUCCESS]</span> Google Recruiter viewed profile</div>
+                  <div><span style="color: #f59e0b;">[ALERT]</span> Salary benchmark updated for Role #42</div>
+                  <div style="margin-top: 12px; height: 4px; width: 60%; background: rgba(255,255,255,0.1); border-radius: 2px;">
+                    <div style="height: 100%; width: 85%; background: var(--primary); border-radius: 2px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Preview -->
+          <div class="visual-content" [class.active]="activeModule === 'chat'">
+            <div style="width: 100%; text-align: left;">
+              <h3 style="font-size: 2rem; margin-bottom: 24px;">Direct Talent Messaging</h3>
+              <div class="visual-ui-mockup" style="padding: 0; overflow: hidden;">
+                <div style="padding: 12px 20px; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 32px; height: 32px; background: var(--bg); border-radius: 50%;"></div>
+                  <strong style="font-size: 0.85rem;">Sarah &#64; Anthropic</strong>
+                </div>
+                <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                  <div style="align-self: flex-start; padding: 10px 16px; background: var(--bg); border-radius: 14px; font-size: 0.8rem; max-width: 80%;">
+                    We loved your Skill Graph. Can we chat tomorrow?
+                  </div>
+                  <div style="align-self: flex-end; padding: 10px 16px; background: var(--primary); color: white; border-radius: 14px; font-size: 0.8rem; max-width: 80%;">
+                    Absolutely. 10 AM PST works for me!
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Final CTA -->
+    <!-- AI Feature Toggles (Smart Tools - Dark Section) -->
+    <section class="ai-tools-section">
+      <div class="section-header">
+        <h2 class="section-title">The Intelligence Layer</h2>
+        <p class="section-subtitle">Beyond simple matching. Real-world career growth tools.</p>
+      </div>
+
+      <div class="ai-carousel-container" (click)="cycleAiTool()">
+        <div *ngFor="let tool of aiTools; let i = index" class="ai-tool-card" [class.active]="activeAiTool === i">
+          <span class="ai-tag">SYSTEM TOOL {{i + 1}}</span>
+          <h2 style="font-family: 'Fraunces', serif; letter-spacing: -0.05em;">{{ tool.title }}</h2>
+          <p style="font-size: 1.2rem; opacity: 0.7; max-width: 700px;">{{ tool.desc }}</p>
+        </div>
+      </div>
+      
+      <div class="ai-next-trigger" (click)="cycleAiTool()">
+        <span>Next Evolution</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </section>
+
+    <!-- Consolidating Fragmented Sources (Refined Funnel) -->
+    <section class="funnel-section">
+      <div class="section-header">
+        <div class="ai-tag" style="background: rgba(187, 62, 45, 0.1); color: var(--primary); margin-bottom: 24px;">Unified Talent Intelligence</div>
+        <h2 class="section-title">One Hub. <span class="highlight">Total Market Visibility.</span></h2>
+        <p class="section-subtitle">Consolidating fragmented data from every major job source into a single, intelligent matching layer.</p>
+      </div>
+      
+      <div class="funnel-container">
+        <!-- Converging Nodes -->
+        <div class="source-node" style="--sx: -350px; --sy: -180px; animation-delay: 0s;">LinkedIn</div>
+        <div class="source-node" style="--sx: 350px; --sy: -150px; animation-delay: 1.2s;">Indeed</div>
+        <div class="source-node" style="--sx: -380px; --sy: 120px; animation-delay: 2.4s;">Glassdoor</div>
+        <div class="source-node" style="--sx: 380px; --sy: 160px; animation-delay: 3.6s;">RemoteOK</div>
+        <div class="source-node" style="--sx: 0px; --sy: -220px; animation-delay: 4.8s;">HackerNews</div>
+        
+        <div class="core-intelligence">
+          <div class="intelligence-glow"></div>
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 16L14 20L22 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div style="margin-top: 60px; font-weight: 800; font-size: 0.9rem; color: var(--primary);">
+        Consolidating 5+ major sources into 1 verified skill graph.
+      </div>
+    </section>
+
+    <!-- Contextual Comparison Visual -->
+    <section class="comparison-section">
+      <div class="section-header">
+        <h2 class="section-title">Smart vs. <span class="highlight">Traditional</span></h2>
+        <p class="section-subtitle">The data proves it. Neural matching is simply faster.</p>
+      </div>
+
+      <div class="comparison-table">
+        <div class="comparison-row header">
+          <div>Feature</div>
+          <div class="comp-old">Traditional Boards</div>
+          <div class="comp-new">SmartJobPortal</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comp-feature">Matching Engine</div>
+          <div class="comp-old">Basic Keywords</div>
+          <div class="comp-new">Neural AI (98%)</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comp-feature">Recruiter Access</div>
+          <div class="comp-old">Email Blind</div>
+          <div class="comp-new">Direct Chat</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comp-feature">Status Updates</div>
+          <div class="comp-old">Ghosting</div>
+          <div class="comp-new">Real-time Feed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA (Beta) -->
     <section class="cta-section">
       <div class="cta-container">
-        <h2>Ready to upgrade your career?</h2>
-        <p>Join over {{ stats.totalUsers > 1000 ? (stats.totalUsers / 1000 | number:'1.1-1') + 'k' : stats.totalUsers }}+ professionals already using SmartJobPortal to find their next move.</p>
+        <div class="ai-tag" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 24px;">Now in Public Beta</div>
+        <h2>Join the Future of Work.</h2>
+        <p>Get early access to our neural matching engine and accelerate your career growth today.</p>
         <div class="cta-actions">
-          <a routerLink="/register" class="btn-primary lg">Get Started Now</a>
-          <a routerLink="/login" class="btn-secondary lg">Sign In</a>
+          <a routerLink="/register" class="btn-primary lg btn-beta" style="background: white; color: var(--primary);">Get Started Free</a>
+          <a routerLink="/login" class="btn-secondary lg" style="background: transparent; color: white; border-color: rgba(255,255,255,0.3);">Sign In</a>
         </div>
       </div>
     </section>
