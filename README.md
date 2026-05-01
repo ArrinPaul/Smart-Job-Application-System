@@ -15,18 +15,15 @@ A modern, production-ready recruitment platform that connects job seekers, recru
 - [About the Project](#about-the-project)
 - [Key Features](#key-features)
 - [System Architecture](#system-architecture)
+- [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
+- [Database Architecture](#database-architecture)
+- [Automated Job Scraper](#automated-job-scraper)
 - [Project Structure](#project-structure)
 - [Technology Stack](#technology-stack)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Local Development Setup](#local-development-setup)
-  - [Running with Supabase](#running-with-supabase)
-- [Automated Job Scraper](#automated-job-scraper)
-- [API Endpoints](#api-endpoints)
 - [Security](#security)
 - [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 - [License](#license)
 
 ---
@@ -36,46 +33,135 @@ A modern, production-ready recruitment platform that connects job seekers, recru
 The **Smart Job Portal System** is designed to bridge the gap between talent and opportunity. It streamlines the recruitment lifecycle by providing specialized interfaces for different user roles. Whether you are an administrator monitoring system health, a recruiter managing listings, or a job seeker finding your next career move, this platform provides the tools you need.
 
 ### Why this project?
-- **AI-Ready**: Integrated with Apache Tika for intelligent resume parsing.
-- **Automated**: Background scrapers ensure the job pool is always fresh.
-- **Secure**: Built with modern security standards (JWT, HttpOnly cookies, RBAC).
-- **Scalable**: Uses Supabase (PostgreSQL) for a robust cloud-native database experience.
+- **AI-Ready**: Integrated with Apache Tika for intelligent resume parsing and data extraction.
+- **Automated Ecosystem**: Background scrapers ensure the job pool is always fresh without manual intervention.
+- **Secure by Design**: Built with modern security standards including JWT, HttpOnly cookies, and granular RBAC.
+- **Cloud Native**: Optimized for Supabase (PostgreSQL) for a robust, scalable database experience.
 
 ---
 
 ## ✨ Key Features
 
-| Feature | Description | Icon |
-| :--- | :--- | :---: |
-| **Role-Based Access** | Secure separation of concerns for Admins, Recruiters, and Seekers. | ![Secure Access](frontend/src/assets/about/secure-access.svg) |
-| **Job Management** | Full CRUD capabilities with SEO-friendly slugs. | ![Job Posting](frontend/src/assets/about/job-posting.svg) |
-| **Smart Search** | Advanced filtering by location, title, and industry. | ![Job Discovery](frontend/src/assets/about/job-discovery.svg) |
-| **Resume Parsing** | Automated data extraction from uploaded resumes. | ![Applicant Support](frontend/src/assets/about/applicant-support.svg) |
-| **Admin Insights** | Real-time analytics and system monitoring dashboard. | ![Service Overview](frontend/src/assets/about/service-overview.svg) |
-| **Automated Scraping** | Background sync from Indeed and other major portals. | 🤖 |
+| Feature | Description |
+| :--- | :--- |
+| **User Lifecycle** | Seamless registration, login, and step-by-step onboarding for all roles. |
+| **Job Management** | Full CRUD capabilities for recruiters, including job status tracking and SEO-friendly slugs. |
+| **Intelligent Search** | Sophisticated search engine with real-time filtering by location, title, and job type. |
+| **Resume Extraction** | Automated processing of PDF/DOCX resumes to populate applicant profiles using Apache Tika. |
+| **Application Tracking** | Status-driven workflow (Applied, Shortlisted, Rejected, Hired) for candidates and recruiters. |
+| **Admin Control** | Comprehensive dashboard for system health, user auditing, and high-level analytics. |
+| **Global Scaling** | Automated ingestion of remote jobs from 7+ major global job boards. |
 
 ---
 
 ## 🏗 System Architecture
 
-The following diagram illustrates the high-level architecture and data flow between the components:
+The system follows a modern decoupled architecture where the frontend and backend communicate via a RESTful API.
 
 ```mermaid
-graph TD
-    User((User)) -->|HTTPS| Frontend[Angular 17 SPA]
-    Frontend -->|REST API + JWT| Backend[Spring Boot 3 API]
-    Backend -->|JDBC / Flyway| DB[(Supabase PostgreSQL)]
-    
-    subgraph "External Integration"
-        Scraper[Node.js Scraper] -->|SQL/Direct| DB
-        GitHub[GitHub Actions] -->|Trigger| Scraper
+graph LR
+    subgraph "Client Tier"
+        UA[User Browser] -->|Angular SPA| FE[Frontend]
     end
 
-    subgraph "Security Layer"
-        Backend --> Auth[Spring Security + JWT]
-        Auth --> Role[RBAC: Admin/Recruiter/User]
+    subgraph "API Tier"
+        FE -->|REST API / JWT| BE[Spring Boot 3]
+        BE -->|Spring Security| AUTH[Auth Manager]
+        BE -->|Tika| PARSE[Resume Parser]
+    end
+
+    subgraph "Data Tier"
+        BE -->|JDBC / Flyway| DB[(Supabase PostgreSQL)]
+        SCRAPE[Node.js Scraper] -->|SQL / Upsert| DB
+    end
+
+    subgraph "Automation Tier"
+        GH[GitHub Actions] -->|Schedule| SCRAPE
     end
 ```
+
+---
+
+## 🔐 Role-Based Access Control (RBAC)
+
+The system enforces strict security boundaries based on user roles:
+
+- **ADMIN**: 
+  - Full visibility into system health and user activities.
+  - Management of all job listings and user accounts.
+  - Access to analytics dashboards and system configuration.
+- **RECRUITER**:
+  - Ability to post, edit, and archive job listings.
+  - View and manage applications for their specific jobs.
+  - Shortlist or reject candidates through the recruitment pipeline.
+- **JOB_SEEKER**:
+  - Search and browse all active job listings.
+  - Upload resumes and maintain a professional profile.
+  - Apply to jobs and track application status in real-time.
+
+---
+
+## 📊 Database Architecture
+
+The database is hosted on **Supabase (PostgreSQL)**, with the schema managed by Flyway migrations to ensure consistency across environments.
+
+```mermaid
+erDiagram
+    USERS ||--o{ JOBS : "posts"
+    USERS ||--o{ APPLICATIONS : "applies"
+    USERS ||--o| RESUMES : "owns"
+    JOBS ||--o{ APPLICATIONS : "receives"
+    RESUMES ||--o{ APPLICATIONS : "used in"
+
+    USERS {
+        bigint id PK
+        varchar username
+        varchar password
+        varchar email
+        varchar role "ADMIN, RECRUITER, JOB_SEEKER"
+        boolean mfa_enabled
+        timestamp last_login_at
+    }
+
+    JOBS {
+        bigint id PK
+        varchar title
+        text description
+        varchar location
+        bigint recruiter_id FK
+        timestamp created_at
+    }
+
+    APPLICATIONS {
+        bigint id PK
+        bigint applicant_id FK
+        bigint job_id FK
+        bigint resume_id FK
+        varchar status "APPLIED, SHORTLISTED, etc."
+        timestamp applied_at
+    }
+
+    RESUMES {
+        bigint id PK
+        bigint user_id FK
+        varchar file_name
+        bytea data
+    }
+```
+
+---
+
+## 🤖 Automated Job Scraper
+
+The scraping engine is a standalone Node.js service that populates the database with fresh opportunities every 12 hours.
+
+- **Sources**: Aggregates data from 7+ sources including **Remotive, ArbeitNow, WeWorkRemotely, Remote.co, HackerNews, RemoteOK, and TheMuse**.
+- **Data Normalization**: Cleanses raw HTML, normalizes locations/titles, and removes mojibake.
+- **Translation Engine**: Integrated with LibreTranslate to automatically translate non-English job postings into English.
+- **Smart Synchronization**:
+  1. **Scraper-side Dedupe**: Removes duplicates within the incoming batch.
+  2. **Database-side Dedupe**: Performs `UPSERT` operations based on job title and location to prevent stale or duplicate entries.
+- **Automation**: Fully managed via GitHub Actions (`job-scraper.yml`) with zero-touch execution.
 
 ---
 
@@ -98,139 +184,46 @@ smart-job-portal-system/
 ## 🛠 Technology Stack
 
 ### Backend
-- **Framework**: Spring Boot 3.2.0
-- **Language**: Java 17
-- **Security**: Spring Security 6 (JWT via HttpOnly Cookies)
-- **Data**: Spring Data JPA + Hibernate
-- **Migrations**: Flyway
+- **Framework**: Spring Boot 3.2.0 (Java 17)
+- **Security**: Spring Security 6 (Stateless JWT via HttpOnly Cookies)
+- **Data**: Spring Data JPA + Hibernate + Flyway
 - **Parsing**: Apache Tika (Resume Extraction)
-- **Scraping**: Jsoup
-- **Rate Limiting**: Bucket4j
+- **Utilities**: Bucket4j (Rate Limiting), Jsoup (HTML Parsing)
 
 ### Frontend
-- **Framework**: Angular 17.3
-- **Styling**: Vanilla CSS (Modern CSS variables)
-- **Visualization**: Chart.js (Admin Dashboards)
-- **Security**: DOMPurify
-- **Markdown**: Marked
+- **Framework**: Angular 17.3 (TypeScript)
+- **Styling**: Vanilla CSS (Custom Properties / Flexbox / Grid)
+- **Visualization**: Chart.js (Interactive Dashboards)
+- **Security**: DOMPurify (XSS Protection), Marked (Markdown Rendering)
 
 ### Infrastructure
 - **Database**: PostgreSQL (Managed by Supabase)
-- **Storage**: Supabase Storage
-- **Automation**: GitHub Actions
+- **Automation**: GitHub Actions (CI/CD and Scraping)
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- **Java 17** (or higher)
-- **Maven 3.9** (or higher)
-- **Node.js 20.x** (LTS) & npm
-- **Supabase CLI** (optional, for local DB development)
+- **Java 17+**, **Maven 3.9+**, **Node.js 20.x**
 
 ### Local Development Setup
-
-#### 1. Clone the Repository
-```bash
-git clone https://github.com/your-repo/smart-job-portal-system.git
-cd smart-job-portal-system
-```
-
-#### 2. Backend Configuration
-Navigate to `backend/` and create a `.env` file from the example:
-```bash
-cd backend
-cp .env.example .env
-```
-*Edit `.env` and fill in your Supabase connection strings.*
-
-#### 3. Running the Project
-
-**Using Supabase (Recommended):**
-This project is pre-configured to work with Supabase. Ensure your `.env` has `SPRING_PROFILES_ACTIVE=supabase`.
-```powershell
-./run-supabase.ps1
-```
-
-**Standard Local Run:**
-```bash
-mvn spring-boot:run
-```
-
-#### 4. Frontend Setup
-```bash
-cd ../frontend
-npm install
-npm start
-```
-The app will be available at `http://localhost:4200`.
-
----
-
-## 🤖 Automated Job Scraper
-
-The system includes a robust scraping service to automate content population.
-
-```mermaid
-sequenceDiagram
-    participant GH as GitHub Actions
-    participant S as Scraper (Node.js)
-    participant E as External Portals (Indeed)
-    participant DB as Supabase DB
-
-    GH->>S: Trigger (Cron/Manual)
-    S->>E: Fetch Job Listings
-    E-->>S: Raw HTML/JSON
-    S->>S: Normalize & Deduplicate
-    S->>DB: Upsert to 'jobs' table
-```
-
-See [tools/scraper/README.md](tools/scraper/README.md) for detailed configuration.
+1. **Clone the Repository**: `git clone <repo-url>`
+2. **Backend**: 
+   - Create `backend/.env` from `.env.example`.
+   - Run: `./run-supabase.ps1` (or `mvn spring-boot:run`).
+3. **Frontend**: 
+   - `cd frontend && npm install && npm start`.
+   - Access at `http://localhost:4200`.
 
 ---
 
 ## 🛡 Security
 
-- **JWT + Cookies**: Tokens are stored in `HttpOnly`, `SameSite=Strict` cookies to prevent XSS.
-- **RBAC**: Endpoints are strictly guarded by `hasRole()` checks.
-- **Validation**: Strict server-side validation using JSR-303 (Hibernate Validator).
-- **CORS**: Domain-restricted access controlled via backend policy.
-
----
-
-## 📈 Deployment
-
-### Production Build
-1. **Backend**: `mvn clean package -Pprod`
-2. **Frontend**: `ng build --configuration=production`
-
-### Hosting Suggestions
-- **Backend**: AWS Elastic Beanstalk, Heroku, or Docker/K8s.
-- **Frontend**: Vercel, Netlify, or Nginx.
-- **Database**: Supabase (Cloud).
-
----
-
-## 🛠 Troubleshooting
-
-| Issue | Solution |
-| :--- | :--- |
-| **CORS Errors** | Ensure `CORS_ALLOWED_ORIGINS` in `.env` matches your frontend URL. |
-| **Flyway Failed** | Check if the DB schema is clean or manually repair `flyway_schema_history`. |
-| **Node mismatch** | Use `nvm` to switch to Node 20. |
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow the [standard Git Flow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
-1. Fork the repo.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+- **HttpOnly Cookies**: Prevents client-side scripts from accessing JWT tokens.
+- **CORS Policies**: Strict origin validation restricted to the frontend application.
+- **SQL Injection Protection**: Leverages JPA and prepared statements for all database interactions.
+- **Rate Limiting**: Protects authentication endpoints from brute-force attacks.
 
 ---
 
