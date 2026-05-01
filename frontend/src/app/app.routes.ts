@@ -67,7 +67,7 @@ export const routes: Routes = [
     path: 'applications',
     loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] }
   },
   {
     path: 'recruiter/applications',
