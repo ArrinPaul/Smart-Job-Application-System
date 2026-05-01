@@ -738,68 +738,96 @@ h1, h2, h3 {
   font-size: 13px;
 }
 
-/* --- Refined Module Showcase --- */
-.module-showcase {
+/* --- Unified Showcase Styles (Platform & Intelligence) --- */
+.showcase-section {
   padding: 140px 32px;
+  background: white;
+  position: relative;
+}
+
+.showcase-section.alt-bg {
   background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
 }
 
-.module-grid {
+.showcase-grid {
   max-width: 1200px;
-  margin: 80px auto 0;
+  margin: 60px auto 0;
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 80px;
-  align-items: flex-start;
+  align-items: center;
 }
 
-.module-item {
+.showcase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.showcase-item {
   padding: 32px;
-  border-radius: 28px;
+  border-radius: 24px;
   background: white;
   border: 1px solid var(--border);
   cursor: pointer;
   text-align: left;
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  margin-bottom: 20px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  position: relative;
+  overflow: hidden;
 }
 
-.module-item:hover {
-  transform: scale(1.02);
+.showcase-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transition: transform 0.4s ease;
+}
+
+.showcase-item:hover {
+  transform: translateX(10px);
   border-color: var(--primary);
 }
 
-.module-item.active {
+.showcase-item.active {
   background: white;
   border-color: var(--primary);
-  box-shadow: 0 30px 60px rgba(187, 62, 45, 0.1);
+  box-shadow: 0 20px 40px rgba(187, 62, 45, 0.08);
 }
 
-.module-item h4 {
+.showcase-item.active::before {
+  transform: scaleY(1);
+}
+
+.showcase-item h4 {
   font-family: 'Fraunces', serif;
   font-size: 1.25rem;
   margin-bottom: 12px;
   color: var(--ink);
 }
 
-.module-item p {
+.showcase-item p {
   font-size: 0.95rem;
   color: var(--ink-soft);
   line-height: 1.6;
 }
 
-.module-visual {
-  height: 550px;
+.showcase-visual-area {
+  height: 500px;
   background: white;
-  border-radius: 48px;
+  border-radius: 40px;
   border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 100px rgba(187, 62, 45, 0.03), 0 40px 100px rgba(0,0,0,0.05);
+  box-shadow: inset 0 0 100px rgba(187, 62, 45, 0.02), 0 30px 60px rgba(0,0,0,0.05);
 }
 
-.visual-content {
+.showcase-content {
   position: absolute;
   inset: 0;
   display: flex;
@@ -807,104 +835,69 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transform: translateY(30px) scale(0.98);
-  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 80px;
+  transform: translateY(40px) scale(0.95);
+  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 60px;
 }
 
-.visual-content.active {
+.showcase-content.active {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-.visual-ui-mockup {
-  width: 100%;
-  margin-top: 40px;
-  padding: 24px;
-  background: var(--bg);
-  border-radius: 24px;
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-}
-
-/* --- Refined AI Tools Carousel --- */
-.ai-tools-section {
-  padding: 140px 32px;
-  background: var(--ink);
-  color: white;
-  text-align: center;
-  overflow: hidden;
-}
-
-.ai-tools-section .section-title { color: white; }
-.ai-tools-section .section-subtitle { color: rgba(255,255,255,0.6); }
-
-.ai-carousel-container {
-  max-width: 1000px;
-  margin: 100px auto 0;
-  position: relative;
-  height: 400px;
-}
-
-.ai-tool-card {
-  position: absolute;
-  inset: 0;
+/* Horizontal variation for Intelligence Layer */
+.showcase-horizontal {
+  max-width: 1200px;
+  margin: 60px auto 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 40px;
+}
+
+.showcase-nav-tabs {
+  display: flex;
   justify-content: center;
-  opacity: 0;
-  transform: scale(0.9) translateY(40px);
-  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 40px;
-  backdrop-filter: blur(10px);
-  padding: 60px;
+  gap: 24px;
 }
 
-.ai-tool-card.active {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--primary);
-  box-shadow: 0 0 100px rgba(187, 62, 45, 0.1);
-}
-
-.ai-tag {
-  background: var(--primary);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 100px;
-  font-size: 12px;
-  font-weight: 900;
-  margin-bottom: 32px;
-  box-shadow: 0 10px 20px rgba(187, 62, 45, 0.3);
-}
-
-.ai-tool-card h2 {
-  font-size: 3.5rem;
-  margin-bottom: 24px;
-}
-
-.ai-next-trigger {
-  margin-top: 60px;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 800;
-  color: var(--primary);
+.showcase-tab {
+  flex: 1;
+  max-width: 300px;
+  padding: 24px;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid var(--border);
   cursor: pointer;
-  padding: 12px 24px;
-  background: rgba(187, 62, 45, 0.1);
-  border-radius: 100px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
 }
 
-.ai-next-trigger:hover {
-  background: var(--primary);
-  color: white;
-  transform: scale(1.05);
+.showcase-tab:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+}
+
+.showcase-tab.active {
+  background: var(--surface);
+  border-color: var(--primary);
+  box-shadow: 0 10px 25px rgba(187, 62, 45, 0.1);
+}
+
+.showcase-tab h4 {
+  font-family: 'Fraunces', serif;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.showcase-tab p {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 1000px) {
+  .showcase-grid { grid-template-columns: 1fr; gap: 40px; }
+  .showcase-nav-tabs { flex-direction: column; align-items: center; }
+  .showcase-tab { width: 100%; max-width: 100%; }
 }
 
 /* --- Refined Comparison --- */
@@ -964,57 +957,95 @@ h1, h2, h3 {
 .comp-old { text-align: center; color: var(--ink-soft); opacity: 0.6; }
 .comp-new { text-align: center; color: var(--primary); font-weight: 800; }
 
-/* --- Refined Consolidation Funnel --- */
+/* --- Refined Consolidation Flow (Left-to-Right) --- */
 .funnel-section {
-  padding: 120px 32px;
+  padding: 140px 32px;
   background: white;
   text-align: center;
 }
 
 .funnel-container {
-  height: 400px;
-  position: relative;
-  max-width: 900px;
-  margin: 80px auto 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 120px;
+  max-width: 1100px;
+  margin: 80px auto 0;
+  position: relative;
 }
 
-@keyframes converge-to-core {
-  0% { transform: translate(var(--sx), var(--sy)) scale(0.8); opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+.source-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 2;
 }
 
 .source-node {
-  position: absolute;
   padding: 14px 24px;
   background: white;
-  border-radius: 100px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   font-weight: 700;
   font-size: 0.85rem;
   color: var(--ink-soft);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-  animation: converge-to-core 6s infinite ease-in-out;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  width: 160px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.source-node:hover {
+  border-color: var(--primary);
+  transform: translateX(-5px);
+}
+
+.connection-visual {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  z-index: 1;
+}
+
+.flow-line {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  opacity: 0.3;
+}
+
+.flow-dot {
+  fill: var(--primary);
+  filter: drop-shadow(0 0 8px var(--primary));
 }
 
 .core-intelligence {
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   background: var(--surface);
   border: 2px solid var(--primary);
   border-radius: 35% 65% 70% 30% / 30% 30% 70% 70%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 10;
   animation: morph-blob 8s infinite alternate ease-in-out;
   box-shadow: 0 30px 60px rgba(187, 62, 45, 0.15);
+}
+
+.core-intelligence span {
+  font-weight: 900;
+  font-size: 0.75rem;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 8px;
 }
 
 @keyframes morph-blob {

@@ -239,18 +239,18 @@
       </div>
     </section>
 
-    <!-- Module Navigation & Selection (Refined) -->
-    <section class="module-showcase">
+    <!-- Platform Ecosystem (Showcase Section) -->
+    <section class="showcase-section alt-bg">
       <div class="section-header">
         <div class="ai-tag" style="margin-bottom: 16px;">Platform Ecosystem</div>
         <h2 class="section-title">One Hub. <span class="highlight">Three specialized modules.</span></h2>
         <p class="section-subtitle">Dedicated interfaces engineered for the high-growth career lifecycle.</p>
       </div>
 
-      <div class="module-grid">
-        <div class="module-list">
+      <div class="showcase-grid">
+        <div class="showcase-list">
           <div *ngFor="let mod of modules" 
-               class="module-item" 
+               class="showcase-item" 
                [class.active]="activeModule === mod.id"
                (mouseenter)="setModule(mod.id)">
             <h4>{{ mod.title }}</h4>
@@ -258,9 +258,9 @@
           </div>
         </div>
 
-        <div class="module-visual">
+        <div class="showcase-visual-area">
           <!-- AI Matching Preview -->
-          <div class="visual-content" [class.active]="activeModule === 'search'">
+          <div class="showcase-content" [class.active]="activeModule === 'search'">
             <div style="width: 100%; text-align: left;">
               <h3 style="font-size: 2rem; margin-bottom: 24px;">Neural Matching Dashboard</h3>
               <div class="visual-ui-mockup">
@@ -289,7 +289,7 @@
           </div>
 
           <!-- Tracking Preview -->
-          <div class="visual-content" [class.active]="activeModule === 'track'">
+          <div class="showcase-content" [class.active]="activeModule === 'track'">
              <div style="width: 100%; text-align: left;">
               <h3 style="font-size: 2rem; margin-bottom: 24px;">Pipeline Intelligence</h3>
               <div class="visual-ui-mockup" style="background: var(--ink); border: none;">
@@ -311,7 +311,7 @@
           </div>
 
           <!-- Chat Preview -->
-          <div class="visual-content" [class.active]="activeModule === 'chat'">
+          <div class="showcase-content" [class.active]="activeModule === 'chat'">
             <div style="width: 100%; text-align: left;">
               <h3 style="font-size: 2rem; margin-bottom: 24px;">Direct Talent Messaging</h3>
               <div class="visual-ui-mockup" style="padding: 0; overflow: hidden;">
@@ -334,28 +334,96 @@
       </div>
     </section>
 
-    <!-- AI Feature Toggles (Smart Tools - Dark Section) -->
-    <section class="ai-tools-section">
+    <!-- Intelligence Layer (Horizontal Showcase) -->
+    <section class="showcase-section">
       <div class="section-header">
         <h2 class="section-title">The Intelligence Layer</h2>
         <p class="section-subtitle">Beyond simple matching. Real-world career growth tools.</p>
       </div>
 
-      <div class="ai-carousel-container" (click)="cycleAiTool()">
-        <div *ngFor="let tool of aiTools; let i = index" class="ai-tool-card" [class.active]="activeAiTool === i">
-          <span class="ai-tag">SYSTEM TOOL {{i + 1}}</span>
-          <h2 style="font-family: 'Fraunces', serif; letter-spacing: -0.05em;">{{ tool.title }}</h2>
-          <p style="font-size: 1.2rem; opacity: 0.7; max-width: 700px;">{{ tool.desc }}</p>
+      <div class="showcase-horizontal">
+        <div class="showcase-nav-tabs">
+          <div *ngFor="let tool of aiTools" 
+               class="showcase-tab" 
+               [class.active]="activeAiTool === tool.id"
+               (mouseenter)="setAiTool(tool.id)">
+            <h4>{{ tool.title }}</h4>
+            <p>{{ tool.desc }}</p>
+          </div>
+        </div>
+
+        <div class="showcase-visual-area">
+          <!-- Resume AI Preview -->
+          <div class="showcase-content" [class.active]="activeAiTool === 'resume'">
+            <div style="width: 100%; text-align: center;">
+              <h3 style="font-size: 2rem; margin-bottom: 12px;">Resume Intelligence</h3>
+              <p style="color: var(--ink-soft); margin-bottom: 32px;">Automated scoring and gap analysis.</p>
+              <div class="visual-ui-mockup" style="max-width: 600px; margin: 0 auto; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                  <div style="width: 60px; height: 60px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem;">88</div>
+                  <div>
+                    <strong style="display: block; font-size: 1.1rem;">Overall Profile Strength</strong>
+                    <span style="font-size: 0.85rem; color: var(--ink-soft);">Top 5% of Applicants in Seattle</span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 4px solid #10b981; font-size: 0.85rem;">
+                    <strong>STRENGTH:</strong> Deep expertise in Spring Boot 3 & Vector DBs.
+                  </div>
+                  <div style="padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 4px solid #f59e0b; font-size: 0.85rem;">
+                    <strong>GAP:</strong> Missing "Kubernetes Orchestration" for Senior roles.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Match Velocity Preview -->
+          <div class="showcase-content" [class.active]="activeAiTool === 'velocity'">
+            <div style="width: 100%; text-align: center;">
+              <h3 style="font-size: 2rem; margin-bottom: 12px;">Match Velocity</h3>
+              <p style="color: var(--ink-soft); margin-bottom: 32px;">Real-time trajectory and market mapping.</p>
+              <div class="visual-ui-mockup" style="max-width: 600px; margin: 0 auto; padding: 40px; background: var(--ink); border: none;">
+                <div style="height: 150px; display: flex; align-items: flex-end; gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                  <div style="flex: 1; height: 40%; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                  <div style="flex: 1; height: 65%; background: rgba(255,255,255,0.2); border-radius: 4px;"></div>
+                  <div style="flex: 1; height: 95%; background: var(--primary); border-radius: 4px; box-shadow: 0 0 20px var(--primary);"></div>
+                  <div style="flex: 1; height: 80%; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                </div>
+                <div style="margin-top: 20px; color: white; font-family: monospace; font-size: 0.8rem;">
+                  [SYS] MATCH_VELOCITY: 94.2% ^ (Trending in Fintech)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skill Bridge Preview -->
+          <div class="showcase-content" [class.active]="activeAiTool === 'bridge'">
+            <div style="width: 100%; text-align: center;">
+              <h3 style="font-size: 2rem; margin-bottom: 12px;">Skill Bridge</h3>
+              <p style="color: var(--ink-soft); margin-bottom: 32px;">Targeted paths to close technical gaps.</p>
+              <div class="visual-ui-mockup" style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: white; border-radius: 12px; border: 1px solid var(--border);">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary);"></div>
+                    <strong style="font-size: 0.9rem;">Cloud Architecture</strong>
+                  </div>
+                  <span style="font-size: 0.8rem; color: var(--primary); font-weight: 800;">Recommended</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); opacity: 0.7;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></div>
+                    <strong style="font-size: 0.9rem;">Advanced Java</strong>
+                  </div>
+                  <span style="font-size: 0.8rem; color: #10b981; font-weight: 800;">Mastered</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div class="ai-next-trigger" (click)="cycleAiTool()">
-        <span>Next Evolution</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
     </section>
-
-    <!-- Consolidating Fragmented Sources (Refined Funnel) -->
+    <!-- Consolidating Fragmented Sources (Refined Flow) -->
     <section class="funnel-section">
       <div class="section-header">
         <div class="ai-tag" style="background: rgba(187, 62, 45, 0.1); color: var(--primary); margin-bottom: 24px;">Unified Talent Intelligence</div>
@@ -364,18 +432,54 @@
       </div>
       
       <div class="funnel-container">
-        <!-- Converging Nodes -->
-        <div class="source-node" style="--sx: -350px; --sy: -180px; animation-delay: 0s;">LinkedIn</div>
-        <div class="source-node" style="--sx: 350px; --sy: -150px; animation-delay: 1.2s;">Indeed</div>
-        <div class="source-node" style="--sx: -380px; --sy: 120px; animation-delay: 2.4s;">Glassdoor</div>
-        <div class="source-node" style="--sx: 380px; --sy: 160px; animation-delay: 3.6s;">RemoteOK</div>
-        <div class="source-node" style="--sx: 0px; --sy: -220px; animation-delay: 4.8s;">HackerNews</div>
+        <!-- Left Side: Source Stack -->
+        <div class="source-stack">
+          <div class="source-node">LinkedIn</div>
+          <div class="source-node">Indeed</div>
+          <div class="source-node">Glassdoor</div>
+          <div class="source-node">RemoteOK</div>
+          <div class="source-node">HackerNews</div>
+        </div>
+
+        <!-- Center: Connection Visual -->
+        <svg class="connection-visual" viewBox="0 0 800 400" preserveAspectRatio="none">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="var(--border)" />
+            </marker>
+          </defs>
+          <!-- Connection Lines -->
+          <path class="flow-line" d="M160,60 C400,60 400,200 640,200" />
+          <path class="flow-line" d="M160,130 C400,130 400,200 640,200" />
+          <path class="flow-line" d="M160,200 L640,200" />
+          <path class="flow-line" d="M160,270 C400,270 400,200 640,200" />
+          <path class="flow-line" d="M160,340 C400,340 400,200 640,200" />
+
+          <!-- Animated Flow Dots -->
+          <circle class="flow-dot" r="4">
+            <animateMotion dur="3s" repeatCount="indefinite" path="M160,60 C400,60 400,200 640,200" />
+          </circle>
+          <circle class="flow-dot" r="4">
+            <animateMotion dur="2.5s" begin="0.5s" repeatCount="indefinite" path="M160,130 C400,130 400,200 640,200" />
+          </circle>
+          <circle class="flow-dot" r="4">
+            <animateMotion dur="4s" begin="1s" repeatCount="indefinite" path="M160,200 L640,200" />
+          </circle>
+          <circle class="flow-dot" r="4">
+            <animateMotion dur="3.5s" begin="0.2s" repeatCount="indefinite" path="M160,270 C400,270 400,200 640,200" />
+          </circle>
+          <circle class="flow-dot" r="4">
+            <animateMotion dur="2.8s" begin="0.8s" repeatCount="indefinite" path="M160,340 C400,340 400,200 640,200" />
+          </circle>
+        </svg>
         
+        <!-- Right Side: Our Platform -->
         <div class="core-intelligence">
           <div class="intelligence-glow"></div>
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 16L14 20L22 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
+          <span>Unified Hub</span>
         </div>
       </div>
 

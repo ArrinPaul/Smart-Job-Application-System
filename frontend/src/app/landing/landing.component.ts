@@ -29,11 +29,11 @@ export class LandingComponent implements OnInit {
   ];
 
   // State for AI Smart Tools
-  activeAiTool = 0;
+  activeAiTool = 'resume';
   aiTools = [
-    { title: 'Resume Score AI', desc: 'Get an instant breakdown of how your profile matches specific market demands.' },
-    { title: 'Match Velocity', desc: 'Our neural engine identifies your career trajectory and predicts your next best move.' },
-    { title: 'Skill Bridge', desc: 'Identifies gaps in your skill graph and recommends targeted paths to close them.' }
+    { id: 'resume', title: 'Resume Score AI', desc: 'Get an instant breakdown of how your profile matches specific market demands.' },
+    { id: 'velocity', title: 'Match Velocity', desc: 'Our neural engine identifies your career trajectory and predicts your next best move.' },
+    { id: 'bridge', title: 'Skill Bridge', desc: 'Identifies gaps in your skill graph and recommends targeted paths to close them.' }
   ];
 
   constructor(
@@ -46,8 +46,8 @@ export class LandingComponent implements OnInit {
     this.activeModule = moduleId;
   }
 
-  cycleAiTool(): void {
-    this.activeAiTool = (this.activeAiTool + 1) % this.aiTools.length;
+  setAiTool(toolId: string): void {
+    this.activeAiTool = toolId;
   }
 
   ngOnInit(): void {
