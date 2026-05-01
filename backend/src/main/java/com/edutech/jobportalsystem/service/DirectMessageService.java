@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.time.Instant;
 
@@ -67,16 +70,11 @@ public class DirectMessageService {
     }
 
     public List<DirectMessage> getConversation(Long user1Id, Long user2Id, String search) {
-        User user1 = userRepository.findById(user1Id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        User user2 = userRepository.findById(user2Id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
         List<DirectMessage> conversation;
         if (search != null && !search.trim().isEmpty()) {
-            conversation = messageRepository.searchConversation(user1, user2, "%" + search + "%");
+            conversation = messageRepository.searchConversation(user1Id, user2Id, "%" + search + "%");
         } else {
-            conversation = messageRepository.findConversation(user1, user2);
+            conversation = messageRepository.findConversation(user1Id, user2Id);
         }
         
         // Mark as read if user1 is the receiver
@@ -108,14 +106,13 @@ public class DirectMessageService {
     }
 
     public List<User> getContacts(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return messageRepository.findContactsForUser(user);
+        Set<User> contacts = new HashSet<>();
+        contacts.addAll(messageRepository.findSendersForUser(userId));
+        contacts.addAll(messageRepository.findReceiversForUser(userId));
+        return new ArrayList<>(contacts);
     }
 
     public List<DirectMessage> getUnreadMessages(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return messageRepository.findUnreadMessagesForUser(user);
+        return messageRepository.findUnreadMessagesForUser(userId);
     }
 }

@@ -1,3 +1,6 @@
+-- Enable pg_trgm for search
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 -- Add attachment support to direct_messages
 ALTER TABLE direct_messages 
 ADD COLUMN IF NOT EXISTS attachment_url TEXT,

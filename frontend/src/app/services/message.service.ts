@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { DirectMessage } from '../models/message.model';
@@ -24,7 +24,10 @@ export class MessageService {
   }
 
   getConversation(otherUserId: number, search?: string): Observable<DirectMessage[]> {
-    const params = search ? { search } : {};
+    let params = new HttpParams();
+    if (search) {
+      params = params.set('search', search);
+    }
     return this.http.get<DirectMessage[]>(`${this.apiUrl}/conversation/${otherUserId}`, { params });
   }
 
@@ -42,5 +45,9 @@ export class MessageService {
 
   getUnreadMessages(): Observable<DirectMessage[]> {
     return this.http.get<DirectMessage[]>(`${this.apiUrl}/unread`);
+  }
+
+  searchUsers(query: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/search-users`, { params: { query } });
   }
 }

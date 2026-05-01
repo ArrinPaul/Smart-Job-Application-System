@@ -35,6 +35,12 @@ public class ChatController {
         if (userDetails == null) {
             return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(chatService.getChatHistory(userDetails.getUsername()));
+        try {
+            return ResponseEntity.ok(chatService.getChatHistory(userDetails.getUsername()));
+        } catch (Exception e) {
+            System.err.println("Error fetching chat history: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.ok(List.of());
+        }
     }
 }

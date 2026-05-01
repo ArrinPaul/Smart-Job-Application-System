@@ -23,4 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Boolean existsByUsername(String username);
 
     long countByRole(String role);
+
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(:query) OR LOWER(u.fullName) LIKE LOWER(:query) OR LOWER(u.email) LIKE LOWER(:query)")
+    java.util.List<User> searchUsers(@org.springframework.data.repository.query.Param("query") String query);
 }

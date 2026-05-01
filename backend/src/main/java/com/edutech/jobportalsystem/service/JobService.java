@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class JobService {
 
@@ -28,14 +30,22 @@ public class JobService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public Job createJob(Job job, String recruiterUsername) {
         logger.info("Creating job: {} by {}", job.getTitle(), recruiterUsername);
         User recruiter = userRepository.findByUsername(recruiterUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", recruiterUsername));
+
         job.setTitle(sanitize(job.getTitle()));
         job.setDescription(sanitize(job.getDescription()));
         job.setLocation(sanitize(job.getLocation()));
         job.setPostedBy(recruiter);
+
+        // Generate slug if not present
+        if (job.getSlug() == null || job.getSlug().isBlank()) {
+            job.setSlug(generateSlug(job.getTitle(), job.getCompanyName()));
+        }
+
         return jobRepository.save(job);
     }
 
@@ -43,17 +53,35 @@ public class JobService {
         logger.info("Updating job ID: {} by {}", jobId, recruiterUsername);
         Job existingJob = jobRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job", "id", jobId));
-        
+
         if (!existingJob.getPostedBy().getUsername().equals(recruiterUsername)) {
             logger.warn("Unauthorized update attempt for job ID: {} by user: {}", jobId, recruiterUsername);
             throw new BadRequestException("Not authorized to update this job");
         }
-        
+
+        String oldTitle = existingJob.getTitle();
         existingJob.setTitle(sanitize(updatedJob.getTitle()));
         existingJob.setDescription(sanitize(updatedJob.getDescription()));
         existingJob.setLocation(sanitize(updatedJob.getLocation()));
-        
+
+        // Update slug if title changed or if current slug is null
+        if (existingJob.getSlug() == null || existingJob.getSlug().isBlank() || !oldTitle.equalsIgnoreCase(existingJob.getTitle())) {
+            existingJob.setSlug(generateSlug(existingJob.getTitle(), existingJob.getCompanyName()));
+        }
+
         return jobRepository.save(existingJob);
+    }
+
+    private String generateSlug(String title, String company) {
+        String base = (title + "-" + (company != null ? company : "company")).toLowerCase();
+        // Remove non-alphanumeric characters, replace spaces with hyphens
+        String slug = base.replaceAll("[^a-z0-9\\s]", "")
+                         .replaceAll("\\s+", "-")
+                         .replaceAll("-+", "-")
+                         .replaceAll("^-|-$", "");
+
+        // Add random suffix to ensure uniqueness
+        return slug + "-" + java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 
     public void deleteJob(Long jobId, String recruiterUsername) {

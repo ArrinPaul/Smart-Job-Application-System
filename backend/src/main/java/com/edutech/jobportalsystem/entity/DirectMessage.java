@@ -47,7 +47,6 @@ public class DirectMessage {
     private String attachmentType;
     private String attachmentName;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "bytea")
     private byte[] attachmentData;
 }

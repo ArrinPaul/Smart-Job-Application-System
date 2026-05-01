@@ -130,13 +130,13 @@ public class JobRecommendationService {
                 .limit(Math.max(limit, 20)) // Take enough for potential display
                 .collect(Collectors.toList());
 
-        // Now generate AI explanations ONLY for the top 3 jobs that we will actually show
-        // This avoids long timeouts (3 jobs * 2s cooldown = 6s total)
+        // Now generate AI explanations ONLY for the top job that we will actually show
+        // This avoids long timeouts and token exhaustion
         int aiCount = 0;
         for (JobRecommendationDTO rec : recommendations) {
-            if (aiCount >= 3) break; // Hard limit of 3 AI calls per request
+            if (aiCount >= 1) break; // Limit to only 1 AI call per request
             
-            if (rec.getMatchPercentage() >= 75) {
+            if (rec.getMatchPercentage() >= 80) { // Increased threshold
                 Job job = jobRepository.findById(rec.getJobId()).orElse(null);
                 if (job != null) {
                     rec.setAiExplanation(generateAIExplanation(job, profile, rec.getMatchReasons()));

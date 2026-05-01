@@ -21,11 +21,12 @@ import { environment } from '../../environments/environment';
         <header class="sidebar-header">
           <h2>Conversations</h2>
           <div class="search-bar">
-            <input type="text" [(ngModel)]="contactSearch" placeholder="Search people..." class="search-input">
+            <input type="text" [(ngModel)]="contactSearch" (input)="onContactSearch()" placeholder="Search people..." class="search-input">
           </div>
         </header>
         
         <div class="contacts-scrollbox">
+          <!-- Existing Contacts -->
           <div *ngFor="let contact of filteredContacts()" 
                class="contact-card" 
                [class.selected]="selectedContact?.id === contact.id"
@@ -43,10 +44,28 @@ import { environment } from '../../environments/environment';
               <span class="role-tag">{{ contact.role?.replace('_', ' ') || 'Member' }}</span>
             </div>
           </div>
+
+          <!-- Global Search Results (New People) -->
+          <div *ngIf="globalSearchResults.length > 0" class="global-results">
+            <h3 class="section-title">New People</h3>
+            <div *ngFor="let user of globalSearchResults" 
+                 class="contact-card new-person" 
+                 (click)="selectContact(user)">
+              <div class="avatar-wrap">
+                <div class="user-avatar mini-avatar">
+                  {{ user.fullName?.charAt(0) || user.username.charAt(0) }}
+                </div>
+              </div>
+              <div class="contact-details">
+                <span class="name">{{ user.fullName || user.username }}</span>
+                <span class="role-tag">{{ user.role?.replace('_', ' ') }}</span>
+              </div>
+            </div>
+          </div>
           
-          <div *ngIf="contacts.length === 0" class="empty-contacts">
+          <div *ngIf="contacts.length === 0 && globalSearchResults.length === 0" class="empty-contacts">
             <div class="empty-icon">💬</div>
-            <p>No conversations started yet.</p>
+            <p>No conversations yet. Search for people to start chatting!</p>
           </div>
         </div>
       </aside>
@@ -245,6 +264,20 @@ import { environment } from '../../environments/environment';
     .contact-card.selected {
       background: #bb3e2d;
       color: white;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #9c9181;
+      letter-spacing: 1px;
+      margin: 20px 12px 10px;
+    }
+
+    .mini-avatar {
+      width: 36px !important;
+      height: 36px !important;
+      font-size: 0.9rem !important;
     }
 
     .avatar-wrap {
@@ -633,24 +666,11 @@ import { environment } from '../../environments/environment';
       color: #1f1d18;
       margin: 0 0 8px;
     }
-
-    .icon-btn {
-      background: none;
-      border: none;
-      color: #655f51;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 50%;
-      transition: background 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: #f4efe6;
-    }
   `]
 })
 export class MessagesComponent implements OnInit, OnDestroy {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('fileInput') fileInput!: ElementRef;
 
   contacts: User[] = [];
   selectedContact: User | null = null;
@@ -658,6 +678,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   newMessage: string = '';
   searchQuery: string = '';
   contactSearch: string = '';
+  globalSearchResults: User[] = [];
   currentUserId: number | null;
 
   private pollSubscription?: Subscription;
@@ -665,8 +686,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
   isOtherTyping: boolean = false;
   selectedJobId: number | null = null;
   isUploading: boolean = false;
-
-  @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
     private messageService: MessageService,
@@ -677,20 +696,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.currentUserId = this.authService.getUserId();
   }
 
-  filteredContacts(): User[] {
-    if (!this.contactSearch.trim()) return this.contacts;
-    const query = this.contactSearch.toLowerCase();
-    return this.contacts.filter(c => 
-      (c.fullName && c.fullName.toLowerCase().includes(query)) || 
-      c.username.toLowerCase().includes(query) ||
-      (c.role && c.role.toLowerCase().includes(query))
-    );
-  }
-
   ngOnInit(): void {
     this.loadContacts();
     
-    // Check if we should start a chat with a specific user
     this.route.queryParams.subscribe(params => {
       if (params['userId']) {
         const userId = +params['userId'];
@@ -699,11 +707,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Accelerated polling for real-time feel (2 seconds)
     this.pollSubscription = interval(2000).pipe(
       switchMap(() => {
         if (this.selectedContact && document.visibilityState === 'visible') {
-          // If search is active, we don't poll to avoid overriding search results
           if (this.searchQuery.trim()) return of(null);
           return this.messageService.getConversation(this.selectedContact.id);
         }
@@ -716,7 +722,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Check for typing status
     this.typingSub = interval(3000).pipe(
       switchMap(() => {
         if (this.selectedContact && document.visibilityState === 'visible') {
@@ -729,13 +734,36 @@ export class MessagesComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnDestroy(): void {
+    this.pollSubscription?.unsubscribe();
+    this.typingSub?.unsubscribe();
+  }
+
   private anyUnread(msgs: DirectMessage[]): boolean {
     return msgs.some(m => m.receiver.id === this.currentUserId && !m.isRead);
   }
 
-  ngOnDestroy(): void {
-    this.pollSubscription?.unsubscribe();
-    this.typingSub?.unsubscribe();
+  filteredContacts(): User[] {
+    if (!this.contactSearch.trim()) return this.contacts;
+    const query = this.contactSearch.toLowerCase();
+    return this.contacts.filter(c => 
+      (c.fullName && c.fullName.toLowerCase().includes(query)) || 
+      c.username.toLowerCase().includes(query) ||
+      (c.role && c.role.toLowerCase().includes(query))
+    );
+  }
+
+  onContactSearch(): void {
+    if (this.contactSearch.trim().length >= 2) {
+      this.messageService.searchUsers(this.contactSearch).subscribe(users => {
+        this.globalSearchResults = users.filter(u => 
+          u.id !== this.currentUserId && 
+          !this.contacts.some(c => c.id === u.id)
+        );
+      });
+    } else {
+      this.globalSearchResults = [];
+    }
   }
 
   onSearch(): void {
@@ -779,14 +807,17 @@ export class MessagesComponent implements OnInit, OnDestroy {
   selectContact(contact: User): void {
     this.selectedContact = contact;
     this.searchQuery = '';
+    this.contactSearch = '';
+    this.globalSearchResults = [];
     this.loadMessages();
+    if (!this.contacts.some(c => c.id === contact.id)) {
+      this.contacts.unshift(contact);
+    }
   }
 
   private selectContactById(userId: number): void {
     this.httpService.getUserById(userId).subscribe(user => {
-      this.selectedContact = user;
-      this.loadMessages();
-      this.loadContacts();
+      this.selectContact(user);
     });
   }
 
@@ -824,9 +855,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       this.messages.push(msg);
       this.scrollToBottom();
       this.selectedJobId = null; 
-      if (!this.contacts.some(c => c.id === this.selectedContact?.id)) {
-        this.loadContacts();
-      }
     });
   }
 

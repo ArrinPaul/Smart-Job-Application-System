@@ -12,15 +12,18 @@ import java.util.List;
 @Repository
 public interface DirectMessageRepository extends JpaRepository<DirectMessage, Long> {
     
-    @Query("SELECT m FROM DirectMessage m WHERE (m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1) ORDER BY m.sentAt ASC")
-    List<DirectMessage> findConversation(@Param("user1") User user1, @Param("user2") User user2);
+    @Query("SELECT m FROM DirectMessage m WHERE (m.sender.id = :u1 AND m.receiver.id = :u2) OR (m.sender.id = :u2 AND m.receiver.id = :u1) ORDER BY m.sentAt ASC")
+    List<DirectMessage> findConversation(@Param("u1") Long u1, @Param("u2") Long u2);
 
-    @Query("SELECT m FROM DirectMessage m WHERE ((m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1)) AND (LOWER(m.content) LIKE LOWER(:search) OR LOWER(m.attachmentName) LIKE LOWER(:search)) ORDER BY m.sentAt ASC")
-    List<DirectMessage> searchConversation(@Param("user1") User user1, @Param("user2") User user2, @Param("search") String search);
+    @Query("SELECT m FROM DirectMessage m WHERE ((m.sender.id = :u1 AND m.receiver.id = :u2) OR (m.sender.id = :u2 AND m.receiver.id = :u1)) AND (LOWER(m.content) LIKE LOWER(:search) OR LOWER(m.attachmentName) LIKE LOWER(:search)) ORDER BY m.sentAt ASC")
+    List<DirectMessage> searchConversation(@Param("u1") Long u1, @Param("u2") Long u2, @Param("search") String search);
     
-    @Query("SELECT m FROM DirectMessage m WHERE m.receiver = :user AND m.isRead = false")
-    List<DirectMessage> findUnreadMessagesForUser(@Param("user") User user);
+    @Query("SELECT m FROM DirectMessage m WHERE m.receiver.id = :userId AND m.isRead = false")
+    List<DirectMessage> findUnreadMessagesForUser(@Param("userId") Long userId);
     
-    @Query("SELECT DISTINCT CASE WHEN m.sender = :user THEN m.receiver ELSE m.sender END FROM DirectMessage m WHERE m.sender = :user OR m.receiver = :user")
-    List<User> findContactsForUser(@Param("user") User user);
+    @Query("SELECT DISTINCT m.sender FROM DirectMessage m WHERE m.receiver.id = :userId")
+    List<User> findSendersForUser(@Param("userId") Long userId);
+
+    @Query("SELECT DISTINCT m.receiver FROM DirectMessage m WHERE m.sender.id = :userId")
+    List<User> findReceiversForUser(@Param("userId") Long userId);
 }

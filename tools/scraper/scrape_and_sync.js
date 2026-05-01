@@ -218,6 +218,40 @@ async function fetchRemoteCo(limit = 120) {
   return [];
 }
 
+async function fetchSWEList(limit = 300) {
+  const sources = [
+    { name: 'SWE Internships', url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/.github/scripts/listings.json' },
+    { name: 'SWE New Grad', url: 'https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json' }
+  ];
+
+  const out = [];
+  for (const source of sources) {
+    try {
+      const res = await axios.get(source.url, { timeout: 45000, headers: getHeaders() });
+      const jobs = Array.isArray(res.data) ? res.data : [];
+      
+      // SimplifyJobs listings are usually sorted newest first, but let's take a slice
+      const sliced = jobs.slice(0, Math.floor(limit / sources.length));
+      
+      for (const j of sliced) {
+        out.push({
+          title: j.title || 'Software Engineering Role',
+          companyName: j.company_name || 'Tech Company',
+          location: Array.isArray(j.locations) ? j.locations.join(', ') : (j.location || 'Remote'),
+          applicationLink: j.url || '',
+          requiredSkills: '', 
+          description: `Direct listing from ${source.name}. Check application link for full details.`,
+          source: source.name,
+          postedDate: j.date_updated ? new Date(j.date_updated * 1000).toISOString() : new Date().toISOString()
+        });
+      }
+    } catch (e) {
+      LOG.warn(`${source.name} fetch failed:`, e.message);
+    }
+  }
+  return out;
+}
+
 async function run() {
   LOG.info('Starting stable scrape run...');
 
@@ -226,7 +260,8 @@ async function run() {
     { name: 'ArbeitNow', fn: fetchArbeitNow(3, 250) },
     { name: 'RemoteOK', fn: fetchRemoteOK(250) },
     { name: 'HackerNews', fn: fetchHackerNews(3) },
-    { name: 'Remote.co', fn: fetchRemoteCo(150) }
+    { name: 'Remote.co', fn: fetchRemoteCo(150) },
+    { name: 'SWEList', fn: fetchSWEList(400) }
   ];
 
   const results = await Promise.all(sources.map(async (s) => {
