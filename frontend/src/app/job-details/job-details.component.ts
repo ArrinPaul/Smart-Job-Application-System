@@ -117,8 +117,15 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     return this.job?.postedBy?.username === 'global.recruiter';
   }
 
+  isJobSeeker(): boolean {
+    return this.authService.isJobSeeker();
+  }
+
   canApplyInternally(): boolean {
-    // We allow internal application if it's not a global recruiter job, 
+    // 1. Must be a Job Seeker
+    if (!this.isJobSeeker()) return false;
+    
+    // 2. We allow internal application if it's not a global recruiter job, 
     // OR if it is a global recruiter job but has no external application link.
     return !this.isGlobalRecruiter() || !this.job?.applicationLink;
   }

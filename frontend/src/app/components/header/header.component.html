@@ -9,8 +9,16 @@
     </a>
 
     <nav class="main-nav" *ngIf="isLoggedIn">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a *ngIf="isJobSeeker()" routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
       <a routerLink="/jobs" routerLinkActive="active" class="nav-item">Jobs</a>
+      
+      <!-- Recruiter specific links -->
+      <a *ngIf="isRecruiter()" routerLink="/post-job" routerLinkActive="active" class="nav-item">Post Job</a>
+      <a *ngIf="isRecruiter()" routerLink="/recruiter/applications" routerLinkActive="active" class="nav-item">Applications</a>
+      
+      <!-- Seeker specific links -->
+      <a *ngIf="isJobSeeker()" routerLink="/applications" routerLinkActive="active" class="nav-item">My Apps</a>
+      
       <a routerLink="/messages" routerLinkActive="active" class="nav-item msg-link">
         Messages
         <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>

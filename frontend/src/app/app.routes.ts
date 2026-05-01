@@ -67,7 +67,19 @@ export const routes: Routes = [
     path: 'applications',
     loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.JOB_SEEKER] }
+  },
+  {
+    path: 'recruiter/applications',
+    loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [UserRole.RECRUITER] }
+  },
+  {
+    path: 'recruiter/applications/:id',
+    loadComponent: () => import('./applicant-review/applicant-review.component').then(m => m.ApplicantReviewComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [UserRole.RECRUITER] }
   },
   {
     path: 'resume',

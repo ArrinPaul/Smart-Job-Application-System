@@ -282,7 +282,7 @@ button {
   font-family: 'Manrope', sans-serif;
   letter-spacing: 0.02em;
   background: linear-gradient(135deg, var(--brand), var(--brand-strong));
-  color: #fff8f3;
+  color: #ffffff; /* Explicit high-contrast white */
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   box-shadow: 0 9px 16px rgba(150, 47, 33, 0.26);
@@ -294,30 +294,24 @@ button:hover {
   box-shadow: 0 14px 26px rgba(150, 47, 33, 0.34);
 }
 
-button:disabled {
-  background: #aa9a84;
-  box-shadow: none;
-  transform: none;
-  cursor: not-allowed;
-  opacity: 0.76;
+/* Secondary Button - High Visibility */
+.btn-secondary, .btn-muted {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
 }
 
+.btn-secondary:hover, .btn-muted:hover {
+  background: #e2e8f0 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Accent Button */
 .btn-accent {
-  background: linear-gradient(135deg, var(--accent), #075766);
-  box-shadow: 0 8px 16px rgba(13, 103, 116, 0.26);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, var(--danger), #7f1d16);
-  box-shadow: 0 8px 16px rgba(155, 37, 27, 0.24);
-}
-
-.btn-muted,
-.btn--secondary,
-.btn-secondary {
-  background: linear-gradient(135deg, #8f7f6b, #706352);
-  box-shadow: 0 8px 16px rgba(80, 67, 54, 0.2);
-  color: white;
+  background: linear-gradient(135deg, var(--accent), #075766) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 16px rgba(13, 103, 116, 0.26) !important;
 }
 
 .clickable-title {

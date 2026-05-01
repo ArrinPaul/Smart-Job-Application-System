@@ -49,15 +49,21 @@ export interface Application {
     id: number;
     username: string;
     email: string;
+    fullName?: string;
+    headline?: string;
+    location?: string;
+    skills?: string;
   };
   job: {
     id: number;
     title: string;
     location: string;
+    jobType?: string;
   };
   status: ApplicationStatus;
   appliedAt?: string;
   updatedAt?: string;
+  aiMatchScore?: number;
   resume?: ResumeMetadata;
 }
 

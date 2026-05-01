@@ -201,14 +201,19 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
   }
 
   checkResume(): void {
-    // Attempt to see if user has a resume uploaded
-    this.httpService.getMyApplications()
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    this.httpService.getResumes(userId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (apps) => {
-           this.hasResume = true; // Default to true for now
+        next: (resumes) => {
+           this.hasResume = resumes && resumes.length > 0;
         },
-        error: () => { this.hasResume = true; }
+        error: () => { 
+          // Fallback check: if onboarding is done, they might have profile-based data
+          this.hasResume = this.authService.isOnboardingCompleted();
+        }
       });
   }
 

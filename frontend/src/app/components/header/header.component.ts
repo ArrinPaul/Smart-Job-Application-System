@@ -24,14 +24,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private messageService: MessageService
   ) {
-    // Hide header on auth pages
+    // Hide header on landing/auth/onboarding pages
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
       const hiddenPaths = [
-        '/', '/landing', '/login', '/register', '/onboarding', 
-        '/admin', '/applications', '/post-job', '/resume'
+        '/', '/landing', '/login', '/register', '/onboarding'
       ];
       this.isVisible = !hiddenPaths.some(path => 
         url === path || 
@@ -39,6 +38,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
         url.startsWith(path + '?')
       );
     });
+  }
+
+  isRecruiter(): boolean {
+    return this.authService.isRecruiter();
+  }
+
+  isJobSeeker(): boolean {
+    return this.authService.isJobSeeker();
   }
 
   ngOnInit(): void {
