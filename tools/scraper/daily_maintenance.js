@@ -70,6 +70,12 @@ async function runDeepNormalization() {
   await client.connect();
   LOG.info('Connected to Supabase for normalization.');
 
+  // 1. Remove Duplicates
+  LOG.info('Removing duplicate jobs...');
+  const removedDuplicates = await removeDuplicateJobs(client);
+  LOG.info(`Removed ${removedDuplicates} duplicate jobs.`);
+
+  // 2. Normalize Rows
   let offset = 0;
   let processed = 0;
   let updated = 0;
@@ -88,11 +94,6 @@ async function runDeepNormalization() {
     for (const row of rows.rows) {
       processed += 1;
       
-      // normalizeJobRecord handles:
-      // - Emoji removal (via normalizeText)
-      // - Translation to English (via translateText)
-      // - HTML stripping
-      // - Template formatting
       const normalized = await normalizeJobRecord(row, {
         fieldMap: {
           title: 'title',
@@ -104,7 +105,7 @@ async function runDeepNormalization() {
           howToApply: 'how_to_apply',
           applicationLink: 'application_link'
         },
-        strictEnglish: false // Don't discard if translation fails, just keep original
+        strictEnglish: true // Ensure content is English after translation
       });
 
       if (!normalized) continue;
@@ -152,6 +153,31 @@ async function runDeepNormalization() {
 
   LOG.info(`Normalization complete. Total Processed: ${processed}, Total Updated: ${updated}.`);
   await client.end();
+}
+
+/**
+ * Utility to remove duplicates based on title and company
+ */
+async function removeDuplicateJobs(client) {
+  const sql = `
+    WITH ranked AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (
+          PARTITION BY
+            LOWER(COALESCE(NULLIF(TRIM(title), ''), 'untitled')),
+            LOWER(COALESCE(NULLIF(TRIM(company_name), ''), 'unknown'))
+          ORDER BY id DESC
+        ) AS rn
+      FROM jobs
+    )
+    DELETE FROM jobs j
+    USING ranked r
+    WHERE j.id = r.id
+      AND r.rn > 1
+  `;
+  const result = await client.query(sql);
+  return result.rowCount || 0;
 }
 
 async function main() {
