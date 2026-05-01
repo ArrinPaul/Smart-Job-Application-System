@@ -113,14 +113,36 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
+  isGlobalRecruiter(): boolean {
+    return this.job?.postedBy?.username === 'global.recruiter';
+  }
+
+  canApplyInternally(): boolean {
+    // We allow internal application if it's not a global recruiter job, 
+    // OR if it is a global recruiter job but has no external application link.
+    return !this.isGlobalRecruiter() || !this.job?.applicationLink;
+  }
+
   applyInternally(): void {
-    if (this.job) {
-        this.httpService.applyJob(this.job.id)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => this.toastService.showSuccess('Applied successfully!'),
-            error: () => this.toastService.showError('Failed to apply')
-          });
+    if (!this.authService.isLoggedIn()) {
+      this.toastService.showWarning('Please login to apply for this job.');
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    if (!this.job) return;
+
+    if (!this.isGlobalRecruiter()) {
+      // For normal recruiters, go to preview page
+      this.router.navigate(['/jobs', this.job.slug, 'apply']);
+    } else {
+      // For global recruiter (if no link), just apply directly as before
+      this.httpService.applyJob(this.job.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.toastService.showSuccess('Applied successfully!'),
+          error: () => this.toastService.showError('Failed to apply')
+        });
     }
   }
 

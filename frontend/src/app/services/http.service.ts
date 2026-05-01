@@ -89,6 +89,13 @@ export class HttpService {
   }
 
   /**
+   * Get current user profile data
+   */
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/auth/onboarding/profile`);
+  }
+
+  /**
    * Skip onboarding
    */
   skipOnboarding(): Observable<any> {

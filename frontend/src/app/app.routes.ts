@@ -25,7 +25,7 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_SEEKER, UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.JOB_SEEKER] }
   },
   {
     path: 'onboarding',
@@ -44,14 +44,18 @@ export const routes: Routes = [
   },
   {
     path: 'jobs/:slug',
-    loadComponent: () => import('./job-details/job-details.component').then(m => m.JobDetailsComponent),
+    loadComponent: () => import('./job-details/job-details.component').then(m => m.JobDetailsComponent)
+  },
+  {
+    path: 'jobs/:slug/apply',
+    loadComponent: () => import('./application-preview/application-preview.component').then(m => m.ApplicationPreviewComponent),
     canActivate: [AuthGuard]
   },
   {
     path: 'recommendations',
     loadComponent: () => import('./recommendations/recommendations.component').then(m => m.RecommendationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.JOB_SEEKER, UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.JOB_SEEKER] }
   },
   {
     path: 'post-job',
@@ -106,5 +110,3 @@ export const routes: Routes = [
     redirectTo: '/login'
   }
 ];
-
-
