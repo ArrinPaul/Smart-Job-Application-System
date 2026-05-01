@@ -80,8 +80,8 @@ import { Subject, takeUntil, finalize } from 'rxjs';
                   </span>
                 </td>
                 <td>
-                  <button class="btn-review" [routerLink]="['/recruiter/applications', app.id]">
-                    Review Profile
+                  <button class="btn-review-action" [routerLink]="['/recruiter/applications', app.id]">
+                    View & Review
                   </button>
                 </td>
               </tr>
@@ -122,36 +122,47 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 
     .filter-bar { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .search-box input { width: 100%; max-width: 400px; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; }
-    .search-box input:focus { border-color: #3b82f6; ring: 2px solid rgba(59, 130, 246, 0.1); }
+    .search-box input:focus { border-color: #3b82f6; }
 
-    .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: #f1f5f9; padding: 15px 20px; font-size: 0.85rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
-    td { padding: 15px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
-    tr:hover td { background: #f8fafc; }
+    th { background: #f8fafc; padding: 15px 20px; font-size: 0.8rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfdfd; }
 
     .user-info { display: flex; align-items: center; gap: 12px; }
     .avatar { width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #475569; }
-    .name { font-weight: 600; color: #1e293b; }
+    .name { font-weight: 700; color: #1e293b; display: block; }
     .email { font-size: 0.8rem; color: #64748b; }
 
-    .job-title { font-weight: 600; color: #1e293b; }
+    .job-title { font-weight: 700; color: #1e293b; }
     .job-meta { font-size: 0.8rem; color: #64748b; }
 
-    .score-pill { display: inline-block; padding: 4px 10px; border-radius: 20px; color: white; font-size: 0.8rem; font-weight: 600; }
+    .score-pill { display: inline-block; padding: 6px 12px; border-radius: 20px; color: white; font-size: 0.8rem; font-weight: 800; }
     
-    .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
-    .status-badge[data-status="APPLIED"] { background: #dbeafe; color: #1e40af; }
-    .status-badge[data-status="SHORTLISTED"] { background: #dcfce7; color: #166534; }
-    .status-badge[data-status="REJECTED"] { background: #fee2e2; color: #991b1b; }
-    .status-badge[data-status="HIRED"] { background: #fef9c3; color: #854d0e; }
+    .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+    .status-badge[data-status="APPLIED"] { background: #eff6ff; color: #1e40af; }
+    .status-badge[data-status="SHORTLISTED"] { background: #f0fdf4; color: #166534; }
+    .status-badge[data-status="REJECTED"] { background: #fef2f2; color: #991b1b; }
+    .status-badge[data-status="HIRED"] { background: #fffbeb; color: #854d0e; }
 
-    .btn-review { padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .btn-review:hover { background: #2563eb; }
+    .btn-review-action { 
+      padding: 10px 18px; 
+      background: #1e293b; 
+      color: white !important; 
+      border: none; 
+      border-radius: 8px; 
+      font-size: 0.85rem; 
+      font-weight: 800; 
+      cursor: pointer; 
+      transition: all 0.2s;
+    }
+    .btn-review-action:hover { background: #0f172a; transform: translateY(-1px); }
 
-    .state-box { text-align: center; padding: 60px 0; color: #64748b; }
-    .empty-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
-    .spinner { width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+    .state-box { text-align: center; padding: 80px 0; color: #64748b; }
+    .empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
     @keyframes spin { to { transform: rotate(360deg); } }
   `]
 })

@@ -222,38 +222,50 @@
 }
 
 .btn-primary, .btn-secondary, .btn-accent, .btn-muted {
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-weight: 800;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
 }
 
 .btn-primary {
-  background: #1a1410;
-  color: white;
+  background: #1e293b;
+  color: #ffffff !important;
 }
 
 .btn-secondary {
-  background: #f0f0f0;
-  color: #495057;
+  background: #f1f5f9;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0;
 }
 
 .btn-accent {
   background: #ff6b35;
-  color: white;
+  color: #ffffff !important;
 }
 
 .btn-muted {
-  background: #dee2e6;
-  color: #495057;
+  background: #f8fafc;
+  color: #64748b !important;
+  border: 1px solid #e2e8f0;
 }
 
-.btn-primary:hover, .btn-accent:hover {
+.btn-primary:hover {
+  background: #0f172a;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-accent:hover {
+  background: #f45d20;
+  transform: translateY(-2px);
+}
+
+.btn-secondary:hover, .btn-muted:hover {
+  background: #e2e8f0;
+  color: #1e293b !important;
 }
 
 .spacer {

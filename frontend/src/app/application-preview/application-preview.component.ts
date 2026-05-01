@@ -69,8 +69,8 @@ import { Subject, takeUntil, finalize, forkJoin } from 'rxjs';
           <footer class="preview-footer">
             <p class="terms">By clicking "Confirm & Submit", your profile and resume will be sent to the recruiter.</p>
             <div class="actions">
-              <button class="btn-cancel" (click)="goBack()">Cancel</button>
-              <button class="btn-submit" (click)="submitApplication()" [disabled]="submitting || !hasResume">
+              <button class="btn-secondary" (click)="goBack()">Cancel & Return</button>
+              <button class="btn-publish-final" (click)="submitApplication()" [disabled]="submitting || !hasResume">
                 {{ submitting ? 'Submitting...' : 'Confirm & Submit Application' }}
               </button>
             </div>
@@ -133,10 +133,25 @@ import { Subject, takeUntil, finalize, forkJoin } from 'rxjs';
     .profile-link { margin-left: auto; color: #ef4444; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
     .preview-footer { margin-top: 40px; border-top: 1px solid #f1f5f9; padding-top: 25px; }
     .terms { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-bottom: 20px; }
-    .actions { display: flex; gap: 15px; justify-content: flex-end; }
-    .btn-cancel { padding: 10px 20px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer; }
-    .btn-submit { padding: 10px 25px; border-radius: 6px; border: none; background: #ef4444; color: white; cursor: pointer; font-weight: 600; }
-    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .actions { display: flex; gap: 15px; justify-content: flex-end; align-items: center; }
+    
+    .btn-publish-final {
+      background: #ff6b35;
+      color: white !important;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+    }
+    
+    .btn-publish-final:disabled {
+      background: #fabca5;
+      cursor: not-allowed;
+    }
+
     .spinner { width: 30px; height: 30px; border: 3px solid #f1f5f9; border-top-color: #ef4444; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
     .loading-state { text-align: center; padding: 40px 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
