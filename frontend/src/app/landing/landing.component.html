@@ -51,62 +51,22 @@
           </div>
 
           <div class="hero-visual">
-            <svg viewBox="0 0 600 300" class="hero-illustration">
-              <defs>
-                <linearGradient id="heroGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#bb3e2d;stop-opacity:0.1" />
-                  <stop offset="100%" style="stop-color:#0d6774;stop-opacity:0.1" />
-                </linearGradient>
-                <linearGradient id="heroGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style="stop-color:#bb3e2d;stop-opacity:1" />
-                  <stop offset="100%" style="stop-color:#962f21;stop-opacity:1" />
-                </linearGradient>
-              </defs>
-              <!-- Background circles -->
-              <circle cx="100" cy="80" r="60" fill="url(#heroGrad1)" class="float-slow"/>
-              <circle cx="500" cy="200" r="80" fill="url(#heroGrad1)" class="float-fast"/>
+            <div class="hero-image-wrap">
+              <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1400" alt="Professional collaboration" class="hero-img">
               
-              <!-- Left: Resume/Profile -->
-              <g class="slide-in-left">
-                <rect x="30" y="60" width="140" height="180" rx="12" fill="white" stroke="#d8c8ae" stroke-width="2"/>
-                <rect x="40" y="75" width="120" height="20" rx="4" fill="#bb3e2d" opacity="0.3"/>
-                <rect x="40" y="105" width="120" height="8" rx="2" fill="#d8c8ae"/>
-                <rect x="40" y="120" width="120" height="8" rx="2" fill="#d8c8ae"/>
-                <rect x="40" y="135" width="80" height="8" rx="2" fill="#d8c8ae"/>
-                <rect x="40" y="155" width="120" height="8" rx="2" fill="#e8d8c8"/>
-                <rect x="40" y="170" width="120" height="8" rx="2" fill="#e8d8c8"/>
-                <rect x="40" y="185" width="100" height="8" rx="2" fill="#e8d8c8"/>
-              </g>
-              
-              <!-- Center: AI/Matching animation -->
-              <g class="pulse-center">
-                <circle cx="300" cy="150" r="40" fill="none" stroke="url(#heroGrad2)" stroke-width="2" opacity="0.6"/>
-                <circle cx="300" cy="150" r="32" fill="#bb3e2d" opacity="0.15"/>
-                <text x="300" y="160" text-anchor="middle" font-size="24" fill="#bb3e2d" font-weight="bold">AI</text>
-              </g>
-              
-              <!-- Right: Job matches -->
-              <g class="slide-in-right">
-                <rect x="430" y="60" width="140" height="50" rx="8" fill="#bb3e2d" opacity="0.1" stroke="#bb3e2d" stroke-width="1"/>
-                <text x="445" y="82" font-size="13" fill="#962f21" font-weight="600">Senior Developer</text>
-                <text x="445" y="97" font-size="11" fill="#655f51">Tech • $120k • Remote</text>
-                
-                <rect x="430" y="130" width="140" height="50" rx="8" fill="#0d6774" opacity="0.1" stroke="#0d6774" stroke-width="1"/>
-                <text x="445" y="152" font-size="13" fill="#0d6774" font-weight="600">Product Manager</text>
-                <text x="445" y="167" font-size="11" fill="#655f51">Finance • $110k • NYC</text>
-                
-                <rect x="430" y="200" width="140" height="50" rx="8" fill="#bb3e2d" opacity="0.1" stroke="#bb3e2d" stroke-width="1"/>
-                <text x="445" y="222" font-size="13" fill="#962f21" font-weight="600">UX Designer</text>
-                <text x="445" y="237" font-size="11" fill="#655f51">Design • $95k • Austin</text>
-              </g>
-              
-              <!-- Connection lines with arrows -->
-              <line x1="170" y1="150" x2="260" y2="150" stroke="#bb3e2d" stroke-width="2" opacity="0.4"/>
-              <polygon points="262,150 255,145 257,150 255,155" fill="#bb3e2d" opacity="0.6"/>
-              
-              <line x1="340" y1="150" x2="430" y2="120" stroke="#0d6774" stroke-width="2" opacity="0.4" stroke-dasharray="5,5"/>
-              <polygon points="430,118 433,126 435,120" fill="#0d6774" opacity="0.6"/>
-            </svg>
+              <!-- Floating Animation Elements -->
+              <div class="floating-card match-card">
+                <div class="pulse"></div>
+                <span>New Match Found</span>
+              </div>
+              <div class="floating-card user-card-mini">
+                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=100" alt="User">
+                <div class="mini-details">
+                  <strong>Alex Chen</strong>
+                  <span>Software Engineer</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="hero-stats">
@@ -123,6 +83,33 @@
               <span class="stat-label">Match Time</span>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ticker Section (Moving Side to Side) -->
+    <section class="ticker-section">
+      <div class="ticker-wrapper">
+        <div class="ticker-group">
+          <div class="ticker-item"><div class="ticker-dot"></div> Software Engineering</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Data Science</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Product Management</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> UI/UX Design</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> DevOps & Infrastructure</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Marketing & Sales</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Finance & Legal</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Customer Success</div>
+        </div>
+        <!-- Duplicate for infinite effect -->
+        <div class="ticker-group">
+          <div class="ticker-item"><div class="ticker-dot"></div> Software Engineering</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Data Science</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Product Management</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> UI/UX Design</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> DevOps & Infrastructure</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Marketing & Sales</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Finance & Legal</div>
+          <div class="ticker-item"><div class="ticker-dot"></div> Customer Success</div>
         </div>
       </div>
     </section>
@@ -226,39 +213,6 @@
 
           <div class="feature-card">
             <div class="feature-icon-wrap chart">
-              <svg csection-header">
-          <h2 class="section-title">Built for Everyone</h2>
-          <p class="section-subtitle">Whether you're seeking your next opportunity or your next team member</p>
-        </div>
-        <div class="users-layout">
-          <div class="user-group">
-            <div class="user-card applicant">
-              <div class="user-icon">
-                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M32 18C27.03 18 23 22.03 23 27C23 31.97 27.03 36 32 36C36.97 36 41 31.97 41 27C41 22.03 36.97 18 32 18ZM32 33C28.68 33 26 30.32 26 27C26 23.68 28.68 21 32 21C35.32 21 38 23.68 38 27C38 30.32 35.32 33 32 33Z" fill="#bb3e2d"/>
-                  <path d="M32 38C26.48 38 18 40.68 18 46V48C18 49.1 18.9 50 20 50H44C45.1 50 46 49.1 46 48V46C46 40.68 37.52 38 32 38Z" fill="#bb3e2d" opacity="0.6"/>
-                </svg>
-              </div>
-              <div class="user-badge">For Job Seekers</div>
-              <h3>Land Your Dream Role</h3>
-              <p>Intelligent matching connects you with positions perfectly aligned with your skills and career goals. Say goodbye to endless applications.</p>
-              <a routerLink="/register" class="btn-primary">Create Free Profile</a>
-            </div>
-            <div class="user-card recruiter">
-              <div class="user-icon">
-                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="20" cy="18" r="5" fill="#0d6774"/>
-                  <path d="M20 26C16.13 26 12 27.64 12 31V34H28V31C28 27.64 23.87 26 20 26Z" fill="#0d6774" opacity="0.6"/>
-                  <circle cx="44" cy="18" r="5" fill="#0d6774"/>
-                  <path d="M44 26C40.13 26 36 27.64 36 31V34H52V31C52 27.64 47.87 26 44 26Z" fill="#0d6774" opacity="0.6"/>
-                  <rect x="12" y="38" width="40" height="4" rx="2" fill="#0d6774" opacity="0.3"/>
-                  <path d="M16 44H48V48C48 49.1 47.1 50 46 50H18C16.9 50 16 49.1 16 48V44Z" fill="#0d6774" opacity="0.5"/>
-                </svg>
-              </div>
-              <div class="user-badge">For Recruiters</div>
-              <h3>Find Top Talent Fast</h3>
-              <p>Access pre-qualified candidates ranked by fit. Reduce hiring time from months to weeks with our intelligent matching algorithm.</p>
-              <a routerLink="/register" class="btn-primary">Post Your First Job
               <svg class="feature-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="8" cy="8" r="2.5" fill="#bb3e2d"/>
                 <circle cx="24" cy="8" r="2.5" fill="#0d6774"/>
@@ -295,13 +249,13 @@
               <div class="user-badge">Applicants</div>
               <h3>Accelerate your career.</h3>
               <p>Stop sending resumes into the void. Get matched with roles where you'll actually thrive.</p>
-              <a routerLink="/register" class="btn-text">Create Profile</a>
+              <a routerLink="/register" class="btn-text">Create Profile &rarr;</a>
             </div>
             <div class="user-card recruiter">
               <div class="user-badge">Recruiters</div>
               <h3>Hire with precision.</h3>
               <p>Access a curated pool of talent ranked by match score and technical proficiency.</p>
-              <a routerLink="/register" class="btn-text">Start Hiring</a>
+              <a routerLink="/register" class="btn-text">Start Hiring &rarr;</a>
             </div>
           </div>
         </div>
