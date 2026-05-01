@@ -11,6 +11,10 @@
     <nav class="main-nav" *ngIf="isLoggedIn">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
       <a routerLink="/jobs" routerLinkActive="active" class="nav-item">Jobs</a>
+      <a routerLink="/messages" routerLinkActive="active" class="nav-item msg-link">
+        Messages
+        <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </a>
       <a routerLink="/about" routerLinkActive="active" class="nav-item">About</a>
       <a routerLink="/profile" routerLinkActive="active" class="nav-item">Profile</a>
     </nav>

@@ -72,6 +72,11 @@ export const routes: Routes = [
     data: { roles: [UserRole.JOB_SEEKER] }
   },
   {
+    path: 'messages',
+    loadComponent: () => import('./messages/messages.component').then(m => m.MessagesComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'admin',
     loadComponent: () => import('./admin/admin-shell.component').then(m => m.AdminShellComponent),
     canActivate: [RoleGuard],

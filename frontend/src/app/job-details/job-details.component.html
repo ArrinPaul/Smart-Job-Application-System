@@ -233,9 +233,14 @@
             <h3>Career Assistant</h3>
           </div>
           <p>Have questions about this specific role? Our AI assistant can help you understand the requirements, company culture, and application process.</p>
-          <button type="button" class="side-button btn-ai" (click)="chatWithAI()">
-            Ask AI about this job
-          </button>
+          <div class="ai-actions">
+            <button type="button" class="side-button btn-ai" (click)="chatWithAI()">
+              Ask AI
+            </button>
+            <button type="button" class="side-button btn-message" (click)="contactRecruiter()">
+              Message Recruiter
+            </button>
+          </div>
         </section>
       </aside>
     </section>

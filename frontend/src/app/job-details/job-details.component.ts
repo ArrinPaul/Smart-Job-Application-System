@@ -67,6 +67,25 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  contactRecruiter(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.toastService.showWarning('Please login to message the recruiter.');
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    if (this.job?.postedBy?.id) {
+      this.router.navigate(['/messages'], { 
+        queryParams: { 
+          userId: this.job.postedBy.id,
+          jobId: this.job.id
+        } 
+      });
+    } else {
+      this.toastService.showInfo('Recruiter information not available for direct messaging.');
+    }
+  }
+
   fetchJobDetails(slug: string): void {
     this.loading = true;
     this.error = '';

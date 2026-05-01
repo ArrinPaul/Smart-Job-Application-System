@@ -105,10 +105,33 @@
   background: rgba(187, 62, 45, 0.08);
 }
 
-.nav-item.active {
-  color: #fff;
-  background: linear-gradient(135deg, var(--brand-primary), #d96d30);
-  box-shadow: 0 8px 18px rgba(187, 62, 45, 0.24);
+.msg-link {
+  position: relative;
+}
+
+.unread-badge {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  background: var(--brand-primary);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--header-bg);
+  box-shadow: 0 2px 6px rgba(187, 62, 45, 0.4);
+}
+
+.nav-item.active .unread-badge {
+  border-color: var(--brand-primary);
+  background: white;
+  color: var(--brand-primary);
 }
 
 .header-actions {

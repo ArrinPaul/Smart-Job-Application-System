@@ -485,6 +485,12 @@
   letter-spacing: 1px;
 }
 
+.ai-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
 .btn-ai {
   background: var(--accent) !important;
   color: white !important;
@@ -492,9 +498,16 @@
   border: none !important;
 }
 
-.btn-ai:hover {
+.btn-message {
+  background: #fff !important;
+  color: var(--brand-strong) !important;
+  border: 1px solid var(--brand) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-ai:hover, .btn-message:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(13, 103, 116, 0.35);
+  filter: brightness(1.05);
 }
 
 .compact-score {
