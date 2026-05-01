@@ -3,7 +3,13 @@
     <div class="nav-container">
       <div class="logo" routerLink="/">
         <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="8" fill="#bb3e2d"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#bb3e2d;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#962f21;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
           <path d="M10 16L14 20L22 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <h1>SmartJob<span>Portal</span></h1>
@@ -23,6 +29,7 @@
   <main>
     <!-- Hero Section -->
     <section class="hero-section">
+      <div class="hero-glow"></div>
       <div class="hero-container">
         <div class="hero-content">
           <div class="hero-badge">
@@ -30,12 +37,12 @@
             Powered by AI Matching
           </div>
           <h1 class="hero-title">
-            Your Next Career Move,
+            Where Skills Meet
             <br>
-            <span class="highlight">Defined by Data.</span>
+            <span class="highlight">Opportunity</span>
           </h1>
           <p class="hero-subtitle">
-            SmartJobPortal uses advanced neural matching to connect your unique skills with opportunities that actually matter. Stop searching, start discovering your perfect fit.
+            Our advanced AI matches your unique expertise with roles where you'll excel. Stop endless scrolling—find your perfect career fit in minutes, not months.
           </p>
           
           <div class="hero-cta">
@@ -43,18 +50,77 @@
             <a routerLink="/register" class="btn-secondary lg">Post a Position</a>
           </div>
 
+          <div class="hero-visual">
+            <svg viewBox="0 0 600 300" class="hero-illustration">
+              <defs>
+                <linearGradient id="heroGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#bb3e2d;stop-opacity:0.1" />
+                  <stop offset="100%" style="stop-color:#0d6774;stop-opacity:0.1" />
+                </linearGradient>
+                <linearGradient id="heroGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#bb3e2d;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#962f21;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <!-- Background circles -->
+              <circle cx="100" cy="80" r="60" fill="url(#heroGrad1)" class="float-slow"/>
+              <circle cx="500" cy="200" r="80" fill="url(#heroGrad1)" class="float-fast"/>
+              
+              <!-- Left: Resume/Profile -->
+              <g class="slide-in-left">
+                <rect x="30" y="60" width="140" height="180" rx="12" fill="white" stroke="#d8c8ae" stroke-width="2"/>
+                <rect x="40" y="75" width="120" height="20" rx="4" fill="#bb3e2d" opacity="0.3"/>
+                <rect x="40" y="105" width="120" height="8" rx="2" fill="#d8c8ae"/>
+                <rect x="40" y="120" width="120" height="8" rx="2" fill="#d8c8ae"/>
+                <rect x="40" y="135" width="80" height="8" rx="2" fill="#d8c8ae"/>
+                <rect x="40" y="155" width="120" height="8" rx="2" fill="#e8d8c8"/>
+                <rect x="40" y="170" width="120" height="8" rx="2" fill="#e8d8c8"/>
+                <rect x="40" y="185" width="100" height="8" rx="2" fill="#e8d8c8"/>
+              </g>
+              
+              <!-- Center: AI/Matching animation -->
+              <g class="pulse-center">
+                <circle cx="300" cy="150" r="40" fill="none" stroke="url(#heroGrad2)" stroke-width="2" opacity="0.6"/>
+                <circle cx="300" cy="150" r="32" fill="#bb3e2d" opacity="0.15"/>
+                <text x="300" y="160" text-anchor="middle" font-size="24" fill="#bb3e2d" font-weight="bold">AI</text>
+              </g>
+              
+              <!-- Right: Job matches -->
+              <g class="slide-in-right">
+                <rect x="430" y="60" width="140" height="50" rx="8" fill="#bb3e2d" opacity="0.1" stroke="#bb3e2d" stroke-width="1"/>
+                <text x="445" y="82" font-size="13" fill="#962f21" font-weight="600">Senior Developer</text>
+                <text x="445" y="97" font-size="11" fill="#655f51">Tech • $120k • Remote</text>
+                
+                <rect x="430" y="130" width="140" height="50" rx="8" fill="#0d6774" opacity="0.1" stroke="#0d6774" stroke-width="1"/>
+                <text x="445" y="152" font-size="13" fill="#0d6774" font-weight="600">Product Manager</text>
+                <text x="445" y="167" font-size="11" fill="#655f51">Finance • $110k • NYC</text>
+                
+                <rect x="430" y="200" width="140" height="50" rx="8" fill="#bb3e2d" opacity="0.1" stroke="#bb3e2d" stroke-width="1"/>
+                <text x="445" y="222" font-size="13" fill="#962f21" font-weight="600">UX Designer</text>
+                <text x="445" y="237" font-size="11" fill="#655f51">Design • $95k • Austin</text>
+              </g>
+              
+              <!-- Connection lines with arrows -->
+              <line x1="170" y1="150" x2="260" y2="150" stroke="#bb3e2d" stroke-width="2" opacity="0.4"/>
+              <polygon points="262,150 255,145 257,150 255,155" fill="#bb3e2d" opacity="0.6"/>
+              
+              <line x1="340" y1="150" x2="430" y2="120" stroke="#0d6774" stroke-width="2" opacity="0.4" stroke-dasharray="5,5"/>
+              <polygon points="430,118 433,126 435,120" fill="#0d6774" opacity="0.6"/>
+            </svg>
+          </div>
+
           <div class="hero-stats">
             <div class="stat-item">
               <span class="stat-num">{{ stats.totalJobs > 1000 ? (stats.totalJobs / 1000 | number:'1.1-1') + 'k' : stats.totalJobs }}+</span>
-              <span class="stat-label">Verified Roles</span>
+              <span class="stat-label">Active Roles</span>
             </div>
             <div class="stat-item">
               <span class="stat-num">{{ stats.matchRate }}%</span>
-              <span class="stat-label">Match Rate</span>
+              <span class="stat-label">Match Accuracy</span>
             </div>
             <div class="stat-item">
               <span class="stat-num">{{ stats.matchingSpeedMs }}ms</span>
-              <span class="stat-label">Matching Speed</span>
+              <span class="stat-label">Match Time</span>
             </div>
           </div>
         </div>
@@ -63,29 +129,53 @@
 
     <!-- Process Section -->
     <section class="process-section" id="process">
+      <div class="process-bg"></div>
       <div class="section-container">
         <div class="section-header">
-          <h2 class="section-title">Seamless Experience</h2>
-          <p class="section-subtitle">A sophisticated workflow designed for modern professionals</p>
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-subtitle">Three simple steps to your dream career</p>
         </div>
         
         <div class="process-grid">
           <div class="process-card">
+            <div class="process-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="16" fill="#bb3e2d" opacity="0.1"/>
+                <path d="M32 18C27.03 18 23 22.03 23 27C23 31.97 27.03 36 32 36C36.97 36 41 31.97 41 27C41 22.03 36.97 18 32 18ZM32 33C28.68 33 26 30.32 26 27C26 23.68 28.68 21 32 21C35.32 21 38 23.68 38 27C38 30.32 35.32 33 32 33Z" fill="#bb3e2d"/>
+                <path d="M32 38C26.48 38 18 40.68 18 46V48C18 49.1 18.9 50 20 50H44C45.1 50 46 49.1 46 48V46C46 40.68 37.52 38 32 38ZM44 48H20V46C20 42 28.68 40 32 40C35.32 40 44 42 44 46V48Z" fill="#bb3e2d"/>
+              </svg>
+            </div>
             <div class="process-num">01</div>
-            <h3>Intelligent Profile</h3>
-            <p>Upload your resume and our AI extracts your core DNA -- skills, experience, and potential.</p>
+            <h3>Build Your Profile</h3>
+            <p>Upload your resume or manually build your profile. Our AI analyzes your skills, experience, and career aspirations instantly.</p>
           </div>
           
           <div class="process-card">
+            <div class="process-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="16" fill="#0d6774" opacity="0.1"/>
+                <path d="M32 18C24.27 18 18 24.27 18 32C18 39.73 24.27 46 32 46C39.73 46 46 39.73 46 32C46 24.27 39.73 18 32 18ZM32 43C25.92 43 21 38.08 21 32C21 25.92 25.92 21 32 21C38.08 21 43 25.92 43 32C43 38.08 38.08 43 32 43Z" fill="#0d6774"/>
+                <path d="M32.5 26H31V33L37.2 37.2L38.2 36.1L32.5 32.4V26Z" fill="#0d6774"/>
+              </svg>
+            </div>
             <div class="process-num">02</div>
-            <h3>Neural Matching</h3>
-            <p>Our engine calculates multidimensional match scores between you and thousands of live roles.</p>
+            <h3>Smart Matching</h3>
+            <p>Our neural engine analyzes millions of data points to find roles that truly align with your goals and capabilities.</p>
           </div>
           
           <div class="process-card">
+            <div class="process-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="16" fill="#bb3e2d" opacity="0.1"/>
+                <path d="M44.5 18H19.5C18.1 18 17 19.1 17 20.5V43.5C17 44.9 18.1 46 19.5 46H44.5C45.9 46 47 44.9 47 43.5V20.5C47 19.1 45.9 18 44.5 18ZM44.5 43.5H19.5V20.5H44.5V43.5Z" fill="#bb3e2d"/>
+                <path d="M22 30H34V32H22V30Z" fill="#bb3e2d"/>
+                <path d="M22 35H42V37H22V35Z" fill="#bb3e2d"/>
+                <path d="M22 25H42V27H22V25Z" fill="#bb3e2d"/>
+              </svg>
+            </div>
             <div class="process-num">03</div>
-            <h3>Direct Impact</h3>
-            <p>Skip the noise. Get direct access to hiring managers and secure your next role faster.</p>
+            <h3>Get Hired Fast</h3>
+            <p>Connect directly with hiring managers who are actively interested in your profile. Land interviews in days, not months.</p>
           </div>
         </div>
       </div>
@@ -95,39 +185,102 @@
     <section class="features-section" id="features">
       <div class="section-container">
         <div class="section-header">
-          <h2 class="section-title">Built for Performance</h2>
-          <p class="section-subtitle">Cutting-edge tools to accelerate your hiring journey</p>
+          <h2 class="section-title">Powerful Features</h2>
+          <p class="section-subtitle">Everything you need to succeed</p>
         </div>
         
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <div class="feature-icon-wrap lightning">
+              <svg class="feature-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 2L8 14h7l-3 16 14-18h-7L18 2Z" fill="#bb3e2d"/>
               </svg>
             </div>
-            <h3>AI-Ranked Candidates</h3>
-            <p>Recruiters see the best matches first, saving hours of manual screening and reducing bias.</p>
+            <h3>AI-Powered Matching</h3>
+            <p>Our neural engine analyzes skills and culture fit to find your ideal roles within seconds.</p>
           </div>
           
           <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <div class="feature-icon-wrap radar">
+              <svg class="feature-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="2" fill="#0d6774"/>
+                <circle cx="16" cy="16" r="6" fill="none" stroke="#0d6774" stroke-width="1.5"/>
+                <circle cx="16" cy="16" r="10" fill="none" stroke="#0d6774" stroke-width="1" opacity="0.5"/>
+                <circle cx="16" cy="16" r="14" fill="none" stroke="#0d6774" stroke-width="1" opacity="0.3"/>
               </svg>
             </div>
-            <h3>Real-Time Insights</h3>
-            <p>Track your application status in real-time. Know exactly when a recruiter views your profile.</p>
+            <h3>Real-Time Tracking</h3>
+            <p>Get instant notifications when recruiters view your profile or reach out with opportunities.</p>
           </div>
           
           <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <div class="feature-icon-wrap shield">
+              <svg class="feature-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2L4 8V15C4 24 16 30 16 30C16 30 28 24 28 15V8L16 2Z" stroke="#bb3e2d" stroke-width="1.5" fill="none"/>
+                <path d="M12 16L14 18L20 12" stroke="#bb3e2d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3>Secure Infrastructure</h3>
-            <p>Your data is your own. We use enterprise-grade encryption to ensure your privacy at every step.</p>
+            <h3>Enterprise Security</h3>
+            <p>Bank-level encryption protects your data. Your privacy is never compromised.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap chart">
+              <svg csection-header">
+          <h2 class="section-title">Built for Everyone</h2>
+          <p class="section-subtitle">Whether you're seeking your next opportunity or your next team member</p>
+        </div>
+        <div class="users-layout">
+          <div class="user-group">
+            <div class="user-card applicant">
+              <div class="user-icon">
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M32 18C27.03 18 23 22.03 23 27C23 31.97 27.03 36 32 36C36.97 36 41 31.97 41 27C41 22.03 36.97 18 32 18ZM32 33C28.68 33 26 30.32 26 27C26 23.68 28.68 21 32 21C35.32 21 38 23.68 38 27C38 30.32 35.32 33 32 33Z" fill="#bb3e2d"/>
+                  <path d="M32 38C26.48 38 18 40.68 18 46V48C18 49.1 18.9 50 20 50H44C45.1 50 46 49.1 46 48V46C46 40.68 37.52 38 32 38Z" fill="#bb3e2d" opacity="0.6"/>
+                </svg>
+              </div>
+              <div class="user-badge">For Job Seekers</div>
+              <h3>Land Your Dream Role</h3>
+              <p>Intelligent matching connects you with positions perfectly aligned with your skills and career goals. Say goodbye to endless applications.</p>
+              <a routerLink="/register" class="btn-primary">Create Free Profile</a>
+            </div>
+            <div class="user-card recruiter">
+              <div class="user-icon">
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="20" cy="18" r="5" fill="#0d6774"/>
+                  <path d="M20 26C16.13 26 12 27.64 12 31V34H28V31C28 27.64 23.87 26 20 26Z" fill="#0d6774" opacity="0.6"/>
+                  <circle cx="44" cy="18" r="5" fill="#0d6774"/>
+                  <path d="M44 26C40.13 26 36 27.64 36 31V34H52V31C52 27.64 47.87 26 44 26Z" fill="#0d6774" opacity="0.6"/>
+                  <rect x="12" y="38" width="40" height="4" rx="2" fill="#0d6774" opacity="0.3"/>
+                  <path d="M16 44H48V48C48 49.1 47.1 50 46 50H18C16.9 50 16 49.1 16 48V44Z" fill="#0d6774" opacity="0.5"/>
+                </svg>
+              </div>
+              <div class="user-badge">For Recruiters</div>
+              <h3>Find Top Talent Fast</h3>
+              <p>Access pre-qualified candidates ranked by fit. Reduce hiring time from months to weeks with our intelligent matching algorithm.</p>
+              <a routerLink="/register" class="btn-primary">Post Your First Job
+              <svg class="feature-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="2.5" fill="#bb3e2d"/>
+                <circle cx="24" cy="8" r="2.5" fill="#0d6774"/>
+                <circle cx="16" cy="20" r="2.5" fill="#bb3e2d"/>
+                <line x1="10" y1="9" x2="22" y2="7" stroke="#0d6774" stroke-width="1.5"/>
+                <line x1="10" y1="10" x2="15" y2="18" stroke="#bb3e2d" stroke-width="1.5"/>
+                <line x1="22" y1="10" x2="17" y2="18" stroke="#bb3e2d" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <h3>Smart Network</h3>
+            <p>Connect with professionals in your field and discover hidden opportunities.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap zap">
+              <svg class="feature-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2L10 12H16L6 30L16 18H10L16 2Z" fill="#bb3e2d" opacity="0.3"/>
+                <path d="M16 2L10 12H16L6 30L16 18H10L16 2Z" stroke="#bb3e2d" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <h3>Instant Deployment</h3>
+            <p>Get matched and apply to multiple roles with a single profile. Zero friction hiring.</p>
           </div>
         </div>
       </div>
