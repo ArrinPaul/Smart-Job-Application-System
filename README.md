@@ -94,10 +94,45 @@ graph LR
 
 ---
 
+## 💬 AI Career Assistant
+The portal features an integrated **Conversational AI Assistant** that acts as your personal career coach.
+
+<p align="center">
+  <img src="frontend/src/assets/dashboard/chatbot-spotlight.svg" width="600" alt="Career Assistant">
+</p>
+
+### Key Conversations:
+- **"How do I fit this role?"**: Get a breakdown of your strengths and skill gaps for any specific job.
+- **"Prepare me for the interview"**: Generate a mock interview script with technical and behavioral questions tailored to the job description.
+- **"Improve my profile"**: Receive actionable advice on how to optimize your resume for higher match scores.
+- **"Find me remote roles"**: Conversational search across thousands of listings using natural language.
+
+---
+
+## ✉️ Direct Messaging (Recruiter ↔ Seeker)
+Bridge the communication gap with high-context direct messaging. No more "black hole" applications.
+
+<p align="center">
+  <img src="frontend/src/assets/about/direct-messaging.svg" width="600" alt="Direct Messaging">
+</p>
+
+### Messaging Features:
+- **Job-Aware Context**: Conversations are automatically linked to specific job listings, showing both parties exactly which role is being discussed.
+- **Real-Time Interaction**: Instant message delivery and typing indicators for a modern, fluid chat experience.
+- **Document Sharing**: Seamlessly share resumes, portfolios, and offer letters directly within the chat.
+- **Presence Status**: See when recruiters are online and actively reviewing applications.
+
+---
+
 ## 🧠 AI Ecosystem Deep Dive
 
 ### 1. Recommendation & Scoring Engine
 The recommendation engine provides highly personalized job discovery through a high-performance neural architecture.
+
+<p align="center">
+  <img src="frontend/src/assets/about/job-discovery.svg" width="150" alt="Recommendation Engine">
+</p>
+
 - **How it works**: The system maps candidate skills, job title history, and location preferences against active job listings using high-dimensional **Vector Embeddings**.
 - **Scoring System**: Each job is assigned a **Match Score (0-100%)**. The score is derived by calculating:
     - **Skill Alignment**: Semantic similarity between user-profile tags and job-description keywords (Vector Similarity).
@@ -105,19 +140,38 @@ The recommendation engine provides highly personalized job discovery through a h
     - **Market Benchmarking**: Scores your profile against current industry demand and "Match Velocity".
 - **Job Insights**: Users see exactly *why* a job is recommended via specific "Match Tags" and **Company Health Insights** (sentiment analysis from aggregated market data).
 
-### 2. AI-Powered Chatbot & Assistant
-The Chatbot serves as a 24/7 recruitment assistant and interface layer.
-- **How it works**: The backend utilizes LLMs (configured for Groq or HuggingFace) to process natural language queries.
-- **Capabilities**:
-    - **Interview Prep**: Get role-specific questions and instant feedback tailored to your profile and the job description.
-    - **Direct Q&A**: Ask anything about a job listing or your application status.
-    - **Smart Navigation**: Command the portal through conversational text or voice.
+### 2. AI-Powered Career Chatbot
+The Chatbot serves as a 24/7 recruitment assistant and interface layer, bridging the gap between static listings and dynamic career growth.
+- **Provider Fallback Logic**: To ensure 100% availability, the assistant utilizes a triple-provider fallback system:
+    1. **Groq (Llama 3.1 70B)**: Primary provider for lightning-fast, high-reasoning responses.
+    2. **Hugging Face (Phi-3)**: Secondary fallback for reliable text generation.
+    3. **OpenRouter (Llama 3.2)**: Tertiary safety layer.
+- **Context Awareness**: The chat is fully aware of the job you are currently viewing and your own profile, allowing for deep, contextual advice without re-explaining your background.
+- **Smart Formatting**: Responses are rendered with full Markdown support, including tables for comparisons and bulleted action plans.
 
 ### 3. Intelligent CV/Resume Analyzer
 Reduces user effort by automating profile creation with sub-second precision.
+
+<p align="center">
+  <img src="frontend/src/assets/about/applicant-support.svg" width="150" alt="CV Analyzer">
+</p>
+
 - **Data Extraction**: Uses **Apache Tika** for deep content extraction from .pdf and .docx.
 - **Contextual Parsing**: Extracts intent and experience depth beyond simple keyword matching.
 - **Gap Identification**: Provides real-time feedback on missing skills required for your target roles.
+
+---
+
+## 🏢 Recruiter Ecosystem
+Empowering hiring teams with structured data and efficient workflows.
+
+<p align="center">
+  <img src="frontend/src/assets/about/job-posting.svg" width="150" alt="Recruiter Tools">
+</p>
+
+- **Structured Job Ingestion**: Move beyond "text-only" descriptions. Every job posted captures precise requirements for the matching engine.
+- **Applicant Tracking (ATS)**: Manage candidate pipelines from initial message to hire.
+- **Direct Reach-out**: Initiate conversations with top-matched candidates before they even apply.
 
 ---
 

@@ -130,17 +130,26 @@ public class SmartInsightsService {
         insights.put("improvementAreas", missingSkills.stream().limit(5).collect(Collectors.toList()));
         
         // AI powered insights
-        String aiPrompt = String.format(
-            "Analyze this job match and provide 3-4 professional, actionable career tips.\n" +
-            "Job Role: %s at %s\n" +
-            "Match Score: %d/100 (%s)\n" +
-            "Candidate's Matching Skills: %s\n" +
-            "Key Missing Skills: %s\n" +
-            "Advice should focus on how to bridge the gap and stand out.",
-            job.getTitle(), job.getCompanyName(), score, getMatchLevel(score),
-            String.join(", ", matchingSkills), String.join(", ", missingSkills)
-        );
-        String aiRecommendations = aiService.generateContent(aiPrompt);
+        String aiRecommendations;
+        try {
+            String aiPrompt = String.format(
+                "Analyze this job match and provide 3-4 professional, actionable career tips.\n" +
+                "Job Role: %s at %s\n" +
+                "Match Score: %d/100 (%s)\n" +
+                "Candidate's Matching Skills: %s\n" +
+                "Key Missing Skills: %s\n" +
+                "Advice should focus on how to bridge the gap and stand out.",
+                job.getTitle(), job.getCompanyName(), score, getMatchLevel(score),
+                String.join(", ", matchingSkills), String.join(", ", missingSkills)
+            );
+            aiRecommendations = aiService.generateContent(aiPrompt);
+        } catch (Exception e) {
+            logger.error("AI Insight generation failed: {}", e.getMessage());
+            aiRecommendations = "To improve your chances, focus on highlighting your expertise in " + 
+                              (matchingSkills.isEmpty() ? "your core skills" : matchingSkills.get(0)) + 
+                              " and consider gaining proficiency in " + 
+                              (missingSkills.isEmpty() ? "emerging industry tools" : missingSkills.get(0)) + ".";
+        }
         insights.put("aiInsights", aiRecommendations);
         
         insights.put("recommendations", generateRecommendations(score, missingSkills, job, profile));

@@ -153,18 +153,23 @@ public class JobRecommendationService {
     }
 
     private String generateAIExplanation(Job job, JobSeekerProfile profile, List<String> matchReasons) {
-        String prompt = String.format(
-            "In 2 short sentences, explain why this job is a GREAT match for this candidate.\n" +
-            "Job: %s at %s\n" +
-            "Candidate Skills: %s\n" +
-            "Experience: %d years\n" +
-            "Key Strengths: %s",
-            job.getJobTitle(), job.getCompanyName(), 
-            profile != null ? profile.getSkills() : "N/A",
-            profile != null ? profile.getExperienceYears() : 0,
-            String.join(", ", matchReasons)
-        );
-        return aiService.generateContent(prompt);
+        try {
+            String prompt = String.format(
+                "In 2 short sentences, explain why this job is a GREAT match for this candidate.\n" +
+                "Job: %s at %s\n" +
+                "Candidate Skills: %s\n" +
+                "Experience: %d years\n" +
+                "Key Strengths: %s",
+                job.getTitle(), job.getCompanyName(), 
+                profile != null ? profile.getSkills() : "N/A",
+                profile != null ? profile.getExperienceYears() : 0,
+                String.join(", ", matchReasons)
+            );
+            return aiService.generateContent(prompt);
+        } catch (Exception e) {
+            logger.error("AI Explanation generation failed: {}", e.getMessage());
+            return "This role matches your background in " + (profile != null ? profile.getSkills() : "your core areas") + ".";
+        }
     }
 
     /**

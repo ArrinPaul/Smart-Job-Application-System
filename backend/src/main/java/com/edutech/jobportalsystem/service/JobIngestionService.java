@@ -144,6 +144,12 @@ public class JobIngestionService {
                 job.setJobType(jobType != null ? jobType : job.getJobType());
                 job.setCompanyName(companyName != null ? companyName : job.getCompanyName());
                 job.setIsActive(true);
+                
+                // Ensure slug exists
+                if (job.getSlug() == null || job.getSlug().isBlank()) {
+                    job.setSlug(generateIngestionSlug(title, companyName));
+                }
+                
                 jobsToSave.add(job);
                 updatedCount++;
             } else {
@@ -157,13 +163,10 @@ public class JobIngestionService {
                 job.setRequiredSkills(requiredSkills);
                 job.setJobType(jobType);
                 job.setPostedBy(recruiter);
+                job.setIsActive(true);
 
                 // Generate slug
-                String baseSlug = title.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
-                if (baseSlug.isEmpty()) baseSlug = "job";
-                String uniqueSlug = baseSlug + "-" + (long)(Math.random() * 900000 + 100000);
-                job.setSlug(uniqueSlug);
-                seenSlugs.add(uniqueSlug);
+                job.setSlug(generateIngestionSlug(title, companyName));
                 jobsToSave.add(job);
                 createdCount++;
             }
@@ -178,6 +181,16 @@ public class JobIngestionService {
         result.put("updated", updatedCount);
         result.put("jobs", savedJobs);
         return result;
+    }
+
+    private String generateIngestionSlug(String title, String company) {
+        String base = (title + "-" + (company != null ? company : "company")).toLowerCase();
+        String slug = base.replaceAll("[^a-z0-9\\s]", "")
+                         .replaceAll("\\s+", "-")
+                         .replaceAll("-+", "-")
+                         .replaceAll("^-|-$", "");
+        if (slug.isEmpty()) slug = "job";
+        return slug + "-" + (long)(Math.random() * 900000 + 100000);
     }
 
     /**

@@ -41,7 +41,7 @@ import { environment } from '../../environments/environment';
               <div class="contact-name-row">
                 <span class="name">{{ contact.fullName || contact.username }}</span>
               </div>
-              <span class="role-tag">{{ contact.role?.replace('_', ' ') || 'Member' }}</span>
+              <span class="role-tag">{{ contact.role.replace('_', ' ') || 'Member' }}</span>
             </div>
           </div>
 
@@ -58,7 +58,7 @@ import { environment } from '../../environments/environment';
               </div>
               <div class="contact-details">
                 <span class="name">{{ user.fullName || user.username }}</span>
-                <span class="role-tag">{{ user.role?.replace('_', ' ') }}</span>
+                <span class="role-tag">{{ user.role.replace('_', ' ') }}</span>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ import { environment } from '../../environments/environment';
               </div>
               <div class="header-info">
                 <h4>{{ selectedContact.fullName || selectedContact.username }}</h4>
-                <p>{{ selectedContact.role?.replace('_', ' ') }}</p>
+                <p>{{ selectedContact.role.replace('_', ' ') }}</p>
               </div>
             </div>
             <div class="header-search">

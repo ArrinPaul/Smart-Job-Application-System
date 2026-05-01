@@ -40,6 +40,7 @@ public class JobService {
         job.setDescription(sanitize(job.getDescription()));
         job.setLocation(sanitize(job.getLocation()));
         job.setPostedBy(recruiter);
+        job.setIsActive(true); // Ensure new jobs are active
 
         // Generate slug if not present
         if (job.getSlug() == null || job.getSlug().isBlank()) {
@@ -47,6 +48,23 @@ public class JobService {
         }
 
         return jobRepository.save(job);
+    }
+
+    @jakarta.annotation.PostConstruct
+    @Transactional
+    public void backfillSlugs() {
+        List<Job> jobsWithNullSlugs = jobRepository.findAll().stream()
+                .filter(j -> j.getSlug() == null || j.getSlug().isBlank())
+                .toList();
+        
+        if (!jobsWithNullSlugs.isEmpty()) {
+            logger.info("Backfilling slugs for {} jobs...", jobsWithNullSlugs.size());
+            for (Job job : jobsWithNullSlugs) {
+                job.setSlug(generateSlug(job.getTitle(), job.getCompanyName()));
+                jobRepository.save(job);
+            }
+            logger.info("Slug backfill completed.");
+        }
     }
 
     public Job updateJob(Long jobId, Job updatedJob, String recruiterUsername) {
