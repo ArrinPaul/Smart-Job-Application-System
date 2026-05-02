@@ -24,19 +24,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private messageService: MessageService
   ) {
-    // Hide header on landing/auth/onboarding pages
+    // Hide header on landing/auth/onboarding/admin pages
     this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      startWith(new NavigationEnd(0, this.router.url, this.router.url))
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
       const hiddenPaths = [
-        '/', '/landing', '/login', '/register', '/onboarding'
+        '/', '/landing', '/login', '/register', '/onboarding', '/admin'
       ];
-      this.isVisible = !hiddenPaths.some(path => 
-        url === path || 
-        url.startsWith(path + '/') || 
-        url.startsWith(path + '?')
-      );
+      
+      this.isVisible = !hiddenPaths.some(path => {
+        // Remove query params and fragments for base path comparison
+        const baseUrl = url.split('?')[0].split('#')[0];
+        
+        if (path === '/') return baseUrl === '/' || baseUrl === '';
+        return baseUrl === path || baseUrl.startsWith(path + '/');
+      });
     });
   }
 

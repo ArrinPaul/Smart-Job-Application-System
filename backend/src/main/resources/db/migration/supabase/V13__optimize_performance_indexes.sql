@@ -1,4 +1,4 @@
--- Optimize performance for Smart Job Portal
+-- Optimize performance for Vecta
 -- Add indexes for frequently searched and filtered columns
 
 -- Jobs table optimizations

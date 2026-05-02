@@ -1,4 +1,4 @@
--- Smart Job Portal initial schema for Supabase (PostgreSQL)
+-- Vecta initial schema for Supabase (PostgreSQL)
 -- Generated from backend JPA entities.
 
 create table if not exists users (

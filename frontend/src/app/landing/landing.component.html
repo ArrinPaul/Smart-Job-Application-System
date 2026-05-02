@@ -241,9 +241,8 @@
 
     <!-- Platform Ecosystem (Showcase Section) -->
     <section class="showcase-section alt-bg">
-      <div class="section-header">
-        <div class="ai-tag" style="margin-bottom: 16px;">Platform Ecosystem</div>
-        <h2 class="section-title">One Hub. <span class="highlight">Three specialized modules.</span></h2>
+      <div class="section-header left-aligned">
+        <h2 class="section-title">One Hub. <br><span class="highlight">Three specialized modules.</span></h2>
       </div>
 
       <div class="showcase-grid">
@@ -335,9 +334,8 @@
 
     <!-- Intelligence Layer (Horizontal Showcase) -->
     <section class="showcase-section">
-      <div class="section-header">
+      <div class="section-header left-aligned">
         <h2 class="section-title">The Intelligence Layer</h2>
-        <p class="section-subtitle">Beyond simple matching. Real-world career growth tools.</p>
       </div>
 
       <div class="showcase-horizontal">
@@ -422,76 +420,64 @@
         </div>
       </div>
     </section>
-    <!-- Consolidating Fragmented Sources (Refined Flow) -->
-    <section class="funnel-section">
-      <div class="section-header">
-        <div class="ai-tag" style="background: rgba(187, 62, 45, 0.1); color: var(--primary); margin-bottom: 24px;">Unified Talent Intelligence</div>
-        <h2 class="section-title">One Hub. <span class="highlight">Total Market Visibility.</span></h2>
-        <p class="section-subtitle">Consolidating fragmented data from every major job source into a single, intelligent matching layer.</p>
-      </div>
-      
-      <div class="funnel-container">
-        <!-- Left Side: Source Stack -->
-        <div class="source-stack">
-          <div class="source-node">LinkedIn</div>
-          <div class="source-node">Indeed</div>
-          <div class="source-node">Glassdoor</div>
-          <div class="source-node">RemoteOK</div>
-          <div class="source-node">HackerNews</div>
+    <!-- Total Market Visibility Section -->
+    <section class="visibility-section">
+      <div class="section-container">
+        <div class="section-header left-aligned">
+          <h2 class="section-title">One Hub. <br><span class="highlight">Total Market Visibility.</span></h2>
         </div>
-
-        <!-- Center: Connection Visual -->
-        <svg class="connection-visual" viewBox="0 0 800 400" preserveAspectRatio="none">
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="var(--border)" />
-            </marker>
-          </defs>
-          <!-- Connection Lines -->
-          <path class="flow-line" d="M160,60 C400,60 400,200 640,200" />
-          <path class="flow-line" d="M160,130 C400,130 400,200 640,200" />
-          <path class="flow-line" d="M160,200 L640,200" />
-          <path class="flow-line" d="M160,270 C400,270 400,200 640,200" />
-          <path class="flow-line" d="M160,340 C400,340 400,200 640,200" />
-
-          <!-- Animated Flow Dots -->
-          <circle class="flow-dot" r="4">
-            <animateMotion dur="3s" repeatCount="indefinite" path="M160,60 C400,60 400,200 640,200" />
-          </circle>
-          <circle class="flow-dot" r="4">
-            <animateMotion dur="2.5s" begin="0.5s" repeatCount="indefinite" path="M160,130 C400,130 400,200 640,200" />
-          </circle>
-          <circle class="flow-dot" r="4">
-            <animateMotion dur="4s" begin="1s" repeatCount="indefinite" path="M160,200 L640,200" />
-          </circle>
-          <circle class="flow-dot" r="4">
-            <animateMotion dur="3.5s" begin="0.2s" repeatCount="indefinite" path="M160,270 C400,270 400,200 640,200" />
-          </circle>
-          <circle class="flow-dot" r="4">
-            <animateMotion dur="2.8s" begin="0.8s" repeatCount="indefinite" path="M160,340 C400,340 400,200 640,200" />
-          </circle>
-        </svg>
         
-        <!-- Right Side: Our Platform -->
-        <div class="core-intelligence">
-          <div class="intelligence-glow"></div>
-          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 16L14 20L22 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Unified Hub</span>
-        </div>
-      </div>
+        <div class="integration-canvas">
+           <!-- Sources (Left) -->
+           <div class="source-column">
+              <div class="source-node-card">LinkedIn</div>
+              <div class="source-node-card">Indeed</div>
+              <div class="source-node-card">Glassdoor</div>
+              <div class="source-node-card">RemoteOK</div>
+              <div class="source-node-card">HackerNews</div>
+           </div>
 
-      <div style="margin-top: 60px; font-weight: 800; font-size: 0.9rem; color: var(--primary);">
-        Consolidating 5+ major sources into 1 verified skill graph.
+           <!-- Multi-line Flow (Middle) -->
+           <div class="flow-nexus">
+              <svg class="flow-nexus-svg" viewBox="0 0 400 400" preserveAspectRatio="none">
+                 <!-- 5 Dynamic Curved Paths -->
+                 <path id="flow1" class="nexus-path" d="M0,40 C200,40 200,200 400,200" />
+                 <path id="flow2" class="nexus-path" d="M0,120 C200,120 200,200 400,200" />
+                 <path id="flow3" class="nexus-path" d="M0,200 L400,200" />
+                 <path id="flow4" class="nexus-path" d="M0,280 C200,280 200,200 400,200" />
+                 <path id="flow5" class="nexus-path" d="M0,360 C200,360 200,200 400,200" />
+                 
+                 <!-- Individual Particles with varying speeds -->
+                 <circle class="nexus-particle" r="3"><animateMotion dur="3.2s" repeatCount="indefinite" path="M0,40 C200,40 200,200 400,200" /></circle>
+                 <circle class="nexus-particle" r="3"><animateMotion dur="2.8s" begin="0.7s" repeatCount="indefinite" path="M0,120 C200,120 200,200 400,200" /></circle>
+                 <circle class="nexus-particle" r="3"><animateMotion dur="4.5s" begin="1.2s" repeatCount="indefinite" path="M0,200 L400,200" /></circle>
+                 <circle class="nexus-particle" r="3"><animateMotion dur="3.8s" begin="0.3s" repeatCount="indefinite" path="M0,280 C200,280 200,200 400,200" /></circle>
+                 <circle class="nexus-particle" r="3"><animateMotion dur="2.5s" begin="1.0s" repeatCount="indefinite" path="M0,360 C200,360 200,200 400,200" /></circle>
+              </svg>
+           </div>
+
+           <!-- Vecta Core (Right) -->
+           <div class="vecta-nexus-core">
+              <div class="nexus-glow"></div>
+              <div class="core-icon-shell">
+                 <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 16L14 20L22 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                 </svg>
+              </div>
+              <span class="nexus-label">Vecta</span>
+           </div>
+        </div>
+
+        <div class="integration-meta">
+          Consolidating 5+ major sources into 1 verified skill graph.
+        </div>
       </div>
     </section>
 
     <!-- Contextual Comparison Visual -->
     <section class="comparison-section">
-      <div class="section-header">
+      <div class="section-header left-aligned">
         <h2 class="section-title">Vecta vs. <span class="highlight">Traditional</span></h2>
-        <p class="section-subtitle">The data proves it. Neural matching is simply faster.</p>
       </div>
 
       <div class="comparison-table">
@@ -521,7 +507,7 @@
     <!-- Final CTA (Beta) -->
     <section class="cta-section">
       <div class="cta-container">
-        <div class="ai-tag" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 24px;">Now in Public Beta</div>
+        <div class="beta-badge">Now in Public Beta</div>
         <h2>Join the Future of Work.</h2>
         <p>Get early access to our neural matching engine and accelerate your career growth today.</p>
         <div class="cta-actions">
