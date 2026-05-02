@@ -12,8 +12,8 @@
 	<groupId>com.edutech</groupId>
 	<artifactId>jobportalsystem</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>jobportalsystem</name>
-	<description>Smart Job Portal System</description>
+	<name>vecta</name>
+	<description>Vecta AI-Powered Job Matching System</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

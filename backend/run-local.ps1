@@ -1,4 +1,4 @@
-# Script to run Smart Job Portal backend locally.
+# Script to run Vecta backend locally.
 # Usage:
 #   .\run-local.ps1
 #   .\run-local.ps1 -Profile supabase
@@ -51,7 +51,7 @@ if (-not (Test-Path $mavenCmd)) {
     $mavenCmd = "mvn"
 }
 
-Write-Host "Starting Smart Job Portal Backend..." -ForegroundColor Cyan
+Write-Host "Starting Vecta Backend..." -ForegroundColor Cyan
 Write-Host "Active profile: $($env:SPRING_PROFILES_ACTIVE)" -ForegroundColor Yellow
 Write-Host "Target URL: http://localhost:8080/api" -ForegroundColor Yellow
 Write-Host "API Health: http://localhost:8080/api/actuator/health" -ForegroundColor Yellow

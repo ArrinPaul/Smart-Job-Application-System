@@ -89,7 +89,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
       ];
     } else {
       this.suggestions = [
-        'What is Smart Job Portal?',
+        'What is Vecta?',
         'How can I register?',
         'What features do you offer?',
         'Is it free to use?'
@@ -144,8 +144,8 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     } else {
       this.messages = [
         { 
-          text: 'Hello! I am the Smart Job Portal assistant. I can answer questions about our platform and features. Please **Log In** to access personalized job recommendations and career advice!', 
-          html: this.renderMarkdown('Hello! I am the Smart Job Portal assistant. I can answer questions about our platform and features. Please **Log In** to access personalized job recommendations and career advice!'),
+          text: 'Hello! I am the Vecta AI assistant. I can answer questions about our platform and features. Please **Log In** to access personalized job recommendations and career advice!', 
+          html: this.renderMarkdown('Hello! I am the Vecta AI assistant. I can answer questions about our platform and features. Please **Log In** to access personalized job recommendations and career advice!'),
           sender: 'bot', 
           timestamp: new Date() 
         }

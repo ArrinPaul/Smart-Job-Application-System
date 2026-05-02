@@ -377,7 +377,7 @@ export class OnboardingComponent implements OnInit {
         this.isLoading = false;
         if (!this.isEditMode) {
           this.authService.setOnboardingCompleted(true);
-          this.toastService.showSuccess('Onboarding complete! Welcome to SmartJobPortal!');
+          this.toastService.showSuccess('Onboarding complete! Welcome to Vecta!');
         } else {
           this.toastService.showSuccess('Profile updated successfully!');
         }

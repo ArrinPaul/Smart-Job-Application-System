@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "jobportal-frontend": {
+    "vecta": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/jobportal-frontend",
+            "outputPath": "dist/vecta",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -57,10 +57,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "jobportal-frontend:build:production"
+              "buildTarget": "vecta:build:production"
             },
             "development": {
-              "buildTarget": "jobportal-frontend:build:development"
+              "buildTarget": "vecta:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -68,7 +68,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "jobportal-frontend:build"
+            "buildTarget": "vecta:build"
           }
         },
         "test": {

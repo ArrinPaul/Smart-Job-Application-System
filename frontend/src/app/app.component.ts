@@ -13,5 +13,5 @@ import { ChatbotComponent } from './components/chatbot/chatbot.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'jobportal-frontend';
+  title = 'vecta';
 }

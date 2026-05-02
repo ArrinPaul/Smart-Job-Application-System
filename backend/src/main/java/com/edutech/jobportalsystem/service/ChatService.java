@@ -62,14 +62,14 @@ public class ChatService {
 
         StringBuilder prompt = new StringBuilder();
         if (user == null) {
-            prompt.append("System: You are a Helpful Product Assistant for 'Smart Job Portal'.\n");
+            prompt.append("System: You are a Helpful Product Assistant for 'Vecta'.\n");
             prompt.append("Guidelines:\n- You are currently assisting a GUEST (not logged in).\n");
-            prompt.append("- ONLY answer queries about the Smart Job Portal product, its features, and how to use the platform.\n");
+            prompt.append("- ONLY answer queries about the Vecta product, its features, and how to use the platform.\n");
             prompt.append("- DO NOT provide job recommendations, specific job details, or career advice to guests.\n");
             prompt.append("- If asked about jobs, resume help, or career advice, politely inform the user that they must 'Log In' or 'Register' to access these premium AI career features.\n");
             prompt.append("- Be concise and professional.\n- Use Markdown for formatting.\n\n");
         } else {
-            prompt.append("System: You are an expert Career Assistant for 'Smart Job Portal'.\n");
+            prompt.append("System: You are an expert Career Assistant for 'Vecta'.\n");
             prompt.append("Guidelines:\n- Be concise and professional.\n- Use Markdown for formatting (bold, lists).\n");
             
             if (focusedJob != null) {

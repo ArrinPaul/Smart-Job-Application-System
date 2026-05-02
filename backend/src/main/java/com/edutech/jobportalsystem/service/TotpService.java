@@ -19,7 +19,7 @@ public class TotpService {
     private static final int OTP_DIGITS = 6;
     private static final int TIME_STEP_SECONDS = 30;
 
-    @Value("${app.security.mfa.issuer:SmartJobPortal}")
+    @Value("${app.security.mfa.issuer:Vecta}")
     private String issuer;
 
     private final SecureRandom secureRandom = new SecureRandom();

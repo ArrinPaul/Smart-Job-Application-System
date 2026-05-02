@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/jobportal-frontend",
+  "outputDirectory": "dist/vecta",
   "framework": "angular",
   "redirects": [
     {

@@ -1,4 +1,4 @@
-# Smart Job Portal System
+# Vecta: AI-Powered Talent Ecosystem
 
 [![Project Status: Active](https://img.shields.io/badge/status-active-success.svg)](https://github.com/your-repo/smart-job-portal-system)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)

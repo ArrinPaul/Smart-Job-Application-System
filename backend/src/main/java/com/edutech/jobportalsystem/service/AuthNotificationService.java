@@ -25,14 +25,14 @@ public class AuthNotificationService {
     @Value("${app.security.email.enabled:false}")
     private boolean emailEnabled;
 
-    @Value("${app.security.email.from:no-reply@jobportal.local}")
+    @Value("${app.security.email.from:no-reply@vecta.ai}")
     private String fromEmail;
 
     public void sendEmailVerification(User user) {
         String link = frontendBaseUrl + "/verify-email?token=" + user.getEmailVerificationToken();
         sendEmail(
                 user.getEmail(),
-                "Verify your Smart Job Portal account",
+                "Verify your Vecta account",
                 "Hello " + user.getUsername() + ",\n\nPlease verify your email by opening this link:\n" + link +
                         "\n\nThis link expires in 24 hours."
         );
@@ -42,7 +42,7 @@ public class AuthNotificationService {
         String link = frontendBaseUrl + "/reset-password?token=" + user.getPasswordResetToken();
         sendEmail(
                 user.getEmail(),
-                "Reset your Smart Job Portal password",
+                "Reset your Vecta password",
                 "Hello " + user.getUsername() + ",\n\nA password reset was requested for your account. " +
                         "Use this link to set a new password:\n" + link +
                         "\n\nThis link expires in 30 minutes. If you did not request this, you can ignore this email."

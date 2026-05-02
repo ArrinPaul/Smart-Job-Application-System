@@ -14,10 +14,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'jobportal-frontend' title`, () => {
+  it(`should have the 'vecta' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('jobportal-frontend');
+    expect(app.title).toEqual('vecta');
   });
 
   it('should render app shell outlets', () => {
