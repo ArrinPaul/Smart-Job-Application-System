@@ -300,8 +300,8 @@ export class PostJobComponent implements OnInit, OnDestroy {
       this.jobDescription.trim(), '', '--- Role Details ---',
       `Employment Type: ${this.employmentType}`, `Experience Level: ${this.experienceLevel}`, `Work Mode: ${this.workMode}`,
       this.salaryRange.trim() ? `Salary Range: ${this.salaryRange.trim()}` : null,
-      this.mustHaveSkills.length ? `Must-Have Skills: ${mustHaveSkills.join(', ')}` : null,
-      this.niceToHaveSkills.length ? `Nice-to-Have Skills: ${niceToHaveSkills.join(', ')}` : null,
+      this.mustHaveSkills.length ? `Must-Have Skills: ${this.mustHaveSkills.join(', ')}` : null,
+      this.niceToHaveSkills.length ? `Nice-to-Have Skills: ${this.niceToHaveSkills.join(', ')}` : null,
       this.interviewProcess.trim() ? `Interview Process: ${this.interviewProcess.trim()}` : null,
       '', '--- Screening Questions ---', questions
     ].filter((line): line is string => !!line).join('\n');

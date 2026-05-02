@@ -1,1 +1,198 @@
-<p>applicant-review works!</p>
+<div class="review-page" *ngIf="application; else stateTpl">
+  <header class="review-header">
+    <div class="container header-content">
+      <div class="left">
+        <button class="btn-back" routerLink="/recruiter/applications">← Back to List</button>
+        <h1>Manage Candidate</h1>
+      </div>
+      <div class="right status-actions">
+        <div class="status-stepper">
+           <div *ngFor="let step of statusFlow" 
+                class="step" 
+                [class.active]="application.status === step"
+                [class.completed]="isStepCompleted(step)">
+             <span class="step-label">{{ step.replace('_', ' ') }}</span>
+           </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-layout">
+    <!-- Sidebar: Applicant Profile Card -->
+    <aside class="profile-sidebar">
+      <div class="profile-card">
+        <div class="profile-head">
+          <div class="avatar-large">{{ application.applicant.fullName?.charAt(0) || application.applicant.username.charAt(0) }}</div>
+          <h2>{{ application.applicant.fullName || application.applicant.username }}</h2>
+          <p class="headline">{{ application.applicant.headline || 'Job Seeker' }}</p>
+        </div>
+        
+        <div class="profile-info">
+          <div class="info-item">
+            <label>Email</label>
+            <p>{{ application.applicant.email }}</p>
+          </div>
+          <div class="info-item">
+            <label>Location</label>
+            <p>{{ application.applicant.location || 'Not specified' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Skills</label>
+            <div class="skills-tags">
+              <span *ngFor="let skill of getSkills()" class="skill-tag">{{ skill }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-panel">
+          <button class="btn-message" (click)="messageApplicant()">Direct Message</button>
+        </div>
+      </div>
+
+      <div class="score-card" *ngIf="application.aiMatchScore">
+        <h3>Match Insights</h3>
+        <div class="score-circle" [style.border-color]="getScoreColor(application.aiMatchScore)">
+          <span class="score-num">{{ application.aiMatchScore }}%</span>
+        </div>
+        <p class="score-text">Compatibility based on role requirements.</p>
+      </div>
+
+      <div class="card workflow-card">
+        <div class="card-header-small">
+          <h3>Advance Pipeline</h3>
+          <span class="skip-hint">Skip steps if needed</span>
+        </div>
+        
+        <div class="transition-grid">
+          <!-- Regular Next Step -->
+          <button *ngFor="let status of nextPossibleStatuses" 
+                  class="btn-status"
+                  (click)="updateStatus(status)">
+            Next: {{ status.replace('_', ' ') }}
+          </button>
+        </div>
+
+        <div class="skip-section" *ngIf="skippableStatuses.length > 0">
+          <hr class="divider">
+          <label class="section-label">Fast Track to Stage:</label>
+          <div class="skip-grid">
+            <button *ngFor="let status of skippableStatuses" 
+                    class="btn-skip"
+                    (click)="updateStatus(status)">
+              {{ status.replace('_', ' ') }}
+            </button>
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="danger-actions">
+           <button class="btn-outline-danger" (click)="updateStatus(ApplicationStatus.REJECTED)">Reject</button>
+           <button class="btn-outline-warning" (click)="updateStatus(ApplicationStatus.HOLD)">On Hold</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content: Management Panels -->
+    <section class="review-content">
+      <div class="tabs-nav">
+         <button [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">Profile & Resume</button>
+         <button [class.active]="activeTab === 'notes'" (click)="activeTab = 'notes'">Internal Notes</button>
+         <button [class.active]="activeTab === 'interview'" (click)="activeTab = 'interview'">Scheduling</button>
+      </div>
+
+      <div class="tab-content">
+        <!-- PROFILE TAB -->
+        <div *ngIf="activeTab === 'profile'" class="animate-in">
+          <div class="card job-summary">
+            <h3>Role Information</h3>
+            <div class="job-ref">
+              <strong>{{ application.job.title }}</strong>
+              <span>{{ application.job.location }} · {{ application.job.jobType }}</span>
+            </div>
+          </div>
+
+          <div class="card resume-viewer">
+            <div class="card-header">
+              <h3>Curriculum Vitae</h3>
+              <button class="btn-download" *ngIf="application.resume?.id" (click)="downloadResume()">
+                Download CV
+              </button>
+            </div>
+            
+            <div class="resume-placeholder" *ngIf="application.resume; else noResumeTpl">
+              <div class="resume-icon">📄</div>
+              <p>The candidate's resume is ready for review.</p>
+            </div>
+            <ng-template #noResumeTpl>
+              <div class="no-resume">
+                <p>No resume was provided with this application.</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- NOTES TAB -->
+        <div *ngIf="activeTab === 'notes'" class="animate-in">
+          <div class="card">
+            <h3>Team Evaluation</h3>
+            <p class="muted">Private notes for internal hiring team evaluation.</p>
+            <textarea 
+              [(ngModel)]="internalNotes" 
+              rows="10" 
+              class="styled-textarea" 
+              placeholder="Record initial feedback, phone screen outcomes, or background check results..."></textarea>
+            <div class="card-footer">
+              <button class="btn-primary" [disabled]="isSaving" (click)="saveDetails()">
+                {{ isSaving ? 'Processing...' : 'Save Evaluation' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTERVIEW TAB -->
+        <div *ngIf="activeTab === 'interview'" class="animate-in">
+          <div class="card interview-scheduler">
+            <h3>Interview Logistics</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Schedule Date & Time</label>
+                <input type="datetime-local" [(ngModel)]="interviewDate" class="styled-input">
+              </div>
+              <div class="form-group">
+                <label>Meeting Link / Room</label>
+                <input type="text" [(ngModel)]="interviewLocation" class="styled-input" placeholder="e.g. Zoom link or Office location">
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Interview Feedback</h3>
+            <textarea 
+              [(ngModel)]="recruiterFeedback" 
+              rows="6" 
+              class="styled-textarea" 
+              placeholder="Provide detailed feedback from the interview and rationale for the next step..."></textarea>
+            <div class="card-footer">
+               <button class="btn-primary" [disabled]="isSaving" (click)="saveDetails()">
+                {{ isSaving ? 'Processing...' : 'Sync Logistics' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<ng-template #stateTpl>
+  <div class="container state-container">
+    <div class="spinner" *ngIf="loading"></div>
+    <p *ngIf="loading">Retrieving candidate data...</p>
+    <div class="error-box" *ngIf="error">
+      <h3>Error</h3>
+      <p>{{ error }}</p>
+      <button class="btn-back" routerLink="/recruiter/applications">Return to List</button>
+    </div>
+  </div>
+</ng-template>

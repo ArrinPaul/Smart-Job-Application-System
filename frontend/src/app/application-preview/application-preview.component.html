@@ -1,1 +1,106 @@
-<p>application-preview works!</p>
+<div class="page-shell">
+  <div class="page-header">
+    <div class="container">
+      <button class="btn-back" routerLink="/applications">← Back to My Applications</button>
+      <h2 *ngIf="application">{{ application.job.title }}</h2>
+      <p *ngIf="application">{{ application.job.location }} · {{ application.job.jobType }}</p>
+    </div>
+  </div>
+
+  <main class="container" *ngIf="application; else stateTpl">
+    <div class="preview-layout">
+      <!-- Main Info -->
+      <section class="main-info">
+        <div class="card status-card">
+          <div class="card-header">
+            <h3>Application Status</h3>
+            <span class="status-pill" [attr.data-status]="application.status">
+              {{ application.status.replace('_', ' ') }}
+            </span>
+          </div>
+          
+          <div class="application-timeline">
+            <div *ngFor="let stage of statusFlow" 
+                 class="timeline-step" 
+                 [ngClass]="getStepStatus(stage)">
+              <div class="step-dot"></div>
+              <span class="step-label">{{ stage.replace('_', ' ') }}</span>
+            </div>
+          </div>
+
+          <div class="status-description">
+            <p class="highlight" [ngSwitch]="application.status">
+              <span *ngSwitchCase="ApplicationStatus.APPLIED">Your application has been received and is waiting for review.</span>
+              <span *ngSwitchCase="ApplicationStatus.SHORTLISTED">Congratulations! You've been shortlisted for the next round.</span>
+              <span *ngSwitchCase="ApplicationStatus.PHONE_SCREEN">A recruiter will contact you soon for a brief phone screening.</span>
+              <span *ngSwitchCase="ApplicationStatus.TECHNICAL_INTERVIEW">Prepare for your technical assessment or interview.</span>
+              <span *ngSwitchCase="ApplicationStatus.ON_SITE_INTERVIEW">You've reached the final interview stage!</span>
+              <span *ngSwitchCase="ApplicationStatus.OFFER_EXTENDED">Great news! An offer has been extended to you. Check your messages.</span>
+              <span *ngSwitchCase="ApplicationStatus.HIRED">Welcome aboard! You've been hired for this position.</span>
+              <span *ngSwitchCase="ApplicationStatus.REJECTED">The recruiter has decided not to move forward with your application at this time.</span>
+              <span *ngSwitchCase="ApplicationStatus.HOLD">Your application is currently on hold for future consideration.</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="card logistics-card" *ngIf="application.interviewDate || application.interviewLocation">
+          <h3>Interview Details</h3>
+          <div class="logistics-grid">
+            <div class="logistic-item" *ngIf="application.interviewDate">
+              <label>Scheduled For</label>
+              <p>{{ application.interviewDate | date:'full' }}</p>
+            </div>
+            <div class="logistic-item" *ngIf="application.interviewLocation">
+              <label>Location / Link</label>
+              <p>
+                <a *ngIf="isUrl(application.interviewLocation); else textLoc" [href]="application.interviewLocation" target="_blank">
+                  Join Meeting 🔗
+                </a>
+                <ng-template #textLoc>{{ application.interviewLocation }}</ng-template>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card feedback-card" *ngIf="application.recruiterFeedback">
+          <h3>Message from Recruiter</h3>
+          <div class="feedback-content">
+            <p>{{ application.recruiterFeedback }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="side-info">
+        <div class="card match-card" *ngIf="application.aiMatchScore">
+          <h3>Compatibility Score</h3>
+          <div class="score-circle">
+            <span class="score-num">{{ application.aiMatchScore }}%</span>
+          </div>
+          <p class="muted">Based on your profile and the job requirements.</p>
+        </div>
+
+        <div class="card resume-card" *ngIf="application.resume">
+          <h3>Submitted Resume</h3>
+          <div class="resume-info">
+            <div class="resume-icon">📄</div>
+            <p>{{ application.resume.fileName }}</p>
+          </div>
+          <button class="btn--secondary btn-block" (click)="downloadResume()">Download CV</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <ng-template #stateTpl>
+    <div class="container state-container">
+      <div class="spinner" *ngIf="loading"></div>
+      <p *ngIf="loading">Retrieving application details...</p>
+      <div class="error-box" *ngIf="error">
+        <h3>Not Found</h3>
+        <p>{{ error }}</p>
+        <button class="btn--primary" routerLink="/applications">Back to My Applications</button>
+      </div>
+    </div>
+  </ng-template>
+</div>

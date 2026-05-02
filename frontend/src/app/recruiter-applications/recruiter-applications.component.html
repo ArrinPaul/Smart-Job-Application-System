@@ -1,1 +1,99 @@
-<p>recruiter-applications works!</p>
+<div class="page-shell">
+  <header class="page-header">
+    <div class="container">
+      <h1>Recruitment Pipeline</h1>
+      <p>Track and manage candidates through each stage of the hiring process.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="pipeline-nav-panel">
+      <div class="tabs-nav">
+        <a routerLink="/recruiter/applications/applied" routerLinkActive="active" class="tab-link">
+          New ({{ getCount('applied') }})
+        </a>
+        <a routerLink="/recruiter/applications/shortlisted" routerLinkActive="active" class="tab-link">
+          Shortlisted ({{ getCount('shortlisted') }})
+        </a>
+        <a routerLink="/recruiter/applications/interviews" routerLinkActive="active" class="tab-link">
+          Interviews ({{ getCount('interviews') }})
+        </a>
+        <a routerLink="/recruiter/applications/offers" routerLinkActive="active" class="tab-link">
+          Offers ({{ getCount('offers') }})
+        </a>
+        <a routerLink="/recruiter/applications/hired" routerLinkActive="active" class="tab-link">
+          Hired ({{ getCount('hired') }})
+        </a>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-box">
+        <input type="text" placeholder="Search by name, job, or status..." (input)="filterApps($event)">
+      </div>
+    </div>
+
+    <div class="table-container" *ngIf="!loading; else loadingTpl">
+      <table *ngIf="filteredApplications.length > 0; else emptyTpl">
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Job Position</th>
+            <th>Applied Date</th>
+            <th>AI Score</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let app of filteredApplications">
+            <td>
+              <div class="user-info">
+                <div class="avatar">{{ app.applicant.fullName?.charAt(0) || app.applicant.username.charAt(0) }}</div>
+                <div>
+                  <div class="name">{{ app.applicant.fullName || app.applicant.username }}</div>
+                  <div class="email">{{ app.applicant.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="job-title">{{ app.job.title }}</div>
+              <div class="job-meta">{{ app.job.location }}</div>
+            </td>
+            <td>{{ app.appliedAt | date:'mediumDate' }}</td>
+            <td>
+              <div class="score-pill" [style.background-color]="getScoreColor(app.aiMatchScore)">
+                {{ app.aiMatchScore ? (app.aiMatchScore + '%') : 'N/A' }}
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [attr.data-status]="app.status">
+                {{ getStatusLabel(app.status) }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-review-action" [routerLink]="['/recruiter/applications', app.id]">
+                Manage Candidate
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #loadingTpl>
+      <div class="state-box">
+        <div class="spinner"></div>
+        <p>Loading pipeline...</p>
+      </div>
+    </ng-template>
+
+    <ng-template #emptyTpl>
+      <div class="state-box">
+        <div class="empty-icon">📂</div>
+        <h3>No candidates in this stage</h3>
+        <p>Select another stage or wait for new applications.</p>
+      </div>
+    </ng-template>
+  </main>
+</div>
