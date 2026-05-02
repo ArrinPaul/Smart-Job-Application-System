@@ -1,203 +1,138 @@
-<div class="page-shell">
-  <nav class="top-nav">
-    <a *ngIf="!isAdmin" routerLink="/jobs" class="active">Browse Jobs</a>
-    <button *ngIf="isAdmin" type="button" class="nav-link" (click)="toggleView('jobs')" [class.active]="!showUsers">Manage Jobs</button>
-    <button *ngIf="isAdmin" type="button" class="nav-link" (click)="toggleView('users')" [class.active]="showUsers">Manage Users</button>
-    <a *ngIf="!isAdmin" routerLink="/applications">My Applications</a>
-    <a *ngIf="!isAdmin" routerLink="/resume">Resume Vault</a>
-    <span class="nav-spacer"></span>
-    <button type="button" (click)="logout()">Logout</button>
-  </nav>
-
-  <div *ngIf="!showUsers">
-    <div class="page-header">
-      <div>
-        <h2>{{ isAdmin ? 'All Job Postings' : 'Explore Open Roles' }}</h2>
-        <p>{{ isAdmin ? 'Monitor every listing posted across the platform.' : 'Discover curated roles, apply faster, and track your momentum.' }}</p>
-      </div>
+<div class="jobs-page">
+  <section class="top-strip">
+    <div class="title-block">
+      <p class="eyebrow">Browse opportunities</p>
+      <h1 *ngIf="!isAdmin">Modern Professional Job Opportunities</h1>
+      <h1 *ngIf="isAdmin">Manage Job Opportunities</h1>
     </div>
+  </section>
 
-    <section class="panel discovery-hero" *ngIf="!isAdmin">
-      <div class="discovery-grid">
-        <article class="discovery-stat">
-          <h3>{{ totalJobs }}</h3>
-          <p>Open positions</p>
-        </article>
-        <article class="discovery-stat">
-          <h3>{{ remoteJobsCount }}</h3>
-          <p>Remote/Hybrid roles</p>
-        </article>
-        <article class="discovery-stat">
-          <h3>{{ recentJobsCount }}</h3>
-          <p>Posted in last 7 days</p>
-        </article>
-      </div>
-      <div class="chip-row">
-        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='ALL'" (click)="applyQuickFilter('ALL')">All Roles</button>
-        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='REMOTE'" (click)="applyQuickFilter('REMOTE')">Remote First</button>
-        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">Engineering</button>
-        <button type="button" class="chip-btn" [class.chip-btn--active]="activeQuickFilter==='ENTRY'" (click)="applyQuickFilter('ENTRY')">Internships</button>
-      </div>
-    </section>
+  <section class="search-section" *ngIf="!isAdmin">
+    <div class="search-bar-wrapper">
+      <input
+        id="search-title"
+        type="text"
+        [(ngModel)]="searchTitle"
+        placeholder="Search by title or keyword"
+        (keyup.enter)="onSearch()" />
+      <button type="button" class="search-btn" (click)="onSearch()" [disabled]="isLoading">
+        {{ isLoading ? 'Searching...' : 'Search' }}
+      </button>
+    </div>
+  </section>
 
-    <section class="panel">
-      <div class="panel-header">
-        <h3>Search & Filter Jobs</h3>
-        <button type="button" class="btn-link" (click)="clearFilters()" *ngIf="activeQuickFilter !== 'ALL' || searchTitle || searchLocation || selectedCategory !== 'All Categories' || selectedJobType !== 'All Types'">
-          Clear All Filters
-        </button>
-      </div>
-      <div class="search-grid">
-        <div class="filter-group">
-          <label>Job Title</label>
-          <input type="text" [(ngModel)]="searchTitle" placeholder="e.g. Frontend Developer" (keyup.enter)="onSearch()">
-        </div>
-        <div class="filter-group">
-          <label>Location</label>
-          <input type="text" [(ngModel)]="searchLocation" placeholder="e.g. Bengaluru / Remote" (keyup.enter)="onSearch()">
-        </div>
-        <div class="filter-group">
-          <label>Category</label>
-          <select [(ngModel)]="selectedCategory" (change)="onSearch()">
-            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Job Type</label>
-          <select [(ngModel)]="selectedJobType" (change)="onSearch()">
-            <option *ngFor="let type of jobTypes" [value]="type">{{ type }}</option>
-          </select>
-        </div>
-        <div class="filter-group filter-actions">
-          <label>&nbsp;</label>
-          <button type="button" (click)="onSearch()" [disabled]="isLoading" class="btn-block">
-            {{ isLoading ? 'Searching...' : 'Search Roles' }}
+  <section class="filters-panel" *ngIf="!isAdmin">
+    <div class="filter-container">
+      <div class="filter-header-row">
+        <div class="chip-row">
+          <button type="button" class="filter-chip chip-all" [class.active]="activeQuickFilter === 'ALL'" (click)="applyQuickFilter('ALL')">
+            <span class="chip-label">All Categories</span>
+          </button>
+          <button type="button" class="filter-chip chip-engineering" [class.active]="activeQuickFilter === 'ENGINEERING'" (click)="applyQuickFilter('ENGINEERING')">
+            <span class="chip-label">Engineering</span>
+          </button>
+          <button type="button" class="filter-chip chip-design" [class.active]="activeQuickFilter === 'DESIGN'" (click)="applyQuickFilter('DESIGN')">
+            <span class="chip-label">Design</span>
+          </button>
+          <button type="button" class="filter-chip chip-support" [class.active]="activeQuickFilter === 'SUPPORT'" (click)="applyQuickFilter('SUPPORT')">
+            <span class="chip-label">Support</span>
+          </button>
+          <button type="button" class="filter-chip chip-sales" [class.active]="activeQuickFilter === 'SALES'" (click)="applyQuickFilter('SALES')">
+            <span class="chip-label">Sales</span>
+          </button>
+          <button type="button" class="filter-chip chip-finance" [class.active]="activeQuickFilter === 'FINANCE'" (click)="applyQuickFilter('FINANCE')">
+            <span class="chip-label">Finance</span>
+          </button>
+          <button type="button" class="filter-chip chip-hr" [class.active]="activeQuickFilter === 'HR & OPERATIONS'" (click)="applyQuickFilter('HR & OPERATIONS')">
+            <span class="chip-label">HR & Ops</span>
+          </button>
+          <button type="button" class="filter-chip chip-marketing" [class.active]="activeQuickFilter === 'MARKETING'" (click)="applyQuickFilter('MARKETING')">
+            <span class="chip-label">Marketing</span>
+          </button>
+          <button type="button" class="filter-chip chip-product" [class.active]="activeQuickFilter === 'PRODUCT MANAGEMENT'" (click)="applyQuickFilter('PRODUCT MANAGEMENT')">
+            <span class="chip-label">Product</span>
+          </button>
+          <button type="button" class="filter-chip chip-data" [class.active]="activeQuickFilter === 'DATA SCIENCE'" (click)="applyQuickFilter('DATA SCIENCE')">
+            <span class="chip-label">Data Science</span>
           </button>
         </div>
       </div>
-    </section>
 
-    <section class="jobs-grid-section" *ngIf="jobs.length > 0">
-      <div class="jobs-grid">
-        <article class="job-card" *ngFor="let job of paginatedJobs">
-          <div class="job-card-inner">
-            <!-- Top Bar with Insight Button -->
-            <div class="card-header" *ngIf="!isAdmin">
-              <button type="button" class="insight-btn" (click)="fetchInsights(job.id)" [class.insight-btn--active]="insightJobId === job.id">
-                <span class="insight-icon">💡</span>
-              </button>
-            </div>
-
-            <!-- Job Title -->
-            <h3 [routerLink]="['/jobs', job.slug]" class="job-title">{{ job.title }}</h3>
-
-            <!-- Company Name -->
-            <p class="company-name">{{ job.postedBy?.username || 'Company' }}</p>
-
-            <!-- Location & Type -->
-            <div class="job-meta">
-              <span class="meta-item">📍 {{ job.location }}</span>
-              <span class="meta-item" *ngIf="isRemoteOrHybrid(job)">🌍 Remote/Hybrid</span>
-            </div>
-
-            <!-- Description -->
-            <p class="description-preview">{{ job.description | slice:0:120 }}{{ job.description.length > 120 ? '...' : '' }}</p>
-
-            <!-- Badges -->
-            <div class="badges">
-              <span class="badge-neutral" *ngIf="!isAdmin">{{ getRoleSignal(job.title) }}</span>
-              <span class="badge-date">Posted {{ job.createdAt | date:'short' }}</span>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="card-actions" *ngIf="!isAdmin">
-              <a [routerLink]="['/jobs', job.slug]" class="btn-details">View Details</a>
-              <button type="button" class="btn-apply" (click)="onApply(job.id)">Apply</button>
-            </div>
-
-            <!-- Insights Panel -->
-            <div class="insight-panel" *ngIf="insightJobId === job.id && selectedInsights && !selectedInsights.error">
-              <div class="insight-content">
-                <h4>Your Match: {{ selectedInsights.compatibilityScore }}%</h4>
-                <p>{{ selectedInsights.matchLevel }}</p>
-              </div>
-            </div>
-          </div>
-        </article>
+      <div class="filter-grid">
+        <input id="search-location" type="text" [(ngModel)]="searchLocation" placeholder="Location" (keyup.enter)="onSearch()" />
+        <select id="job-type" [(ngModel)]="selectedJobType" (change)="onSearch()">
+          <option *ngFor="let type of jobTypes" [value]="type">{{ type }}</option>
+        </select>
+        <select id="category-filter" [(ngModel)]="selectedCategory" (change)="onSearch()">
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+        <button type="button" class="apply-filters-btn" (click)="onSearch()" [disabled]="isLoading">Apply Filters</button>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Pagination Controls -->
-    <div class="pagination-container" *ngIf="totalPages > 1">
-      <div class="pagination-wrapper">
-        <button 
-          type="button" 
-          class="pagination-btn pagination-prev" 
-          [disabled]="currentPage === 1" 
-          (click)="setPage(currentPage - 1)">
-          ← Previous
-        </button>
-        
-        <div class="pagination-info">
-          <span class="current-page">{{ currentPage }}</span>
-          <span class="divider">/</span>
-          <span class="total-pages">{{ totalPages }}</span>
+  <section class="results-wrap">
+    <div class="results-header" *ngIf="!isLoading">
+      <span>Showing <strong>{{ showingStart }} – {{ showingEnd }}</strong> of <strong>{{ filteredJobs.length }}</strong> jobs <span class="total-badge">(Total: {{ jobs.length }})</span></span>
+      <button
+        type="button"
+        class="clear-link"
+        (click)="clearFilters()"
+        *ngIf="activeQuickFilter !== 'ALL' || searchTitle || searchLocation || selectedCategory !== 'All Categories' || selectedJobType !== 'All Types'">
+        Clear filters
+      </button>
+    </div>
+
+    <div class="state-card loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading opportunities...</p>
+    </div>
+
+    <div class="state-card empty-state" *ngIf="!isLoading && filteredJobs.length === 0">
+      <div class="empty-icon">🔎</div>
+      <h3>No opportunities found</h3>
+      <p>Try a different category, location, or keyword.</p>
+      <button type="button" class="action-btn apply-now-btn" (click)="clearFilters()">Reset Filters</button>
+    </div>
+
+    <div class="jobs-grid" *ngIf="!isLoading && paginatedJobs.length > 0">
+      <article class="job-card" *ngFor="let job of paginatedJobs">
+        <div class="card-head">
+          <span class="category-pill">
+            <span class="pill-dot"></span>
+            <span class="pill-text">{{ getJobCategory(job) }}</span>
+          </span>
+          <span class="status-pill" [class.closed]="!job.isActive">{{ getStatusLabel(job) }}</span>
         </div>
-        
-        <button 
-          type="button" 
-          class="pagination-btn pagination-next" 
-          [disabled]="currentPage === totalPages" 
-          (click)="setPage(currentPage + 1)">
-          Next →
-        </button>
-      </div>
-      <div class="pagination-summary">
-        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, filteredJobs.length) }} of {{ filteredJobs.length }} jobs
-      </div>
-    </div>
 
-    <div class="empty-state" *ngIf="jobs.length === 0 && !isLoading">
-      <h3>No jobs found</h3>
-      <p>Try changing filters and search again.</p>
-    </div>
-  </div>
+        <a class="job-title" [routerLink]="['/jobs', job.slug]">{{ job.title }}</a>
+        <p class="company-name">{{ job.postedBy?.companyName || job.postedBy?.username || 'Hiring Company' }}</p>
 
-  <div *ngIf="showUsers && isAdmin">
-    <div class="page-header">
-      <div>
-        <h2>Platform Users</h2>
-        <p>Audit registered users and role distribution.</p>
-      </div>
-    </div>
+        <p class="description">{{ getJobPreview(job) }}</p>
 
-    <section class="panel">
-      <div class="table-wrap">
-        <table class="admin-table" *ngIf="users.length > 0; else noUsersTpl">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of users">
-              <td>{{ user.id }}</td>
-              <td>{{ user.username }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.role }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <ng-template #noUsersTpl>
-        <div class="empty-state">
-          <h3>No users yet</h3>
-          <p>Registered users will appear here.</p>
+        <div class="meta-lines">
+          <p><strong>Location:</strong> {{ job.location }}</p>
+          <p><strong>Salary:</strong> {{ formatSalary(job) }}</p>
+          <p><strong>Posted:</strong> {{ formatPostedDate(job.createdAt) }}</p>
+          <p *ngIf="job.experienceRequired !== undefined && job.experienceRequired !== null"><strong>Experience:</strong> {{ formatExperience(job.experienceRequired) }}</p>
         </div>
-      </ng-template>
-    </section>
-  </div>
+
+        <div class="card-actions" *ngIf="!isAdmin">
+          <a [routerLink]="['/jobs', job.slug]" class="action-btn view-details-btn">View Details</a>
+          <button type="button" class="action-btn apply-now-btn" (click)="onApply(job.id)">Apply Now</button>
+        </div>
+
+        <div class="card-actions" *ngIf="isAdmin">
+          <button type="button" class="action-btn view-details-btn" (click)="editJob(job.id)">Edit</button>
+          <button type="button" class="action-btn apply-now-btn" (click)="deleteJob(job.id)">Delete</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1 && !isLoading && paginatedJobs.length > 0">
+      <button type="button" class="pagination-btn" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">Previous</button>
+      <div class="page-info">{{ currentPage }} / {{ totalPages }}</div>
+      <button type="button" class="pagination-btn" [disabled]="currentPage === totalPages" (click)="setPage(currentPage + 1)">Next</button>
+    </div>
+  </section>
 </div>

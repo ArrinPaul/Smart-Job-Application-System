@@ -15,7 +15,8 @@ import { takeUntil } from 'rxjs/operators';
   selector: 'app-job-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './job-list.component.html'
+  templateUrl: './job-list.component.html',
+  styleUrls: ['./job-list.component.css']
 })
 export class JobListComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];
@@ -31,11 +32,13 @@ export class JobListComponent implements OnInit, OnDestroy {
     'All Categories',
     'Engineering',
     'Design',
-    'Marketing',
-    'Sales',
-    'Product',
     'Support',
-    'Internships'
+    'Sales',
+    'Finance',
+    'HR & Operations',
+    'Marketing',
+    'Product Management',
+    'Data Science'
   ];
 
   jobTypes = [
@@ -51,15 +54,12 @@ export class JobListComponent implements OnInit, OnDestroy {
   isLoading = false;
   isAdmin = false;
   showUsers = false;
-  selectedInsights: any = null;
-  insightJobId: number | null = null;
   
   // Pagination
   currentPage = 1;
-  pageSize = 50;
+  pageSize = 15;
   
   private destroy$ = new Subject<void>();
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private httpService: HttpService,
@@ -70,18 +70,9 @@ export class JobListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
     this.loadJobs();
-    this.startAutoRefresh();
     if (this.isAdmin) {
       this.loadUsers();
     }
-  }
-
-  private startAutoRefresh(): void {
-    this.refreshTimer = setInterval(() => {
-      if (!this.isLoading) {
-        this.loadJobs(false);
-      }
-    }, 12000);
   }
 
   loadJobs(resetPagination: boolean = true): void {
@@ -110,14 +101,14 @@ export class JobListComponent implements OnInit, OnDestroy {
       const title = (job.title || '').toLowerCase();
       const desc = (job.description || '').toLowerCase();
       const loc = (job.location || '').toLowerCase();
+      const skills = (job.requiredSkills || '').toLowerCase();
+      const combinedText = `${title} ${desc} ${skills}`;
 
-      if (this.selectedCategory !== 'All Categories') {
-        const cat = this.selectedCategory.toLowerCase();
-        if (cat === 'internships') {
-          matchesCategory = title.includes('intern') || desc.includes('intern') || title.includes('trainee');
-        } else {
-          matchesCategory = title.includes(cat) || desc.includes(cat);
-        }
+      // Handle quick filter categories
+      if (this.activeQuickFilter !== 'ALL') {
+        matchesCategory = this.matchesCategory(this.activeQuickFilter, combinedText);
+      } else if (this.selectedCategory !== 'All Categories') {
+        matchesCategory = this.matchesCategory(this.selectedCategory, combinedText);
       }
 
       if (this.selectedJobType !== 'All Types') {
@@ -153,6 +144,15 @@ export class JobListComponent implements OnInit, OnDestroy {
     }
   }
 
+  get showingStart(): number {
+    if (this.filteredJobs.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get showingEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredJobs.length);
+  }
+
   loadUsers(): void {
     this.httpService.getAllUsers()
       .pipe(takeUntil(this.destroy$))
@@ -180,26 +180,22 @@ export class JobListComponent implements OnInit, OnDestroy {
     this.loadJobs();
   }
 
-  applyQuickFilter(filter: 'ALL' | 'REMOTE' | 'ENGINEERING' | 'ENTRY'): void {
+  applyQuickFilter(filter: 'ALL' | 'ENGINEERING' | 'DESIGN' | 'SUPPORT' | 'SALES' | 'FINANCE' | 'HR & OPERATIONS' | 'MARKETING' | 'PRODUCT MANAGEMENT' | 'DATA SCIENCE'): void {
     this.activeQuickFilter = filter;
-    this.selectedCategory = 'All Categories';
     this.selectedJobType = 'All Types';
 
     switch (filter) {
-      case 'REMOTE':
-        this.searchTitle = '';
-        this.searchLocation = 'Remote';
-        this.selectedJobType = 'Remote';
-        break;
       case 'ENGINEERING':
-        this.searchTitle = 'Engineer';
+      case 'DESIGN':
+      case 'SUPPORT':
+      case 'SALES':
+      case 'FINANCE':
+      case 'HR & OPERATIONS':
+      case 'MARKETING':
+      case 'PRODUCT MANAGEMENT':
+      case 'DATA SCIENCE':
+        this.searchTitle = '';
         this.searchLocation = '';
-        this.selectedCategory = 'Engineering';
-        break;
-      case 'ENTRY':
-        this.searchTitle = 'Intern';
-        this.searchLocation = '';
-        this.selectedCategory = 'Internships';
         break;
       default:
         this.searchTitle = '';
@@ -248,6 +244,156 @@ export class JobListComponent implements OnInit, OnDestroy {
     return 'Core Role';
   }
 
+  getJobCategory(job: Job): string {
+    const text = `${job.title} ${job.description} ${job.requiredSkills || ''}`.toLowerCase();
+
+    if (this.matchesCategory('Design', text)) {
+      return 'Design';
+    }
+    if (this.matchesCategory('Support', text)) {
+      return 'Support';
+    }
+    if (this.matchesCategory('Engineering', text)) {
+      return 'Engineering';
+    }
+
+    return 'Engineering';
+  }
+
+  private matchesCategory(category: string, text: string): boolean {
+    const normalized = text.toLowerCase();
+
+    switch (category) {
+      case 'Design':
+      case 'DESIGN':
+        return /\b(design|designer|ui|ux|graphic|visual|product\s+designer)\b/.test(normalized);
+      case 'Support':
+      case 'SUPPORT':
+        return /\b(support|customer\s+success|help\s+desk|service\s+desk|customer\s+care|customer\s+service)\b/.test(normalized);
+      case 'Engineering':
+      case 'ENGINEERING':
+        return /\b(engineer|engineering|developer|software|frontend|back\s*end|backend|full\s*stack|devops|qa|data|mobile|ios|android)\b/.test(normalized);
+      case 'Sales':
+      case 'SALES':
+        return /\b(sales|account\s+executive|business\s+development|bd|sales\s+manager|sales\s+representative)\b/.test(normalized);
+      case 'Finance':
+      case 'FINANCE':
+        return /\b(finance|accounting|accountant|bookkeeping|financial\s+analyst|cfo|treasurer|auditor|payroll)\b/.test(normalized);
+      case 'HR & Operations':
+      case 'HR & OPERATIONS':
+        return /\b(hr|human\s+resources|operations|ops|operations\s+manager|recruiter|recruitment|admin|administrative)\b/.test(normalized);
+      case 'Marketing':
+      case 'MARKETING':
+        return /\b(marketing|marketing\s+manager|content\s+marketing|digital\s+marketing|seo|sem|brand|marketing\s+coordinator)\b/.test(normalized);
+      case 'Product Management':
+      case 'PRODUCT MANAGEMENT':
+        return /\b(product\s+manager|pm|product\s+owner|product\s+management|product\s+lead)\b/.test(normalized);
+      case 'Data Science':
+      case 'DATA SCIENCE':
+        return /\b(data\s+scientist|data\s+analyst|analytics|bi\s+developer|business\s+intelligence|ml\s+engineer|machine\s+learning)\b/.test(normalized);
+      default:
+        return normalized.includes(category.toLowerCase());
+    }
+  }
+
+  getStatusLabel(job: Job): string {
+    return job.isActive === false ? 'Closed' : 'Open';
+  }
+
+  formatPostedDate(dateValue?: string): string {
+    if (!dateValue) {
+      return 'Recently posted';
+    }
+
+    const createdAt = new Date(dateValue);
+    if (Number.isNaN(createdAt.getTime())) {
+      return 'Recently posted';
+    }
+
+    const now = new Date();
+    const difference = Math.max(0, now.getTime() - createdAt.getTime());
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      return 'Posted today';
+    }
+
+    if (days === 1) {
+      return 'Posted 1 day ago';
+    }
+
+    return `Posted ${days} days ago`;
+  }
+
+  formatSalary(job: Job): string {
+    if (!job.salaryMin && !job.salaryMax) {
+      return 'Salary on request';
+    }
+
+    const currency = job.salaryCurrency || 'USD';
+    const formatter = new Intl.NumberFormat('en-US');
+    const minValue = job.salaryMin ? formatter.format(job.salaryMin) : '';
+    const maxValue = job.salaryMax ? formatter.format(job.salaryMax) : '';
+
+    if (minValue && maxValue) {
+      return `${currency} ${minValue} - ${maxValue}`;
+    }
+
+    return `${currency} ${minValue || maxValue}`;
+  }
+
+  formatExperience(experienceRequired?: number): string {
+    if (experienceRequired === undefined || experienceRequired === null) {
+      return 'Open experience';
+    }
+
+    if (experienceRequired <= 0) {
+      return 'Freshers welcome';
+    }
+
+    if (experienceRequired === 1) {
+      return '1 year exp';
+    }
+
+    return `${experienceRequired}+ years exp`;
+  }
+
+  getJobPreview(job: Job, maxLength: number = 115): string {
+    const plainText = this.stripPreviewText(job.description || '');
+
+    if (!plainText) {
+      return 'View the full role details on the job page.';
+    }
+
+    return plainText.length > maxLength ? `${plainText.slice(0, maxLength)}...` : plainText;
+  }
+
+  private stripPreviewText(input: string): string {
+    if (!input) return '';
+    let text = input;
+
+    if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&#')) {
+      try {
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+        text = doc.documentElement.textContent || text;
+      } catch {
+        // keep original text if decoding fails
+      }
+    }
+
+    return text
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/^#+\s+/gm, ' ')
+      .replace(/\n#+\s+/g, ' ')
+      .replace(/#/g, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/[\*_]{1,3}/g, '')
+      .replace(/`{1,3}/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   toggleView(view: string): void {
     this.showUsers = (view === 'users');
   }
@@ -265,34 +411,27 @@ export class JobListComponent implements OnInit, OnDestroy {
       });
   }
 
-  fetchInsights(jobId: number): void {
-    if (this.insightJobId === jobId && this.selectedInsights) {
-      this.closeInsights();
+  editJob(jobId: number): void {
+    this.toastService.showInfo(`Edit workflow for job #${jobId} is available in the admin area.`);
+  }
+
+  deleteJob(jobId: number): void {
+    const confirmed = window.confirm('Delete this job listing permanently?');
+    if (!confirmed) {
       return;
     }
 
-    this.insightJobId = jobId;
-    this.selectedInsights = null; // Clear previous
-
-    this.httpService.getJobMatchInsights(jobId)
+    this.httpService.deleteJobAdmin(jobId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          this.selectedInsights = response;
-          if (response.error) {
-            this.toastService.showWarning(response.error);
-          }
+        next: () => {
+          this.toastService.showSuccess('Job deleted successfully.');
+          this.loadJobs(false);
         },
         error: () => {
-          this.toastService.showError('Unable to fetch smart insights.');
-          this.insightJobId = null;
+          this.toastService.showError('Failed to delete job.');
         }
       });
-  }
-
-  closeInsights(): void {
-    this.selectedInsights = null;
-    this.insightJobId = null;
   }
 
   logout(): void {
@@ -300,10 +439,6 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }
