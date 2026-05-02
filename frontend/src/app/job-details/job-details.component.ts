@@ -230,7 +230,12 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     const looksLikeHtml = fixed.trim().startsWith('<');
 
     try {
-      const html = looksLikeHtml ? fixed : marked.parse(fixed || '', { async: false });
+      const html = looksLikeHtml
+        ? fixed
+        : marked.parse(fixed || '', {
+            async: false,
+            breaks: true
+          });
       const clean = sanitizeHtml(String(html));
       return this.sanitizer.bypassSecurityTrustHtml(clean);
     } catch {
