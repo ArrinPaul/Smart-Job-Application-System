@@ -229,6 +229,12 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     // If the fixed text already looks like HTML, don't run it through the markdown parser
     const looksLikeHtml = fixed.trim().startsWith('<');
 
+    // Some scraped descriptions arrive as one giant line of text with section keywords.
+    // Convert those into headings + bullets to improve readability.
+    if (!looksLikeHtml) {
+      fixed = this.structureLongPlainText(fixed);
+    }
+
     try {
       const html = looksLikeHtml
         ? fixed
@@ -323,6 +329,97 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     }
 
     return cleaned.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  private structureLongPlainText(input: string): string {
+    const raw = (input || '').trim();
+    if (!raw) return raw;
+
+    // Only apply to descriptions that are effectively a single paragraph.
+    // Avoid interfering with already-structured markdown.
+    const newlineCount = (raw.match(/\n/g) || []).length;
+    const alreadyStructured = /(^|\n)\s*(#{1,6}\s+|-\s+)/.test(raw);
+    if (alreadyStructured) return raw;
+    if (newlineCount >= 6) return raw;
+    if (raw.length < 320) return raw;
+
+    let text = raw;
+
+    // Insert section headings (German + common English).
+    text = text
+      .replace(/\s+(Aufgaben)\s+/i, '\n\n### $1\n\n')
+      .replace(/\s+(Qualifikation|Qualifikationen)\s+/i, '\n\n### Qualifikation\n\n')
+      .replace(/\s+(Benefits)\s+/i, '\n\n### Benefits\n\n')
+      .replace(/\s+Ehrlich\s+gesagt[^:]*wenn\s*:\s*/i, '\n\n### Nicht der richtige Job f\u00fcr dich, wenn:\n\n')
+      .replace(/\s+(Responsibilities)\s*:?\s+/i, '\n\n### Responsibilities\n\n')
+      .replace(/\s+(Requirements|Qualifications)\s*:?\s+/i, '\n\n### Requirements\n\n')
+      .replace(/\s+(What\s+You\s+Will\s+Do)\s*:?\s+/i, '\n\n### What You Will Do\n\n')
+      .replace(/\s+(What\s+We\s+Offer|Perks)\s*:?\s+/i, '\n\n### What We Offer\n\n');
+
+    // Bulletize known sections.
+    text = this.bulletizeSection(text, 'Aufgaben', { splitOnDu: true });
+    text = this.bulletizeSection(text, 'Qualifikation', { mode: 'qualifications' });
+    text = this.bulletizeSection(text, 'Benefits', { mode: 'benefits' });
+    text = this.bulletizeSection(text, 'Nicht der richtige Job f\u00fcr dich, wenn:', { splitOnDu: true });
+
+    return text
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  private bulletizeSection(
+    input: string,
+    heading: string,
+    options: { splitOnDu?: boolean; mode?: 'qualifications' | 'benefits' }
+  ): string {
+    const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const sectionRegex = new RegExp(`(^|\\n)###\\s+${escapedHeading}\\s*\\n+([\\s\\S]*?)(?=\\n###\\s+|$)`, 'i');
+    const match = input.match(sectionRegex);
+    if (!match) return input;
+
+    const prefix = match[1] || '';
+    const body = (match[2] || '').trim();
+    if (!body) return input;
+    if (/(^|\n)\s*-\s+/.test(body)) return input;
+
+    const compact = body.replace(/\s+/g, ' ').trim();
+    let parts: string[] = [];
+
+    if (options.splitOnDu) {
+      parts = compact
+        .split(/\s+(?=Du\s+)/g)
+        .map(p => p.trim())
+        .filter(Boolean);
+    } else if (options.mode === 'qualifications') {
+      parts = compact
+        .replace(/\s+(?=(Mindestens|Tiefe|Meta\b|Tracking\b|Du\s+kannst|Du\s+arbeitest|Du\s+kennst|Klartext\b|Wer\b))/g, '\n')
+        .split('\n')
+        .map(p => p.trim())
+        .filter(Boolean);
+    } else if (options.mode === 'benefits') {
+      parts = compact
+        .replace(/\s+(?=(Gehalt\b|Hybrid\b|Direkter\b|Weiterbildungs\b|Tool-Budget\b|Modernes\b|Top-Equipment\b|\d+\s+Urlaubstage\b|Echte\b))/g, '\n')
+        .replace(/\s+(?=([A-ZÄÖÜ][^\n]{0,30}:))/g, '\n')
+        .split('\n')
+        .map(p => p.trim())
+        .filter(Boolean);
+    } else {
+      parts = [compact];
+    }
+
+    // Fallback: split long leftover blocks into sentences.
+    if (parts.length === 1 && parts[0].length > 260) {
+      parts = parts[0]
+        .split(/(?<=[a-zäöüß])\.\s+(?=[A-ZÄÖÜ])/g)
+        .map(p => p.trim())
+        .filter(Boolean);
+    }
+
+    if (!parts.length) return input;
+
+    const bulleted = parts.map(p => `- ${p}`).join('\n');
+    const replacement = `${prefix}### ${heading}\n\n${bulleted}`;
+    return input.replace(sectionRegex, replacement);
   }
 
   private normalizeJob(rawJob: unknown): Job {
