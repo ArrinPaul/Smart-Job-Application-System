@@ -16,6 +16,24 @@
         <p class="hero-summary">{{ getDescriptionPreview() }}</p>
 
         <div class="hero-actions">
+          <a
+            *ngIf="job.applicationLink"
+            [href]="job.applicationLink"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hero-action hero-action-primary">
+            Apply Now →
+          </a>
+
+          <button
+            *ngIf="!job.applicationLink && job.isActive !== false"
+            type="button"
+            class="hero-action hero-action-primary"
+            (click)="applyInternally()"
+            [disabled]="isLoggedIn() && !isJobSeeker()">
+            {{ getInternalApplyLabel() }}
+          </button>
+
           <button type="button" class="hero-action hero-action-secondary" (click)="shareJob()">Copy Link</button>
         </div>
       </div>
@@ -141,13 +159,15 @@
                 Go to Application Portal →
               </a>
 
-              <!-- Case 2: Internal Apply (Normal Recruiter OR Global without link) -->
-              <button 
-                *ngIf="canApplyInternally()" 
-                type="button" 
-                class="portal-link portal-link-button" 
-                (click)="applyInternally()">
-                {{ isGlobalRecruiter() ? 'Apply Now' : 'Preview & Apply' }}
+              <!-- Case 2: Internal Apply (Normal Recruiter OR Global without link)
+                   Always show for active internal jobs; click redirects to login if needed. -->
+              <button
+                *ngIf="!job.applicationLink"
+                type="button"
+                class="portal-link portal-link-button"
+                (click)="applyInternally()"
+                [disabled]="isLoggedIn() && !isJobSeeker()">
+                {{ getInternalApplyLabel() }}
               </button>
             </div>
           </div>

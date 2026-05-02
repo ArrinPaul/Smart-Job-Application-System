@@ -272,17 +272,22 @@
 
 .description-text {
   color: var(--ink-soft);
-  line-height: 1.6;
+  line-height: 1.7;
   font-size: 15px;
   font-weight: 400;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
+  overflow-wrap: anywhere;
 }
 
-.description-text * {
+/* NOTE: Elements created via [innerHTML] do not receive the component's
+   emulated encapsulation attributes, so we need ::ng-deep to style them. */
+:host ::ng-deep .description-text,
+:host ::ng-deep .description-text * {
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
   font-size: 15px !important;
   font-weight: 400 !important;
-  line-height: 1.6 !important;
+  line-height: 1.7 !important;
+  color: inherit;
 }
 
 .section-stack {
@@ -307,55 +312,53 @@
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
 }
 
-.description-text h1,
-.description-text h2,
-.description-text h3,
-.description-text h4,
-.description-text h5,
-.description-text h6 {
+:host ::ng-deep .description-text h1,
+:host ::ng-deep .description-text h2,
+:host ::ng-deep .description-text h3,
+:host ::ng-deep .description-text h4,
+:host ::ng-deep .description-text h5,
+:host ::ng-deep .description-text h6 {
   color: var(--ink);
-  margin: 0.5rem 0 0.35rem 0;
+  margin: 0.7rem 0 0.4rem 0;
   padding: 0;
   font-size: 15px !important;
-  font-weight: 400 !important;
+  font-weight: 800 !important;
   font-family: 'Manrope', 'Segoe UI', sans-serif !important;
   letter-spacing: 0 !important;
-  line-height: 1.6 !important;
+  line-height: 1.35 !important;
 }
 
-.description-text p {
-  margin: 0.4rem 0;
-  padding: 0;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.description-text ul,
-.description-text ol {
-  margin: 0.4rem 0 0.6rem 1.2rem;
+:host ::ng-deep .description-text p {
+  margin: 0.55rem 0;
   padding: 0;
 }
 
-.description-text li {
-  margin: 0.2rem 0;
+:host ::ng-deep .description-text ul,
+:host ::ng-deep .description-text ol {
+  margin: 0.55rem 0 0.75rem 1.2rem;
   padding: 0;
-  font-size: 15px;
-  line-height: 1.6;
 }
 
-.description-text strong,
-.description-text b {
+:host ::ng-deep .description-text li {
+  margin: 0.35rem 0;
+  padding: 0;
+}
+
+:host ::ng-deep .description-text strong,
+:host ::ng-deep .description-text b {
   color: var(--ink);
-  font-weight: 400;
+  /* Scraped descriptions often contain inconsistent <strong> usage.
+     Keep text uniform by removing bold emphasis inside the body. */
+  font-weight: 400 !important;
 }
 
-.description-text em,
-.description-text i {
+:host ::ng-deep .description-text em,
+:host ::ng-deep .description-text i {
   font-style: italic;
 }
 
-.description-text .md-link,
-.description-text a {
+:host ::ng-deep .description-text .md-link,
+:host ::ng-deep .description-text a {
   color: var(--accent);
   text-decoration: none;
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 65%, transparent);

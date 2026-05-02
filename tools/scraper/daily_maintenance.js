@@ -18,16 +18,25 @@ try {
 const LOG = console;
 const BATCH_SIZE = 50;
 
+function slugify(value, id) {
+  const base = String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  const slug = base.slice(0, 200) || 'job';
+  if (!id) return slug;
+
+  const idSuffix = `-${id}`;
+  return slug.slice(0, 200 - idSuffix.length) + idSuffix;
+}
+
 /**
  * PHASE 1: Scrape and Initial Sync
  * This uses the existing scrape_and_sync logic but integrated.
  */
 async function runScrapeAndSync() {
   LOG.info('--- PHASE 1: Scraping and Initial Sync ---');
-  
-  // We execute the existing scrape_and_sync.js but we'll capture its logic or just run it
-  // Since we want it to be "one single action", calling it as a child process is fine,
-  // but let's ensure it does the scraping.
   
   const result = spawnSync(process.execPath, ['scrape_and_sync.js'], {
     cwd: __dirname,
@@ -82,7 +91,7 @@ async function runDeepNormalization() {
 
   while (true) {
     const rows = await client.query(
-      `SELECT id, title, description, required_skills, how_to_apply, company_name, location, job_type, application_link
+      `SELECT id, slug, title, description, required_skills, how_to_apply, company_name, location, job_type, application_link
        FROM jobs
        ORDER BY id
        LIMIT $1 OFFSET $2`,
@@ -105,12 +114,14 @@ async function runDeepNormalization() {
           howToApply: 'how_to_apply',
           applicationLink: 'application_link'
         },
-        strictEnglish: true // Ensure content is English after translation
+        strictEnglish: true
       });
 
       if (!normalized) continue;
 
+      const newSlug = slugify(`${normalized.title}-${normalized.companyName}`, row.id);
       const changed =
+        newSlug !== (row.slug || '') ||
         normalized.title !== (row.title || '') ||
         normalized.description !== (row.description || '') ||
         normalized.requiredSkills !== (row.required_skills || '') ||
@@ -128,8 +139,9 @@ async function runDeepNormalization() {
                how_to_apply = $4,
                company_name = $5,
                location = $6,
-               job_type = $7
-           WHERE id = $8`,
+               job_type = $7,
+               slug = $8
+           WHERE id = $9`,
           [
             normalized.title,
             normalized.description,
@@ -138,6 +150,7 @@ async function runDeepNormalization() {
             normalized.companyName || null,
             normalized.location || null,
             normalized.jobType || null,
+            newSlug,
             row.id
           ]
         );

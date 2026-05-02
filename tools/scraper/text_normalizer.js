@@ -6,6 +6,18 @@ const TRANSLATE_ENABLED = process.env.TRANSLATE_DISABLED !== 'true' && Boolean(T
 const TRANSLATE_MAX_CHARS = Number(process.env.TRANSLATE_MAX_CHARS || 3800);
 
 const languageCache = new Map();
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function postWithRetry(url, payload, options, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await axios.post(url, payload, options);
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await delay(1000 * (i + 1));
+    }
+  }
+}
 
 function countReplacement(text) {
   const matches = String(text || '').match(/\uFFFD/g);
@@ -144,7 +156,7 @@ async function detectLanguage(text) {
   try {
     const payload = { q: sample };
     if (TRANSLATE_KEY) payload.api_key = TRANSLATE_KEY;
-    const res = await axios.post(`${TRANSLATE_URL}/detect`, payload, { timeout: 15000 });
+    const res = await postWithRetry(`${TRANSLATE_URL}/detect`, payload, { timeout: 15000 });
     const lang = Array.isArray(res.data) && res.data[0] && res.data[0].language ? res.data[0].language : 'en';
     languageCache.set(sample, lang);
     return lang;
@@ -173,7 +185,7 @@ async function translateText(text, sourceLang) {
     if (TRANSLATE_KEY) payload.api_key = TRANSLATE_KEY;
 
     try {
-      const res = await axios.post(`${TRANSLATE_URL}/translate`, payload, { timeout: 20000 });
+      const res = await postWithRetry(`${TRANSLATE_URL}/translate`, payload, { timeout: 20000 });
       translatedChunks.push(res.data?.translatedText || chunk);
     } catch {
       translatedChunks.push(chunk);
