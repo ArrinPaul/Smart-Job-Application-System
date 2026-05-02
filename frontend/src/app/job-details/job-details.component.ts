@@ -121,6 +121,22 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     return this.authService.isJobSeeker();
   }
 
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  getInternalApplyLabel(): string {
+    if (!this.authService.isLoggedIn()) {
+      return 'Login to Apply';
+    }
+
+    if (!this.isJobSeeker()) {
+      return 'Apply (Job seekers only)';
+    }
+
+    return this.isGlobalRecruiter() ? 'Apply Now' : 'Preview & Apply';
+  }
+
   canApplyInternally(): boolean {
     // 1. Must be a Job Seeker
     if (!this.isJobSeeker()) return false;
@@ -134,6 +150,11 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     if (!this.authService.isLoggedIn()) {
       this.toastService.showWarning('Please login to apply for this job.');
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    if (!this.isJobSeeker()) {
+      this.toastService.showWarning('Only job seeker accounts can apply for jobs.');
       return;
     }
 

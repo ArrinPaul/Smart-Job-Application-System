@@ -347,7 +347,9 @@
 :host ::ng-deep .description-text strong,
 :host ::ng-deep .description-text b {
   color: var(--ink);
-  font-weight: 800 !important;
+  /* Scraped descriptions often contain inconsistent <strong> usage.
+     Keep text uniform by removing bold emphasis inside the body. */
+  font-weight: 400 !important;
 }
 
 :host ::ng-deep .description-text em,
