@@ -198,6 +198,16 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     return postedAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
+  getDescriptionPreview(): string {
+    const description = (this.job?.description || '').toString().trim();
+    if (!description) {
+      return 'Review the responsibilities, requirements, and application steps below.';
+    }
+
+    const compact = description.replace(/\s+/g, ' ');
+    return compact.length > 220 ? `${compact.slice(0, 217).trimEnd()}...` : compact;
+  }
+
   getSalaryLabel(): string {
     const { salaryMin, salaryMax, salaryCurrency = '$' } = this.job || {};
 
