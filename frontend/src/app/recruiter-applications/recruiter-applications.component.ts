@@ -184,32 +184,21 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
   applications: Application[] = [];
   filteredApplications: Application[] = [];
   loading = true;
-  currentStage = 'applied'; // applied, shortlisted, interviews, offers, hired
+  currentStage = 'applied'; 
   private destroy$ = new Subject<void>();
 
-  constructor() {}
-
   ngOnInit(): void {
-    // Robust stage detection from URL
-    this.route.url.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      const url = this.router.url;
-      if (url.includes('/shortlisted')) this.currentStage = 'shortlisted';
-      else if (url.includes('/interviews')) this.currentStage = 'interviews';
-      else if (url.includes('/offers')) this.currentStage = 'offers';
-      else if (url.includes('/hired')) this.currentStage = 'hired';
-      else this.currentStage = 'applied';
+    // 1. Initial Load
+    this.loadApplications();
+
+    // 2. React to URL changes (stage switching)
+    this.route.url.pipe(takeUntil(this.destroy$)).subscribe(segments => {
+      // Use the last segment if it's one of our stages, otherwise default to 'applied'
+      const path = segments.length > 0 ? segments[segments.length - 1].path : 'applied';
+      this.currentStage = ['applied', 'shortlisted', 'interviews', 'offers', 'hired'].includes(path) ? path : 'applied';
       
-      this.loadApplications();
+      this.applyStageFilter();
     });
-  }
-
-  logout(): void {
-    this.authService.logout();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   loadApplications(): void {
@@ -221,84 +210,55 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (apps) => {
-          this.applications = apps;
+          this.applications = apps || [];
           this.applyStageFilter();
         },
-        error: () => this.toastService.showError('Failed to load applications')
+        error: () => this.toastService.showError('Failed to sync pipeline data')
       });
   }
 
   applyStageFilter(): void {
-    if (!this.applications) return;
+    if (!this.applications) {
+      this.filteredApplications = [];
+      return;
+    }
     
-    // Normalize status comparison to avoid case issues
-    switch (this.currentStage) {
-      case 'shortlisted':
-        this.filteredApplications = this.applications.filter(app => 
-          app.status.toUpperCase() === ApplicationStatus.SHORTLISTED
-        );
-        break;
-      case 'interviews':
-        const interviewStatuses = [
-          ApplicationStatus.PHONE_SCREEN, 
-          ApplicationStatus.TECHNICAL_INTERVIEW, 
-          ApplicationStatus.ON_SITE_INTERVIEW
-        ];
-        this.filteredApplications = this.applications.filter(app => 
-          interviewStatuses.includes(app.status.toUpperCase() as any)
-        );
-        break;
-      case 'offers':
-        this.filteredApplications = this.applications.filter(app => 
-          app.status.toUpperCase() === ApplicationStatus.OFFER_EXTENDED
-        );
-        break;
-      case 'hired':
-        this.filteredApplications = this.applications.filter(app => 
-          app.status.toUpperCase() === ApplicationStatus.HIRED
-        );
-        break;
-      case 'applied':
-      default:
-        this.filteredApplications = this.applications.filter(app => 
-          app.status.toUpperCase() === ApplicationStatus.APPLIED
-        );
-        break;
-    }
-  }
-
-  filterApps(event: any): void {
-    const term = event.target.value.toLowerCase();
-    this.applyStageFilter(); // Reset to current stage first
-    if (term) {
-      this.filteredApplications = this.filteredApplications.filter(app => 
-        (app.applicant.fullName || '').toLowerCase().includes(term) ||
-        app.applicant.username.toLowerCase().includes(term) ||
-        app.job.title.toLowerCase().includes(term)
-      );
-    }
+    const targetStage = this.currentStage.toUpperCase();
+    
+    this.filteredApplications = this.applications.filter(app => {
+      const status = (app.status || '').toUpperCase();
+      
+      switch (targetStage) {
+        case 'SHORTLISTED':
+          return status === 'SHORTLISTED';
+        case 'INTERVIEWS':
+          return ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW'].includes(status);
+        case 'OFFERS':
+          return status === 'OFFER_EXTENDED';
+        case 'HIRED':
+          return status === 'HIRED';
+        case 'APPLIED':
+        default:
+          return status === 'APPLIED';
+      }
+    });
   }
 
   getCount(stage: string): number {
-    if (!this.applications.length) return 0;
+    if (!this.applications) return 0;
     
     switch (stage) {
       case 'shortlisted':
-        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.SHORTLISTED).length;
+        return this.applications.filter(app => (app.status || '').toUpperCase() === 'SHORTLISTED').length;
       case 'interviews':
-        const interviewStatuses = [
-          ApplicationStatus.PHONE_SCREEN, 
-          ApplicationStatus.TECHNICAL_INTERVIEW, 
-          ApplicationStatus.ON_SITE_INTERVIEW
-        ];
-        return this.applications.filter(app => interviewStatuses.includes(app.status.toUpperCase() as any)).length;
+        return this.applications.filter(app => ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW'].includes((app.status || '').toUpperCase())).length;
       case 'offers':
-        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.OFFER_EXTENDED).length;
+        return this.applications.filter(app => (app.status || '').toUpperCase() === 'OFFER_EXTENDED').length;
       case 'hired':
-        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.HIRED).length;
+        return this.applications.filter(app => (app.status || '').toUpperCase() === 'HIRED').length;
       case 'applied':
       default:
-        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.APPLIED).length;
+        return this.applications.filter(app => (app.status || '').toUpperCase() === 'APPLIED').length;
     }
   }
 

@@ -1,12 +1,4 @@
 <div class="page-shell">
-  <nav class="top-nav">
-    <a routerLink="/jobs">Browse Jobs</a>
-    <a routerLink="/applications">My Applications</a>
-    <a routerLink="/resume" class="active">Resume Vault</a>
-    <span class="nav-spacer"></span>
-    <button type="button" (click)="logout()">Logout</button>
-  </nav>
-
   <div class="page-header">
     <div>
       <h2>Resume Vault</h2>
@@ -44,8 +36,8 @@
     </div>
 
     <div class="action-row">
-      <button type="button" (click)="onUpload()" [disabled]="isUploading || !selectedFile">
-        {{ isUploading ? 'Uploading...' : 'Upload Resume' }}
+      <button type="button" class="btn--primary" (click)="onUpload()" [disabled]="isUploading || !selectedFile" style="width: 100%;">
+        {{ isUploading ? 'Syncing...' : 'Upload & Sync Resume' }}
       </button>
     </div>
   </section>

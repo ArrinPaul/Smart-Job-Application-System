@@ -1,8 +1,8 @@
 // File: ./src/app/post-job/post-job.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
@@ -30,6 +30,12 @@ import { takeUntil } from 'rxjs/operators';
   ]
 })
 export class PostJobComponent implements OnInit, OnDestroy {
+  private httpService = inject(HttpService);
+  private authService = inject(AuthService);
+  private toastService = inject(ToastService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   // Wizard State
   currentStep = 1;
   totalSteps = 5;
@@ -55,7 +61,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
   readonly experienceLevels = ['Entry-level', 'Mid-level', 'Senior', 'Lead'];
   readonly workModes = ['Remote', 'Hybrid', 'On-site'];
 
-  // Expanded 2025 Skills List (50+ items)
+  // Expanded 2025 Skills List
   readonly coreSkills = [
     'Python', 'JavaScript', 'TypeScript', 'Java', 'Go (Golang)', 'Rust', 'C#', 'SQL', 'PostgreSQL',
     'React.js', 'Angular', 'Node.js', 'Next.js', 'Spring Boot', 'AWS', 'Azure', 'GCP',
@@ -73,69 +79,70 @@ export class PostJobComponent implements OnInit, OnDestroy {
   ];
 
   readonly interviewStages = [
-    'Initial HR Screening',
-    'Technical Phone Screen',
-    'Online Coding Assessment',
-    'Take-Home Project',
-    'System Design Interview',
-    'Data Structures & Algorithms',
-    'Pair Programming',
-    'Behavioral / Culture Fit',
-    'Hiring Manager Round',
-    '2 rounds (technical + culture)',
-    '3 rounds (screening + tech + manager)'
+    'Initial HR Screening', 'Technical Phone Screen', 'Online Coding Assessment',
+    'Take-Home Project', 'System Design Interview', 'Data Structures & Algorithms',
+    'Pair Programming', 'Behavioral / Culture Fit', 'Hiring Manager Round',
+    '2 rounds (technical + culture)', '3 rounds (screening + tech + manager)'
   ];
 
   readonly salaryRanges = [
-    '3 - 6 LPA',
-    '6 - 10 LPA',
-    '10 - 15 LPA',
-    '15 - 25 LPA',
-    '25 - 40 LPA',
-    '40 - 60 LPA',
-    '60 - 100 LPA',
-    '100+ LPA',
-    'Competitive / Not Disclosed'
+    '3 - 6 LPA', '6 - 10 LPA', '10 - 15 LPA', '15 - 25 LPA', '25 - 40 LPA',
+    '40 - 60 LPA', '60 - 100 LPA', '100+ LPA', 'Competitive / Not Disclosed'
   ];
 
-  // Custom selection states
   isCustomSalary = false;
   isCustomInterview = false;
-
   isLoading = false;
-  
-  myJobs: Job[] = [];
   editingJobId: number | null = null;
+  activeJobsCount = 0;
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private httpService: HttpService,
-    private authService: AuthService,
-    private toastService: ToastService,
-    private router: Router
-  ) {}
-
   ngOnInit(): void {
-    this.loadMyJobs();
+    this.checkEditMode();
+    this.loadStats();
   }
 
-  // Helper for adding skills
+  checkEditMode(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const editId = params['edit'];
+      if (editId) {
+        this.loadJobToEdit(Number(editId));
+      }
+    });
+  }
+
+  loadJobToEdit(id: number): void {
+    this.httpService.getRecruiterJobs().subscribe(jobs => {
+      const job = jobs.find(j => j.id === id);
+      if (job) {
+        this.editingJobId = job.id;
+        this.jobTitle = job.title;
+        this.jobDescription = this.extractOriginalDescription(job.description);
+        this.jobLocation = job.location;
+        this.employmentType = job.jobType || 'Full-time';
+        this.workMode = job.workType || 'Remote';
+        this.mustHaveSkillsInput = job.requiredSkills || '';
+      }
+    });
+  }
+
+  loadStats(): void {
+    this.httpService.getRecruiterJobs().subscribe(jobs => {
+      this.activeJobsCount = jobs.length;
+    });
+  }
+
   addSkill(target: 'must' | 'nice', skill: string): void {
     if (!skill || skill === 'CUSTOM') return;
-
     if (target === 'must') {
       const skills = this.csvToList(this.mustHaveSkillsInput);
       if (!skills.includes(skill)) {
-        this.mustHaveSkillsInput = this.mustHaveSkillsInput 
-          ? `${this.mustHaveSkillsInput}, ${skill}`
-          : skill;
+        this.mustHaveSkillsInput = this.mustHaveSkillsInput ? `${this.mustHaveSkillsInput}, ${skill}` : skill;
       }
     } else {
       const skills = this.csvToList(this.niceToHaveSkillsInput);
       if (!skills.includes(skill)) {
-        this.niceToHaveSkillsInput = this.niceToHaveSkillsInput 
-          ? `${this.niceToHaveSkillsInput}, ${skill}`
-          : skill;
+        this.niceToHaveSkillsInput = this.niceToHaveSkillsInput ? `${this.niceToHaveSkillsInput}, ${skill}` : skill;
       }
     }
   }
@@ -160,20 +167,6 @@ export class PostJobComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadMyJobs(): void {
-    this.httpService.getRecruiterJobs()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: Job[]) => {
-          this.myJobs = response;
-        },
-        error: () => {
-          // Error handled by interceptor toast
-        }
-      });
-  }
-
-  // Wizard Navigation
   nextStep(): void {
     if (this.validateStep(this.currentStep)) {
       if (this.currentStep < this.totalSteps) {
@@ -202,47 +195,28 @@ export class PostJobComponent implements OnInit, OnDestroy {
   validateStep(step: number): boolean {
     switch(step) {
       case 1:
-        if (!this.jobTitle.trim()) {
-          this.toastService.showWarning('Job title is required');
-          return false;
-        }
-        if (!this.jobLocation.trim()) {
-          this.toastService.showWarning('Location is required');
-          return false;
-        }
+        if (!this.jobTitle.trim()) { this.toastService.showWarning('Job title is required'); return false; }
+        if (!this.jobLocation.trim()) { this.toastService.showWarning('Location is required'); return false; }
         return true;
       case 2:
-        if (!this.jobDescription.trim()) {
-          this.toastService.showWarning('Job description is required');
-          return false;
-        }
+        if (!this.jobDescription.trim()) { this.toastService.showWarning('Job description is required'); return false; }
         return true;
       case 3:
-        if (!this.mustHaveSkillsInput.trim()) {
-          this.toastService.showWarning('Please add at least one must-have skill');
-          return false;
-        }
+        if (!this.mustHaveSkillsInput.trim()) { this.toastService.showWarning('Please add at least one must-have skill'); return false; }
         return true;
       case 4:
-        if (this.screeningQuestions.length === 0) {
-          this.toastService.showWarning('Please add at least one screening question');
-          return false;
-        }
+        if (this.screeningQuestions.length === 0) { this.toastService.showWarning('Please add at least one screening question'); return false; }
         return true;
-      default:
-        return true;
+      default: return true;
     }
   }
 
   onPostJob(): void {
-    if (!this.validateStep(1) || !this.validateStep(2) || !this.validateStep(3) || !this.validateStep(4)) {
-      return;
-    }
+    if (!this.validateStep(1) || !this.validateStep(2) || !this.validateStep(3) || !this.validateStep(4)) return;
 
     this.isLoading = true;
     const enrichedDescription = this.buildEnrichedDescription();
 
-    // Parse salary range (e.g., "10 - 15 LPA" -> min: 1000000, max: 1500000)
     let salaryMin: number | undefined;
     let salaryMax: number | undefined;
     if (this.salaryRange && this.salaryRange.includes('LPA')) {
@@ -255,7 +229,6 @@ export class PostJobComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Parse experience level (e.g., "Senior" -> 5)
     let expRequired = 0;
     switch(this.experienceLevel) {
       case 'Entry-level': expRequired = 0; break;
@@ -278,55 +251,22 @@ export class PostJobComponent implements OnInit, OnDestroy {
       howToApply: this.interviewProcess
     };
 
-    if (this.editingJobId) {
-      this.httpService.updateJob(this.editingJobId, jobData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.toastService.showSuccess('Job updated successfully!');
-            this.finishPosting();
-          },
-          error: () => {
-            this.isLoading = false;
-          }
-        });
-    } else {
-      this.httpService.createJob(jobData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.toastService.showSuccess('Job posted successfully!');
-            this.finishPosting();
-          },
-          error: () => {
-            this.isLoading = false;
-          }
-        });
-    }
-  }
+    const request = this.editingJobId 
+      ? this.httpService.updateJob(this.editingJobId, jobData)
+      : this.httpService.createJob(jobData);
 
-  finishPosting(): void {
-    this.resetForm();
-    this.loadMyJobs();
-    this.currentStep = 1;
-    window.scrollTo(0, 0);
-  }
-
-  editJob(job: Job): void {
-    this.editingJobId = job.id;
-    this.jobTitle = job.title;
-    this.jobDescription = this.extractOriginalDescription(job.description);
-    this.jobLocation = job.location;
-    this.currentStep = 1;
-    window.scrollTo(0, 0);
+    request.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.toastService.showSuccess(this.editingJobId ? 'Posting updated!' : 'Job published successfully!');
+        this.router.navigate(['/recruiter/jobs']);
+      },
+      error: () => this.isLoading = false
+    });
   }
 
   addScreeningQuestion(): void {
     const value = this.newQuestion.trim();
-    if (!value) {
-      return;
-    }
-
+    if (!value) return;
     this.screeningQuestions = [...this.screeningQuestions, value];
     this.newQuestion = '';
   }
@@ -341,136 +281,40 @@ export class PostJobComponent implements OnInit, OnDestroy {
     }
   }
 
-  get mustHaveSkills(): string[] {
-    return this.csvToList(this.mustHaveSkillsInput);
-  }
+  get mustHaveSkills(): string[] { return this.csvToList(this.mustHaveSkillsInput); }
+  get niceToHaveSkills(): string[] { return this.csvToList(this.niceToHaveSkillsInput); }
 
-  get niceToHaveSkills(): string[] {
-    return this.csvToList(this.niceToHaveSkillsInput);
-  }
-
-  get totalStructuredFields(): number {
-    let filled = 0;
-    if (this.salaryRange.trim()) filled++;
-    if (this.mustHaveSkills.length > 0) filled++;
-    if (this.niceToHaveSkills.length > 0) filled++;
-    if (this.interviewProcess.trim()) filled++;
-    if (this.screeningQuestions.length > 0) filled++;
-    return filled;
-  }
-
-  getActiveJobsCount(): number {
-    return this.myJobs.length;
-  }
-
-  deleteJob(jobId: number): void {
-    if (confirm('Are you sure you want to delete this job?')) {
-      this.httpService.deleteJob(jobId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.toastService.showSuccess('Job deleted successfully');
-            this.loadMyJobs();
-          },
-          error: () => {
-            // Error handled by interceptor toast
-          }
-        });
-    }
-  }
+  getActiveJobsCount(): number { return this.activeJobsCount; }
 
   resetForm(): void {
-    this.jobTitle = '';
-    this.jobDescription = '';
-    this.jobLocation = '';
-    this.employmentType = 'Full-time';
-    this.experienceLevel = 'Mid-level';
-    this.workMode = 'Remote';
-    this.salaryRange = '';
-    this.mustHaveSkillsInput = '';
-    this.niceToHaveSkillsInput = '';
-    this.interviewProcess = '2 rounds (technical + culture)';
-    this.screeningQuestions = [
-      'What is one project where you shipped production code recently?',
-      'Why does this role fit your career goals?'
-    ];
-    this.newQuestion = '';
-    this.editingJobId = null;
-    this.isLoading = false;
-    this.isCustomSalary = false;
-    this.isCustomInterview = false;
+    this.router.navigate(['/recruiter/jobs']);
   }
 
   private csvToList(value: string): string[] {
-    return value
-      .split(',')
-      .map(item => item.trim())
-      .filter(item => item.length > 0);
+    return value.split(',').map(item => item.trim()).filter(item => item.length > 0);
   }
 
   private buildEnrichedDescription(): string {
-    const mustHave = this.mustHaveSkills;
-    const niceToHave = this.niceToHaveSkills;
-    const questions = this.screeningQuestions
-      .map((q, idx) => `${idx + 1}. ${q}`)
-      .join('\n');
-
+    const questions = this.screeningQuestions.map((q, idx) => `${idx + 1}. ${q}`).join('\n');
     return [
-      this.jobDescription.trim(),
-      '',
-      '--- Role Details ---',
-      `Employment Type: ${this.employmentType}`,
-      `Experience Level: ${this.experienceLevel}`,
-      `Work Mode: ${this.workMode}`,
+      this.jobDescription.trim(), '', '--- Role Details ---',
+      `Employment Type: ${this.employmentType}`, `Experience Level: ${this.experienceLevel}`, `Work Mode: ${this.workMode}`,
       this.salaryRange.trim() ? `Salary Range: ${this.salaryRange.trim()}` : null,
-      mustHave.length ? `Must-Have Skills: ${mustHave.join(', ')}` : null,
-      niceToHave.length ? `Nice-to-Have Skills: ${niceToHave.join(', ')}` : null,
+      this.mustHaveSkills.length ? `Must-Have Skills: ${mustHaveSkills.join(', ')}` : null,
+      this.niceToHaveSkills.length ? `Nice-to-Have Skills: ${niceToHaveSkills.join(', ')}` : null,
       this.interviewProcess.trim() ? `Interview Process: ${this.interviewProcess.trim()}` : null,
-      '',
-      '--- Screening Questions ---',
-      questions
-    ]
-      .filter((line): line is string => !!line)
-      .join('\n');
+      '', '--- Screening Questions ---', questions
+    ].filter((line): line is string => !!line).join('\n');
   }
 
   private extractOriginalDescription(description: string): string {
     const markerIndex = description.indexOf('\n--- Role Details ---');
-    if (markerIndex === -1) {
-      return description;
-    }
-
-    return description.slice(0, markerIndex).trim();
+    return markerIndex === -1 ? description : description.slice(0, markerIndex).trim();
   }
 
-  logout(): void {
-    this.authService.logout();
-  }
-
-  getTabLabel(step: number): string {
-    const labels: { [key: number]: string } = {
-      1: 'Basics',
-      2: 'Role',
-      3: 'Requirements',
-      4: 'Questions',
-      5: 'Review'
-    };
-    return labels[step] || '';
-  }
-
-  getTabIcon(step: number): string {
-    const icons: { [key: number]: string } = {
-      1: '1',
-      2: '2',
-      3: '3',
-      4: '4',
-      5: '5'
-    };
-    return icons[step] || '';
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  logout(): void { this.authService.logout(); }
+  getTabLabel(step: number): string { return {1:'Basics', 2:'Role', 3:'Requirements', 4:'Questions', 5:'Review'}[step] || ''; }
+  getTabIcon(step: number): string { return step.toString(); }
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 }
+

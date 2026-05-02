@@ -251,10 +251,11 @@
 
           <!-- WIZARD ACTIONS -->
           <div class="wizard-actions">
-            <button type="button" class="btn-secondary" (click)="prevStep()" *ngIf="currentStep > 1">< Back</button>
+            <button type="button" class="btn--secondary" (click)="prevStep()" *ngIf="currentStep > 1">< Back</button>
             <span class="spacer"></span>
-            <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">Next Step ></button>
-            <button type="button" class="btn-muted" *ngIf="editingJobId" (click)="resetForm()">Cancel Edit</button>
+            <button type="button" class="btn--secondary" (click)="currentStep = 5" *ngIf="currentStep < 4">Skip to Review</button>
+            <button type="button" class="btn--primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">Next Step ></button>
+            <button type="button" class="btn--primary" *ngIf="editingJobId" (click)="resetForm()" style="background: var(--ink) !important; color: white !important; border-color: var(--ink) !important;">Cancel Edit</button>
           </div>
         </form>
       </article>
@@ -301,33 +302,6 @@
           </div>
         </div>
       </article>
-    </section>
-
-    <!-- ACTIVE LISTINGS SECTION -->
-    <section class="panel active-listings">
-      <div class="panel-header">
-        <h3>My Job Postings</h3>
-      </div>
-
-      <div class="job-cards-list" *ngIf="myJobs.length > 0; else noJobsTpl">
-          <div class="job-item" *ngFor="let job of myJobs">
-            <div class="job-item-info">
-              <h4>{{ job.title }}</h4>
-              <p>{{ job.location }} - Posted {{ job.createdAt | date:'mediumDate' }}</p>
-            </div>
-            <div class="job-item-actions">
-              <button type="button" class="btn-icon" (click)="editJob(job)" title="Edit">Edit</button>
-              <button type="button" class="btn-icon btn-danger-soft" (click)="deleteJob(job.id)" title="Delete">Del</button>
-            </div>
-          </div>
-      </div>
-
-      <ng-template #noJobsTpl>
-        <div class="empty-state">
-          <h3>No jobs posted yet</h3>
-          <p>Publish your first role to start receiving applications.</p>
-        </div>
-      </ng-template>
     </section>
   </div>
 </div>

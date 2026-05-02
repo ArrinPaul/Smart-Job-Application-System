@@ -95,6 +95,9 @@
           <button *ngIf="isRecruiter" class="btn--primary" [routerLink]="['/recruiter/applications', app.id]">
             Manage Candidate
           </button>
+          <button *ngIf="isJobSeeker" class="btn--primary" [routerLink]="['/jobs', app.id, 'apply']">
+            View Progress
+          </button>
           <button *ngIf="app.resume" type="button" class="btn--secondary" (click)="downloadResume(app.resume.id, app.resume.fileName)">
             Download CV
           </button>

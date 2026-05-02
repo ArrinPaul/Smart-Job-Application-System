@@ -74,14 +74,32 @@ import { AuthService } from '../services/auth.service';
           </div>
 
           <div class="card workflow-card">
-            <h3>Advance Pipeline</h3>
+            <div class="card-header-small">
+              <h3>Advance Pipeline</h3>
+              <span class="skip-hint">Skip steps if needed</span>
+            </div>
+            
             <div class="transition-grid">
+              <!-- Regular Next Step -->
               <button *ngFor="let status of nextPossibleStatuses" 
                       class="btn-status"
                       (click)="updateStatus(status)">
-                {{ status.replace('_', ' ') }}
+                Next: {{ status.replace('_', ' ') }}
               </button>
             </div>
+
+            <div class="skip-section" *ngIf="skippableStatuses.length > 0">
+              <hr class="divider">
+              <label class="section-label">Fast Track to Stage:</label>
+              <div class="skip-grid">
+                <button *ngFor="let status of skippableStatuses" 
+                        class="btn-skip"
+                        (click)="updateStatus(status)">
+                  {{ status.replace('_', ' ') }}
+                </button>
+              </div>
+            </div>
+
             <hr class="divider">
             <div class="danger-actions">
                <button class="btn-outline-danger" (click)="updateStatus(ApplicationStatus.REJECTED)">Reject</button>
@@ -234,10 +252,20 @@ import { AuthService } from '../services/auth.service';
     .score-num { font-size: 1.8rem; font-weight: 900; color: #1f1d18; font-family: 'Fraunces', serif; }
     .score-text { font-size: 0.8rem; color: #655f51; font-weight: 600; line-height: 1.4; }
 
-    .workflow-card h3 { margin-bottom: 15px; font-size: 1rem; color: #1f1d18; }
+    .workflow-card h3 { margin-bottom: 5px; font-size: 1.1rem; color: #1f1d18; font-family: 'Fraunces', serif; }
+    .card-header-small { margin-bottom: 20px; }
+    .skip-hint { font-size: 0.7rem; color: #655f51; font-weight: 700; text-transform: uppercase; }
+
     .transition-grid { display: flex; flex-direction: column; gap: 10px; }
-    .btn-status { padding: 12px; border-radius: 10px; border: 1px solid #d8c8ae; background: #fffcf7; color: #1f1d18; font-weight: 800; font-size: 0.85rem; cursor: pointer; text-align: left; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.05em; }
-    .btn-status:hover { border-color: #bb3e2d; background: #fdfaf5; color: #bb3e2d; }
+    .btn-status { padding: 14px; border-radius: 12px; border: 2px solid var(--brand); background: var(--surface); color: var(--brand); font-weight: 800; font-size: 0.85rem; cursor: pointer; text-align: center; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 12px rgba(187, 62, 45, 0.15); }
+    .btn-status:hover { background: white; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(187, 62, 45, 0.2); }
+
+    .skip-section { margin-top: 5px; }
+    .section-label { display: block; font-size: 0.65rem; font-weight: 900; color: #655f51; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+    .skip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-skip { padding: 8px 12px; border-radius: 8px; border: 1px solid #d8c8ae; background: #1f1d18; color: white; font-size: 0.65rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s; opacity: 0.85; }
+    .btn-skip:hover { opacity: 1; background: #000; transform: scale(1.02); }
+
     .divider { margin: 20px 0; border: none; border-top: 1px solid #d8c8ae; }
     .danger-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .btn-outline-danger { padding: 10px; border-radius: 10px; border: 2px solid #ffcccb; background: transparent; color: #9b251b; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; }
@@ -382,7 +410,20 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
        return [ApplicationStatus.SHORTLISTED];
     }
     
-    return this.statusFlow.slice(currentIndex + 1, currentIndex + 3);
+    // Suggest the next 1 step as primary
+    return this.statusFlow.slice(currentIndex + 1, currentIndex + 2);
+  }
+
+  get skippableStatuses(): ApplicationStatus[] {
+    if (!this.application) return [];
+    
+    const currentStatus = this.application.status.toUpperCase() as ApplicationStatus;
+    const currentIndex = this.statusFlow.indexOf(currentStatus);
+    
+    if (currentIndex === -1) return [];
+
+    // All steps after the next possible one
+    return this.statusFlow.slice(currentIndex + 2);
   }
 
   isStepCompleted(step: ApplicationStatus): boolean {

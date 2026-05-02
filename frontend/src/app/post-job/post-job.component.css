@@ -3,16 +3,17 @@
    ======================================== */
 
 .page-shell {
-  background: #f8f9fa;
+  background: #f4efe6;
   min-height: 100vh;
 }
 
 /* Header Tweaks */
 .page-header {
-  background: transparent;
-  color: #1a1410;
+  background: #fffcf7;
+  color: #1f1d18;
   padding: 60px 0 40px 0;
-  border-bottom: none;
+  border-bottom: 1px solid #d8c8ae;
+  margin-top: -48px; /* Offset global page-shell margin */
 }
 
 .header-content {
@@ -28,20 +29,22 @@
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 8px 0;
-  color: #1a1410;
+  color: #1f1d18;
+  font-family: 'Fraunces', serif;
   letter-spacing: -0.02em;
 }
 
 .header-text p {
-  color: #6b6157;
+  color: #655f51;
   margin: 0;
   font-size: 1.1rem;
   max-width: 600px;
+  font-weight: 600;
 }
 
 .mini-kpi {
-  background: white;
-  border: 2px solid #e8dfd0;
+  background: #fffcf7;
+  border: 2px solid #d8c8ae;
   padding: 16px 32px;
   border-radius: 16px;
   text-align: center;
@@ -52,7 +55,7 @@
   display: block;
   font-size: 10px;
   text-transform: uppercase;
-  color: #ff6b35;
+  color: #bb3e2d;
   font-weight: 800;
   letter-spacing: 0.1em;
 }
@@ -60,19 +63,20 @@
 .mini-value {
   font-size: 1.5rem;
   font-weight: 900;
+  color: #1f1d18;
 }
 
 /* Wizard Layout */
 .studio-wizard-container {
   max-width: 1200px;
-  margin: -30px auto 60px;
+  margin: 40px auto 60px;
   padding: 0 20px;
 }
 
 /* Wizard Tabs */
 .wizard-tabs {
   display: flex;
-  background: var(--bg-deep);
+  background: #eee4d4;
   border-radius: 12px;
   padding: 8px;
   box-shadow: var(--shadow-soft);
@@ -89,20 +93,20 @@
   padding: 12px !important;
   background: transparent !important;
   border: 2px solid transparent !important;
-  color: var(--ink-soft) !important;
+  color: #655f51 !important;
   box-shadow: none !important;
   min-width: 100px;
 }
 
 .tab-btn.active {
-  background: var(--surface) !important;
-  color: var(--brand) !important;
-  border: 2px solid var(--brand) !important;
+  background: #fffcf7 !important;
+  color: #bb3e2d !important;
+  border: 2px solid #bb3e2d !important;
   box-shadow: 0 4px 12px rgba(187, 62, 45, 0.1) !important;
 }
 
 .tab-btn.completed .tab-icon {
-  background: var(--accent);
+  background: #0d6774;
   color: white;
 }
 
@@ -115,7 +119,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--border);
+  background: #d8c8ae;
 }
 
 .tab-label {
@@ -126,22 +130,64 @@
   white-space: nowrap;
 }
 
+/* Studio Layout */
+.studio-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.panel {
+  background: #fffcf7;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 16px 28px rgba(56, 39, 20, 0.08);
+  border: 1px solid #d8c8ae;
+}
+
+.step-heading {
+  font-size: 1.6rem;
+  color: #1f1d18;
+  font-family: 'Fraunces', serif;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #eee4d4;
+}
+
+.step-hint {
+  color: #655f51;
+  font-size: 14px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
 /* Wizard Actions */
 .wizard-actions {
   display: flex;
   align-items: center;
   margin-top: 40px;
   padding-top: 24px;
-  border-top: 2px solid var(--line-soft);
+  border-top: 2px solid rgba(216, 200, 174, 0.4);
   gap: 12px;
 }
 
-/* Global button styles from styles.css will handle .btn-primary, .btn-secondary, etc. */
+.btn-skip-wizard {
+  background: var(--bg-deep) !important;
+  color: var(--ink-soft) !important;
+  border: 1px solid var(--d8c8ae) !important;
+  font-size: 0.75rem !important;
+}
+
+.btn-skip-wizard:hover {
+  background: var(--border) !important;
+  color: var(--ink) !important;
+}
 
 .btn-publish-final {
-  background: var(--surface) !important;
-  color: var(--brand) !important;
-  border: 2px solid var(--brand) !important;
+  background: #fffcf7 !important;
+  color: #bb3e2d !important;
+  border: 2px solid #bb3e2d !important;
   padding: 18px 48px !important;
   border-radius: 14px;
   font-size: 1.1rem !important;
@@ -159,24 +205,209 @@
 }
 
 .btn-publish-final:disabled {
-  background: var(--border) !important;
-  border-color: var(--border) !important;
-  color: var(--ink-soft) !important;
+  background: #d8c8ae !important;
+  border-color: #d8c8ae !important;
+  color: #655f51 !important;
   cursor: not-allowed;
   transform: none;
 }
 
-.skill-pill--soft {
-  background: #f0f0f0;
-  color: #666;
+/* ACTIVE LISTINGS SECTION */
+.active-listings-section {
+  max-width: 1200px;
+  margin: 60px auto 40px;
+  padding: 0 20px;
 }
 
-/* Responsive */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.section-header h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  color: #1f1d18;
+}
+
+.count-badge {
+  background: #eee4d4;
+  color: #655f51;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.job-management-card {
+  background: #fffcf7;
+  border: 1px solid #d8c8ae;
+  border-radius: 20px;
+  box-shadow: 0 16px 28px rgba(56, 39, 20, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.job-management-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(56, 39, 20, 0.12);
+  border-color: #bb3e2d;
+}
+
+.job-management-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0; width: 4px; background: #bb3e2d;
+}
+
+.card-body {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-main h4 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #1f1d18;
+  font-family: 'Fraunces', serif;
+  line-height: 1.2;
+}
+
+.job-meta {
+  margin: 8px 0 12px;
+  font-size: 0.9rem;
+  color: #655f51;
+  font-weight: 700;
+}
+
+.job-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.job-pill {
+  padding: 4px 12px;
+  background: #eee4d4;
+  color: #1f1d18;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-open {
+  background: #dbf1e3;
+  color: #1e6742;
+  border: 1px solid #b7e4c7;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(216, 200, 174, 0.4);
+}
+
+.btn-manage {
+  flex: 1;
+  padding: 12px 20px;
+  background: #1f1d18;
+  color: white;
+  border: 2px solid #1f1d18;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-manage:hover {
+  background: #000;
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  padding: 12px 20px;
+  background: transparent;
+  color: #9b251b;
+  border: 2px solid #ffcccb;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: #ffe4df;
+  border-color: #9b251b;
+}
+
+/* Empty State Styling */
+.empty-state-panel {
+  margin-top: 40px;
+  text-align: center;
+  border: 2px dashed #d8c8ae;
+  background: #f8efdf;
+  padding: 60px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.empty-state h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+  color: #1f1d18;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #655f51;
+  max-width: 400px;
+  margin: 0 auto;
+  font-weight: 600;
+}
+
+/* Responsive Grid */
 @media (max-width: 992px) {
   .studio-layout {
     grid-template-columns: 1fr;
   }
   .studio-preview-panel {
-    display: none; /* Hide preview on mobile during wizard */
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .jobs-grid {
+    grid-template-columns: 1fr;
+  }
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
   }
 }

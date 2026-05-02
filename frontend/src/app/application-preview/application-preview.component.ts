@@ -1,191 +1,205 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpService } from '../services/http.service';
-import { ToastService } from '../services/toast.service';
-import { AuthService } from '../services/auth.service';
-import { Job } from '../models/job.model';
-import { User } from '../models/user.model';
-import { Subject, takeUntil, finalize, forkJoin } from 'rxjs';
+import { Application, ApplicationStatus } from '../models/job.model';
+import { Subject, takeUntil, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-application-preview',
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="preview-container">
-      <div class="preview-card">
-        <header class="preview-header">
-          <button (click)="goBack()" class="back-btn">← Back to Job</button>
-          <h1>Application Preview</h1>
-          <p>Review your information before submitting to <strong>{{ job?.companyName || 'the recruiter' }}</strong></p>
-        </header>
-
-        <div class="preview-content" *ngIf="!loading; else loadingTpl">
-          <!-- Job Summary -->
-          <section class="summary-section">
-            <div class="job-mini-card">
-              <h3>{{ job?.title }}</h3>
-              <p>{{ job?.location }} · {{ job?.jobType }}</p>
-            </div>
-          </section>
-
-          <!-- Profile Info -->
-          <section class="info-section">
-            <h2>Your Profile</h2>
-            <div class="profile-preview">
-              <div class="profile-field">
-                <label>Full Name</label>
-                <p>{{ user?.fullName || user?.username }}</p>
-              </div>
-              <div class="profile-field">
-                <label>Email</label>
-                <p>{{ user?.email }}</p>
-              </div>
-              <div class="profile-field">
-                <label>Headline</label>
-                <p>{{ user?.headline || 'No headline set' }}</p>
-              </div>
-              <div class="profile-field">
-                <label>Skills</label>
-                <p>{{ user?.skills || 'No skills listed' }}</p>
-              </div>
-            </div>
-          </section>
-
-          <!-- Resume Info -->
-          <section class="info-section">
-            <h2>Resume</h2>
-            <div class="resume-status" [class.no-resume]="!hasResume">
-              <span class="status-icon">{{ hasResume ? '📄' : '⚠️' }}</span>
-              <div class="status-text">
-                <p><strong>{{ hasResume ? 'Resume attached' : 'No resume found' }}</strong></p>
-                <p>{{ hasResume ? 'The recruiter will receive your latest uploaded resume.' : 'Please upload a resume in your profile before applying.' }}</p>
-              </div>
-              <a *ngIf="!hasResume" routerLink="/profile" class="profile-link">Go to Profile</a>
-            </div>
-          </section>
-
-          <footer class="preview-footer">
-            <p class="terms">By clicking "Confirm & Submit", your profile and resume will be sent to the recruiter.</p>
-            <div class="actions">
-              <button class="btn-secondary" (click)="goBack()">Cancel & Return</button>
-              <button class="btn-publish-final" (click)="submitApplication()" [disabled]="submitting || !hasResume">
-                {{ submitting ? 'Submitting...' : 'Confirm & Submit Application' }}
-              </button>
-            </div>
-          </footer>
+    <div class="page-shell">
+      <div class="page-header">
+        <div class="container">
+          <button class="btn-back" routerLink="/applications">← Back to My Applications</button>
+          <h2 *ngIf="application">{{ application.job.title }}</h2>
+          <p *ngIf="application">{{ application.job.location }} · {{ application.job.jobType }}</p>
         </div>
-
-        <ng-template #loadingTpl>
-          <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Preparing your application preview...</p>
-          </div>
-        </ng-template>
       </div>
-    </div>
-  `,
-  styles: [`
-    .preview-container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
-      animation: fadeIn 0.3s ease-out;
-    }
-    .preview-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      overflow: hidden;
-      border: 1px solid #eef2f6;
-    }
-    .preview-header {
-      padding: 30px;
-      background: #f8fafc;
-      border-bottom: 1px solid #eef2f6;
-    }
-    .back-btn {
-      background: none;
-      border: none;
-      color: #64748b;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-bottom: 15px;
-      padding: 0;
-    }
-    .back-btn:hover { color: #1e293b; }
-    h1 { margin: 0; font-size: 1.5rem; color: #1e293b; }
-    .preview-header p { margin: 5px 0 0; color: #64748b; }
-    .preview-content { padding: 30px; }
-    .info-section { margin-top: 30px; }
-    h2 { font-size: 1.1rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 15px; }
-    .profile-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .profile-field label { display: block; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-    .profile-field p { margin: 0; color: #334155; font-weight: 500; }
-    .job-mini-card { background: #f1f5f9; padding: 15px; border-radius: 8px; }
-    .job-mini-card h3 { margin: 0; font-size: 1rem; color: #1e293b; }
-    .job-mini-card p { margin: 5px 0 0; color: #64748b; font-size: 0.9rem; }
-    .resume-status { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; }
-    .resume-status.no-resume { background: #fef2f2; border-color: #fecaca; }
-    .status-icon { font-size: 1.5rem; }
-    .status-text p { margin: 0; font-size: 0.9rem; }
-    .profile-link { margin-left: auto; color: #ef4444; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
-    .preview-footer { margin-top: 40px; border-top: 1px solid #f1f5f9; padding-top: 25px; }
-    .terms { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-bottom: 20px; }
-    .actions { display: flex; gap: 15px; justify-content: flex-end; align-items: center; }
-    
-    .btn-publish-final {
-      background: #ff6b35;
-      color: white !important;
-      border: none;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
-    }
-    
-    .btn-publish-final:disabled {
-      background: #fabca5;
-      cursor: not-allowed;
-    }
 
-    .spinner { width: 30px; height: 30px; border: 3px solid #f1f5f9; border-top-color: #ef4444; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-    .loading-state { text-align: center; padding: 40px 0; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  `]
+      <main class="container" *ngIf="application; else stateTpl">
+        <div class="preview-layout">
+          <!-- Main Info -->
+          <section class="main-info">
+            <div class="card status-card">
+              <div class="card-header">
+                <h3>Application Status</h3>
+                <span class="status-pill" [attr.data-status]="application.status">
+                  {{ application.status.replace('_', ' ') }}
+                </span>
+              </div>
+              
+              <div class="application-timeline">
+                <div *ngFor="let stage of statusFlow" 
+                     class="timeline-step" 
+                     [ngClass]="getStepStatus(stage)">
+                  <div class="step-dot"></div>
+                  <span class="step-label">{{ stage.replace('_', ' ') }}</span>
+                </div>
+              </div>
+
+              <div class="status-description">
+                <p class="highlight" [ngSwitch]="application.status">
+                  <span *ngSwitchCase="ApplicationStatus.APPLIED">Your application has been received and is waiting for review.</span>
+                  <span *ngSwitchCase="ApplicationStatus.SHORTLISTED">Congratulations! You've been shortlisted for the next round.</span>
+                  <span *ngSwitchCase="ApplicationStatus.PHONE_SCREEN">A recruiter will contact you soon for a brief phone screening.</span>
+                  <span *ngSwitchCase="ApplicationStatus.TECHNICAL_INTERVIEW">Prepare for your technical assessment or interview.</span>
+                  <span *ngSwitchCase="ApplicationStatus.ON_SITE_INTERVIEW">You've reached the final interview stage!</span>
+                  <span *ngSwitchCase="ApplicationStatus.OFFER_EXTENDED">Great news! An offer has been extended to you. Check your messages.</span>
+                  <span *ngSwitchCase="ApplicationStatus.HIRED">Welcome aboard! You've been hired for this position.</span>
+                  <span *ngSwitchCase="ApplicationStatus.REJECTED">The recruiter has decided not to move forward with your application at this time.</span>
+                  <span *ngSwitchCase="ApplicationStatus.HOLD">Your application is currently on hold for future consideration.</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="card logistics-card" *ngIf="application.interviewDate || application.interviewLocation">
+              <h3>Interview Details</h3>
+              <div class="logistics-grid">
+                <div class="logistic-item" *ngIf="application.interviewDate">
+                  <label>Scheduled For</label>
+                  <p>{{ application.interviewDate | date:'full' }}</p>
+                </div>
+                <div class="logistic-item" *ngIf="application.interviewLocation">
+                  <label>Location / Link</label>
+                  <p>
+                    <a *ngIf="isUrl(application.interviewLocation); else textLoc" [href]="application.interviewLocation" target="_blank">
+                      Join Meeting 🔗
+                    </a>
+                    <ng-template #textLoc>{{ application.interviewLocation }}</ng-template>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card feedback-card" *ngIf="application.recruiterFeedback">
+              <h3>Message from Recruiter</h3>
+              <div class="feedback-content">
+                <p>{{ application.recruiterFeedback }}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sidebar -->
+          <aside class="side-info">
+            <div class="card match-card" *ngIf="application.aiMatchScore">
+              <h3>Compatibility Score</h3>
+              <div class="score-circle">
+                <span class="score-num">{{ application.aiMatchScore }}%</span>
+              </div>
+              <p class="muted">Based on your profile and the job requirements.</p>
+            </div>
+
+            <div class="card resume-card" *ngIf="application.resume">
+              <h3>Submitted Resume</h3>
+              <div class="resume-info">
+                <div class="resume-icon">📄</div>
+                <p>{{ application.resume.fileName }}</p>
+              </div>
+              <button class="btn--secondary btn-block" (click)="downloadResume()">Download CV</button>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <ng-template #stateTpl>
+        <div class="container state-container">
+          <div class="spinner" *ngIf="loading"></div>
+          <p *ngIf="loading">Retrieving application details...</p>
+          <div class="error-box" *ngIf="error">
+            <h3>Not Found</h3>
+            <p>{{ error }}</p>
+            <button class="btn--primary" routerLink="/applications">Back to My Applications</button>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <style>
+      .preview-layout { display: grid; grid-template-columns: 1fr 320px; gap: 30px; }
+      .main-info { display: flex; flex-direction: column; gap: 24px; }
+      .side-info { display: flex; flex-direction: column; gap: 24px; }
+
+      .card { background: #fffcf7; border-radius: 20px; padding: 30px; border: 1px solid #d8c8ae; box-shadow: 0 16px 28px rgba(56, 39, 20, 0.1); position: relative; overflow: hidden; }
+      .card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #bb3e2d; }
+      
+      .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+      h3 { margin: 0; font-family: 'Fraunces', serif; color: #1f1d18; font-size: 1.5rem; }
+
+      .status-pill { padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--ink); color: white; }
+      .status-pill[data-status="HIRED"] { background: #dbf1e3; color: #1e6742; }
+      .status-pill[data-status="REJECTED"] { background: #ffe4df; color: #9b251b; }
+
+      .application-timeline { display: flex; gap: 20px; margin: 20px 0 40px; padding: 25px; background: #f8efdf; border-radius: 16px; border: 1px solid #d8c8ae; overflow-x: auto; }
+      .timeline-step { display: flex; flex-direction: column; align-items: center; gap: 12px; opacity: 0.4; min-width: 100px; flex: 1; position: relative; }
+      .timeline-step:not(:last-child)::after { content: ''; position: absolute; top: 15px; left: 50%; width: 100%; height: 3px; background: #d8c8ae; }
+      
+      .step-dot { width: 32px; height: 32px; background: #fffcf7; border-radius: 50%; z-index: 2; border: 4px solid #d8c8ae; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+      .step-label { font-size: 0.7rem; font-weight: 800; color: #655f51; text-transform: uppercase; text-align: center; }
+
+      .timeline-step.completed { opacity: 1; }
+      .timeline-step.completed .step-dot { background: #0d6774; border-color: #0d6774; color: white; }
+      .timeline-step.completed .step-dot::after { content: '✓'; font-weight: 900; }
+      .timeline-step.completed:not(:last-child)::after { background: #0d6774; }
+
+      .timeline-step.active { opacity: 1; }
+      .timeline-step.active .step-dot { background: #bb3e2d; border-color: #bb3e2d; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(187, 62, 45, 0.15); }
+      .timeline-step.active .step-label { color: #bb3e2d; }
+
+      .status-description { padding: 20px; background: #fff; border-radius: 12px; border-left: 4px solid #bb3e2d; }
+      .status-description p { margin: 0; font-weight: 700; color: #1f1d18; font-size: 1.1rem; }
+
+      .logistics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+      .logistic-item label { display: block; font-size: 0.7rem; font-weight: 800; color: #655f51; text-transform: uppercase; margin-bottom: 6px; }
+      .logistic-item p { font-weight: 700; color: #1f1d18; }
+      .logistic-item a { color: #0d6774; text-decoration: none; border-bottom: 2px solid #0d6774; }
+
+      .feedback-content { margin-top: 15px; padding: 20px; background: #f8efdf; border-radius: 12px; font-style: italic; color: #1f1d18; line-height: 1.6; }
+
+      .score-circle { width: 120px; height: 120px; border: 10px solid #bb3e2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 20px auto; }
+      .score-num { font-size: 2.2rem; font-weight: 900; color: #1f1d18; font-family: 'Fraunces', serif; }
+
+      .resume-info { display: flex; align-items: center; gap: 15px; margin: 20px 0; }
+      .resume-icon { font-size: 2.5rem; }
+      .resume-info p { font-weight: 700; color: #1f1d18; }
+
+      .btn-back { background: none; border: none; color: #655f51; cursor: pointer; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; font-size: 0.9rem; }
+      .btn-block { width: 100%; }
+
+      .state-container { text-align: center; padding: 100px 0; }
+      .spinner { width: 50px; height: 50px; border: 5px solid #eee4d4; border-top-color: #bb3e2d; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  `
 })
 export class ApplicationPreviewComponent implements OnInit, OnDestroy {
-  job: Job | null = null;
-  user: User | null = null;
+  private httpService = inject(HttpService);
+  private route = inject(ActivatedRoute);
+
+  application: Application | null = null;
   loading = true;
-  submitting = false;
-  hasResume = false;
+  error = '';
+
+  ApplicationStatus = ApplicationStatus;
+  statusFlow = [
+    ApplicationStatus.APPLIED,
+    ApplicationStatus.SHORTLISTED,
+    ApplicationStatus.PHONE_SCREEN,
+    ApplicationStatus.TECHNICAL_INTERVIEW,
+    ApplicationStatus.ON_SITE_INTERVIEW,
+    ApplicationStatus.OFFER_EXTENDED,
+    ApplicationStatus.HIRED
+  ];
+
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private httpService: HttpService,
-    private toastService: ToastService,
-    private authService: AuthService
-  ) {}
-
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return;
+    const id = this.route.snapshot.params['slug']; // Reusing slug param for ID for now, or updating route
+    if (id) {
+      this.loadApplication(Number(id));
     }
-
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const slug = params['slug'];
-      if (slug) {
-        this.loadData(slug);
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -193,70 +207,46 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadData(slug: string): void {
+  loadApplication(id: number): void {
     this.loading = true;
-    
-    forkJoin({
-      job: this.httpService.getJobBySlug(slug),
-      user: this.httpService.getCurrentUser()
-    }).pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.loading = false)
-    ).subscribe({
-      next: (data) => {
-        this.job = data.job;
-        this.user = data.user;
-        this.checkResume();
-      },
-      error: () => {
-        this.toastService.showError('Failed to load application data');
-        this.router.navigate(['/jobs']);
-      }
-    });
-  }
-
-  checkResume(): void {
-    const userId = this.authService.getUserId();
-    if (!userId) return;
-
-    this.httpService.getResumes(userId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (resumes) => {
-           this.hasResume = resumes && resumes.length > 0;
-        },
-        error: () => { 
-          // Fallback check: if onboarding is done, they might have profile-based data
-          this.hasResume = this.authService.isOnboardingCompleted();
-        }
-      });
-  }
-
-  submitApplication(): void {
-    if (!this.job) return;
-    
-    this.submitting = true;
-    this.httpService.applyJob(this.job.id)
+    this.httpService.getMyApplications()
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.submitting = false)
+        finalize(() => this.loading = false)
       )
       .subscribe({
-        next: () => {
-          this.toastService.showSuccess('Application submitted successfully!');
-          this.router.navigate(['/jobseeker/applications']);
+        next: (apps) => {
+          this.application = apps.find(a => a.id === id) || null;
+          if (!this.application) this.error = 'Application record not found.';
         },
-        error: (err) => {
-          this.toastService.showError(err.error?.message || 'Failed to submit application');
-        }
+        error: () => this.error = 'Failed to load application status.'
       });
   }
 
-  goBack(): void {
-    if (this.job) {
-      this.router.navigate(['/jobs', this.job.slug]);
-    } else {
-      this.router.navigate(['/jobs']);
-    }
+  getStepStatus(stage: ApplicationStatus): string {
+    if (!this.application) return '';
+    const currentIdx = this.statusFlow.indexOf(this.application.status.toUpperCase() as ApplicationStatus);
+    const targetIdx = this.statusFlow.indexOf(stage);
+
+    if (this.application.status === ApplicationStatus.REJECTED) return '';
+    if (currentIdx === targetIdx) return 'active';
+    if (targetIdx < currentIdx) return 'completed';
+    return '';
+  }
+
+  isUrl(str: string): boolean {
+    return str.startsWith('http') || str.includes('zoom.us') || str.includes('teams.microsoft');
+  }
+
+  downloadResume(): void {
+    if (!this.application?.resume?.id) return;
+    this.httpService.downloadResume(this.application.resume.id)
+      .subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Application_CV.pdf`;
+        a.click();
+      });
   }
 }

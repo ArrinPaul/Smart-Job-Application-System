@@ -60,9 +60,9 @@
               <div class="match-badge" [style.background-color]="getMatchColor(job.matchPercentage)">
                 <span class="match-percent">{{ job.matchPercentage }}%</span>
               </div>
-              
+
               <div class="card-content">
-                <h3 class="job-title">{{ job.title }}</h3>
+                <h3 class="job-title">{{ job.jobTitle }}</h3>
                 <p class="company-name"><strong>{{ job.companyName }}</strong></p>
                 <p class="job-location">📍 {{ job.location }}</p>
                 <p class="work-type">💼 {{ job.workType || 'Not specified' }}</p>
@@ -70,12 +70,11 @@
               </div>
 
               <div class="card-footer">
-                <a [routerLink]="['/jobs', job.id]" class="btn--primary" style="display: block; text-align: center; text-decoration: none;">
+                <a [routerLink]="['/jobs', job.slug]" class="btn--primary" style="display: block; text-align: center; text-decoration: none;">
                   Explore Opportunity
                 </a>
               </div>
-            </div>
-          </div>
+            </div>          </div>
 
           <div *ngIf="!loading && recommendations.length === 0" class="empty-state">
             <p>No recommendations yet. Complete your profile to get matched!</p>
