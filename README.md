@@ -50,6 +50,10 @@ graph TD
 ## 💬 AI Career Assistant
 The portal features an integrated **Conversational AI Assistant** that acts as your personal career coach.
 
+<p align="center">
+  <img src="frontend/src/assets/about/arch-ai-assistant.svg" width="600" alt="AI Assistant Architecture">
+</p>
+
 ### How it Works (Architecture):
 1. **Contextual Awareness**: Every message sent to the assistant is automatically wrapped with a "System Context" that includes your skills, experience level, and the specific details of the job you are currently viewing.
 2. **Provider Fallback Logic**: To ensure 100% availability, the assistant utilizes a triple-provider fallback system:
@@ -63,6 +67,10 @@ The portal features an integrated **Conversational AI Assistant** that acts as y
 ## ✉️ Direct Messaging (Recruiter ↔ Seeker)
 Bridge the communication gap with high-context direct messaging. No more "black hole" applications.
 
+<p align="center">
+  <img src="frontend/src/assets/about/arch-messaging.svg" width="600" alt="Messaging Architecture">
+</p>
+
 ### How it Works (Architecture):
 1. **Relational Persistence**: Messages are stored in a dedicated PostgreSQL table that maintains a hard link between the `sender_id`, `receiver_id`, and `job_id`. This allows the UI to automatically organize conversations by job title.
 2. **Read-Receipt Synchronization**: The system uses an atomic state management approach to track `isRead` status, ensuring that unread counts are synchronized across the seeker's dashboard and the recruiter's ATS.
@@ -74,6 +82,10 @@ Bridge the communication gap with high-context direct messaging. No more "black 
 
 ### 1. Recommendation & Scoring Engine
 The recommendation engine provides highly personalized job discovery through a high-performance neural architecture.
+
+<p align="center">
+  <img src="frontend/src/assets/about/arch-ecosystem.svg" width="600" alt="AI Ecosystem Architecture">
+</p>
 
 - **Neural Mapping**: The system transforms candidate skills and job descriptions into high-dimensional **Vector Embeddings**.
 - **Vector Search**: Utilizing **pgvector** in PostgreSQL, the engine performs a **Cosine Similarity** search across thousands of roles in milliseconds.
@@ -89,6 +101,10 @@ Reduces user effort by automating profile creation with sub-second precision.
 
 ## 🏢 Recruiter Ecosystem
 Empowering hiring teams with structured data and efficient workflows.
+
+<p align="center">
+  <img src="frontend/src/assets/about/arch-recruiter.svg" width="600" alt="Recruiter Ecosystem Architecture">
+</p>
 
 - **Structured Job Ingestion**: Move beyond "text-only" descriptions. Every job posted captures precise requirements (Job Type, Salary, Work Mode) which are immediately indexed for the vector search engine.
 - **Applicant Tracking (ATS)**: Recruiters have a dedicated workflow to manage candidates from the "Applied" state through "Shortlisted" to "Hired", with full access to AI-derived compatibility metrics.
