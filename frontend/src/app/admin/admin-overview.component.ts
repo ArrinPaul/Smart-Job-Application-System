@@ -311,7 +311,5 @@ export class AdminOverviewComponent implements OnInit, OnDestroy {
     this.trendChart?.destroy();
     this.recruiterChart?.destroy();
     this.funnelChart?.destroy();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
