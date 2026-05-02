@@ -32,10 +32,24 @@ public class Application {
     private Resume resume;
 
     @Column(nullable = false)
-    private String status; // APPLIED, SHORTLISTED, REJECTED, HIRED
+    private String status; // APPLIED, SHORTLISTED, PHONE_SCREEN, TECHNICAL_INTERVIEW, ON_SITE_INTERVIEW, OFFER_EXTENDED, HIRED, REJECTED, HOLD
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime appliedAt;
+
+    @Column(columnDefinition = "TEXT")
+    private String internalNotes;
+
+    private LocalDateTime interviewDate;
+    
+    private String interviewLocation; // URL or physical location
+
+    private Integer aiMatchScore;
+
+    @Column(columnDefinition = "TEXT")
+    private String recruiterFeedback;
+
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -43,5 +57,11 @@ public class Application {
             this.status = "APPLIED";
         }
         this.appliedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

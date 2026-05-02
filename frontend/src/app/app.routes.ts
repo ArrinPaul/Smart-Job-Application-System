@@ -67,13 +67,28 @@ export const routes: Routes = [
     path: 'applications',
     loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] }
+    data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] },
+    children: [
+      { path: '', redirectTo: 'active', pathMatch: 'full' },
+      { path: 'active', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) },
+      { path: 'interviews', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) },
+      { path: 'offers', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) },
+      { path: 'archived', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) }
+    ]
   },
   {
     path: 'recruiter/applications',
     loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.RECRUITER] }
+    data: { roles: [UserRole.RECRUITER] },
+    children: [
+      { path: '', redirectTo: 'applied', pathMatch: 'full' },
+      { path: 'applied', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'shortlisted', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'interviews', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'offers', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'hired', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) }
+    ]
   },
   {
     path: 'recruiter/applications/:id',

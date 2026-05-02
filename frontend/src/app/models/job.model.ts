@@ -65,6 +65,10 @@ export interface Application {
   updatedAt?: string;
   aiMatchScore?: number;
   resume?: ResumeMetadata;
+  internalNotes?: string;
+  interviewDate?: string;
+  interviewLocation?: string;
+  recruiterFeedback?: string;
 }
 
 export interface ResumeMetadata {
@@ -77,10 +81,23 @@ export interface ResumeMetadata {
 export enum ApplicationStatus {
   APPLIED = 'APPLIED',
   SHORTLISTED = 'SHORTLISTED',
+  PHONE_SCREEN = 'PHONE_SCREEN',
+  TECHNICAL_INTERVIEW = 'TECHNICAL_INTERVIEW',
+  ON_SITE_INTERVIEW = 'ON_SITE_INTERVIEW',
+  OFFER_EXTENDED = 'OFFER_EXTENDED',
+  HIRED = 'HIRED',
   REJECTED = 'REJECTED',
-  HIRED = 'HIRED'
+  HOLD = 'HOLD'
 }
 
 export interface UpdateApplicationStatusRequest {
   status: ApplicationStatus;
+}
+
+export interface UpdateApplicationDetailsRequest {
+  status?: ApplicationStatus;
+  internalNotes?: string;
+  interviewDate?: string;
+  interviewLocation?: string;
+  recruiterFeedback?: string;
 }

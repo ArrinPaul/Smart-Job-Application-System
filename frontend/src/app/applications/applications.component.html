@@ -39,18 +39,35 @@
     </div>
   </section>
 
+</header>
+
   <section class="panel" *ngIf="applications.length > 0">
-    <div class="panel-header">
-      <h3>Filter Pipeline</h3>
-    </div>
-    <div class="chip-row">
-      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='ALL'" (click)="setStatusFilter('ALL')">All</button>
-      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='APPLIED'" (click)="setStatusFilter('APPLIED')">Applied</button>
-      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='SHORTLISTED'" (click)="setStatusFilter('SHORTLISTED')">Shortlisted</button>
-      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='HIRED'" (click)="setStatusFilter('HIRED')">Hired</button>
-      <button type="button" class="chip-btn" [class.chip-btn--active]="selectedStatusFilter==='REJECTED'" (click)="setStatusFilter('REJECTED')">Rejected</button>
+    <div class="tabs-nav-container">
+      <div class="tabs-nav">
+        <a routerLink="/applications/active" routerLinkActive="active" class="tab-link">
+          Active ({{ getApplicationsCount('active') }})
+        </a>
+        <a routerLink="/applications/interviews" routerLinkActive="active" class="tab-link">
+          Interviews ({{ getApplicationsCount('interviews') }})
+        </a>
+        <a routerLink="/applications/offers" routerLinkActive="active" class="tab-link">
+          Offers ({{ getApplicationsCount('offers') }})
+        </a>
+        <a routerLink="/applications/archived" routerLinkActive="active" class="tab-link">
+          Archived ({{ getApplicationsCount('archived') }})
+        </a>
+      </div>
     </div>
   </section>
+
+  <style>
+    .tabs-nav-container { margin-bottom: 30px; }
+    .tabs-nav { display: flex; gap: 8px; background: #e2e8f0; padding: 6px; border-radius: 14px; width: fit-content; }
+    .tab-link { padding: 12px 28px; border-radius: 10px; text-decoration: none; color: #64748b; font-weight: 700; transition: all 0.2s; font-size: 0.95rem; }
+    .tab-link.active { background: white; color: #1e293b; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .application-cards { display: grid; gap: 24px; }
+    .application-card { background: white; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+  </style>
 
   <section class="application-cards" *ngIf="filteredApplications.length > 0; else noAppsTpl">
     <article class="application-card" *ngFor="let app of filteredApplications">

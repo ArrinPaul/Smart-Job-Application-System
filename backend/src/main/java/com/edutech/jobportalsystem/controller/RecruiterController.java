@@ -4,6 +4,7 @@ package com.edutech.jobportalsystem.controller;
 
 import com.edutech.jobportalsystem.entity.Job;
 import com.edutech.jobportalsystem.dto.job.JobUpsertRequest;
+import com.edutech.jobportalsystem.dto.job.UpdateApplicationDetailsRequest;
 import com.edutech.jobportalsystem.dto.job.UpdateApplicationStatusRequest;
 import com.edutech.jobportalsystem.service.ApplicationService;
 import com.edutech.jobportalsystem.service.JobService;
@@ -93,5 +94,20 @@ public class RecruiterController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} updating application {} to status: {}", username, applicationId, request.getStatus());
         return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, request.getStatus(), username));
+    }
+
+    @PutMapping("/applications/{applicationId}/details")
+    public ResponseEntity<?> updateApplicationDetails(@PathVariable Long applicationId,
+                                                      @RequestBody UpdateApplicationDetailsRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Recruiter {} updating detailed info for application {}", username, applicationId);
+        return ResponseEntity.ok(applicationService.updateApplicationDetails(
+                applicationId, 
+                request.getStatus(), 
+                request.getInternalNotes(), 
+                request.getInterviewDate(), 
+                request.getInterviewLocation(), 
+                request.getRecruiterFeedback(), 
+                username));
     }
 }

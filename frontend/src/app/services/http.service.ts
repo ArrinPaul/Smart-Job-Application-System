@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/user.model';
-import { Job, Application, UpdateApplicationStatusRequest } from '../models/job.model';
+import { Job, Application, UpdateApplicationStatusRequest, UpdateApplicationDetailsRequest } from '../models/job.model';
 import { AdminDashboardSummary, AdminSystemStatus } from '../models/admin.model';
 import { JobRecommendation, JobMatchInsights } from '../models/recommendation.model';
 
@@ -213,6 +213,13 @@ export class HttpService {
   updateApplicationStatus(applicationId: number, status: string): Observable<Application> {
     const request = { status };
     return this.http.put<Application>(`${this.apiUrl}/recruiter/applications/${applicationId}/status`, request);
+  }
+
+  /**
+   * Update detailed application information (Recruiter only)
+   */
+  updateApplicationDetails(applicationId: number, request: UpdateApplicationDetailsRequest): Observable<Application> {
+    return this.http.put<Application>(`${this.apiUrl}/recruiter/applications/${applicationId}/details`, request);
   }
 
   // ==================== RESUME ====================

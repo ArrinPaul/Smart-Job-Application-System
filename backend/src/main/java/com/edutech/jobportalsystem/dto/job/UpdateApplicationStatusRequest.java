@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 public class UpdateApplicationStatusRequest {
 
     @NotBlank(message = "status is required")
-    @Pattern(regexp = "^(APPLIED|SHORTLISTED|REJECTED|HIRED)$", message = "Invalid application status")
+    @Pattern(regexp = "^(APPLIED|SHORTLISTED|PHONE_SCREEN|TECHNICAL_INTERVIEW|ON_SITE_INTERVIEW|OFFER_EXTENDED|HIRED|REJECTED|HOLD)$", message = "Invalid application status")
     private String status;
 
     public String getStatus() {
