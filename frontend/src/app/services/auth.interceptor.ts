@@ -74,7 +74,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     // Log the error to console
     if (!environment.production) {
-      console.error(`[HTTP ${error.status}] ${error.method} ${error.url}`, error);
+      console.error(`[HTTP ${error.status}] ${error.url}`, error);
     }
 
     // Extract error from backend response (structured format)

@@ -12,6 +12,14 @@ import { Subject, takeUntil, finalize } from 'rxjs';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="recruiter-page">
+      <nav class="top-nav">
+        <a routerLink="/post-job">Job Studio</a>
+        <a routerLink="/recruiter/applications" class="active">Application Queue</a>
+        <a routerLink="/messages">Messages</a>
+        <span class="nav-spacer"></span>
+        <button type="button" (click)="logout()">Logout</button>
+      </nav>
+
       <header class="page-header">
         <div class="container">
           <h1>Application Manager</h1>
@@ -174,11 +182,16 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
 
   constructor(
     private httpService: HttpService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.loadApplications();
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   ngOnDestroy(): void {

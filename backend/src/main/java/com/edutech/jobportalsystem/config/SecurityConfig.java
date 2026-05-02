@@ -67,6 +67,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/job/apply", "/api/job/apply").hasRole("JOB_SEEKER")
                     .requestMatchers(HttpMethod.GET, "/resume/**", "/api/resume/**").hasAnyRole("RECRUITER", "JOB_SEEKER", "ADMIN")
                     .requestMatchers(HttpMethod.POST, "/jobseeker/resume", "/api/jobseeker/resume").hasRole("JOB_SEEKER")
+                    .requestMatchers(HttpMethod.GET, "/users/**", "/api/users/**").authenticated()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/actuator/**", "/api/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )

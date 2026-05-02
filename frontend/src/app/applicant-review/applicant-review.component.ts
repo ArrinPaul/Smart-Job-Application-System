@@ -12,6 +12,14 @@ import { Subject, takeUntil, finalize } from 'rxjs';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="review-page" *ngIf="application; else stateTpl">
+      <nav class="top-nav">
+        <a routerLink="/post-job">Job Studio</a>
+        <a routerLink="/recruiter/applications" class="active">Application Queue</a>
+        <a routerLink="/messages">Messages</a>
+        <span class="nav-spacer"></span>
+        <button type="button" (click)="logout()">Logout</button>
+      </nav>
+
       <header class="review-header">
         <div class="container header-content">
           <div class="left">
@@ -209,7 +217,8 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private httpService: HttpService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -219,6 +228,10 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
         this.loadApplication(id);
       }
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   ngOnDestroy(): void {
