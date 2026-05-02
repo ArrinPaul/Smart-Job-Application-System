@@ -85,7 +85,18 @@
           <a routerLink="/jobs" class="qa-item">Browse All Jobs</a>
           <a routerLink="/profile" class="qa-item">Update Profile</a>
           <a routerLink="/applications" class="qa-item">Recent Activity</a>
-          <a href="#" (click)="openChat($event)" class="qa-item chat-ai-item">Chat with AI powered chatbot for job suggestions</a>
+        </div>
+
+        <div class="chat-spotlight">
+          <div class="chat-spotlight-copy">
+            <p class="spotlight-kicker">AI Assistant</p>
+            <h4>Job suggestion chatbot</h4>
+            <p>Get quick recommendations, search guidance, and application help in one focused space.</p>
+            <button type="button" class="chat-cta" (click)="openChat($event)">Open chatbot</button>
+          </div>
+          <div class="chat-spotlight-visual">
+            <img src="assets/dashboard/chatbot-spotlight.svg" alt="AI chatbot illustration" />
+          </div>
         </div>
       </aside>
     </div>

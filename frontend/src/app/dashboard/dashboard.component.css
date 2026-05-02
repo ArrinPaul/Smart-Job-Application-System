@@ -71,31 +71,72 @@
 .qa-item{display:block;padding:10px 12px;background:transparent;border-radius:8px;color:var(--ink);text-decoration:none;margin-bottom:8px;border:1px solid rgba(16,24,40,0.03)}
 .qa-item:hover{background:rgba(16,24,40,0.02)}
 
-.chat-ai-item {
-  background: rgba(13, 103, 116, 0.05) !important;
-  border: 1px dashed rgba(13, 103, 116, 0.3) !important;
-  color: var(--accent) !important;
-  font-weight: 600;
-  position: relative;
+.chat-spotlight {
+  background: linear-gradient(180deg, rgba(255, 247, 240, 0.92), #fffdf9);
+  border: 1px solid rgba(187, 62, 45, 0.12);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--card-shadow);
   overflow: hidden;
 }
 
-.chat-ai-item:hover {
-  background: rgba(13, 103, 116, 0.1) !important;
-  border-style: solid !important;
+.chat-spotlight-copy {
+  padding: 4px 4px 12px;
 }
 
-.chat-ai-item::after {
-  content: 'AI';
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  font-size: 8px;
-  background: var(--accent);
+.spotlight-kicker {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.chat-spotlight h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.chat-spotlight p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.chat-spotlight-visual {
+  margin-top: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff8f2;
+}
+
+.chat-spotlight-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chat-cta {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #0b5661);
   color: white;
-  padding: 2px 4px;
-  border-radius: 4px;
-  line-height: 1;
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 10px 18px rgba(13, 103, 116, 0.22);
+}
+
+.chat-cta:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
 }
 
 @media (max-width:900px){.container{grid-template-columns:1fr}.hero-right{display:none}.dashboard-main{margin-top:10px}}
