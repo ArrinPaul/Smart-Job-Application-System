@@ -96,14 +96,14 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (job) => {
-          const normalizedJob = this.normalizeJob(job);
-          this.job = normalizedJob;
-          // Convert markdown -> HTML, sanitize, and bind. If no description, show preview fallback.
-          const desc = (normalizedJob.description || '').toString();
+          this.job = job;
+          const desc = (job.description || '').toString();
           if (desc && desc.trim()) {
             this.renderedDescription = this.sanitizeAndConvert(desc);
           } else {
-            this.renderedDescription = this.sanitizer.bypassSecurityTrustHtml(this.getDescriptionPreview());
+            this.renderedDescription = this.sanitizer.bypassSecurityTrustHtml(
+              '<p>Review the responsibilities, requirements, and application steps below.</p>'
+            );
           }
         },
         error: (err) => {
@@ -138,11 +138,7 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
   }
 
   canApplyInternally(): boolean {
-    // 1. Must be a Job Seeker
     if (!this.isJobSeeker()) return false;
-    
-    // 2. We allow internal application if it's not a global recruiter job, 
-    // OR if it is a global recruiter job but has no external application link.
     return !this.isGlobalRecruiter() || !this.job?.applicationLink;
   }
 
@@ -161,10 +157,8 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     if (!this.job) return;
 
     if (!this.isGlobalRecruiter()) {
-      // For normal recruiters, go to preview page
       this.router.navigate(['/jobs', this.job.slug, 'apply']);
     } else {
-      // For global recruiter (if no link), just apply directly as before
       this.httpService.applyJob(this.job.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -197,79 +191,40 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     if (!this.job?.createdAt) {
       return 'Recently posted';
     }
-
     const postedAt = new Date(this.job.createdAt);
     if (Number.isNaN(postedAt.getTime())) {
       return this.job.createdAt;
     }
-
-    return postedAt.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    return postedAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   getSalaryLabel(): string {
-    const salaryMin = this.toNumber(this.job?.salaryMin);
-    const salaryMax = this.toNumber(this.job?.salaryMax);
+    const { salaryMin, salaryMax, salaryCurrency = '$' } = this.job || {};
 
     if (salaryMin != null && salaryMax != null) {
-      const currency = this.job?.salaryCurrency || '$';
-      return `${currency}${salaryMin.toLocaleString()} - ${currency}${salaryMax.toLocaleString()}`;
+      return `${salaryCurrency}${Number(salaryMin).toLocaleString()} - ${salaryCurrency}${Number(salaryMax).toLocaleString()}`;
     }
-
     if (salaryMin != null) {
-      const currency = this.job?.salaryCurrency || '$';
-      return `From ${currency}${salaryMin.toLocaleString()}`;
+      return `From ${salaryCurrency}${Number(salaryMin).toLocaleString()}`;
     }
-
     if (salaryMax != null) {
-      const currency = this.job?.salaryCurrency || '$';
-      return `Up to ${currency}${salaryMax.toLocaleString()}`;
+      return `Up to ${salaryCurrency}${Number(salaryMax).toLocaleString()}`;
     }
-
     return 'Competitive';
   }
 
   private sanitizeAndConvert(md: string): SafeHtml {
-    let fixed = this.fixEncoding(md || '');
-    fixed = this.normalizeMarkdown(fixed);
-
-    // If the text contains HTML-escaped entities like &lt;p&gt;..., decode them first
-    if (fixed.includes('&lt;') || fixed.includes('&gt;')) {
-      try {
-        const doc = new DOMParser().parseFromString(fixed, 'text/html');
-        const decoded = doc.documentElement.textContent || fixed;
-        fixed = decoded;
-      } catch {
-        // fallback to original
-      }
-    }
-
-    // If the fixed text already looks like HTML, don't run it through the markdown parser
+    const fixed = this.fixEncoding(md || '');
     const looksLikeHtml = fixed.trim().startsWith('<');
-
-    // Some scraped descriptions arrive as one giant line of text with section keywords.
-    // Convert those into headings + bullets to improve readability.
-    if (!looksLikeHtml) {
-      fixed = this.structureLongPlainText(fixed);
-    }
 
     try {
       const html = looksLikeHtml
         ? fixed
-        : marked.parse(fixed || '', {
-            async: false,
-            breaks: true
-          });
+        : marked.parse(fixed, { async: false, breaks: true });
       const clean = sanitizeHtml(String(html));
       return this.sanitizer.bypassSecurityTrustHtml(clean);
     } catch {
-      const escaped = fixed
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+      const escaped = fixed.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       return this.sanitizer.bypassSecurityTrustHtml(`<p>${escaped}</p>`);
     }
   }
@@ -289,365 +244,33 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
       .trim();
   }
 
-  private normalizeMarkdown(input: string): string {
-    if (!input) return input;
-
-    let out = input
-      .replace(/\r\n/g, '\n')
-      .replace(/\\n/g, '\n');
-
-    // Remove bold markers around labels and split labels into their own lines.
-    out = out.replace(/\*\*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities)\*\*:/gi, '$1:');
-
-    out = out
-      .replace(/([^\n])\s*(#{1,6})\s+/g, '$1\n\n$2 ')
-      .replace(/(##\s+[^\n]*?)\s+(We|Our|You|This|They|The)\b/g, '$1\n\n$2')
-      .replace(/(##\s+[^\n]*?)\s+(Position|Location|Employment Type):/gi, '$1\n\n$2:')
-      .replace(/([^\n])\s+(Position|Location|Employment Type):/gi, '$1\n$2:')
-      .replace(/([^\n])\s*(Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
-      .replace(/(^|\n)\s*•\s+/g, '$1- ')
-      .replace(/\s+•\s+/g, '\n- ')
-      .replace(/([\S])\s+-\s+/g, '$1\n- ')
-      .replace(/\n{3,}/g, '\n\n');
-
-    // Convert key fields into bullet points.
-    out = out.replace(/^(Position|Location|Employment Type):/gmi, '- $1:');
-
-    const lines = out.split('\n');
-    const seenHeadings = new Set<string>();
-    const cleaned: string[] = [];
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        cleaned.push('');
-        continue;
-      }
-
-      const headingMatch = trimmed.match(/^#{1,6}\s+(.*)$/);
-      if (headingMatch) {
-        const headingText = headingMatch[1].trim();
-        const headingKey = headingText.toLowerCase();
-
-        // Drop the previous plain line if it duplicates this heading.
-        for (let idx = cleaned.length - 1; idx >= 0; idx -= 1) {
-          const previous = cleaned[idx].trim();
-          if (!previous) continue;
-          if (previous.toLowerCase() === headingKey) {
-            cleaned.splice(idx, 1);
-          }
-          break;
-        }
-
-        if (seenHeadings.has(headingKey)) {
-          continue;
-        }
-
-        seenHeadings.add(headingKey);
-      }
-
-      cleaned.push(line);
-    }
-
-    return cleaned.join('\n').replace(/\n{3,}/g, '\n\n').trim();
-  }
-
-  private structureLongPlainText(input: string): string {
-    const raw = (input || '').trim();
-    if (!raw) return raw;
-
-    // Only apply to descriptions that are effectively a single paragraph.
-    // Avoid interfering with already-structured markdown.
-    const newlineCount = (raw.match(/\n/g) || []).length;
-    const alreadyStructured = /(^|\n)\s*(#{1,6}\s+|-\s+)/.test(raw);
-    if (alreadyStructured) return raw;
-    if (newlineCount >= 6) return raw;
-    if (raw.length < 320) return raw;
-
-    let text = raw;
-
-    // Insert section headings (German + common English).
-    text = text
-      .replace(/\s+(Aufgaben)\s+/i, '\n\n### $1\n\n')
-      .replace(/\s+(Qualifikation|Qualifikationen)\s+/i, '\n\n### Qualifikation\n\n')
-      .replace(/\s+(Benefits)\s+/i, '\n\n### Benefits\n\n')
-      .replace(/\s+Ehrlich\s+gesagt[^:]*wenn\s*:\s*/i, '\n\n### Nicht der richtige Job f\u00fcr dich, wenn:\n\n')
-      .replace(/\s+(Responsibilities)\s*:?\s+/i, '\n\n### Responsibilities\n\n')
-      .replace(/\s+(Requirements|Qualifications)\s*:?\s+/i, '\n\n### Requirements\n\n')
-      .replace(/\s+(What\s+You\s+Will\s+Do)\s*:?\s+/i, '\n\n### What You Will Do\n\n')
-      .replace(/\s+(What\s+We\s+Offer|Perks)\s*:?\s+/i, '\n\n### What We Offer\n\n');
-
-    // Bulletize known sections.
-    text = this.bulletizeSection(text, 'Aufgaben', { splitOnDu: true });
-    text = this.bulletizeSection(text, 'Qualifikation', { mode: 'qualifications' });
-    text = this.bulletizeSection(text, 'Benefits', { mode: 'benefits' });
-    text = this.bulletizeSection(text, 'Nicht der richtige Job f\u00fcr dich, wenn:', { splitOnDu: true });
-
-    return text
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }
-
-  private bulletizeSection(
-    input: string,
-    heading: string,
-    options: { splitOnDu?: boolean; mode?: 'qualifications' | 'benefits' }
-  ): string {
-    const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const sectionRegex = new RegExp(`(^|\\n)###\\s+${escapedHeading}\\s*\\n+([\\s\\S]*?)(?=\\n###\\s+|$)`, 'i');
-    const match = input.match(sectionRegex);
-    if (!match) return input;
-
-    const prefix = match[1] || '';
-    const body = (match[2] || '').trim();
-    if (!body) return input;
-    if (/(^|\n)\s*-\s+/.test(body)) return input;
-
-    const compact = body.replace(/\s+/g, ' ').trim();
-    let parts: string[] = [];
-
-    if (options.splitOnDu) {
-      parts = compact
-        .split(/\s+(?=Du\s+)/g)
-        .map(p => p.trim())
-        .filter(Boolean);
-    } else if (options.mode === 'qualifications') {
-      parts = compact
-        .replace(/\s+(?=(Mindestens|Tiefe|Meta\b|Tracking\b|Du\s+kannst|Du\s+arbeitest|Du\s+kennst|Klartext\b|Wer\b))/g, '\n')
-        .split('\n')
-        .map(p => p.trim())
-        .filter(Boolean);
-    } else if (options.mode === 'benefits') {
-      parts = compact
-        .replace(/\s+(?=(Gehalt\b|Hybrid\b|Direkter\b|Weiterbildungs\b|Tool-Budget\b|Modernes\b|Top-Equipment\b|\d+\s+Urlaubstage\b|Echte\b))/g, '\n')
-        .replace(/\s+(?=([A-ZÄÖÜ][^\n]{0,30}:))/g, '\n')
-        .split('\n')
-        .map(p => p.trim())
-        .filter(Boolean);
-    } else {
-      parts = [compact];
-    }
-
-    // Fallback: split long leftover blocks into sentences.
-    if (parts.length === 1 && parts[0].length > 260) {
-      parts = parts[0]
-        .split(/(?<=[a-zäöüß])\.\s+(?=[A-ZÄÖÜ])/g)
-        .map(p => p.trim())
-        .filter(Boolean);
-    }
-
-    if (!parts.length) return input;
-
-    const bulleted = parts.map(p => `- ${p}`).join('\n');
-    const replacement = `${prefix}### ${heading}\n\n${bulleted}`;
-    return input.replace(sectionRegex, replacement);
-  }
-
-  private normalizeJob(rawJob: unknown): Job {
-    const candidate = this.unwrapJob(rawJob);
-    const postedBy = this.asRecord(candidate['postedBy']);
-
-    return {
-      id: this.toNumber(candidate['id']) ?? 0,
-      title: this.readText(candidate['title']) || 'Untitled Role',
-      description: this.readDescription(candidate),
-      location: this.readText(candidate['location']) || 'Remote',
-      jobType: this.readText(candidate['jobType'] ?? candidate['job_type']),
-      workType: this.readText(candidate['workType'] ?? candidate['work_type']),
-      experienceRequired: this.toNumber(candidate['experienceRequired'] ?? candidate['experience_required']) ?? undefined,
-      requiredSkills: this.readText(candidate['requiredSkills'] ?? candidate['required_skills']),
-      educationRequired: this.readText(candidate['educationRequired'] ?? candidate['education_required']),
-      salaryMin: this.toNumber(candidate['salaryMin'] ?? candidate['salary_min']) ?? undefined,
-      salaryMax: this.toNumber(candidate['salaryMax'] ?? candidate['salary_max']) ?? undefined,
-      salaryCurrency: this.readText(candidate['salaryCurrency'] ?? candidate['salary_currency']) || undefined,
-      isActive: this.readBoolean(candidate['isActive'] ?? candidate['is_active']),
-      applicationLink: this.readText(candidate['applicationLink'] ?? candidate['application_link']),
-      companyName: this.readText(candidate['companyName'] ?? candidate['company_name']),
-      howToApply: this.readText(candidate['howToApply'] ?? candidate['how_to_apply']),
-      slug: this.readText(candidate['slug']) || '',
-      postedBy: postedBy
-        ? {
-            id: this.toNumber(postedBy['id']) ?? 0,
-            username: this.readText(postedBy['username']) || '',
-            companyName: this.readText(postedBy['companyName'] ?? postedBy['company_name'])
-          }
-        : undefined,
-      createdAt: this.readText(candidate['createdAt'] ?? candidate['created_at']),
-      updatedAt: this.readText(candidate['updatedAt'] ?? candidate['updated_at'])
-    };
-  }
-
-  private unwrapJob(rawJob: unknown): Record<string, unknown> {
-    if (Array.isArray(rawJob)) {
-      return (rawJob[0] ?? {}) as Record<string, unknown>;
-    }
-
-    if (typeof rawJob === 'string') {
-      try {
-        const parsed = JSON.parse(rawJob);
-        return this.unwrapJob(parsed);
-      } catch {
-        return { description: rawJob };
-      }
-    }
-
-    if (rawJob && typeof rawJob === 'object') {
-      const candidate = rawJob as Record<string, unknown>;
-      if (Array.isArray(candidate['data'])) {
-        return (candidate['data'][0] ?? {}) as Record<string, unknown>;
-      }
-      if (candidate['job'] && typeof candidate['job'] === 'object') {
-        return candidate['job'] as Record<string, unknown>;
-      }
-      return candidate;
-    }
-
-    return {};
-  }
-
-  private readDescription(candidate: Record<string, unknown>): string {
-    const descriptionValue = candidate['description'] ?? candidate['description_html'] ?? candidate['descriptionHtml'];
-
-    if (typeof descriptionValue === 'string') {
-      const trimmed = descriptionValue.trim();
-      if (!trimmed) {
-        return '';
-      }
-
-      if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-        try {
-          const parsed = JSON.parse(trimmed);
-          const unwrapped = this.unwrapJob(parsed);
-          return this.readText(unwrapped['description']) || this.readText(unwrapped['description_html']) || descriptionValue;
-        } catch {
-          return descriptionValue;
-        }
-      }
-
-      return descriptionValue;
-    }
-
-    return this.readText(descriptionValue);
-  }
-
-  private readText(value: unknown): string {
-    if (typeof value === 'string') {
-      return value.trim();
-    }
-
-    if (typeof value === 'number' || typeof value === 'boolean') {
-      return String(value);
-    }
-
-    return '';
-  }
-
-  private toNumber(value: unknown): number | null {
-    if (typeof value === 'number' && Number.isFinite(value)) {
-      return value;
-    }
-
-    if (typeof value === 'string') {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-
-    return null;
-  }
-
-  private readBoolean(value: unknown): boolean | undefined {
-    if (typeof value === 'boolean') {
-      return value;
-    }
-
-    if (typeof value === 'string') {
-      const normalized = value.trim().toLowerCase();
-      if (normalized === 'true') return true;
-      if (normalized === 'false') return false;
-    }
-
-    return undefined;
-  }
-
-  private asRecord(value: unknown): Record<string, unknown> | null {
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return value as Record<string, unknown>;
-    }
-
-    return null;
-  }
-
-  getDescriptionPreview(): string {
-    const raw = this.fixEncoding(this.job?.description || '');
-    const normalized = this.normalizeMarkdown(raw);
-    const plainText = normalized
-      // strip HTML tags first (if description is already HTML)
-      .replace(/<[^>]+>/g, ' ')
-      // basic markdown-to-text cleanup (for summaries)
-      .replace(/^#+\s+/gm, ' ')
-      .replace(/\n#+\s+/g, ' ')
-      .replace(/#/g, '')
-      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-      .replace(/[\*_]{1,3}/g, '')
-      .replace(/`{1,3}/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const deduped = this.removeLeadingDupes(plainText);
-
-    if (!deduped) {
-      return 'Review the responsibilities, requirements, and application steps below.';
-    }
-
-    return deduped;
-  }
-
-  private removeLeadingDupes(input: string): string {
-    return input.replace(/^(\b\w+(?:\s+\w+){1,6})\s+\1(\s+\1)*/i, '$1');
-  }
-
   getRequirementsList(): string[] {
+    const { educationRequired, experienceRequired, requiredSkills } = this.job || {};
     const requirements: string[] = [];
 
-    if (this.job?.educationRequired) {
-      requirements.push(this.job.educationRequired);
+    if (educationRequired) {
+      requirements.push(educationRequired);
     }
-
-    if (this.job?.experienceRequired !== undefined && this.job?.experienceRequired !== null) {
-      requirements.push(`${this.job.experienceRequired} years of experience`);
+    if (experienceRequired != null) {
+      requirements.push(`${experienceRequired} years of experience`);
     }
-
-    if (this.job?.requiredSkills) {
-      requirements.push(
-        ...this.job.requiredSkills
-          .split(',')
-          .map((skill) => skill.trim())
-          .filter(Boolean)
-      );
+    if (requiredSkills) {
+      requirements.push(...requiredSkills.split(',').map(s => s.trim()).filter(Boolean));
     }
-
     return Array.from(new Set(requirements));
   }
 
   getReferenceLinks(): Array<{ label: string; href: string }> {
-    const links: Array<{ label: string; href: string }> = [];
-
     if (this.job?.applicationLink) {
-      links.push({
-        label: 'Application Portal',
-        href: this.job.applicationLink
-      });
+      return [{ label: 'Application Portal', href: this.job.applicationLink }];
     }
-
-    return links;
+    return [];
   }
 
   fetchInsights(): void {
     if (!this.job) return;
 
     if (this.selectedInsights) {
-      // toggle off
       this.selectedInsights = null;
       return;
     }
@@ -666,7 +289,7 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
           }
         },
         error: (err: HttpErrorResponse) => {
-          if (err && err.status === 401) {
+          if (err?.status === 401) {
             this.toastService.showWarning('Please login to view match insights.');
             this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
             return;

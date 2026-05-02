@@ -19,6 +19,20 @@ const LOG = console;
 const BATCH_SIZE = Number(process.env.NORMALIZE_BATCH_SIZE || 100);
 const LIMIT = Number(process.env.NORMALIZE_LIMIT || 0);
 
+function slugify(value, id) {
+  const base = String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  const slug = base.slice(0, 200) || 'job';
+  if (!id) return slug;
+
+  // Truncate slug to make space for ID, ensuring total length is within limits
+  const idSuffix = `-${id}`;
+  return slug.slice(0, 200 - idSuffix.length) + idSuffix;
+}
+
 async function getTableColumns(client, tableName) {
   const result = await client.query(
     `SELECT column_name
@@ -86,8 +100,11 @@ async function normalizeRow(row) {
 
   if (!normalized) return null;
 
+  const newSlug = slugify(`${normalized.title}-${normalized.companyName}`, row.id);
+
   return {
     id: row.id,
+    slug: newSlug,
     title: normalized.title,
     description: normalized.description,
     requiredSkills: normalized.requiredSkills || '',
@@ -139,7 +156,7 @@ async function main() {
     if (LIMIT > 0 && processed >= LIMIT) break;
 
     const rows = await client.query(
-      `SELECT id, title, description, required_skills, how_to_apply, company_name, location, job_type, application_link
+      `SELECT id, slug, title, description, required_skills, how_to_apply, company_name, location, job_type, application_link
        FROM jobs
        ORDER BY id
        LIMIT $1 OFFSET $2`,
@@ -156,6 +173,7 @@ async function main() {
       if (!normalized) continue;
 
       const changed =
+        normalized.slug !== (row.slug || '') ||
         normalized.title !== (row.title || '') ||
         normalized.description !== (row.description || '') ||
         normalized.requiredSkills !== (row.required_skills || '') ||
@@ -174,8 +192,9 @@ async function main() {
              how_to_apply = $4,
              company_name = $5,
              location = $6,
-             job_type = $7
-         WHERE id = $8`,
+             job_type = $7,
+             slug = $8
+         WHERE id = $9`,
         [
           normalized.title,
           normalized.description,
@@ -184,6 +203,7 @@ async function main() {
           normalized.companyName || null,
           normalized.location || null,
           normalized.jobType || null,
+          normalized.slug,
           normalized.id
         ]
       );

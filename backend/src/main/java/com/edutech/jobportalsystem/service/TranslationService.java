@@ -82,7 +82,7 @@ public class TranslationService {
         int maxRealTimeTranslations = 5; // Absolute limit for real-time list translation to avoid timeouts
 
         for (Job job : jobs) {
-            if (translateCount < maxRealTimeTranslations && needsTranslation(job.getJobTitle())) {
+            if (translateCount < maxRealTimeTranslations && needsTranslation(job.getTitle())) {
                 translated.add(translateJob(job));
                 translateCount++;
             } else {
@@ -104,22 +104,55 @@ public class TranslationService {
             return text;
         }
 
-        // 1. Try LibreTranslate (if configured/working)
-        if (!baseUrl.isEmpty() && !baseUrl.contains("libretranslate.de")) {
-            String res = translateChunk(text.length() > maxChars ? text.substring(0, maxChars) : text, null);
-            if (res != null && !res.equals(text)) return res;
+        // 1) Try LibreTranslate when configured (default: libretranslate.de)
+        String libre = translateViaLibreTranslate(text);
+        if (libre != null && !libre.isBlank() && !libre.equals(text)) {
+            return libre;
         }
 
-        // 2. Fallback to AI Service (High quality, handles German/etc perfectly)
-        logger.info("Using AI fallback for translation...");
-        String prompt = "Translate the following Job Title/Description into English. Return ONLY the translated text, no intro or outro:\n\n" + text;
-        String aiRes = aiService.generateContent(prompt);
-        
-        if (aiRes != null && !aiRes.contains("at capacity")) {
-            return aiRes;
+        // 2) Fallback to AI Service (optional)
+        try {
+            if (aiService != null) {
+                logger.info("Using AI fallback for translation...");
+                String prompt = "Translate the following Job Title/Description into English. Return ONLY the translated text, no intro or outro:\n\n" + text;
+                String aiRes = aiService.generateContent(prompt);
+                if (aiRes != null && !aiRes.isBlank() && !aiRes.contains("at capacity")) {
+                    return aiRes.trim();
+                }
+            }
+        } catch (Exception ex) {
+            logger.warn("AI translation failed: {}", ex.getMessage());
         }
 
         return text;
+    }
+
+    private String translateViaLibreTranslate(String text) {
+        if (baseUrl.isEmpty()) {
+            return null;
+        }
+
+        // Split long descriptions instead of truncating.
+        List<String> chunks = splitText(text, maxChars);
+        if (chunks.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < chunks.size(); i++) {
+            String chunk = chunks.get(i);
+            String translated = translateChunk(chunk, chunk);
+            if (translated == null || translated.isBlank()) {
+                translated = chunk;
+            }
+            if (i > 0) {
+                out.append("\n");
+            }
+            out.append(translated.trim());
+        }
+
+        String result = out.toString().trim();
+        return result.isBlank() ? null : result;
     }
 
     private String translateChunk(String chunk, String fallback) {

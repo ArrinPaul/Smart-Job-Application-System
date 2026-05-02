@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { ChatService } from '../../services/chat.service';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { sanitizeHtml } from '../../lib/safe-dompurify';
 
 interface Message {
   text: string;
@@ -155,7 +156,8 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
   renderMarkdown(text: string): SafeHtml {
     const rawHtml = marked.parse(text) as string;
-    return this.sanitizer.bypassSecurityTrustHtml(rawHtml);
+    const sanitized = sanitizeHtml(rawHtml);
+    return this.sanitizer.bypassSecurityTrustHtml(sanitized);
   }
 
   toggleChat() {
