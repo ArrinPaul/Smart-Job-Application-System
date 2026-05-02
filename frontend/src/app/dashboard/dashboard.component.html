@@ -1,85 +1,148 @@
-<div class="dashboard-page">
-  <header class="dashboard-hero">
-    <div class="hero-inner">
-      <div class="hero-left">
-        <p class="hero-welcome">WELCOME BACK</p>
-        <h1 class="hero-title">Good to see you, {{ userName }}.</h1>
-        <p class="hero-sub">Here are your personalised recommendations based on your profile.</p>
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Welcome back, {{ userName }}!</h1>
+      <p>Here are your personalized job recommendations based on your profile.</p>
+    </div>
+  </div>
 
-        <div class="hero-pills">
-          <div class="pill">
-            <div class="pill-number">{{ profileCompletionPercent }}%</div>
-            <div class="pill-label">Profile complete</div>
-          </div>
-          <div class="pill">
-            <div class="pill-number">{{ jobsViewed }}</div>
-            <div class="pill-label">Schemes viewed</div>
-          </div>
-          <div class="pill">
-            <div class="pill-number">{{ jobsApplied }}</div>
-            <div class="pill-label">Saved schemes</div>
-          </div>
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <!-- Profile Completion -->
+    <div class="stat-card profile-card">
+      <div class="stat-icon">👤</div>
+      <div class="stat-content">
+        <p class="stat-label">Profile Complete</p>
+        <p class="stat-number">{{ profileCompletionPercent }}%</p>
+      </div>
+      <div class="stat-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="profileCompletionPercent" [style.backgroundColor]="getProgressTrackColor(profileCompletionPercent)"></div>
         </div>
       </div>
-
-      <div class="hero-right"></div>
     </div>
-  </header>
 
-  <main class="dashboard-main">
-    <div class="container">
-      <div class="left-col">
-        <div class="profile-progress-card">
-          <div class="pp-top">
-            <div class="pp-title">Complete your profile for better matches</div>
-            <div class="pp-percent">{{ profileCompletionPercent }}%</div>
-          </div>
-          <div class="pp-bar">
-            <div class="pp-fill" [style.width.%]="profileCompletionPercent"></div>
-          </div>
-        </div>
-
-        <section class="recommended-list">
-          <div class="section-header">
-            <h3>Recommended for You</h3>
-            <a routerLink="/recommendations" class="view-all">View all ›</a>
-          </div>
-
-          <div *ngIf="loading" class="loading-card">Loading recommendations...</div>
-          <div *ngIf="error" class="error-card">{{ error }}</div>
-
-          <div *ngIf="!loading && !error && recommendations.length === 0" class="loading-card">
-            No recommendations yet.
-          </div>
-
-          <div *ngFor="let rec of recommendations" class="rec-item">
-            <div class="rec-body">
-              <div class="rec-title">{{ rec.jobTitle }}</div>
-              <div class="rec-excerpt">{{ rec.companyName }} • {{ rec.location }}</div>
-            </div>
-            <div class="rec-meta">
-              <span class="badge-type">{{ rec.workType }}</span>
-              <a [routerLink]="['/jobs', rec.jobId]" class="btn-small">View details</a>
-            </div>
-          </div>
-        </section>
+    <!-- Jobs Viewed -->
+    <div class="stat-card">
+      <div class="stat-icon">👁️</div>
+      <div class="stat-content">
+        <p class="stat-label">Jobs Viewed</p>
+        <p class="stat-number">{{ jobsViewed }}</p>
       </div>
-
-      <aside class="right-col">
-        <div class="quick-access">
-          <h4>QUICK ACCESS</h4>
-          <a routerLink="/jobs" class="qa-item">Browse All Schemes</a>
-          <a routerLink="/recommendations" class="qa-item">AI Assistant</a>
-          <a routerLink="/profile" class="qa-item">Update Profile</a>
-          <a routerLink="/applications" class="qa-item">Recent Activity</a>
-        </div>
-
-        <div class="ask-card">
-          <h4>Ask Prahar AI</h4>
-          <p>Chat with our AI to instantly find schemes you qualify for.</p>
-          <a routerLink="/recommendations" class="btn-primary md">Start a conversation</a>
-        </div>
-      </aside>
     </div>
-  </main>
+
+    <!-- Jobs Applied -->
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div class="stat-content">
+        <p class="stat-label">Applications</p>
+        <p class="stat-number">{{ jobsApplied }}</p>
+      </div>
+    </div>
+
+    <!-- Jobs Schemes/Opportunities -->
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-content">
+        <p class="stat-label">Opportunities</p>
+        <p class="stat-number">{{ recommendations.length }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complete Profile Progress Section -->
+  <div class="complete-profile-section" [ngClass]="{'completed': profileCompletionPercent === 100}">
+    <div class="profile-progress-content">
+      <div class="progress-info">
+        <h3>Complete Your Profile</h3>
+        <p>{{ profileCompletionPercent }}% Complete - {{ 100 - profileCompletionPercent }}% to go!</p>
+      </div>
+      <div class="progress-bar-large">
+        <div class="progress-fill-large" [style.width.%]="profileCompletionPercent" [style.backgroundColor]="getProgressTrackColor(profileCompletionPercent)"></div>
+      </div>
+      <a routerLink="/profile" class="complete-profile-btn" *ngIf="profileCompletionPercent < 100">Complete Now</a>
+      <div class="profile-complete-badge" *ngIf="profileCompletionPercent === 100">
+        ✓ Profile Complete
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access Section -->
+  <div class="quick-access-section">
+    <h2>Quick Access</h2>
+    <div class="quick-access-grid">
+      <!-- Browse All Jobs -->
+      <a routerLink="/jobs" class="quick-access-card">
+        <div class="access-icon">🔍</div>
+        <h3>Browse All Jobs</h3>
+        <p>Explore the complete job listing with filters and search</p>
+        <span class="access-arrow">→</span>
+      </a>
+
+      <!-- Update Profile -->
+      <a routerLink="/profile" class="quick-access-card">
+        <div class="access-icon">✏️</div>
+        <h3>Update Profile</h3>
+        <p>Keep your information fresh for better recommendations</p>
+        <span class="access-arrow">→</span>
+      </a>
+
+      <!-- Recent Activities -->
+      <a routerLink="/applications" class="quick-access-card">
+        <div class="access-icon">📊</div>
+        <h3>Recent Activities</h3>
+        <p>Check your application status and updates</p>
+        <span class="access-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Recommendations Section -->
+  <div class="recommendations-section">
+    <div class="section-header">
+      <h2>Recommendations For You</h2>
+      <a routerLink="/recommendations" class="view-all-link">View All</a>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your personalized recommendations...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="recommendations.length === 0 && !loading && !error" class="empty-state">
+      <p>No recommendations yet. Complete your profile to get started!</p>
+    </div>
+
+    <!-- Recommendations Grid -->
+    <div *ngIf="recommendations.length > 0 && !loading" class="recommendations-grid">
+      <div *ngFor="let rec of recommendations" class="recommendation-card">
+        <!-- Match Badge -->
+        <div class="match-badge" [style.backgroundColor]="getMatchColor(rec.matchPercentage)">
+          <span class="match-percent">{{ rec.matchPercentage }}%</span>
+        </div>
+
+        <!-- Card Content -->
+        <div class="card-content">
+          <h4 class="job-title">{{ rec.jobTitle }}</h4>
+          <p class="company-name">{{ rec.companyName }}</p>
+          <p class="job-location">📍 {{ rec.location }}</p>
+          <p class="work-type">{{ rec.workType }}</p>
+          <p class="salary-range">💰 {{ formatSalary(rec.salaryMin) }} - {{ formatSalary(rec.salaryMax) }}</p>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer">
+          <a [routerLink]="['/jobs', rec.jobId]" class="card-action-btn">View Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

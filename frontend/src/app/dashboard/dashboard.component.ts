@@ -46,9 +46,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.error = null;
 
     // Get user info
-    const username = this.authService.getUsername();
-    if (username) {
-      this.userName = username;
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.userName = currentUser.name || 'User';
     }
 
     // Load recommendations
