@@ -12,15 +12,7 @@ import { AuthService } from '../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="recruiter-page">
-      <nav class="top-nav">
-        <a routerLink="/post-job">Job Studio</a>
-        <a routerLink="/recruiter/applications" class="active">Application Queue</a>
-        <a routerLink="/messages">Messages</a>
-        <span class="nav-spacer"></span>
-        <button type="button" (click)="logout()">Logout</button>
-      </nav>
-
+    <div class="page-shell">
       <header class="page-header">
         <div class="container">
           <h1>Recruitment Pipeline</h1>
@@ -121,63 +113,65 @@ import { AuthService } from '../services/auth.service';
     </div>
   `,
   styles: [`
-    .recruiter-page { background: #f8fafc; min-height: 100vh; padding-bottom: 40px; }
-    .page-header { background: white; padding: 40px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 30px; }
+    .recruiter-page { background: #f4efe6; min-height: 100vh; padding-bottom: 40px; }
+    .page-header { background: #fffcf7; padding: 40px 0; border-bottom: 1px solid #d8c8ae; margin-bottom: 30px; }
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-    h1 { margin: 0; color: #1e293b; font-size: 2rem; }
-    .page-header p { margin: 8px 0 0; color: #64748b; font-size: 1.1rem; }
+    h1 { margin: 0; color: #1f1d18; font-size: 2.2rem; font-family: 'Fraunces', serif; }
+    .page-header p { margin: 8px 0 0; color: #655f51; font-size: 1.1rem; }
     
     .pipeline-nav-panel { margin-bottom: 25px; }
-    .tabs-nav { display: flex; gap: 5px; background: #e2e8f0; padding: 5px; border-radius: 14px; width: fit-content; }
-    .tab-link { padding: 10px 24px; border-radius: 10px; text-decoration: none; color: #64748b; font-weight: 700; transition: all 0.2s; font-size: 0.9rem; }
-    .tab-link.active { background: white; color: #1e293b; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .tabs-nav { display: flex; gap: 5px; background: #eee4d4; padding: 5px; border-radius: 14px; width: fit-content; }
+    .tab-link { padding: 10px 24px; border-radius: 10px; text-decoration: none; color: white; font-weight: 800; transition: all 0.2s; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--ink); border: 2px solid var(--ink); }
+    .tab-link:hover { transform: translateY(-1px); background: #000; }
+    .tab-link.active { background: var(--surface) !important; color: var(--brand) !important; border: 2px solid var(--brand) !important; box-shadow: 0 4px 10px rgba(187, 62, 45, 0.2); }
 
-    .filter-bar { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .search-box input { width: 100%; max-width: 400px; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; }
-    .search-box input:focus { border-color: #3b82f6; }
+    .filter-bar { background: #fffcf7; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(56, 39, 20, 0.05); border: 1px solid #d8c8ae; }
+    .search-box input { width: 100%; max-width: 400px; padding: 10px 15px; border: 1px solid #d8c8ae; border-radius: 8px; outline: none; background: #f8efdf; font-family: inherit; }
+    .search-box input:focus { border-color: #bb3e2d; background: white; }
 
-    .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+    .table-container { background: #fffcf7; border-radius: 16px; overflow: hidden; box-shadow: 0 16px 28px rgba(56, 39, 20, 0.1); border: 1px solid #d8c8ae; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: #f8fafc; padding: 15px 20px; font-size: 0.8rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; }
-    td { padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+    th { background: #eee4d4; padding: 15px 20px; font-size: 0.75rem; font-weight: 800; color: #1f1d18; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #d8c8ae; }
+    td { padding: 18px 20px; border-bottom: 1px solid rgba(216, 200, 174, 0.4); color: #1f1d18; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fdfdfd; }
+    tr:hover td { background: #fdfaf5; }
 
     .user-info { display: flex; align-items: center; gap: 12px; }
-    .avatar { width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #475569; }
-    .name { font-weight: 700; color: #1e293b; display: block; }
-    .email { font-size: 0.8rem; color: #64748b; }
+    .avatar { width: 40px; height: 40px; background: #bb3e2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+    .name { font-weight: 800; color: #1f1d18; display: block; }
+    .email { font-size: 0.8rem; color: #655f51; }
 
-    .job-title { font-weight: 700; color: #1e293b; }
-    .job-meta { font-size: 0.8rem; color: #64748b; }
+    .job-title { font-weight: 800; color: #1f1d18; font-family: 'Fraunces', serif; }
+    .job-meta { font-size: 0.8rem; color: #655f51; font-weight: 600; }
 
     .score-pill { display: inline-block; padding: 6px 12px; border-radius: 20px; color: white; font-size: 0.8rem; font-weight: 800; }
     
-    .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
-    .status-badge[data-status="APPLIED"] { background: #eff6ff; color: #1e40af; }
-    .status-badge[data-status="SHORTLISTED"] { background: #f0fdf4; color: #166534; }
-    .status-badge[data-status="PHONE_SCREEN"] { background: #fdf2f8; color: #9d174d; }
-    .status-badge[data-status="TECHNICAL_INTERVIEW"] { background: #f5f3ff; color: #5b21b6; }
-    .status-badge[data-status="ON_SITE_INTERVIEW"] { background: #ecfeff; color: #155e75; }
-    .status-badge[data-status="OFFER_EXTENDED"] { background: #fff7ed; color: #9a3412; }
-    .status-badge[data-status="REJECTED"] { background: #fef2f2; color: #991b1b; }
-    .status-badge[data-status="HIRED"] { background: #ecfdf5; color: #065f46; border: 1px solid #10b981; }
-    .status-badge[data-status="HOLD"] { background: #f8fafc; color: #475569; border: 1px dashed #cbd5e1; }
+    .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .status-badge[data-status="APPLIED"] { background: #ece2d5; color: #5d4e3f; }
+    .status-badge[data-status="SHORTLISTED"] { background: #dbf1e3; color: #1e6742; border: 1px solid #b7e4c7; }
+    .status-badge[data-status="PHONE_SCREEN"], 
+    .status-badge[data-status="TECHNICAL_INTERVIEW"], 
+    .status-badge[data-status="ON_SITE_INTERVIEW"] { background: rgba(13, 103, 116, 0.12); color: #0d6774; border: 1px solid rgba(13, 103, 116, 0.2); }
+    .status-badge[data-status="OFFER_EXTENDED"] { background: rgba(187, 62, 45, 0.12); color: #bb3e2d; border: 1px solid rgba(187, 62, 45, 0.2); }
+    .status-badge[data-status="REJECTED"] { background: #ffe4df; color: #9b251b; border: 1px solid #ffcccb; }
+    .status-badge[data-status="HIRED"] { background: #dbf1e3; color: #1e6742; border: 1px solid #10b981; }
+    .status-badge[data-status="HOLD"] { background: #f8efdf; color: #655f51; border: 1px dashed #d8c8ae; }
 
-    .btn-review-action { padding: 10px 18px; background: #1e293b; color: white !important; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: all 0.2s; }
-    .btn-review-action:hover { background: #0f172a; transform: translateY(-1px); }
+    .btn-review-action { padding: 10px 18px; background: var(--ink); color: white !important; border: 2px solid var(--ink); border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.05em; }
+    .btn-review-action:hover { transform: translateY(-2px); background: #000; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); }
 
-    .state-box { text-align: center; padding: 80px 0; color: #64748b; }
+    .state-box { text-align: center; padding: 80px 0; color: #655f51; }
     .empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; }
-    .spinner { width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #eee4d4; border-top-color: #bb3e2d; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .top-nav { height: 64px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 40px; gap: 5px; position: sticky; top: 0; z-index: 1000; }
-    .top-nav a { height: 100%; display: flex; align-items: center; padding: 0 20px; text-decoration: none; color: #64748b; font-weight: 700; border-bottom: 3px solid transparent; transition: all 0.2s; }
-    .top-nav a:hover { color: #1e293b; }
-    .top-nav a.active { color: #ff6b35; border-bottom-color: #ff6b35; }
+    .top-nav { height: 64px; background: linear-gradient(110deg, #1d1a16, #2d2922); border-bottom: 1px solid #43392c; display: flex; align-items: center; padding: 0 40px; gap: 5px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .top-nav a { height: 100%; display: flex; align-items: center; padding: 0 20px; text-decoration: none; color: #f5e7d5; font-weight: 800; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .top-nav a:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+    .top-nav a.active { color: #fff; border-bottom: 0; background: linear-gradient(135deg, #bb3e2d, #962f21); margin: 8px; border-radius: 10px; height: calc(100% - 16px); }
     .nav-spacer { flex: 1; }
-    .top-nav button { padding: 8px 16px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: white; color: #1e293b; font-weight: 700; cursor: pointer; }
+    .top-nav button { padding: 8px 16px; border: 1px solid #43392c; border-radius: 8px; background: transparent; color: #f5e7d5; font-weight: 800; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+    .top-nav button:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
   `]
 })
 export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
@@ -196,9 +190,15 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
   constructor() {}
 
   ngOnInit(): void {
-    this.route.url.subscribe(() => {
-      const path = this.router.url.split('/').pop() || 'applied';
-      this.currentStage = ['applied', 'shortlisted', 'interviews', 'offers', 'hired'].includes(path) ? path : 'applied';
+    // Robust stage detection from URL
+    this.route.url.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const url = this.router.url;
+      if (url.includes('/shortlisted')) this.currentStage = 'shortlisted';
+      else if (url.includes('/interviews')) this.currentStage = 'interviews';
+      else if (url.includes('/offers')) this.currentStage = 'offers';
+      else if (url.includes('/hired')) this.currentStage = 'hired';
+      else this.currentStage = 'applied';
+      
       this.loadApplications();
     });
   }
@@ -229,36 +229,54 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
   }
 
   applyStageFilter(): void {
+    if (!this.applications) return;
+    
+    // Normalize status comparison to avoid case issues
     switch (this.currentStage) {
       case 'shortlisted':
-        this.filteredApplications = this.applications.filter(app => app.status === ApplicationStatus.SHORTLISTED);
+        this.filteredApplications = this.applications.filter(app => 
+          app.status.toUpperCase() === ApplicationStatus.SHORTLISTED
+        );
         break;
       case 'interviews':
+        const interviewStatuses = [
+          ApplicationStatus.PHONE_SCREEN, 
+          ApplicationStatus.TECHNICAL_INTERVIEW, 
+          ApplicationStatus.ON_SITE_INTERVIEW
+        ];
         this.filteredApplications = this.applications.filter(app => 
-          [ApplicationStatus.PHONE_SCREEN, ApplicationStatus.TECHNICAL_INTERVIEW, ApplicationStatus.ON_SITE_INTERVIEW].includes(app.status)
+          interviewStatuses.includes(app.status.toUpperCase() as any)
         );
         break;
       case 'offers':
-        this.filteredApplications = this.applications.filter(app => app.status === ApplicationStatus.OFFER_EXTENDED);
+        this.filteredApplications = this.applications.filter(app => 
+          app.status.toUpperCase() === ApplicationStatus.OFFER_EXTENDED
+        );
         break;
       case 'hired':
-        this.filteredApplications = this.applications.filter(app => app.status === ApplicationStatus.HIRED);
+        this.filteredApplications = this.applications.filter(app => 
+          app.status.toUpperCase() === ApplicationStatus.HIRED
+        );
         break;
       case 'applied':
       default:
-        this.filteredApplications = this.applications.filter(app => app.status === ApplicationStatus.APPLIED);
+        this.filteredApplications = this.applications.filter(app => 
+          app.status.toUpperCase() === ApplicationStatus.APPLIED
+        );
         break;
     }
   }
 
   filterApps(event: any): void {
     const term = event.target.value.toLowerCase();
-    this.applyStageFilter();
-    this.filteredApplications = this.filteredApplications.filter(app => 
-      app.applicant.fullName?.toLowerCase().includes(term) ||
-      app.applicant.username.toLowerCase().includes(term) ||
-      app.job.title.toLowerCase().includes(term)
-    );
+    this.applyStageFilter(); // Reset to current stage first
+    if (term) {
+      this.filteredApplications = this.filteredApplications.filter(app => 
+        (app.applicant.fullName || '').toLowerCase().includes(term) ||
+        app.applicant.username.toLowerCase().includes(term) ||
+        app.job.title.toLowerCase().includes(term)
+      );
+    }
   }
 
   getCount(stage: string): number {
@@ -266,26 +284,29 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
     
     switch (stage) {
       case 'shortlisted':
-        return this.applications.filter(app => app.status === ApplicationStatus.SHORTLISTED).length;
+        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.SHORTLISTED).length;
       case 'interviews':
-        return this.applications.filter(app => 
-          [ApplicationStatus.PHONE_SCREEN, ApplicationStatus.TECHNICAL_INTERVIEW, ApplicationStatus.ON_SITE_INTERVIEW].includes(app.status)
-        ).length;
+        const interviewStatuses = [
+          ApplicationStatus.PHONE_SCREEN, 
+          ApplicationStatus.TECHNICAL_INTERVIEW, 
+          ApplicationStatus.ON_SITE_INTERVIEW
+        ];
+        return this.applications.filter(app => interviewStatuses.includes(app.status.toUpperCase() as any)).length;
       case 'offers':
-        return this.applications.filter(app => app.status === ApplicationStatus.OFFER_EXTENDED).length;
+        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.OFFER_EXTENDED).length;
       case 'hired':
-        return this.applications.filter(app => app.status === ApplicationStatus.HIRED).length;
+        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.HIRED).length;
       case 'applied':
       default:
-        return this.applications.filter(app => app.status === ApplicationStatus.APPLIED).length;
+        return this.applications.filter(app => app.status.toUpperCase() === ApplicationStatus.APPLIED).length;
     }
   }
 
   getScoreColor(score?: number): string {
-    if (!score) return '#94a3b8';
-    if (score >= 80) return '#10b981';
-    if (score >= 50) return '#3b82f6';
-    return '#f59e0b';
+    if (!score) return '#d8c8ae';
+    if (score >= 80) return '#1e6742';
+    if (score >= 50) return '#0d6774';
+    return '#bb3e2d';
   }
 
   getStatusLabel(status: string): string {

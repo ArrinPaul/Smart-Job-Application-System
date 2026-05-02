@@ -78,7 +78,7 @@ p {
 .container,
 .page-shell {
   width: min(1200px, calc(100% - 64px));
-  margin: 48px auto;
+  margin: 96px auto 48px; /* Increased top margin to clear 72px sticky header */
 }
 
 .page-shell {
@@ -274,37 +274,56 @@ textarea {
   min-height: 134px;
 }
 
-button {
-  border: 0;
+button:not(.btn-action) {
+  border: 2px solid var(--ink);
   border-radius: 11px;
   padding: 12px 22px;
   font-weight: 800;
   font-family: 'Manrope', sans-serif;
   letter-spacing: 0.02em;
-  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
-  color: #ffffff; /* Explicit high-contrast white */
+  background: var(--ink); /* Black for unselected */
+  color: #fff;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-  box-shadow: 0 9px 16px rgba(150, 47, 33, 0.26);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-button:hover {
+button:not(.btn-action):hover {
   transform: translateY(-2px);
-  filter: saturate(1.08);
-  box-shadow: 0 14px 26px rgba(150, 47, 33, 0.34);
+  background: #000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Secondary Button - High Visibility */
-.btn-secondary, .btn-muted {
-  background: #f1f5f9 !important;
-  color: #1e293b !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+/* Primary / Selected Action - White & Red Combo */
+.btn--primary, 
+.btn-primary:not(.btn-action),
+.btn-publish-final,
+.tab-btn.active,
+.tab-link.active {
+  background: var(--surface) !important;
+  color: var(--brand) !important;
+  border: 2px solid var(--brand) !important;
+  box-shadow: 0 6px 14px rgba(187, 62, 45, 0.12) !important;
 }
 
-.btn-secondary:hover, .btn-muted:hover {
-  background: #e2e8f0 !important;
-  transform: translateY(-1px) !important;
+.btn--primary:hover,
+.btn-primary:not(.btn-action):hover {
+  background: #fff !important;
+  box-shadow: 0 10px 20px rgba(187, 62, 45, 0.18) !important;
+}
+
+/* Redefine login buttons to stay original as requested */
+.auth-card button {
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong)) !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Secondary / Muted Buttons */
+.btn--secondary, .btn-secondary:not(.btn-action), .btn-muted {
+  background: var(--ink) !important;
+  color: white !important;
+  border: 2px solid var(--ink) !important;
 }
 
 /* Accent Button */
