@@ -23,10 +23,12 @@ public class DirectMessage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
     private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
     private User receiver;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -41,6 +43,7 @@ public class DirectMessage {
     // Optional: context of the message (e.g. regarding a specific job)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Job job;
 
     private String attachmentUrl;

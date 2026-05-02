@@ -18,78 +18,31 @@ A modern, recruitment platform featuring an integrated AI-driven ecosystem for i
 
 ---
 
+---
+
 ## 🏗 System Architecture
-The platform utilizes a modern, cloud-native architecture where AI services are integrated as a high-performance intelligence layer.
+The platform utilizes a modern architecture where AI services are integrated as a high-performance intelligence layer.
 
 ```mermaid
 graph TD
-    User((User)) -->|Interacts| FE[Angular 17 Frontend]
-    FE -->|REST/WebSockets| BE[Spring Boot 3 Core]
+    User((User)) --> FE[Angular 17]
+    FE --> BE[Spring Boot 3]
 
-    subgraph "AI Intelligence Ecosystem"
-        BE -->|Raw Content| TIKA[Apache Tika Parser]
-        BE -->|Semantic Analysis| LLM[LLM Gateway - OpenAI/Groq]
-        LLM -->|Vector Mapping| REC[Neural Recommendation Engine]
-        LLM -->|Contextual Response| BOT[AI Chatbot Assistant]
+    subgraph AI_Ecosystem
+        BE --> TIKA[Apache Tika]
+        BE --> LLM[LLM Gateway]
+        LLM --> REC[Neural Recommendation]
+        LLM --> BOT[Career Chatbot]
     end
 
-    subgraph "Cloud Data Layer (Supabase)"
-        BE <-->|Persistence| DB[(PostgreSQL)]
-        DB --- VEC[(pgvector Similarity Store)]
-        BE <-->|Real-time| AUTH[Supabase Auth]
+    subgraph Data_Layer
+        BE <--> DB[(PostgreSQL)]
+        DB --- VEC[pgvector Store]
+        BE <--> AUTH[Supabase Auth]
     end
 
-    subgraph "Continuous Ingestion"
-        SCRAPE[Node.js Job Scraper] -->|Normalize| NORM[Text Normalizer]
-        NORM -->|Sync| DB
-    end
-
-    REC -.->|Match Scoring| FE
-    BOT -.->|Intelligence Insights| FE
-```
-
----
-
-## 🔄 AI System Data Flow
-Detailed visualization of how the system transforms raw data into intelligent career growth tools.
-
-### CV Processing & Profile Intelligence
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant B as Backend
-    participant T as Tika/Parser
-    participant AI as LLM Core
-    participant DB as Vector Store
-
-    U->>B: Upload Resume (.pdf/.docx)
-    B->>T: Extract Text Stream
-    T-->>B: Raw Text
-    B->>AI: Profile Analysis (Skills, Exp, Intent)
-    AI-->>B: Structured JSON + Vector Embeddings
-    B->>DB: Upsert Profile & Skill Graph
-    Note over B,DB: Real-time Match Calculation
-    DB-->>B: Nearest Job Vectors (Cosine Similarity)
-    B->>U: 98%+ Accuracy Recommendations
-```
-
-### Job Scoring & Insight Generation
-```mermaid
-graph LR
-    JOB[Job Listing] -->|Text Normalization| NORM[Normalizer]
-    NORM -->|Embedding| VEC_J[Job Vector]
-    
-    USR[User Profile] -->|Embedding| VEC_U[User Vector]
-    
-    VEC_J --- VEC_U
-    VEC_U -->|Cosine Similarity| SCORE[Match Score %]
-    
-    VEC_J -->|Sentiment Analysis| HEALTH[Company Health Insight]
-    VEC_J -->|Market Trends| SALARY[Predicted Salary Range]
-    
-    SCORE -->|Display| UI[Dashboard]
-    HEALTH -->|Display| UI
-    SALARY -->|Display| UI
+    REC -->|Score| FE
+    BOT -->|Insights| FE
 ```
 
 ---
@@ -97,30 +50,23 @@ graph LR
 ## 💬 AI Career Assistant
 The portal features an integrated **Conversational AI Assistant** that acts as your personal career coach.
 
-<p align="center">
-  <img src="frontend/src/assets/dashboard/chatbot-spotlight.svg" width="600" alt="Career Assistant">
-</p>
-
-### Key Conversations:
-- **"How do I fit this role?"**: Get a breakdown of your strengths and skill gaps for any specific job.
-- **"Prepare me for the interview"**: Generate a mock interview script with technical and behavioral questions tailored to the job description.
-- **"Improve my profile"**: Receive actionable advice on how to optimize your resume for higher match scores.
-- **"Find me remote roles"**: Conversational search across thousands of listings using natural language.
+### How it Works (Architecture):
+1. **Contextual Awareness**: Every message sent to the assistant is automatically wrapped with a "System Context" that includes your skills, experience level, and the specific details of the job you are currently viewing.
+2. **Provider Fallback Logic**: To ensure 100% availability, the assistant utilizes a triple-provider fallback system:
+    - **Primary**: Groq (Llama 3.1 70B) for lightning-fast, high-reasoning responses.
+    - **Secondary**: Hugging Face (Phi-3) for reliable text generation.
+    - **Tertiary**: OpenRouter (Llama 3.2) as a safety layer.
+3. **Response Streaming**: Responses are streamed to the Angular frontend in real-time, providing an interactive and responsive chat experience.
 
 ---
 
 ## ✉️ Direct Messaging (Recruiter ↔ Seeker)
 Bridge the communication gap with high-context direct messaging. No more "black hole" applications.
 
-<p align="center">
-  <img src="frontend/src/assets/about/direct-messaging.svg" width="600" alt="Direct Messaging">
-</p>
-
-### Messaging Features:
-- **Job-Aware Context**: Conversations are automatically linked to specific job listings, showing both parties exactly which role is being discussed.
-- **Real-Time Interaction**: Instant message delivery and typing indicators for a modern, fluid chat experience.
-- **Document Sharing**: Seamlessly share resumes, portfolios, and offer letters directly within the chat.
-- **Presence Status**: See when recruiters are online and actively reviewing applications.
+### How it Works (Architecture):
+1. **Relational Persistence**: Messages are stored in a dedicated PostgreSQL table that maintains a hard link between the `sender_id`, `receiver_id`, and `job_id`. This allows the UI to automatically organize conversations by job title.
+2. **Read-Receipt Synchronization**: The system uses an atomic state management approach to track `isRead` status, ensuring that unread counts are synchronized across the seeker's dashboard and the recruiter's ATS.
+3. **Attachment Layer**: Resumes and documents are stored as `bytea` binary data in the database with a metadata reference, allowing for secure, authenticated downloads within the chat bubble.
 
 ---
 
@@ -129,49 +75,23 @@ Bridge the communication gap with high-context direct messaging. No more "black 
 ### 1. Recommendation & Scoring Engine
 The recommendation engine provides highly personalized job discovery through a high-performance neural architecture.
 
-<p align="center">
-  <img src="frontend/src/assets/about/job-discovery.svg" width="150" alt="Recommendation Engine">
-</p>
+- **Neural Mapping**: The system transforms candidate skills and job descriptions into high-dimensional **Vector Embeddings**.
+- **Vector Search**: Utilizing **pgvector** in PostgreSQL, the engine performs a **Cosine Similarity** search across thousands of roles in milliseconds.
+- **Scoring Logic**: The final Match Score (0-100%) is a weighted composite of Semantic Similarity, Location compatibility, and Experience-level alignment.
 
-- **How it works**: The system maps candidate skills, job title history, and location preferences against active job listings using high-dimensional **Vector Embeddings**.
-- **Scoring System**: Each job is assigned a **Match Score (0-100%)**. The score is derived by calculating:
-    - **Skill Alignment**: Semantic similarity between user-profile tags and job-description keywords (Vector Similarity).
-    - **Preference Matching**: Geographic and job-type (Remote/On-site) compatibility.
-    - **Market Benchmarking**: Scores your profile against current industry demand and "Match Velocity".
-- **Job Insights**: Users see exactly *why* a job is recommended via specific "Match Tags" and **Company Health Insights** (sentiment analysis from aggregated market data).
-
-### 2. AI-Powered Career Chatbot
-The Chatbot serves as a 24/7 recruitment assistant and interface layer, bridging the gap between static listings and dynamic career growth.
-- **Provider Fallback Logic**: To ensure 100% availability, the assistant utilizes a triple-provider fallback system:
-    1. **Groq (Llama 3.1 70B)**: Primary provider for lightning-fast, high-reasoning responses.
-    2. **Hugging Face (Phi-3)**: Secondary fallback for reliable text generation.
-    3. **OpenRouter (Llama 3.2)**: Tertiary safety layer.
-- **Context Awareness**: The chat is fully aware of the job you are currently viewing and your own profile, allowing for deep, contextual advice without re-explaining your background.
-- **Smart Formatting**: Responses are rendered with full Markdown support, including tables for comparisons and bulleted action plans.
-
-### 3. Intelligent CV/Resume Analyzer
+### 2. Intelligent CV/Resume Analyzer
 Reduces user effort by automating profile creation with sub-second precision.
 
-<p align="center">
-  <img src="frontend/src/assets/about/applicant-support.svg" width="150" alt="CV Analyzer">
-</p>
-
-- **Data Extraction**: Uses **Apache Tika** for deep content extraction from .pdf and .docx.
-- **Contextual Parsing**: Extracts intent and experience depth beyond simple keyword matching.
-- **Gap Identification**: Provides real-time feedback on missing skills required for your target roles.
+- **Deep Parsing**: Powered by **Apache Tika**, the system performs raw content extraction from .pdf and .docx files, stripping away formatting to reach core data.
+- **Entity Extraction**: An LLM-based parser then identifies "Entities" (Skills, Previous Companies, Education) from the raw text to automatically populate the user's profile.
 
 ---
 
 ## 🏢 Recruiter Ecosystem
 Empowering hiring teams with structured data and efficient workflows.
 
-<p align="center">
-  <img src="frontend/src/assets/about/job-posting.svg" width="150" alt="Recruiter Tools">
-</p>
-
-- **Structured Job Ingestion**: Move beyond "text-only" descriptions. Every job posted captures precise requirements for the matching engine.
-- **Applicant Tracking (ATS)**: Manage candidate pipelines from initial message to hire.
-- **Direct Reach-out**: Initiate conversations with top-matched candidates before they even apply.
+- **Structured Job Ingestion**: Move beyond "text-only" descriptions. Every job posted captures precise requirements (Job Type, Salary, Work Mode) which are immediately indexed for the vector search engine.
+- **Applicant Tracking (ATS)**: Recruiters have a dedicated workflow to manage candidates from the "Applied" state through "Shortlisted" to "Hired", with full access to AI-derived compatibility metrics.
 
 ---
 
@@ -180,29 +100,22 @@ The database schema stores both transactional recruitment data and AI-derived me
 
 ```mermaid
 erDiagram
-    USERS ||--o{ APPLICATIONS : "submits"
-    USERS ||--o| RESUMES : "owns"
-    JOBS ||--o{ APPLICATIONS : "receives"
+    USERS ||--o{ APPLICATIONS : submits
+    USERS ||--o| RESUMES : owns
+    JOBS ||--o{ APPLICATIONS : receives
     
     USERS { 
         bigint id PK
         varchar role 
-        jsonb profile_preferences 
     }
     JOBS { 
         bigint id PK
         varchar title
-        float base_relevance_score
     }
     APPLICATIONS { 
         bigint id PK
-        float ai_match_score "Result from Scoring Engine"
+        float ai_match_score
         varchar status 
-    }
-    RESUMES { 
-        bigint id PK
-        bytea raw_file
-        jsonb ai_parsed_data "Result from CV Analyzer"
     }
 ```
 
