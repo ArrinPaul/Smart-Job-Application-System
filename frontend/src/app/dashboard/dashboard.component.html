@@ -3,104 +3,81 @@
     <div class="hero-inner">
       <div class="hero-left">
         <p class="hero-welcome">WELCOME BACK</p>
-        <h1 class="hero-title">Good to see you, {{ userName }}</h1>
-        <p class="hero-sub">Your personalized career radar is active. Here's what's happening in your market.</p>
-        
+        <h1 class="hero-title">Good to see you, {{ userName }}.</h1>
+        <p class="hero-sub">Here are your personalised recommendations based on your profile.</p>
+
         <div class="hero-pills">
           <div class="pill">
-            <span class="pill-number">{{ jobsApplied }}</span>
-            <span class="pill-label">Active Apps</span>
+            <div class="pill-number">{{ profileCompletionPercent }}%</div>
+            <div class="pill-label">Profile complete</div>
           </div>
           <div class="pill">
-            <span class="pill-number">{{ profileCompletionPercent }}%</span>
-            <span class="pill-label">Profile Strength</span>
+            <div class="pill-number">{{ jobsViewed }}</div>
+            <div class="pill-label">Schemes viewed</div>
+          </div>
+          <div class="pill">
+            <div class="pill-number">{{ jobsApplied }}</div>
+            <div class="pill-label">Saved schemes</div>
           </div>
         </div>
       </div>
-      <div class="hero-right">
-        <!-- Visual decoration or future chart component -->
-      </div>
+
+      <div class="hero-right"></div>
     </div>
   </header>
 
   <main class="dashboard-main">
     <div class="container">
       <div class="left-col">
-        <!-- Profile Progress -->
-        <section class="profile-progress-card">
+        <div class="profile-progress-card">
           <div class="pp-top">
-            <div class="pp-title">
-              <span>Profile Completion</span>
-              <a routerLink="/onboarding" class="pp-edit-link">✎</a>
-            </div>
-            <span class="pp-percent">{{ profileCompletionPercent }}%</span>
+            <div class="pp-title">Complete your profile for better matches</div>
+            <div class="pp-percent">{{ profileCompletionPercent }}%</div>
           </div>
           <div class="pp-bar">
-            <div class="pp-fill" [style.width.%]="profileCompletionPercent" [style.background]="getProgressTrackColor(profileCompletionPercent)"></div>
+            <div class="pp-fill" [style.width.%]="profileCompletionPercent"></div>
           </div>
-        </section>
+        </div>
 
-        <!-- Recommended Jobs -->
         <section class="recommended-list">
           <div class="section-header">
-            <h3>Top Picks for You</h3>
-            <a routerLink="/jobs" class="view-all">See All Matches →</a>
+            <h3>Recommended for You</h3>
+            <a routerLink="/recommendations" class="view-all">View all ›</a>
           </div>
 
-          <div *ngIf="loading" class="loading-card">
-            Scanning for opportunities...
+          <div *ngIf="loading" class="loading-card">Loading recommendations...</div>
+          <div *ngIf="error" class="error-card">{{ error }}</div>
+
+          <div *ngIf="!loading && !error && recommendations.length === 0" class="loading-card">
+            No recommendations yet.
           </div>
 
-          <div *ngIf="!loading && error" class="error-card">
-            {{ error }}
-          </div>
-
-          <div class="recommendations-grid" *ngIf="!loading && recommendations.length > 0">
-            <div class="recommendation-card" *ngFor="let job of recommendations">
-              <div class="match-badge" [style.background-color]="getMatchColor(job.matchPercentage)">
-                <span class="match-percent">{{ job.matchPercentage }}%</span>
-              </div>
-
-              <div class="card-content">
-                <h3 class="job-title">{{ job.jobTitle }}</h3>
-                <p class="company-name"><strong>{{ job.companyName }}</strong></p>
-                <p class="job-location">📍 {{ job.location }}</p>
-                <p class="work-type">💼 {{ job.workType || 'Not specified' }}</p>
-                <p class="salary-range">💰 {{ formatSalary(job.salaryMin) }} - {{ formatSalary(job.salaryMax) }}</p>
-              </div>
-
-              <div class="card-footer">
-                <a [routerLink]="['/jobs', job.slug]" class="btn--primary" style="display: block; text-align: center; text-decoration: none;">
-                  Explore Opportunity
-                </a>
-              </div>
-            </div>          </div>
-
-          <div *ngIf="!loading && recommendations.length === 0" class="empty-state">
-            <p>No recommendations yet. Complete your profile to get matched!</p>
+          <div *ngFor="let rec of recommendations" class="rec-item">
+            <div class="rec-body">
+              <div class="rec-title">{{ rec.jobTitle }}</div>
+              <div class="rec-excerpt">{{ rec.companyName }} • {{ rec.location }}</div>
+            </div>
+            <div class="rec-meta">
+              <span class="badge-type">{{ rec.workType }}</span>
+              <a [routerLink]="['/jobs', rec.jobId]" class="btn-small">View details</a>
+            </div>
           </div>
         </section>
       </div>
 
       <aside class="right-col">
-        <section class="quick-access">
-          <h4>FAST TRACK</h4>
-          <a routerLink="/applications" class="qa-item">Track My Applications</a>
-          <a routerLink="/resume" class="qa-item">Update My Resume</a>
-          <a routerLink="/jobs" class="qa-item">Discover New Roles</a>
-        </section>
+        <div class="quick-access">
+          <h4>QUICK ACCESS</h4>
+          <a routerLink="/jobs" class="qa-item">Browse All Schemes</a>
+          <a routerLink="/recommendations" class="qa-item">AI Assistant</a>
+          <a routerLink="/profile" class="qa-item">Update Profile</a>
+          <a routerLink="/applications" class="qa-item">Recent Activity</a>
+        </div>
 
-        <!-- Chatbot Spotlight -->
-        <div class="chat-spotlight">
-          <div class="chat-spotlight-copy">
-            <p class="spotlight-kicker">AI ASSISTANT</p>
-            <h4>Optimize Your Path</h4>
-            <p>Need interview tips or a resume roast? Our AI career coach is ready to help you land your dream role.</p>
-            <a href="#" (click)="openChat($event)" class="chat-cta">Talk to Assistant</a>
-          </div>
-          <div class="chat-spotlight-visual">
-            <img src="assets/dashboard/chatbot-spotlight.svg" alt="AI chatbot illustration" />
-          </div>
+        <div class="ask-card">
+          <h4>Ask Prahar AI</h4>
+          <p>Chat with our AI to instantly find schemes you qualify for.</p>
+          <a routerLink="/recommendations" class="btn-primary md">Start a conversation</a>
         </div>
       </aside>
     </div>
