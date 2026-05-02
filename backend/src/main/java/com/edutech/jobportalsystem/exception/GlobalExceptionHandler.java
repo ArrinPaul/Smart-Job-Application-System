@@ -148,6 +148,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<?> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        logger.warn("No resource found: {}", ex.getMessage());
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", "The requested resource was not found: " + ex.getResourcePath());
+        response.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -166,7 +177,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Server Error");
-        response.put("message", "An unexpected error occurred. Please try again later.");
+        response.put("message", ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred");
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
@@ -177,7 +188,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Server Error");
-        response.put("message", "An unexpected error occurred. Please try again later.");
+        response.put("message", "Internal server error: " + ex.getClass().getSimpleName() + (ex.getMessage() != null ? " - " + ex.getMessage() : ""));
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

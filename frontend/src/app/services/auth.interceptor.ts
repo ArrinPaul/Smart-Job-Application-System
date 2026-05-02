@@ -72,102 +72,99 @@ export class AuthInterceptor implements HttpInterceptor {
     let errorMessage = 'An unexpected error occurred';
     let errorType = 'error';
 
-    console.error('[HTTP Error]', error.status, error);
+    // Log the error to console
+    if (!environment.production) {
+      console.error(`[HTTP ${error.status}] ${error.method} ${error.url}`, error);
+    }
 
     // Extract error from backend response (structured format)
-    if (error.error && typeof error.error === 'object') {
-      errorMessage = error.error.message || error.error.error || errorMessage;
+    if (error.error) {
+      if (typeof error.error === 'object') {
+        errorMessage = error.error.message || error.error.error || errorMessage;
+      } else if (typeof error.error === 'string' && error.error.length < 200) {
+        errorMessage = error.error;
+      }
     }
 
     // Handle specific HTTP status codes
     switch (error.status) {
       case 0:
-        // Network error / timeout
         errorMessage = 'Network error - unable to connect to server. Please check your connection.';
         errorType = 'error';
         break;
 
       case 400:
-        // Bad request
-        errorMessage = error.error?.message || 'Invalid input - please check your data and try again';
+        errorMessage = errorMessage !== 'An unexpected error occurred' ? errorMessage : 'Invalid request - please check your input.';
         errorType = 'warning';
         break;
 
       case 401:
-        // Unauthorized
         if (error.url?.includes('/auth/login')) {
-          errorMessage = error.error?.message || 'Invalid credentials or email not verified';
+          errorMessage = errorMessage !== 'An unexpected error occurred' ? errorMessage : 'Invalid credentials or email not verified';
+        } else if (error.error?.error === 'MFA Required') {
+          errorMessage = 'Multi-factor authentication required for this action.';
+          // Do NOT logout for MFA required
         } else {
-          errorMessage = error.error?.message || 'Session expired - please login again';
-          this.authService.logout(); // Clear session on non-login 401
+          errorMessage = 'Session expired or authentication failed - please login again';
+          // Only logout if it's not an MFA requirement and not a login attempt
+          console.warn('[AuthInterceptor] 401 Unauthorized - logging out', error.url);
+          this.authService.logout();
         }
         errorType = 'error';
         break;
 
       case 403:
-        // Forbidden
-        errorMessage = error.error?.message || 'Access denied - you do not have permission to perform this action';
+        errorMessage = 'Access denied - you do not have permission for this action.';
         errorType = 'error';
         break;
 
       case 404:
-        // Not found
-        errorMessage = error.error?.message || 'Resource not found';
+        errorMessage = `Resource not found: ${error.url ? new URL(error.url).pathname : 'unknown'}`;
         errorType = 'warning';
         break;
 
-      case 409:
-        // Conflict (e.g., duplicate email)
-        errorMessage = error.error?.message || 'This resource already exists';
-        errorType = 'warning';
-        break;
-
-      case 422:
-        // Unprocessable entity
-        errorMessage = error.error?.message || 'Unable to process your request - please check the data';
+      case 429:
+        errorMessage = 'Too many requests - please slow down and try again later.';
         errorType = 'warning';
         break;
 
       case 500:
-        // Server error
-        errorMessage = 'Server error - our team is working on it. Please try again later.';
+        errorMessage = 'Internal server error - something went wrong on our end. We are investigating.';
+        if (!environment.production && error.error?.message) {
+          errorMessage += ` (${error.error.message})`;
+        }
         errorType = 'error';
         break;
 
-      case 502:
       case 503:
-      case 504:
-        // Gateway errors
-        errorMessage = 'Server is temporarily unavailable. Please try again in a few moments.';
+        errorMessage = 'Service unavailable - the server is temporarily down for maintenance.';
         errorType = 'error';
         break;
 
       default:
         if (error.status >= 500) {
           errorMessage = 'Server error - please try again later.';
-          errorType = 'error';
         } else if (error.status >= 400) {
-          errorMessage = error.error?.message || 'Request failed - please check and try again';
+          errorMessage = errorMessage !== 'An unexpected error occurred' ? errorMessage : 'Request failed - please check and try again.';
           errorType = 'warning';
         }
     }
 
-    // Show appropriate toast notification based on error type
+    // Show appropriate toast notification
     if (errorType === 'error') {
       this.toastService.showError(errorMessage);
-    } else if (errorType === 'warning') {
+    } else {
       this.toastService.showWarning(errorMessage);
     }
 
     // Log detailed error in development
     if (!environment.production) {
-      console.error('[Detailed Error]', {
-        status: error.status,
-        statusText: error.statusText,
-        message: errorMessage,
-        body: error.error,
-        url: error.url
-      });
+      console.group(`Detailed Error: ${error.status} ${error.statusText}`);
+      console.error('URL:', error.url);
+      console.error('Message:', errorMessage);
+      console.error('Raw Error:', error);
+      if (error.error) console.error('Error Body:', error.error);
+      console.groupEnd();
     }
 
     return throwError(() => error);

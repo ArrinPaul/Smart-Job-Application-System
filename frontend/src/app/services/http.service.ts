@@ -315,9 +315,16 @@ export class HttpService {
   }
 
   /**
-   * Get user details by ID (Admin only)
+   * Get user details by ID (General access)
    */
   getUserById(userId: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/users/${userId}`);
+  }
+
+  /**
+   * Get user details by ID (Admin only - keeping for admin features if needed)
+   */
+  getUserByIdAdmin(userId: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/admin/users/${userId}`);
   }
 

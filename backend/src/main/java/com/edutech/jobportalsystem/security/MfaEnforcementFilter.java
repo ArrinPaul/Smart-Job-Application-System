@@ -66,7 +66,7 @@ public class MfaEnforcementFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         if (path.contains("/auth/mfa") || path.endsWith("/auth/login") || path.endsWith("/auth/register")
                 || path.endsWith("/auth/forgot-password") || path.endsWith("/auth/reset-password")
-                || path.endsWith("/auth/verify-email")) {
+                || path.endsWith("/auth/verify-email") || path.contains("/messages/typing")) {
             return false;
         }
 

@@ -81,11 +81,16 @@ public class SecurityConfig {
             http.addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
             http.addFilterAfter(mfaEnforcementFilter, JwtRequestFilter.class);
-        http.exceptionHandling(exceptions -> 
-                exceptions.authenticationEntryPoint((request, response, authException) -> {
+        http.exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json");
                     response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied: insufficient permissions\"}");
                 })
         );
 

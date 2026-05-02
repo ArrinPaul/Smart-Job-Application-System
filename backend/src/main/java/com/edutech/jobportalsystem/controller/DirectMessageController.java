@@ -18,7 +18,7 @@ import org.springframework.http.HttpHeaders;
 import java.util.Base64;
 
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/messages")
 public class DirectMessageController {
 
     @Autowired
