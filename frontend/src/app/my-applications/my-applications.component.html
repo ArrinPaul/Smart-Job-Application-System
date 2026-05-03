@@ -1,0 +1,99 @@
+<div class="page-shell">
+  <header class="page-header">
+    <div class="container">
+      <h1>My Applications</h1>
+      <p>Track and manage your job applications through each stage of the hiring process.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="pipeline-nav-panel">
+      <div class="tabs-nav-scroll">
+        <div class="tabs-nav">
+          <a routerLink="/my-applications/applied" routerLinkActive="active" class="tab-link">
+            New ({{ getCount('applied') }})
+          </a>
+          <a routerLink="/my-applications/shortlisted" routerLinkActive="active" class="tab-link">
+            Shortlisted ({{ getCount('shortlisted') }})
+          </a>
+          <a routerLink="/my-applications/phone_screen" routerLinkActive="active" class="tab-link">
+            Phone ({{ getCount('phone_screen') }})
+          </a>
+          <a routerLink="/my-applications/technical_interview" routerLinkActive="active" class="tab-link">
+            Technical ({{ getCount('technical_interview') }})
+          </a>
+          <a routerLink="/my-applications/on_site_interview" routerLinkActive="active" class="tab-link">
+            On-site ({{ getCount('on_site_interview') }})
+          </a>
+          <a routerLink="/my-applications/offer_extended" routerLinkActive="active" class="tab-link">
+            Offers ({{ getCount('offer_extended') }})
+          </a>
+          <a routerLink="/my-applications/hired" routerLinkActive="active" class="tab-link">
+            Hired ({{ getCount('hired') }})
+          </a>
+          <a routerLink="/my-applications/rejected" routerLinkActive="active" class="tab-link">
+            Rejected ({{ getCount('rejected') }})
+          </a>
+          <a routerLink="/my-applications/hold" routerLinkActive="active" class="tab-link">
+            Hold ({{ getCount('hold') }})
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-box">
+        <input type="text" placeholder="Search by job title or status..." (input)="filterApps($event)">
+      </div>
+    </div>
+
+    <div class="table-container" *ngIf="!loading; else loadingTpl">
+      <table *ngIf="filteredApplications.length > 0; else emptyTpl">
+        <thead>
+          <tr>
+            <th>Job Position</th>
+            <th>Applied Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let app of filteredApplications">
+            <td>
+              <div class="job-title">{{ app.job.title }}</div>
+              <div class="job-meta">{{ app.job.location }}</div>
+            </td>
+            <td>{{ app.appliedAt | date:'mediumDate' }}</td>
+            <td>
+              <span class="status-badge" [attr.data-status]="app.status">
+                {{ getStatusLabel(app.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="action-group">
+                <button class="btn-review-action" [routerLink]="['/jobs', app.job.slug || app.job.id]">
+                  View Job
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #loadingTpl>
+      <div class="state-box">
+        <div class="spinner"></div>
+        <p>Loading applications...</p>
+      </div>
+    </ng-template>
+
+    <ng-template #emptyTpl>
+      <div class="state-box">
+        <div class="empty-icon">📂</div>
+        <h3>No applications in this stage</h3>
+        <p>Select another stage or apply to a new job.</p>
+      </div>
+    </ng-template>
+  </main>
+</div>

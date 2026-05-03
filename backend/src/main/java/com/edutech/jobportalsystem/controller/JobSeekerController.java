@@ -85,12 +85,25 @@ public class JobSeekerController {
     }
 
     @GetMapping("/jobseeker/applications")
-    public ResponseEntity<?> getMyApplications() {
+    public ResponseEntity<?> getMyApplications(@RequestParam(required = false) String stage) {
+        logger.info("JobSeekerController.getMyApplications called with stage: {}", stage);
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.info("User {} fetching their applications", username);
+        logger.info("User {} fetching their applications for stage: {}", username, stage);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        return ResponseEntity.ok(applicationService.getApplicationsByApplicant(user));
+        List<com.edutech.jobportalsystem.entity.Application> applications = applicationService.getApplicationsByApplicantAndStage(user, stage);
+        logger.info("Returning {} applications", applications.size());
+        return ResponseEntity.ok(applications);
+    }
+
+    @GetMapping("/jobseeker/applications/stats")
+    public ResponseEntity<?> getApplicationStats() {
+        logger.info("JobSeekerController.getApplicationStats called");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("User {} fetching their application stats", username);
+        java.util.Map<String, Long> stats = applicationService.getApplicationCountsForJobSeeker(username);
+        logger.info("Returning stats: {}", stats);
+        return ResponseEntity.ok(stats);
     }
 
     @GetMapping("/jobseeker/applications/{id}")

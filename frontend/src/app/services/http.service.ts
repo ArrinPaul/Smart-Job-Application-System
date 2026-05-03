@@ -222,10 +222,19 @@ export class HttpService {
   }
 
   /**
+   * Get job applicant's application pipeline statistics
+   */
+  getApplicationStats(): Observable<Record<string, number>> {
+    return this.http.get<Record<string, number>>(`${this.apiUrl}/jobseeker/applications/stats`);
+  }
+
+  /**
    * Get Job Applicant's own applications
    */
-  getMyApplications(): Observable<Application[]> {
-    return this.http.get<Application[]>(`${this.apiUrl}/jobseeker/applications`);
+  getMyApplications(stage?: string): Observable<Application[]> {
+    let url = `${this.apiUrl}/jobseeker/applications`;
+    if (stage) url += `?stage=${stage}`;
+    return this.http.get<Application[]>(url);
   }
 
   /**

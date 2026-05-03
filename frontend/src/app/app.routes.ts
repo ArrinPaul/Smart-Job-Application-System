@@ -70,17 +70,16 @@ export const routes: Routes = [
     data: { roles: [UserRole.RECRUITER] }
   },
   {
-    path: 'applications',
-    loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent),
+    path: 'my-applications',
+    loadComponent: () => import('./my-applications/my-applications.component').then(m => m.MyApplicationsComponent),
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.RECRUITER, UserRole.JOB_SEEKER] },
-    children: [
-      { path: '', redirectTo: 'active', pathMatch: 'full' },
-      { path: 'active', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) },
-      { path: 'interviews', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) },
-      { path: 'offers', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) },
-      { path: 'archived', loadComponent: () => import('./applications/applications.component').then(m => m.ApplicationsComponent) }
-    ]
+    data: { roles: [UserRole.JOB_SEEKER] }
+  },
+  {
+    path: 'my-applications/:stage',
+    loadComponent: () => import('./my-applications/my-applications.component').then(m => m.MyApplicationsComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [UserRole.JOB_SEEKER] }
   },
   {
     path: 'recruiter/pipeline',

@@ -125,7 +125,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     if (step === 'INTERVIEW') {
       if (['APPLIED', 'SHORTLISTED'].includes(currentStatus)) return '';
       if (interviewStatuses.includes(currentStatus)) return 'active';
-      if (['OFFER_EXTENDED', 'HIRED'].includes(currentStatus)) return 'completed';
+      if (['OFFER_EXTENDED', 'HIRED'].includes(current.status)) return 'completed';
     }
 
     if (step === 'HIRED') {

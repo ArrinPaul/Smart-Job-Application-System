@@ -106,6 +106,38 @@ public class ApplicationService {
         return applicationRepository.findByApplicant(applicant);
     }
 
+    public List<Application> getApplicationsByApplicantAndStage(User applicant, String stage) {
+        logger.debug("Fetching applications for applicant: {}, stage: {}", applicant.getUsername(), stage);
+        
+        if (stage == null || stage.isBlank() || stage.equalsIgnoreCase("ALL")) {
+            return applicationRepository.findByApplicant(applicant);
+        }
+
+        String normalizedStage = stage.toUpperCase();
+        if (normalizedStage.equals("INTERVIEWS")) {
+            return applicationRepository.findByApplicantAndStatusIn(
+                applicant, 
+                List.of("PHONE_SCREEN", "TECHNICAL_INTERVIEW", "ON_SITE_INTERVIEW")
+            );
+        } else if (normalizedStage.equals("OFFERS")) {
+            return applicationRepository.findByApplicantAndStatus(applicant, "OFFER_EXTENDED");
+        } else {
+            return applicationRepository.findByApplicantAndStatus(applicant, normalizedStage);
+        }
+    }
+
+    public java.util.Map<String, Long> getApplicationCountsForJobSeeker(String username) {
+        User applicant = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        List<Object[]> results = applicationRepository.countApplicationsByStatusForApplicant(applicant);
+        java.util.Map<String, Long> counts = new java.util.HashMap<>();
+        for (Object[] row : results) {
+            counts.put((String) row[0], (Long) row[1]);
+        }
+        return counts;
+    }
+
+
     @org.springframework.transaction.annotation.Transactional
     public Application updateApplicationDetails(Long applicationId, String status, String notes, 
                                               LocalDateTime interviewDate, String interviewLocation, 
