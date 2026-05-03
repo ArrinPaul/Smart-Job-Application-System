@@ -95,6 +95,13 @@ public class RecruiterController {
         return ResponseEntity.ok(jobService.getJobsByRecruiter(username));
     }
 
+    @GetMapping("/applications/{applicationId}")
+    public ResponseEntity<?> getApplicationById(@PathVariable Long applicationId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Recruiter {} fetching application details for ID: {}", username, applicationId);
+        return ResponseEntity.ok(applicationService.getApplicationById(applicationId, username));
+    }
+
     @PutMapping("/applications/{applicationId}/status")
     public ResponseEntity<?> updateApplicationStatus(@PathVariable Long applicationId,
                                                      @Valid @RequestBody UpdateApplicationStatusRequest request) {

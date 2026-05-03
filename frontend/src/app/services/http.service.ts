@@ -229,6 +229,13 @@ export class HttpService {
   }
 
   /**
+   * Get specific application for job seeker
+   */
+  getMyApplicationById(applicationId: number): Observable<Application> {
+    return this.http.get<Application>(`${this.apiUrl}/jobseeker/applications/${applicationId}`);
+  }
+
+  /**
    * Apply to a job
    */
   applyJob(jobId: number, resumeId?: number): Observable<Application> {
@@ -248,6 +255,13 @@ export class HttpService {
    */
   updateApplicationDetails(applicationId: number, request: UpdateApplicationDetailsRequest): Observable<Application> {
     return this.http.put<Application>(`${this.apiUrl}/recruiter/applications/${applicationId}/details`, request);
+  }
+
+  /**
+   * Get specific application by ID
+   */
+  getApplicationById(applicationId: number): Observable<Application> {
+    return this.http.get<Application>(`${this.apiUrl}/recruiter/applications/${applicationId}`);
   }
 
   // ==================== RESUME ====================

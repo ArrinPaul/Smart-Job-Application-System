@@ -17,7 +17,7 @@ import { AuthService } from '../services/auth.service';
       <header class="review-header">
         <div class="container header-content">
           <div class="left">
-            <button class="btn-back" routerLink="/recruiter/applications">← Back to List</button>
+            <button class="btn-back" routerLink="/recruiter/pipeline">← Back to List</button>
             <h1>Review Applicant</h1>
           </div>
           <div class="right status-actions">
@@ -193,7 +193,7 @@ import { AuthService } from '../services/auth.service';
         <div class="error-box" *ngIf="error">
           <h3>Error</h3>
           <p>{{ error }}</p>
-          <button class="btn-back" routerLink="/recruiter/applications">Back to Applications</button>
+          <button class="btn-back" routerLink="/recruiter/pipeline">Back to Applications</button>
         </div>
       </div>
     </ng-template>
@@ -302,9 +302,14 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const id = params['id'];
-      if (id) {
-        this.startPolling(Number(id));
+      const rawId = params['id'];
+      const id = Number(rawId);
+      
+      if (rawId && !isNaN(id)) {
+        this.startPolling(id);
+      } else if (rawId) {
+        this.error = 'Invalid application ID provided.';
+        this.loading = false;
       }
     });
   }
@@ -318,6 +323,8 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
   }
 
   startPolling(id: number): void {
+    if (isNaN(id)) return;
+    
     if (this.pollingSub) {
       this.pollingSub.unsubscribe();
     }
@@ -328,15 +335,14 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
         startWith(0),
         switchMap(() => {
           if (document.visibilityState === 'visible') {
-            return this.httpService.getRecruiterApplications();
+            return this.httpService.getApplicationById(id);
           }
-          return of([]);
+          return of(this.application); // Keep current state if hidden
         }),
         takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (apps) => {
-          const found = apps.find(a => a.id === id);
+        next: (found) => {
           if (found) {
             // Only update if something actually changed to avoid form reset
             const hasChanged = !this.application || 
@@ -347,14 +353,15 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
               this.initForm();
             }
             this.loading = false;
+            this.error = '';
           } else if (this.loading) {
             this.error = 'Application not found';
             this.loading = false;
           }
         },
-        error: () => {
+        error: (err) => {
           if (this.loading) {
-            this.error = 'Failed to load application details';
+            this.error = err.status === 404 ? 'Application not found' : 'Failed to load application details';
             this.loading = false;
           }
         }

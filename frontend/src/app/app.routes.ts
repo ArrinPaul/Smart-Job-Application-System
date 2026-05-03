@@ -83,13 +83,16 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'recruiter/applications',
+    path: 'recruiter/pipeline',
     canActivate: [RoleGuard],
     data: { roles: [UserRole.RECRUITER] },
     children: [
       { path: '', redirectTo: 'applied', pathMatch: 'full' },
       { path: 'applied', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
       { path: 'shortlisted', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'phone_screen', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'technical_interview', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'on_site_interview', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
       { path: 'interviews', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
       { path: 'offers', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
       { path: 'hired', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
@@ -98,10 +101,12 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'recruiter/applications/:id',
-    loadComponent: () => import('./applicant-review/applicant-review.component').then(m => m.ApplicantReviewComponent),
+    path: 'recruiter/applications',
     canActivate: [RoleGuard],
-    data: { roles: [UserRole.RECRUITER] }
+    data: { roles: [UserRole.RECRUITER] },
+    children: [
+      { path: 'review/:id', loadComponent: () => import('./applicant-review/applicant-review.component').then(m => m.ApplicantReviewComponent) }
+    ]
   },
   {
     path: 'resume',

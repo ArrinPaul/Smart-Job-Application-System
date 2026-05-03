@@ -93,6 +93,13 @@ public class JobSeekerController {
         return ResponseEntity.ok(applicationService.getApplicationsByApplicant(user));
     }
 
+    @GetMapping("/jobseeker/applications/{id}")
+    public ResponseEntity<?> getApplicationById(@PathVariable Long id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("User {} fetching application details for ID: {}", username, id);
+        return ResponseEntity.ok(applicationService.getApplicationById(id, username));
+    }
+
     @GetMapping("/jobseeker/insights/match/{jobId}")
     public ResponseEntity<?> getJobMatchInsights(@PathVariable Long jobId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

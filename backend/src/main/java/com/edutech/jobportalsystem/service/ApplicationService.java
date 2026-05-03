@@ -141,4 +141,24 @@ public class ApplicationService {
     public List<Application> getAllApplications() {
         return applicationRepository.findAll();
     }
+
+    public Application getApplicationById(Long applicationId, String username) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application", "id", applicationId));
+        
+        // Authorization check: Only the applicant, the job poster, or an admin can view
+        boolean isApplicant = application.getApplicant().getUsername().equals(username);
+        boolean isRecruiter = application.getJob().getPostedBy().getUsername().equals(username);
+        
+        if (!isApplicant && !isRecruiter) {
+            // Check for admin role (simplified check, usually done via security context or user entity)
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+            if (!"ADMIN".equals(user.getRole())) {
+                throw new BadRequestException("Not authorized to view this application");
+            }
+        }
+        
+        return application;
+    }
 }

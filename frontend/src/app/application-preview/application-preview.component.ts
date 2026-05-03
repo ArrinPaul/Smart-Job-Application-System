@@ -56,53 +56,65 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
       this.pollingSub.unsubscribe();
     }
 
-    const isNumericId = !isNaN(Number(identifier));
-    const numericId = isNumericId ? Number(identifier) : null;
+    const numericId = !isNaN(Number(identifier)) ? Number(identifier) : null;
 
     // Poll every 5 seconds for status updates while the page is open
     this.pollingSub = interval(5000)
       .pipe(
         startWith(0),
         switchMap(() => {
-          if (document.visibilityState === 'visible') {
+          if (document.visibilityState !== 'visible') {
+            return of(null);
+          }
+          
+          // Strategy: 
+          // 1. If it looks like an ID, try direct fetch first
+          // 2. Otherwise, fetch all applications and find by slug
+          if (numericId) {
+            return this.httpService.getMyApplicationById(numericId);
+          } else {
             return this.httpService.getMyApplications();
           }
-          return of([]);
         }),
         takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (apps) => {
-          let found;
-          if (isNumericId) {
-            found = apps.find(a => a.id === numericId);
+        next: (result) => {
+          if (result === null) return;
+
+          let found: Application | undefined;
+          
+          if (Array.isArray(result)) {
+            // We fetched all apps, find by slug
+            found = result.find(a => a.job.slug === identifier || a.id.toString() === identifier);
           } else {
-            // Find by job slug
-            found = apps.find(a => a.job.slug === identifier);
+            // result is a single application (direct fetch)
+            found = result;
           }
 
           if (found) {
-            // Only update if status or details changed to avoid flicker
-            if (!this.application || 
-                JSON.stringify(this.application) !== JSON.stringify(found)) {
+            if (!this.application || JSON.stringify(this.application) !== JSON.stringify(found)) {
               this.application = found;
             }
             this.loading = false;
             this.error = '';
-          } else if (this.loading) {
-            if (!isNumericId) {
-              // If not applied yet, we need to load job details to show the apply button
+            this.job = null; // Clear job preview if application exists
+          } else {
+            // Not found in applications list - could be a slug for a job not applied to
+            if (this.loading) {
               this.fetchJobDetails(identifier);
-            } else {
-              this.error = 'Application record not found.';
-              this.loading = false;
             }
           }
         },
-        error: () => {
+        error: (err) => {
           if (this.loading) {
-            this.error = 'Failed to load application status.';
-            this.loading = false;
+            // If direct fetch by ID failed, maybe it's actually a slug that looks numeric?
+            if (numericId && err.status === 404) {
+              this.fetchJobDetails(identifier);
+            } else {
+              this.error = 'Failed to load application status.';
+              this.loading = false;
+            }
           }
         }
       });
