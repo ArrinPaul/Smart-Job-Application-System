@@ -68,9 +68,29 @@ public class ApplicationService {
         return savedApp;
     }
 
+    public List<Application> getApplicationsForRecruiter(String recruiterUsername, String stage) {
+        logger.debug("Fetching applications for recruiter: {}, stage: {}", recruiterUsername, stage);
+        
+        if (stage == null || stage.isBlank() || stage.equalsIgnoreCase("ALL")) {
+            return applicationRepository.findAllByRecruiterUsername(recruiterUsername);
+        }
+
+        String normalizedStage = stage.toUpperCase();
+        if (normalizedStage.equals("INTERVIEWS")) {
+            return applicationRepository.findAllByRecruiterUsernameAndStatusIn(
+                recruiterUsername, 
+                List.of("PHONE_SCREEN", "TECHNICAL_INTERVIEW", "ON_SITE_INTERVIEW")
+            );
+        } else if (normalizedStage.equals("OFFERS")) {
+            return applicationRepository.findAllByRecruiterUsernameAndStatus(recruiterUsername, "OFFER_EXTENDED");
+        } else {
+            // Default mapping for simple statuses like APPLIED, SHORTLISTED, HIRED
+            return applicationRepository.findAllByRecruiterUsernameAndStatus(recruiterUsername, normalizedStage);
+        }
+    }
+
     public List<Application> getApplicationsForRecruiter(String recruiterUsername) {
-        logger.debug("Fetching applications for recruiter: {}", recruiterUsername);
-        return applicationRepository.findAllByRecruiterUsername(recruiterUsername);
+        return getApplicationsForRecruiter(recruiterUsername, null);
     }
 
     public java.util.Map<String, Long> getApplicationCountsForRecruiter(String recruiterUsername) {

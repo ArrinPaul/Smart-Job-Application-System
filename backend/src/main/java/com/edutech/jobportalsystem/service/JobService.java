@@ -53,9 +53,7 @@ public class JobService {
     @jakarta.annotation.PostConstruct
     @Transactional
     public void backfillSlugs() {
-        List<Job> jobsWithNullSlugs = jobRepository.findAll().stream()
-                .filter(j -> j.getSlug() == null || j.getSlug().isBlank())
-                .toList();
+        List<Job> jobsWithNullSlugs = jobRepository.findJobsWithMissingSlugs();
         
         if (!jobsWithNullSlugs.isEmpty()) {
             logger.info("Backfilling slugs for {} jobs...", jobsWithNullSlugs.size());

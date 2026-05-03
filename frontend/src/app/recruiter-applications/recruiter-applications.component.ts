@@ -23,27 +23,42 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
 
   applications: Application[] = [];
   filteredApplications: Application[] = [];
+  stats: Record<string, number> = {};
   loading = true;
+  loadingStats = true;
   currentStage = 'applied'; 
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    // 1. Initial Load
-    this.loadApplications();
+    // 1. Load stats immediately to show counts
+    this.loadStats();
 
     // 2. React to URL changes (stage switching)
     this.route.url.pipe(takeUntil(this.destroy$)).subscribe(segments => {
-      // Use the last segment if it's one of our stages, otherwise default to 'applied'
       const path = segments.length > 0 ? segments[segments.length - 1].path : 'applied';
       this.currentStage = ['applied', 'shortlisted', 'interviews', 'offers', 'hired'].includes(path) ? path : 'applied';
       
-      this.applyStageFilter();
+      // Load applications for this specific stage
+      this.loadApplications();
     });
+  }
+
+  loadStats(): void {
+    this.loadingStats = true;
+    this.httpService.getRecruiterApplicationStats()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loadingStats = false)
+      )
+      .subscribe({
+        next: (stats) => this.stats = stats || {},
+        error: () => console.error('Failed to load pipeline stats')
+      });
   }
 
   loadApplications(): void {
     this.loading = true;
-    this.httpService.getRecruiterApplications()
+    this.httpService.getRecruiterApplications(this.currentStage)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.loading = false)
@@ -51,54 +66,32 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (apps) => {
           this.applications = apps || [];
-          this.applyStageFilter();
+          this.filteredApplications = [...this.applications];
         },
         error: () => this.toastService.showError('Failed to sync pipeline data')
       });
   }
 
   applyStageFilter(): void {
-    if (!this.applications) {
-      this.filteredApplications = [];
-      return;
-    }
-    
-    const targetStage = this.currentStage.toUpperCase();
-    
-    this.filteredApplications = this.applications.filter(app => {
-      const status = (app.status || '').toUpperCase();
-      
-      switch (targetStage) {
-        case 'SHORTLISTED':
-          return status === 'SHORTLISTED';
-        case 'INTERVIEWS':
-          return ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW'].includes(status);
-        case 'OFFERS':
-          return status === 'OFFER_EXTENDED';
-        case 'HIRED':
-          return status === 'HIRED';
-        case 'APPLIED':
-        default:
-          return status === 'APPLIED';
-      }
-    });
+    // No longer needed as server handles filtering, but kept for search
+    this.filteredApplications = [...this.applications];
   }
 
   getCount(stage: string): number {
-    if (!this.applications) return 0;
+    if (this.loadingStats) return 0;
     
     switch (stage) {
       case 'shortlisted':
-        return this.applications.filter(app => (app.status || '').toUpperCase() === 'SHORTLISTED').length;
+        return this.stats['SHORTLISTED'] || 0;
       case 'interviews':
-        return this.applications.filter(app => ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW'].includes((app.status || '').toUpperCase())).length;
+        return (this.stats['PHONE_SCREEN'] || 0) + (this.stats['TECHNICAL_INTERVIEW'] || 0) + (this.stats['ON_SITE_INTERVIEW'] || 0);
       case 'offers':
-        return this.applications.filter(app => (app.status || '').toUpperCase() === 'OFFER_EXTENDED').length;
+        return this.stats['OFFER_EXTENDED'] || 0;
       case 'hired':
-        return this.applications.filter(app => (app.status || '').toUpperCase() === 'HIRED').length;
+        return this.stats['HIRED'] || 0;
       case 'applied':
       default:
-        return this.applications.filter(app => (app.status || '').toUpperCase() === 'APPLIED').length;
+        return this.stats['APPLIED'] || 0;
     }
   }
 

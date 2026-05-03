@@ -208,8 +208,10 @@ export class HttpService {
   /**
    * Get recruiter's job applications
    */
-  getRecruiterApplications(): Observable<Application[]> {
-    return this.http.get<Application[]>(`${this.apiUrl}/recruiter/applications`);
+  getRecruiterApplications(stage?: string): Observable<Application[]> {
+    let url = `${this.apiUrl}/recruiter/applications`;
+    if (stage) url += `?stage=${stage}`;
+    return this.http.get<Application[]>(url);
   }
 
   /**

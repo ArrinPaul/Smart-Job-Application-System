@@ -59,8 +59,7 @@ public class SecurityConfig {
                             "/auth/register", "/auth/login", "/auth/verify-email", "/auth/forgot-password", "/auth/reset-password",
                             "/api/auth/register", "/api/auth/login", "/api/auth/verify-email", "/api/auth/forgot-password", "/api/auth/reset-password",
                             "/public/**", "/api/public/**", "/jobs/**", "/api/jobs/**", "/chat/**", "/api/chat/**",
-                            "/translation/**", "/api/translation/**", "/jobs/**/translate", "/api/jobs/**/translate",
-                            "/jobs/**/translate-preview", "/api/jobs/**/translate-preview"
+                            "/translation/**", "/api/translation/**"
                             ).permitAll()
                     .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/recruiter/**", "/api/recruiter/**").hasRole("RECRUITER")

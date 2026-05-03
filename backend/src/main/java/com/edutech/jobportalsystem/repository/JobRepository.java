@@ -40,7 +40,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     @org.springframework.data.jpa.repository.Query("SELECT j.id FROM Job j")
     List<Long> findAllIds();
 
-    @org.springframework.data.jpa.repository.Query("SELECT j FROM Job j WHERE j.title ~ '[^\\x00-\\x7F]' OR j.description ~ '[^\\x00-\\x7F]'")
+    @org.springframework.data.jpa.repository.Query(value = "SELECT * FROM jobs WHERE title ~ '[^\\x00-\\x7F]' OR description ~ '[^\\x00-\\x7F]'", nativeQuery = true)
     List<Job> findJobsWithNonAsciiContent(org.springframework.data.domain.Pageable pageable);
 
     @org.springframework.data.jpa.repository.Query(value = "SELECT CAST(created_at AS DATE) as date, COUNT(*) as count " +
@@ -49,6 +49,9 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             "GROUP BY CAST(created_at AS DATE) " +
             "ORDER BY CAST(created_at AS DATE) ASC", nativeQuery = true)
     List<Object[]> countJobsByDaySince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
+    @org.springframework.data.jpa.repository.Query("SELECT j FROM Job j WHERE j.slug IS NULL OR j.slug = ''")
+    List<Job> findJobsWithMissingSlugs();
 
     Optional<Job> findFirstByTitleIgnoreCaseAndCompanyNameIgnoreCase(String title, String companyName);
 }

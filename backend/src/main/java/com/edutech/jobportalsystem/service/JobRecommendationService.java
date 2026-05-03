@@ -55,9 +55,7 @@ public class JobRecommendationService {
         
         // 1. Analyze all active jobs to find "Rare" vs "Common" skills
         // Rare skills will carry more weight in the match
-        List<Job> activeJobs = jobRepository.findAll().stream()
-                .filter(Job::getIsActive)
-                .collect(Collectors.toList());
+        List<Job> activeJobs = jobRepository.findByIsActiveTrue();
         
         Map<String, Integer> skillFrequency = new HashMap<>();
         for (Job job : activeJobs) {
