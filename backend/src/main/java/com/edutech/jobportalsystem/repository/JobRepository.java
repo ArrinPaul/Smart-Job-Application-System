@@ -22,6 +22,14 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     List<Job> findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(String title, String location, org.springframework.data.domain.Pageable pageable);
 
+    List<Job> findByTitleContainingIgnoreCaseAndIsActiveTrue(String title, org.springframework.data.domain.Pageable pageable);
+
+    List<Job> findByLocationContainingIgnoreCaseAndIsActiveTrue(String location, org.springframework.data.domain.Pageable pageable);
+
+    List<Job> findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCaseAndIsActiveTrue(String title, String location, org.springframework.data.domain.Pageable pageable);
+
+    List<Job> findByIsActiveTrue(org.springframework.data.domain.Pageable pageable);
+
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<Job> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime createdAt);

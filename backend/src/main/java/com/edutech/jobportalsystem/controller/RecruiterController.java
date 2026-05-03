@@ -74,6 +74,13 @@ public class RecruiterController {
         return ResponseEntity.ok(Map.of("message", "Job deleted successfully"));
     }
 
+    @PatchMapping("/jobs/{jobId}/status")
+    public ResponseEntity<?> toggleJobStatus(@PathVariable("jobId") Long jobId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Recruiter {} toggling status for job ID: {}", username, jobId);
+        return ResponseEntity.ok(jobService.toggleJobStatus(jobId, username));
+    }
+
     @GetMapping("/applications")
     public ResponseEntity<?> getRecruiterApplications(@RequestParam(required = false) String stage) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

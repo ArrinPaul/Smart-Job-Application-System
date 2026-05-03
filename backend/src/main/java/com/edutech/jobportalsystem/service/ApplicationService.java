@@ -137,6 +137,11 @@ public class ApplicationService {
         return counts;
     }
 
+    public boolean hasUserAppliedForJob(User applicant, Job job) {
+        return applicationRepository.existsByApplicantAndJob(applicant, job);
+    }
+
+
 
     @org.springframework.transaction.annotation.Transactional
     public Application updateApplicationDetails(Long applicationId, String status, String notes, 

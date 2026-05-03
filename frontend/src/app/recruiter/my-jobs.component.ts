@@ -45,13 +45,18 @@ import { AuthService } from '../services/auth.service';
                   <h4>{{ job.title }}</h4>
                   <p class="job-meta">📍 {{ job.location }} · Posted {{ job.createdAt | date:'mediumDate' }}</p>
                   <div class="job-pills">
-                    <span class="job-pill">{{ job.jobType }}</span>
-                    <span class="job-pill status-open">Active</span>
+                    <span class="job-pill">{{ job.jobType?.replace('_', ' ') }}</span>
+                    <span class="job-pill" [class.status-open]="job.isActive" [class.status-closed]="!job.isActive">
+                      {{ job.isActive ? 'Active' : 'Closed' }}
+                    </span>
                   </div>
                 </div>
                 <div class="card-actions">
+                  <button type="button" class="btn-status" [class.btn-close]="job.isActive" [class.btn-open]="!job.isActive" (click)="toggleJobStatus(job)">
+                    <span>{{ job.isActive ? 'Close Hiring' : 'Open Hiring' }}</span>
+                  </button>
                   <button type="button" class="btn-manage" (click)="editJob(job)">
-                    <span>Edit Posting</span>
+                    <span>Edit</span>
                   </button>
                   <button type="button" class="btn-delete" (click)="deleteJob(job.id)">
                     <span>Remove</span>
@@ -104,10 +109,17 @@ import { AuthService } from '../services/auth.service';
     .job-pills { display: flex; gap: 8px; margin-bottom: 20px; }
     .job-pill { padding: 4px 12px; background: #eee4d4; color: #1f1d18; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
     .status-open { background: #dbf1e3; color: #1e6742; border: 1px solid #b7e4c7; }
+    .status-closed { background: #ffe4df; color: #9b251b; border: 1px solid #ffcccb; }
 
     .card-actions { display: flex; gap: 12px; margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(216, 200, 174, 0.4); }
-    .btn-manage { flex: 1; padding: 12px 20px; background: #1f1d18; color: white; border: 2px solid #1f1d18; border-radius: 10px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-    .btn-manage:hover { background: #000; transform: translateY(-1px); }
+    .btn-status { flex: 1.2; padding: 12px 20px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .btn-close { background: #1f1d18; color: white; border-color: #1f1d18; }
+    .btn-close:hover { background: #000; transform: translateY(-1px); }
+    .btn-open { background: #dbf1e3; color: #1e6742; border-color: #b7e4c7; }
+    .btn-open:hover { background: #b7e4c7; transform: translateY(-1px); }
+    
+    .btn-manage { flex: 0.8; padding: 12px 20px; background: transparent; color: #1f1d18; border: 2px solid #1f1d18; border-radius: 10px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .btn-manage:hover { background: #eee4d4; transform: translateY(-1px); }
     .btn-delete { padding: 12px 20px; background: transparent; color: #9b251b; border: 2px solid #ffcccb; border-radius: 10px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
     .btn-delete:hover { background: #ffe4df; border-color: #9b251b; }
 
@@ -153,7 +165,25 @@ export class MyJobsComponent implements OnInit, OnDestroy {
   }
 
   getActiveCount(): number {
-    return this.myJobs.length; // Can be refined if status exists on backend
+    return this.myJobs.filter(j => j.isActive).length;
+  }
+
+  toggleJobStatus(job: Job): void {
+    const action = job.isActive ? 'Close hiring for' : 'Reopen hiring for';
+    if (confirm(`${action} "${job.title}"?`)) {
+      this.httpService.toggleJobStatus(job.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (updatedJob) => {
+            const index = this.myJobs.findIndex(j => j.id === job.id);
+            if (index !== -1) {
+              this.myJobs[index] = updatedJob;
+            }
+            this.toastService.showSuccess(`Job ${updatedJob.isActive ? 'opened' : 'closed'} successfully`);
+          },
+          error: () => this.toastService.showError('Failed to update job status')
+        });
+    }
   }
 
   editJob(job: Job): void {

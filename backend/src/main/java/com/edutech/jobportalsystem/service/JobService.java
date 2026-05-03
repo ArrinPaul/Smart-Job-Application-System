@@ -119,6 +119,21 @@ public class JobService {
         return slug + "-" + java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 
+    @Transactional
+    public Job toggleJobStatus(Long jobId, String recruiterUsername) {
+        logger.info("Toggling status for job ID: {} by {}", jobId, recruiterUsername);
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "id", jobId));
+
+        if (!job.getPostedBy().getUsername().equals(recruiterUsername)) {
+            logger.warn("Unauthorized status toggle attempt for job ID: {} by user: {}", jobId, recruiterUsername);
+            throw new BadRequestException("Not authorized to modify this job");
+        }
+
+        job.setIsActive(!job.getIsActive());
+        return jobRepository.save(job);
+    }
+
     public void deleteJob(Long jobId, String recruiterUsername) {
         logger.info("Deleting job ID: {} by {}", jobId, recruiterUsername);
         Job existingJob = jobRepository.findById(jobId)
@@ -160,28 +175,51 @@ public class JobService {
     }
 
     public List<Job> getAllJobs(int page, int size) {
+        return getAllJobs(page, size, false);
+    }
+
+    public List<Job> getAllJobs(int page, int size, boolean onlyActive) {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending());
+        if (onlyActive) {
+            return jobRepository.findByIsActiveTrue(pageable);
+        }
         return jobRepository.findAll(pageable).getContent();
     }
 
     public List<Job> searchJobs(String title, String location, int page, int size) {
+        return searchJobs(title, location, page, size, false);
+    }
+
+    public List<Job> searchJobs(String title, String location, int page, int size, boolean onlyActive) {
         title = sanitize(title);
         location = sanitize(location);
-        logger.debug("Searching jobs - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
+        logger.debug("Searching jobs - title: {}, location: {}, page: {}, size: {}, onlyActive: {}", title, location, page, size, onlyActive);
         
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending());
         
         boolean hasTitle = title != null && !title.isBlank();
         boolean hasLocation = location != null && !location.isBlank();
 
-        if (hasTitle && hasLocation) {
-            return jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(title, location, pageable);
-        } else if (hasTitle) {
-            return jobRepository.findByTitleContainingIgnoreCase(title, pageable);
-        } else if (hasLocation) {
-            return jobRepository.findByLocationContainingIgnoreCase(location, pageable);
+        if (onlyActive) {
+            if (hasTitle && hasLocation) {
+                return jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCaseAndIsActiveTrue(title, location, pageable);
+            } else if (hasTitle) {
+                return jobRepository.findByTitleContainingIgnoreCaseAndIsActiveTrue(title, pageable);
+            } else if (hasLocation) {
+                return jobRepository.findByLocationContainingIgnoreCaseAndIsActiveTrue(location, pageable);
+            } else {
+                return jobRepository.findByIsActiveTrue(pageable);
+            }
         } else {
-            return jobRepository.findAll(pageable).getContent();
+            if (hasTitle && hasLocation) {
+                return jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(title, location, pageable);
+            } else if (hasTitle) {
+                return jobRepository.findByTitleContainingIgnoreCase(title, pageable);
+            } else if (hasLocation) {
+                return jobRepository.findByLocationContainingIgnoreCase(location, pageable);
+            } else {
+                return jobRepository.findAll(pageable).getContent();
+            }
         }
     }
 

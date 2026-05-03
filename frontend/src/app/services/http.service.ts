@@ -188,6 +188,13 @@ export class HttpService {
   }
 
   /**
+   * Toggle job active status (Recruiter only)
+   */
+  toggleJobStatus(jobId: number): Observable<Job> {
+    return this.http.patch<Job>(`${this.apiUrl}/recruiter/jobs/${jobId}/status`, {});
+  }
+
+  /**
    * Delete job (Recruiter only)
    */
   deleteJob(id: number): Observable<void> {

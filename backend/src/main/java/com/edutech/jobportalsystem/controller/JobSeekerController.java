@@ -55,7 +55,7 @@ public class JobSeekerController {
                                        @RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "1000000") int size) {
         logger.info("Job search - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
-        List<Job> jobs = jobService.searchJobs(title, location, page, size);
+        List<Job> jobs = jobService.searchJobs(title, location, page, size, true); // true for onlyActive
         return ResponseEntity.ok(jobs);
     }
 
@@ -63,6 +63,19 @@ public class JobSeekerController {
     public ResponseEntity<?> getJobBySlug(@PathVariable String slug) {
         logger.info("Fetching job details for slug: {}", slug);
         Job job = jobService.getJobBySlug(slug);
+
+        if (job.getIsActive() != null && !job.getIsActive()) {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+            
+            // Allow if user has already applied
+            boolean hasApplied = applicationService.hasUserAppliedForJob(user, job);
+            if (!hasApplied) {
+                throw new com.edutech.jobportalsystem.exception.BadRequestException("This job posting is closed and no longer accepting new applications.");
+            }
+        }
+
         return ResponseEntity.ok(job);
     }
 
