@@ -40,7 +40,7 @@ public class RecruiterController {
     }
 
     @PutMapping("/jobs/{jobId}")
-    public ResponseEntity<?> updateJob(@PathVariable Long jobId, @Valid @RequestBody JobUpsertRequest request) {
+    public ResponseEntity<?> updateJob(@PathVariable("jobId") Long jobId, @Valid @RequestBody JobUpsertRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} updating job ID: {}", username, jobId);
 
@@ -67,7 +67,7 @@ public class RecruiterController {
     }
 
     @DeleteMapping("/jobs/{jobId}")
-    public ResponseEntity<?> deleteJob(@PathVariable Long jobId) {
+    public ResponseEntity<?> deleteJob(@PathVariable("jobId") Long jobId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} deleting job ID: {}", username, jobId);
         jobService.deleteJob(jobId, username);
@@ -96,14 +96,14 @@ public class RecruiterController {
     }
 
     @GetMapping("/applications/{applicationId}")
-    public ResponseEntity<?> getApplicationById(@PathVariable Long applicationId) {
+    public ResponseEntity<?> getApplicationById(@PathVariable("applicationId") Long applicationId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} fetching application details for ID: {}", username, applicationId);
         return ResponseEntity.ok(applicationService.getApplicationById(applicationId, username));
     }
 
     @PutMapping("/applications/{applicationId}/status")
-    public ResponseEntity<?> updateApplicationStatus(@PathVariable Long applicationId,
+    public ResponseEntity<?> updateApplicationStatus(@PathVariable("applicationId") Long applicationId,
                                                      @Valid @RequestBody UpdateApplicationStatusRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} updating application {} to status: {}", username, applicationId, request.getStatus());
@@ -111,7 +111,7 @@ public class RecruiterController {
     }
 
     @PutMapping("/applications/{applicationId}/details")
-    public ResponseEntity<?> updateApplicationDetails(@PathVariable Long applicationId,
+    public ResponseEntity<?> updateApplicationDetails(@PathVariable("applicationId") Long applicationId,
                                                       @RequestBody UpdateApplicationDetailsRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("Recruiter {} updating detailed info for application {}", username, applicationId);
