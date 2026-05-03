@@ -1,1 +1,150 @@
-<p>applicant-review works!</p>
+<div class="page-shell">
+  <header class="page-header">
+    <div class="header-info">
+      <button class="btn-back-link" routerLink="/recruiter/pipeline">← Back to Pipeline</button>
+      <h1>Review Applicant</h1>
+      <p>Position: <strong>{{ application?.job?.title }}</strong> · {{ application?.job?.location }}</p>
+    </div>
+    <div class="header-actions">
+      <span class="status-badge-large" [attr.data-status]="application?.status">
+        {{ application?.status?.replace('_', ' ') }}
+      </span>
+    </div>
+  </header>
+
+  <main class="review-grid" *ngIf="application; else stateTpl">
+    <!-- Sidebar: Applicant Profile -->
+    <aside class="profile-aside">
+      <div class="card profile-overview">
+        <div class="avatar-circle">
+          {{ application.applicant.fullName?.charAt(0) || application.applicant.username.charAt(0) }}
+        </div>
+        <h2>{{ application.applicant.fullName || application.applicant.username }}</h2>
+        <p class="applicant-headline">{{ application.applicant.headline || 'Job Seeker' }}</p>
+        
+        <div class="profile-details">
+          <div class="detail-row">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ application.applicant.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Location</span>
+            <span class="detail-value">{{ application.applicant.location || 'Not specified' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Skills</span>
+            <div class="skills-wrap">
+              <span *ngFor="let skill of getSkills()" class="skill-pill">{{ skill }}</span>
+              <span *ngIf="getSkills().length === 0" class="muted">None listed</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-accent btn-block" (click)="messageApplicant()">
+          Message Candidate
+        </button>
+      </div>
+
+      <div class="card score-card" *ngIf="application.aiMatchScore">
+        <h3>AI Match Score</h3>
+        <div class="score-display">
+          <svg class="score-ring" viewBox="0 0 36 36">
+            <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path class="ring-fill" [attr.stroke-dasharray]="application.aiMatchScore + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <text x="18" y="20.35" class="score-text">{{ application.aiMatchScore }}%</text>
+          </svg>
+        </div>
+        <p class="muted small-text">Profile compatibility with job requirements</p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <section class="review-main">
+      <!-- Notes & Feedback -->
+      <div class="card form-card">
+        <div class="card-header">
+          <h3>Application Management</h3>
+          <button class="btn-save-details" (click)="saveDetails()">Save Updates</button>
+        </div>
+        
+        <div class="form-layout">
+          <div class="form-field full">
+            <label>Internal Recruiter Notes</label>
+            <textarea [(ngModel)]="detailsRequest.internalNotes" placeholder="Private notes for the hiring team..."></textarea>
+          </div>
+          
+          <div class="form-field">
+            <label>Interview Date</label>
+            <input type="datetime-local" [(ngModel)]="detailsRequest.interviewDate">
+          </div>
+          
+          <div class="form-field">
+            <label>Interview Location/Link</label>
+            <input type="text" [(ngModel)]="detailsRequest.interviewLocation" placeholder="Office or Meeting Link">
+          </div>
+
+          <div class="form-field full">
+            <label>Feedback for Applicant</label>
+            <textarea [(ngModel)]="detailsRequest.recruiterFeedback" placeholder="This will be visible to the candidate..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resume Section -->
+      <div class="card resume-card">
+        <div class="card-header">
+          <h3>Resume & Documents</h3>
+          <button class="btn-download-cv" *ngIf="application.resume?.id" (click)="downloadResume()">
+            Download PDF
+          </button>
+        </div>
+        
+        <div class="resume-preview-box" *ngIf="application.resume; else noResumeTpl">
+          <div class="file-icon">📄</div>
+          <div class="file-info">
+            <span class="file-name">{{ application.resume.fileName }}</span>
+            <span class="muted">{{ application.resume.fileType || 'PDF Document' }}</span>
+          </div>
+        </div>
+        <ng-template #noResumeTpl>
+          <div class="empty-state-mini">
+            No resume attached to this application.
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Pipeline Actions -->
+      <div class="card action-card">
+        <h3>Pipeline Stage Action</h3>
+        <p class="muted">Move the candidate to the next step in your workflow.</p>
+        
+        <div class="pipeline-buttons">
+          <button class="stage-btn applied" [disabled]="application.status === 'APPLIED'" (click)="updateStatus('APPLIED')">Applied</button>
+          <button class="stage-btn shortlisted" [disabled]="application.status === 'SHORTLISTED'" (click)="updateStatus('SHORTLISTED')">Shortlist</button>
+          <button class="stage-btn interview" [disabled]="application.status === 'PHONE_SCREEN'" (click)="updateStatus('PHONE_SCREEN')">Phone</button>
+          <button class="stage-btn interview" [disabled]="application.status === 'TECHNICAL_INTERVIEW'" (click)="updateStatus('TECHNICAL_INTERVIEW')">Tech</button>
+          <button class="stage-btn interview" [disabled]="application.status === 'ON_SITE_INTERVIEW'" (click)="updateStatus('ON_SITE_INTERVIEW')">On-Site</button>
+          <button class="stage-btn offer" [disabled]="application.status === 'OFFER_EXTENDED'" (click)="updateStatus('OFFER_EXTENDED')">Offer</button>
+          <button class="stage-btn hired" [disabled]="application.status === 'HIRED'" (click)="updateStatus('HIRED')">Hire</button>
+          <button class="stage-btn hold" [disabled]="application.status === 'HOLD'" (click)="updateStatus('HOLD')">Hold</button>
+          <button class="stage-btn reject" [disabled]="application.status === 'REJECTED'" (click)="updateStatus('REJECTED')">Reject</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<ng-template #stateTpl>
+  <div class="page-shell">
+    <div class="empty-state-wrap">
+      <div class="spinner" *ngIf="loading"></div>
+      <p *ngIf="loading">Loading applicant profile...</p>
+      
+      <div class="error-panel" *ngIf="error">
+        <h3>Review Error</h3>
+        <p>{{ error }}</p>
+        <button class="btn--primary" routerLink="/recruiter/pipeline">Return to Pipeline</button>
+      </div>
+    </div>
+  </div>
+</ng-template>

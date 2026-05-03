@@ -27,6 +27,7 @@ export class MyApplicationsComponent implements OnInit, OnDestroy {
   loading = true;
   loadingStats = true;
   currentStage = 'applied';
+  expandedApplication: Application | null = null;
   private destroy$ = new Subject<void>();
 
   private pollingSub?: Subscription;
@@ -42,6 +43,41 @@ export class MyApplicationsComponent implements OnInit, OnDestroy {
       this.startPolling();
     });
   }
+
+  toggleApplicationPreview(app: Application): void {
+    if (this.expandedApplication === app) {
+      this.expandedApplication = null;
+    } else {
+      this.expandedApplication = app;
+    }
+  }
+
+  getStepStatus(currentStatus: string, step: string): string {
+    const statusOrder = [
+      'APPLIED', 'SHORTLISTED', 'PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 
+      'ON_SITE_INTERVIEW', 'OFFER_EXTENDED', 'HIRED'
+    ];
+    
+    if (currentStatus === 'REJECTED') {
+      return 'rejected';
+    }
+    if (currentStatus === 'HOLD') {
+      return 'hold';
+    }
+
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    const stepIndex = statusOrder.indexOf(step);
+
+    if (stepIndex < currentIndex) {
+      return 'completed';
+    }
+    if (stepIndex === currentIndex) {
+      return 'active';
+    }
+    
+    return '';
+  }
+
 
   startPolling(): void {
     if (this.pollingSub) {

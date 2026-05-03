@@ -58,25 +58,72 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let app of filteredApplications">
-            <td>
-              <div class="job-title">{{ app.job.title }}</div>
-              <div class="job-meta">{{ app.job.location }}</div>
-            </td>
-            <td>{{ app.appliedAt | date:'mediumDate' }}</td>
-            <td>
-              <span class="status-badge" [attr.data-status]="app.status">
-                {{ getStatusLabel(app.status) }}
-              </span>
-            </td>
-            <td>
-              <div class="action-group">
-                <button class="btn-review-action" [routerLink]="['/jobs', app.job.slug || app.job.id]">
-                  View Job
-                </button>
-              </div>
-            </td>
-          </tr>
+          <ng-container *ngFor="let app of filteredApplications">
+            <tr>
+              <td>
+                <div class="job-title">{{ app.job.title }}</div>
+                <div class="job-meta">{{ app.job.location }}</div>
+              </td>
+              <td>{{ app.appliedAt | date:'mediumDate' }}</td>
+              <td>
+                <span class="status-badge" [attr.data-status]="app.status">
+                  {{ getStatusLabel(app.status) }}
+                </span>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="btn-review-action" (click)="toggleApplicationPreview(app)">
+                    {{ expandedApplication === app ? 'Hide' : 'Show' }} Preview
+                  </button>
+                  <button class="btn-review-action" [routerLink]="['/jobs', app.job.slug || app.job.id]">
+                    View Job
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="expandedApplication === app">
+              <td colspan="4">
+                <div class="application-timeline">
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'APPLIED')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Applied</span>
+                  </div>
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'SHORTLISTED')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Shortlisted</span>
+                  </div>
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'PHONE_SCREEN')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Phone Screen</span>
+                  </div>
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'TECHNICAL_INTERVIEW')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Technical Interview</span>
+                  </div>
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'ON_SITE_INTERVIEW')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">On-site Interview</span>
+                  </div>
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'OFFER_EXTENDED')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Offer Extended</span>
+                  </div>
+                  <div class="timeline-step" [ngClass]="getStepStatus(app.status, 'HIRED')">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Hired</span>
+                  </div>
+                  <div class="timeline-step rejected" *ngIf="app.status === 'REJECTED'">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Rejected</span>
+                  </div>
+                  <div class="timeline-step hold" *ngIf="app.status === 'HOLD'">
+                    <div class="step-dot"></div>
+                    <span class="step-label">Hold</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
