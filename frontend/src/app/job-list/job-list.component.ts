@@ -102,6 +102,37 @@ export class JobListComponent implements OnInit, OnDestroy {
     }
   }
 
+  get filteredJobs(): Job[] {
+    let filtered = this.jobs;
+
+    // Filter by Category
+    if (this.selectedCategory !== 'All Categories') {
+      filtered = filtered.filter(job => this.getJobCategory(job).toUpperCase() === this.selectedCategory.toUpperCase());
+    } else if (this.activeQuickFilter !== 'ALL' && this.activeQuickFilter !== 'CUSTOM') {
+      filtered = filtered.filter(job => this.getJobCategory(job).toUpperCase() === this.activeQuickFilter);
+    }
+
+    // Filter by Job Type
+    if (this.selectedJobType !== 'All Types') {
+      filtered = filtered.filter(job => {
+        const type = (job.jobType || '').toLowerCase();
+        const selected = this.selectedJobType.toLowerCase();
+        return type.includes(selected) || selected.includes(type);
+      });
+    }
+
+    return filtered;
+  }
+
+  get paginatedJobs(): Job[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredJobs.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredJobs.length / this.pageSize);
+  }
+
   get showingStart(): number {
     if (this.filteredJobs.length === 0) return 0;
     return (this.currentPage - 1) * this.pageSize + 1;

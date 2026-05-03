@@ -1,8 +1,8 @@
 # Local script to run full job maintenance (Scrape -> Sync -> Normalize -> Deduplicate)
 # This mirrors the GitHub Action workflow behavior.
 
-$PSScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
-Set-Location "$PSScriptRoot\..\tools\scraper"
+$ScriptFolder = Split-Path -Parent $MyInvocation.MyCommand.Definition
+Set-Location "$ScriptFolder\..\tools\scraper"
 
 Write-Host "Starting Full Job Maintenance..." -ForegroundColor Cyan
 
