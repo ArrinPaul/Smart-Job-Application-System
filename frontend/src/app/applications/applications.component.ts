@@ -105,6 +105,14 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   getStepStatus(currentStatus: string, step: string): string {
     const interviewStatuses = ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW'];
     
+    // Terminal states handling
+    if (currentStatus === 'REJECTED') {
+      return step === 'APPLIED' ? 'completed' : 'rejected';
+    }
+    if (currentStatus === 'HOLD') {
+      return step === 'APPLIED' ? 'completed' : 'hold';
+    }
+
     if (step === 'APPLIED') {
       return 'completed';
     }
@@ -117,7 +125,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     if (step === 'INTERVIEW') {
       if (['APPLIED', 'SHORTLISTED'].includes(currentStatus)) return '';
       if (interviewStatuses.includes(currentStatus)) return 'active';
-      if (['OFFER_EXTENDED', 'HIRED', 'REJECTED'].includes(currentStatus)) return 'completed';
+      if (['OFFER_EXTENDED', 'HIRED'].includes(currentStatus)) return 'completed';
     }
 
     if (step === 'HIRED') {

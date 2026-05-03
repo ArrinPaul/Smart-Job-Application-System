@@ -96,7 +96,22 @@
     <div class="container state-container">
       <div class="spinner" *ngIf="loading"></div>
       <p *ngIf="loading">Retrieving application details...</p>
-      <div class="error-box" *ngIf="error">
+      
+      <div class="not-applied-box" *ngIf="!loading && job && !application">
+        <div class="job-preview-card">
+          <div class="icon">💼</div>
+          <h3>{{ job.title }}</h3>
+          <p>{{ job.companyName || 'Hiring Company' }} · {{ job.location }}</p>
+          <div class="apply-actions">
+            <p class="prompt">You are one step away from applying to this position.</p>
+            <button class="btn--primary btn-large" (click)="applyNow()" [disabled]="submitting">
+              {{ submitting ? 'Submitting...' : 'Confirm & Submit Application' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-box" *ngIf="!loading && error && !job">
         <h3>Not Found</h3>
         <p>{{ error }}</p>
         <button class="btn--primary" routerLink="/applications">Back to My Applications</button>

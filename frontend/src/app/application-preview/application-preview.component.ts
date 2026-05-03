@@ -17,7 +17,9 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
 
   application: Application | null = null;
+  job: any | null = null;
   loading = true;
+  submitting = false;
   error = '';
 
   ApplicationStatus = ApplicationStatus;
@@ -32,13 +34,12 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
   ];
 
   private destroy$ = new Subject<void>();
-
   private pollingSub?: Subscription;
 
   ngOnInit(): void {
-    const id = this.route.snapshot.params['slug']; 
-    if (id) {
-      this.startPolling(Number(id));
+    const identifier = this.route.snapshot.params['slug']; 
+    if (identifier) {
+      this.startPolling(identifier);
     }
   }
 
@@ -50,10 +51,13 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  startPolling(id: number): void {
+  startPolling(identifier: string): void {
     if (this.pollingSub) {
       this.pollingSub.unsubscribe();
     }
+
+    const isNumericId = !isNaN(Number(identifier));
+    const numericId = isNumericId ? Number(identifier) : null;
 
     // Poll every 5 seconds for status updates while the page is open
     this.pollingSub = interval(5000)
@@ -69,7 +73,14 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (apps) => {
-          const found = apps.find(a => a.id === id);
+          let found;
+          if (isNumericId) {
+            found = apps.find(a => a.id === numericId);
+          } else {
+            // Find by job slug
+            found = apps.find(a => a.job.slug === identifier);
+          }
+
           if (found) {
             // Only update if status or details changed to avoid flicker
             if (!this.application || 
@@ -77,9 +88,15 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
               this.application = found;
             }
             this.loading = false;
+            this.error = '';
           } else if (this.loading) {
-            this.error = 'Application record not found.';
-            this.loading = false;
+            if (!isNumericId) {
+              // If not applied yet, we need to load job details to show the apply button
+              this.fetchJobDetails(identifier);
+            } else {
+              this.error = 'Application record not found.';
+              this.loading = false;
+            }
           }
         },
         error: () => {
@@ -91,14 +108,58 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
       });
   }
 
+  fetchJobDetails(slug: string): void {
+    this.httpService.getJobBySlug(slug)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (job) => {
+          this.job = job;
+          this.error = 'You haven\'t applied for this position yet.';
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Job not found.';
+          this.loading = false;
+        }
+      });
+  }
+
+  applyNow(): void {
+    if (!this.job || this.submitting) return;
+
+    this.submitting = true;
+    this.httpService.applyJob(this.job.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.submitting = false)
+      )
+      .subscribe({
+        next: () => {
+          this.loading = true; // Restart polling loop
+          this.startPolling(this.job.slug);
+        },
+        error: () => {
+          this.error = 'Failed to submit application. Please try again.';
+        }
+      });
+  }
+
   getStepStatus(stage: ApplicationStatus): string {
     if (!this.application) return '';
     
     const currentStatus = this.application.status.toUpperCase() as ApplicationStatus;
+    
+    // Terminal states handling
+    if (currentStatus === ApplicationStatus.REJECTED) {
+      return stage === ApplicationStatus.APPLIED ? 'completed' : 'rejected';
+    }
+    if (currentStatus === ApplicationStatus.HOLD) {
+      return stage === ApplicationStatus.APPLIED ? 'completed' : 'hold';
+    }
+
     const currentIdx = this.statusFlow.indexOf(currentStatus);
     const targetIdx = this.statusFlow.indexOf(stage);
 
-    if (currentStatus === ApplicationStatus.REJECTED) return '';
     if (currentIdx === targetIdx) return 'active';
     if (targetIdx < currentIdx) return 'completed';
     return '';

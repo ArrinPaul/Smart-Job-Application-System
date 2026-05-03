@@ -28,6 +28,16 @@ h3 { margin: 0; font-family: 'Fraunces', serif; color: #1f1d18; font-size: 1.5re
 .timeline-step.active .step-dot { background: #bb3e2d; border-color: #bb3e2d; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(187, 62, 45, 0.15); }
 .timeline-step.active .step-label { color: #bb3e2d; }
 
+.timeline-step.rejected { opacity: 1; }
+.timeline-step.rejected .step-dot { background: #9b251b; border-color: #9b251b; color: white; }
+.timeline-step.rejected .step-dot::after { content: '✕'; font-weight: 900; }
+.timeline-step.rejected .step-label { color: #9b251b; }
+
+.timeline-step.hold { opacity: 1; }
+.timeline-step.hold .step-dot { background: #f59e0b; border-color: #f59e0b; color: white; }
+.timeline-step.hold .step-dot::after { content: '!'; font-weight: 900; }
+.timeline-step.hold .step-label { color: #f59e0b; }
+
 .status-description { padding: 20px; background: #fff; border-radius: 12px; border-left: 4px solid #bb3e2d; }
 .status-description p { margin: 0; font-weight: 700; color: #1f1d18; font-size: 1.1rem; }
 
@@ -49,5 +59,13 @@ h3 { margin: 0; font-family: 'Fraunces', serif; color: #1f1d18; font-size: 1.5re
 .btn-block { width: 100%; }
 
 .state-container { text-align: center; padding: 100px 0; }
+
+.job-preview-card { background: #fffcf7; border-radius: 20px; padding: 40px; border: 1px solid #d8c8ae; box-shadow: 0 16px 28px rgba(56, 39, 20, 0.1); max-width: 600px; margin: 0 auto; }
+.job-preview-card .icon { font-size: 3rem; margin-bottom: 20px; }
+.job-preview-card h3 { font-size: 2rem; margin-bottom: 10px; }
+.job-preview-card p { color: #655f51; font-weight: 600; margin-bottom: 30px; }
+.prompt { font-size: 0.9rem; margin-bottom: 20px !important; color: #1f1d18 !important; }
+.btn-large { padding: 16px 32px; font-size: 1rem; }
+
 .spinner { width: 50px; height: 50px; border: 5px solid #eee4d4; border-top-color: #bb3e2d; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }

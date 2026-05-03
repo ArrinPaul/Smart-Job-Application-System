@@ -59,6 +59,7 @@ export interface Application {
     title: string;
     location: string;
     jobType?: string;
+    slug?: string;
   };
   status: ApplicationStatus;
   appliedAt?: string;
