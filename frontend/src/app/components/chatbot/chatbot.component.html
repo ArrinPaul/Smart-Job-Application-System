@@ -2,50 +2,80 @@
   <!-- Chat Window -->
   <div class="chat-window" *ngIf="isOpen">
     <div class="chat-header">
-      <h3>Career Assistant</h3>
-      <p>Powered by Smart AI</p>
+      <div class="header-content">
+        <div class="assistant-avatar">
+          <span class="avatar-icon">✨</span>
+          <span class="status-indicator"></span>
+        </div>
+        <div class="header-text">
+          <h3>Career Assistant</h3>
+          <p>Always online</p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="toggleChat()">✕</button>
     </div>
 
     <div class="chat-messages" #scrollMe>
-      <div *ngFor="let msg of messages" class="message" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'">
-        <div class="message-content">
-          <div *ngIf="msg.sender === 'bot'" [innerHTML]="msg.html"></div>
-          <div *ngIf="msg.sender === 'user'">{{ msg.text }}</div>
-          <div class="message-time">{{ msg.timestamp | date:'shortTime' }}</div>
+      <div *ngFor="let msg of messages" class="message-wrapper" [class.user]="msg.sender === 'user'">
+        <div *ngIf="msg.sender === 'bot'" class="bot-avatar">AI</div>
+        <div class="message" [class.bot]="msg.sender === 'bot'">
+          <div class="message-content">
+            <div *ngIf="msg.sender === 'bot'" [innerHTML]="msg.html"></div>
+            <div *ngIf="msg.sender === 'user'">{{ msg.text }}</div>
+          </div>
+          <div class="message-footer">
+            <span class="message-time">{{ msg.timestamp | date:'h:mm a' }}</span>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="isLoading" class="message bot">
-        <div class="message-content loading">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <div *ngIf="isLoading" class="message-wrapper">
+        <div class="bot-avatar">AI</div>
+        <div class="message bot">
+          <div class="message-content loading-container">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Suggestion Chips -->
-    <div class="suggestions-container" *ngIf="messages.length < 3 && !isLoading">
-      <div *ngFor="let suggest of suggestions" class="suggestion-chip" (click)="sendMessage(suggest)">
-        {{ suggest }}
+    <!-- Suggestion Area -->
+    <div class="action-area">
+      <div class="suggestions-container" *ngIf="messages.length < 3 && !isLoading">
+        <button *ngFor="let suggest of suggestions" class="suggestion-chip" (click)="sendMessage(suggest)">
+          {{ suggest }}
+        </button>
       </div>
-    </div>
 
-    <div class="chat-input-area">
-      <input 
-        type="text" 
-        [(ngModel)]="userInput" 
-        (keyup.enter)="sendMessage()" 
-        placeholder="Ask me anything..."
-        [disabled]="isLoading"
-      >
-      <button (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
-        ➤
-      </button>
+      <div class="chat-input-area">
+        <div class="input-wrapper">
+          <textarea 
+            [(ngModel)]="userInput" 
+            (keydown.enter)="$event.preventDefault(); sendMessage()" 
+            placeholder="Type your question..."
+            [disabled]="isLoading"
+            rows="1"
+            #chatInput
+          ></textarea>
+          <button class="send-btn" (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Chat Button (Floating Action Button) -->
-  <button class="chat-toggle-btn" (click)="toggleChat()">
-    <span *ngIf="!isOpen">💬</span>
-    <span *ngIf="isOpen">✕</span>
+  <button class="chat-toggle-btn" [class.active]="isOpen" (click)="toggleChat()">
+    <div class="btn-icons">
+      <span class="icon-chat">💬</span>
+      <span class="icon-close">✕</span>
+    </div>
   </button>
 </div>

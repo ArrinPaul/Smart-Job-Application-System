@@ -70,10 +70,16 @@ public class ApplicationService {
 
     public List<Application> getApplicationsForRecruiter(String recruiterUsername) {
         logger.debug("Fetching applications for recruiter: {}", recruiterUsername);
-        User recruiter = userRepository.findByUsername(recruiterUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", recruiterUsername));
-        List<Job> jobs = jobRepository.findByPostedBy(recruiter);
-        return applicationRepository.findByJobIn(jobs);
+        return applicationRepository.findAllByRecruiterUsername(recruiterUsername);
+    }
+
+    public java.util.Map<String, Long> getApplicationCountsForRecruiter(String recruiterUsername) {
+        List<Object[]> results = applicationRepository.countApplicationsByStatusForRecruiter(recruiterUsername);
+        java.util.Map<String, Long> counts = new java.util.HashMap<>();
+        for (Object[] row : results) {
+            counts.put((String) row[0], (Long) row[1]);
+        }
+        return counts;
     }
 
     public List<Application> getApplicationsByApplicant(User applicant) {

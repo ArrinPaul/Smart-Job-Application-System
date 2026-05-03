@@ -37,6 +37,12 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     List<Job> findByIsActiveTrue();
 
+    @org.springframework.data.jpa.repository.Query("SELECT j.id FROM Job j")
+    List<Long> findAllIds();
+
+    @org.springframework.data.jpa.repository.Query("SELECT j FROM Job j WHERE j.title ~ '[^\\x00-\\x7F]' OR j.description ~ '[^\\x00-\\x7F]'")
+    List<Job> findJobsWithNonAsciiContent(org.springframework.data.domain.Pageable pageable);
+
     @org.springframework.data.jpa.repository.Query(value = "SELECT CAST(created_at AS DATE) as date, COUNT(*) as count " +
             "FROM jobs " +
             "WHERE created_at >= :since " +

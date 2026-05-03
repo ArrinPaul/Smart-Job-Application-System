@@ -15,6 +15,7 @@ export interface User {
   location?: string;
   skills?: string;
   profilePictureUrl?: string;
+  lastMessageAt?: string;
 }
 
 export enum UserRole {

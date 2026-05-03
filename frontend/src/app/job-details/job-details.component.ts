@@ -26,6 +26,7 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
   job: Job | null = null;
   renderedDescription: SafeHtml = '';
   loading = true;
+  translating = false;
   error = '';
   selectedInsights: JobMatchInsights | null = null;
   insightLoading = false;
@@ -178,6 +179,41 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     navigator.clipboard.writeText(url).then(() => {
       this.toastService.showSuccess('Link copied to clipboard!');
     });
+  }
+
+  translateJob(): void {
+    if (!this.job || this.translating) {
+      return;
+    }
+
+    this.translating = true;
+    this.httpService.translateJob(this.job.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.translating = false; })
+      )
+      .subscribe({
+        next: (response) => {
+          const translatedJob = response?.job;
+          if (!translatedJob) {
+            this.toastService.showWarning('Translation completed, but no job data was returned.');
+            return;
+          }
+
+          this.job = translatedJob;
+          const translatedDescription = (translatedJob.description || '').toString();
+          this.renderedDescription = translatedDescription
+            ? this.sanitizeAndConvert(translatedDescription)
+            : this.sanitizer.bypassSecurityTrustHtml(
+                '<p>Review the responsibilities, requirements, and application steps below.</p>'
+              );
+          this.toastService.showSuccess(response.message || 'Translated to English.');
+        },
+        error: (err) => {
+          console.error('Translation failed:', err);
+          this.toastService.showError('Could not translate this job right now.');
+        }
+      });
   }
 
   getCompanyName(): string {

@@ -1,6 +1,79 @@
 const axios = require('axios');
+const TranslationService = require('./translation-service');
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const translationService = new TranslationService();
+
+const NON_ENGLISH_HINT_WORDS = new Set([
+  'und', 'der', 'die', 'das', 'ein', 'eine', 'mit', 'für', 'auf', 'von', 'zum', 'zur', 'den', 'dem',
+  'y', 'de', 'la', 'el', 'los', 'las', 'para', 'con', 'por', 'del', 'que', 'en',
+  'et', 'le', 'les', 'des', 'pour', 'dans', 'sur', 'une', 'un',
+  'di', 'per', 'con', 'il', 'lo', 'gli', 'una', 'nel', 'alla',
+  'om', 'het', 'een', 'van', 'naar'
+]);
+
+const ENGLISH_HINT_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'from', 'this', 'that', 'role', 'job', 'work', 'team', 'company', 'apply'
+]);
+
+function hasNonEnglishCharacters(text) {
+  return /[\u00C0-\u024F\u0400-\u04FF\u0600-\u06FF\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(String(text || ''));
+}
+
+function shouldTranslateText(text) {
+  const value = String(text || '').trim();
+  if (!value || value.length < 12) return false;
+
+  if (hasNonEnglishCharacters(value)) return true;
+
+  const words = value.toLowerCase().match(/[a-zÀ-ÿ]+/g) || [];
+  if (words.length < 4) return false;
+
+  let foreignHits = 0;
+  let englishHits = 0;
+
+  for (const word of words.slice(0, 40)) {
+    if (NON_ENGLISH_HINT_WORDS.has(word)) foreignHits += 1;
+    if (ENGLISH_HINT_WORDS.has(word)) englishHits += 1;
+  }
+
+  if (foreignHits >= 2 && foreignHits > englishHits + 1) return true;
+  if (foreignHits >= 3) return true;
+
+  return false;
+}
+
+function cleanTranslationOutput(value) {
+  let text = String(value || '').trim();
+  if (!text) return '';
+
+  text = text.replace(/^```(?:markdown|md|text)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  text = text.replace(/^translated text\s*:\s*/i, '').trim();
+  text = text.replace(/^english\s*:\s*/i, '').trim();
+
+  return text;
+}
+
+async function translateText(text, options = {}) {
+  const preserveFormatting = options.preserveFormatting !== false;
+  const value = preserveFormatting
+    ? normalizeTextPreservingStructure(text)
+    : normalizeText(text);
+  if (!value) return '';
+  if (!shouldTranslateText(value)) return value;
+
+  if (!translationService.isConfigured()) {
+    return value;
+  }
+
+  try {
+    const translated = await translationService.translateToEnglish(value);
+    return cleanTranslationOutput(translated);
+  } catch (error) {
+    console.warn(`Translation skipped: ${error.message}`);
+    return value;
+  }
+}
 
 async function postWithRetry(url, payload, options, retries = 2) {
   for (let i = 0; i < retries; i++) {
@@ -53,6 +126,21 @@ function normalizeText(text) {
   out = out.replace(/\u2026/g, '...');
   out = removeEmoji(out);
   return out.replace(/\s+/g, ' ').trim();
+}
+
+function normalizeTextPreservingStructure(text) {
+  if (!text) return '';
+
+  let out = fixMojibake(text);
+  out = out.replace(/\u00A0/g, ' ');
+  out = out.replace(/[\u2013\u2014]/g, '-');
+  out = out.replace(/[\u2018\u2019\u201B]/g, "'");
+  out = out.replace(/[\u201C\u201D\u201F]/g, '"');
+  out = out.replace(/\u2026/g, '...');
+  out = removeEmoji(out);
+  out = out.replace(/[\t ]+/g, ' ');
+  out = out.replace(/\n{3,}/g, '\n\n');
+  return out.trim();
 }
 
 function stripHtml(html) {
@@ -161,15 +249,21 @@ function toCanonicalJob(job, fieldMap = {}) {
 
 async function normalizeJobRecord(job, options = {}) {
   const source = toCanonicalJob(job, options.fieldMap);
-  const title = normalizeText(source.title || '');
+  const translate = options.translate !== false && options.strictEnglish !== false;
+  const titleSource = normalizeText(source.title || '');
+  const title = translate ? await translateText(titleSource, { preserveFormatting: false }) : titleSource;
   if (!title) return null;
 
-  const description = stripHtml(source.description || '');
+  const descriptionSource = stripHtml(source.description || '');
+  const description = translate ? await translateText(descriptionSource, { preserveFormatting: true }) : descriptionSource;
   const companyName = normalizeText(source.companyName || 'Unknown Company');
   const location = normalizeText(source.location || 'Remote');
-  const jobType = normalizeText(source.jobType || 'Full-Time');
-  const requiredSkills = normalizeSkills(source.requiredSkills);
-  const howToApply = normalizeText(source.howToApply || '');
+  const jobTypeSource = normalizeText(source.jobType || 'Full-Time');
+  const jobType = translate ? await translateText(jobTypeSource, { preserveFormatting: false }) : jobTypeSource;
+  const requiredSkillsSource = normalizeSkills(source.requiredSkills);
+  const requiredSkills = translate ? await translateText(requiredSkillsSource, { preserveFormatting: false }) : requiredSkillsSource;
+  const howToApplySource = normalizeText(source.howToApply || '');
+  const howToApply = translate ? await translateText(howToApplySource, { preserveFormatting: true }) : howToApplySource;
 
   const formattedDescription = formatTemplate({
     title,
@@ -208,5 +302,7 @@ module.exports = {
   normalizeSkills,
   normalizeText,
   removeEmoji,
-  stripHtml
+  shouldTranslateText,
+  stripHtml,
+  translateText
 };

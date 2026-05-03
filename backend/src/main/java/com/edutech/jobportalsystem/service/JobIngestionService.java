@@ -209,8 +209,8 @@ public class JobIngestionService {
 
     private void cleanupStaleJobsInternal() {
         logger.info("Starting background stale job cleanup sweep...");
-        // Fetch IDs first to avoid keeping a large result set in memory or holding a cursor
-        List<Long> jobIds = jobRepository.findAll().stream().map(Job::getId).toList();
+        // Use optimized ID-only query to avoid OOM
+        List<Long> jobIds = jobRepository.findAllIds();
         
         int deleted = 0;
         int markedInactive = 0;
@@ -278,5 +278,31 @@ public class JobIngestionService {
                     newUser.setEmailVerified(true);
                     return userRepository.save(newUser);
                 });
+    }
+
+    /**
+     * Find jobs that likely need translation (non-English titles)
+     * Used for nightly backfill at 11:30 PM
+     */
+    public List<Job> findUntranslatedJobs(int limit) {
+        try {
+            // Use optimized query with limit
+            return jobRepository.findJobsWithNonAsciiContent(org.springframework.data.domain.PageRequest.of(0, limit));
+        } catch (Exception e) {
+            logger.error("Error finding untranslated jobs: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Save a single job (used by translation scheduler)
+     */
+    public Job saveJob(Job job) {
+        try {
+            return jobRepository.save(job);
+        } catch (Exception e) {
+            logger.error("Error saving job {}: {}", job.getId(), e.getMessage());
+            throw e;
+        }
     }
 }

@@ -148,6 +148,25 @@ export class HttpService {
   }
 
   /**
+   * Translate a job's content on demand
+   */
+  translateJob(jobId: number): Observable<{ success: boolean; message: string; job: Job }> {
+    return this.http.post<{ success: boolean; message: string; job: Job }>(
+      `${this.apiUrl}/jobs/${jobId}/translate`,
+      {}
+    );
+  }
+
+  /**
+   * Get a translation preview without saving changes
+   */
+  getTranslationPreview(jobId: number): Observable<{ original: Record<string, string>; translated: Record<string, string>; hasChanges: boolean }> {
+    return this.http.get<{ original: Record<string, string>; translated: Record<string, string>; hasChanges: boolean }>(
+      `${this.apiUrl}/jobs/${jobId}/translate-preview`
+    );
+  }
+
+  /**
    * Create new job (Recruiter only)
    */
   createJob(job: any): Observable<Job> {
@@ -191,6 +210,13 @@ export class HttpService {
    */
   getRecruiterApplications(): Observable<Application[]> {
     return this.http.get<Application[]>(`${this.apiUrl}/recruiter/applications`);
+  }
+
+  /**
+   * Get recruiter's application pipeline statistics
+   */
+  getRecruiterApplicationStats(): Observable<Record<string, number>> {
+    return this.http.get<Record<string, number>>(`${this.apiUrl}/recruiter/applications/stats`);
   }
 
   /**

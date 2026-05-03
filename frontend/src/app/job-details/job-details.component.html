@@ -34,6 +34,15 @@
             {{ getInternalApplyLabel() }}
           </button>
 
+          <button
+            *ngIf="job.id"
+            type="button"
+            class="hero-action hero-action-secondary"
+            (click)="translateJob()"
+            [disabled]="translating">
+            {{ translating ? 'Translating...' : 'Translate to English' }}
+          </button>
+
           <button type="button" class="hero-action hero-action-secondary" (click)="shareJob()">Copy Link</button>
         </div>
       </div>

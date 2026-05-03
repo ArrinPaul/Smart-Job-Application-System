@@ -20,6 +20,12 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findByJobIn(List<Job> jobs);
 
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM Application a JOIN FETCH a.job j JOIN FETCH a.applicant u WHERE j.postedBy.username = :username")
+    List<Application> findAllByRecruiterUsername(@org.springframework.data.repository.query.Param("username") String username);
+
+    @org.springframework.data.jpa.repository.Query("SELECT a.status, COUNT(a) FROM Application a JOIN a.job j WHERE j.postedBy.username = :username GROUP BY a.status")
+    List<Object[]> countApplicationsByStatusForRecruiter(@org.springframework.data.repository.query.Param("username") String username);
+
     Boolean existsByApplicantAndJob(User applicant, Job job);
 
     List<Application> findByAppliedAtAfter(LocalDateTime appliedAt);

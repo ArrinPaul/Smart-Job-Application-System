@@ -17,161 +17,218 @@ import { environment } from '../../environments/environment';
   template: `
     <div class="messages-layout">
       <!-- Contacts Sidebar -->
-      <aside class="contacts-sidebar">
-        <header class="sidebar-header">
-          <h2>Conversations</h2>
-          <div class="search-bar">
-            <input type="text" [(ngModel)]="contactSearch" (input)="onContactSearch()" placeholder="Search people..." class="search-input">
-          </div>
-        </header>
-        
-        <div class="contacts-scrollbox">
-          <!-- Existing Contacts -->
-          <div *ngFor="let contact of filteredContacts()" 
-               class="contact-card" 
-               [class.selected]="selectedContact?.id === contact.id"
-               (click)="selectContact(contact)">
-            <div class="avatar-wrap">
-              <div class="user-avatar">
-                {{ contact.fullName?.charAt(0) || contact.username.charAt(0) }}
-              </div>
-              <div class="status-dot online"></div>
+      <aside class="contacts-sidebar" [class.hidden-mobile]="selectedContact">
+        <div class="sidebar-inner">
+          <header class="sidebar-header">
+            <div class="header-top">
+              <h2>Correspondence</h2>
+              <span class="chat-count" *ngIf="contacts.length">{{ contacts.length }} active</span>
             </div>
-            <div class="contact-details">
-              <div class="contact-name-row">
-                <span class="name">{{ contact.fullName || contact.username }}</span>
-              </div>
-              <span class="role-tag">{{ contact.role.replace('_', ' ') || 'Member' }}</span>
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" [(ngModel)]="contactSearch" (input)="onContactSearch()" placeholder="Search archives..." class="search-input">
             </div>
-          </div>
-
-          <!-- Global Search Results (New People) -->
-          <div *ngIf="globalSearchResults.length > 0" class="global-results">
-            <h3 class="section-title">New People</h3>
-            <div *ngFor="let user of globalSearchResults" 
-                 class="contact-card new-person" 
-                 (click)="selectContact(user)">
-              <div class="avatar-wrap">
-                <div class="user-avatar mini-avatar">
-                  {{ user.fullName?.charAt(0) || user.username.charAt(0) }}
+          </header>
+          
+          <div class="contacts-scrollbox">
+            <!-- Active Conversations -->
+            <div class="contact-group">
+              <div *ngFor="let contact of filteredContacts()" 
+                   class="contact-item" 
+                   [class.active]="selectedContact?.id === contact.id"
+                   (click)="selectContact(contact)">
+                <div class="avatar-container">
+                  <div class="user-avatar" [style.background]="getAvatarColor(contact)">
+                    {{ contact.fullName?.charAt(0) || contact.username.charAt(0) }}
+                  </div>
+                  <div class="online-dot"></div>
+                </div>
+                <div class="contact-info">
+                  <div class="info-row">
+                    <span class="name">{{ contact.fullName || contact.username }}</span>
+                    <span class="time" *ngIf="contact.lastMessageAt">{{ contact.lastMessageAt | date:'shortTime' }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="role-label">{{ contact.role.replace('_', ' ') }}</span>
+                    <span class="unread-indicator" *ngIf="hasUnreadFrom(contact)"></span>
+                  </div>
                 </div>
               </div>
-              <div class="contact-details">
-                <span class="name">{{ user.fullName || user.username }}</span>
-                <span class="role-tag">{{ user.role.replace('_', ' ') }}</span>
+            </div>
+
+            <!-- Global Search Results -->
+            <div *ngIf="globalSearchResults.length > 0" class="search-results-section">
+              <h3 class="section-divider">New Connections</h3>
+              <div *ngFor="let user of globalSearchResults" 
+                   class="contact-item result-item" 
+                   (click)="selectContact(user)">
+                <div class="avatar-container">
+                  <div class="user-avatar mini" [style.background]="getAvatarColor(user)">
+                    {{ user.fullName?.charAt(0) || user.username.charAt(0) }}
+                  </div>
+                </div>
+                <div class="contact-info">
+                  <span class="name">{{ user.fullName || user.username }}</span>
+                  <span class="role-label">{{ user.role.replace('_', ' ') }}</span>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div *ngIf="contacts.length === 0 && globalSearchResults.length === 0" class="empty-contacts">
-            <div class="empty-icon">💬</div>
-            <p>No conversations yet. Search for people to start chatting!</p>
+            
+            <!-- Empty Sidebar State -->
+            <div *ngIf="contacts.length === 0 && globalSearchResults.length === 0" class="sidebar-empty">
+              <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <h4>No conversations yet</h4>
+              <p>Find a recruiter or applicant to start messaging.</p>
+            </div>
           </div>
         </div>
       </aside>
 
       <!-- Main Chat Area -->
-      <main class="chat-main">
-        <ng-container *ngIf="selectedContact; else noChatSelected">
-          <header class="chat-main-header">
-            <div class="header-user">
-              <div class="user-avatar mini">
-                {{ selectedContact.fullName?.charAt(0) || selectedContact.username.charAt(0) }}
-              </div>
-              <div class="header-info">
-                <h4>{{ selectedContact.fullName || selectedContact.username }}</h4>
-                <p>{{ selectedContact.role.replace('_', ' ') }}</p>
+      <main class="chat-view" [class.mobile-active]="selectedContact">
+        <ng-container *ngIf="selectedContact; else welcomeScreen">
+          <header class="chat-view-header">
+            <button class="back-link" (click)="selectedContact = null">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              Archives
+            </button>
+            
+            <div class="header-main">
+              <div class="user-summary">
+                <div class="user-avatar" [style.background]="getAvatarColor(selectedContact)">
+                  {{ selectedContact.fullName?.charAt(0) || selectedContact.username.charAt(0) }}
+                </div>
+                <div class="user-text">
+                  <h3>{{ selectedContact.fullName || selectedContact.username }}</h3>
+                  <div class="user-meta">
+                    <span class="presence-tag">
+                      <span class="dot"></span>
+                      Online
+                    </span>
+                    <span class="sep">/</span>
+                    <span class="role-tag">{{ selectedContact.role.replace('_', ' ') }}</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="header-search">
-              <div class="search-wrapper">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+
+            <div class="header-tools">
+              <div class="inline-search">
+                <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Find in conversation..." class="tool-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Search in chat..." class="inline-search">
               </div>
             </div>
           </header>
 
-          <div class="messages-viewport" #scrollContainer>
-            <div class="chat-day-divider">
-              <span>Today</span>
-            </div>
+          <div class="chat-body" #scrollContainer>
+            <div class="message-list">
+              <div class="date-marker">
+                <span>Today</span>
+              </div>
 
-            <div *ngFor="let msg of messages" class="msg-row" 
-                 [class.mine]="msg.sender.id === currentUserId">
-              <div class="msg-bubble">
-                <div class="msg-content">{{ msg.content }}</div>
+              <div *ngFor="let msg of messages; let i = index" 
+                   class="msg-row" 
+                   [class.outgoing]="msg.sender.id === currentUserId"
+                   [class.incoming]="msg.sender.id !== currentUserId"
+                   [class.compact]="isCompact(i)">
                 
-                <!-- Attachment Display -->
-                <div *ngIf="msg.attachmentUrl" class="msg-attachment">
-                  <div class="attachment-info">
-                    <span class="file-icon">📄</span>
-                    <div class="file-meta">
-                      <span class="file-name">{{ msg.attachmentName }}</span>
-                      <span class="file-type">{{ msg.attachmentType }}</span>
+                <div class="msg-bubble">
+                  <div class="msg-content">{{ msg.content }}</div>
+                  
+                  <div *ngIf="msg.attachmentUrl" class="msg-attachment">
+                    <div class="attachment-info">
+                      <div class="file-icon">
+                        <svg *ngIf="isImage(msg.attachmentType)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                          <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <svg *ngIf="!isImage(msg.attachmentType)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                          <polyline points="13 2 13 9 20 9"></polyline>
+                        </svg>
+                      </div>
+                      <div class="file-meta">
+                        <span class="file-name">{{ msg.attachmentName }}</span>
+                        <span class="file-size">{{ msg.attachmentType }}</span>
+                      </div>
                     </div>
+                    <a [href]="getDownloadUrl(msg)" [download]="msg.attachmentName" class="file-download">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </a>
                   </div>
-                  <a [href]="getDownloadUrl(msg)" [download]="msg.attachmentName" class="download-link">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path>
-                    </svg>
-                  </a>
-                </div>
 
-                <div class="msg-meta">
-                  <span class="msg-time">{{ msg.sentAt | date:'h:mm a' }}</span>
-                  <span class="msg-status" *ngIf="msg.sender.id === currentUserId">
-                    <svg *ngIf="msg.isRead" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="read-icon">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
-                    </svg>
-                    <svg *ngIf="!msg.isRead" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="unread-icon">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"></path>
-                    </svg>
-                  </span>
+                  <div class="msg-footer">
+                    <span class="msg-time">{{ msg.sentAt | date:'h:mm a' }}</span>
+                    <span class="msg-status" *ngIf="msg.sender.id === currentUserId">
+                      <svg *ngIf="msg.isRead" class="read-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <svg *ngIf="!msg.isRead" class="delivered-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Typing Indicator -->
-            <div class="typing-row" *ngIf="isOtherTyping">
-              <div class="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
+              <!-- Typing Indicator -->
+              <div class="typing-notice" *ngIf="isOtherTyping">
+                <div class="typing-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <span>{{ selectedContact.fullName || selectedContact.username }} is typing</span>
               </div>
-              <span class="typing-text">{{ selectedContact.fullName || selectedContact.username }} is typing...</span>
             </div>
           </div>
 
-          <footer class="chat-footer">
-            <div class="job-context-alert" *ngIf="selectedJobId">
-              <span class="context-icon">💼</span>
-              <span>Regarding Job ID: #{{ selectedJobId }}</span>
-              <button class="clear-context" (click)="selectedJobId = null">✕</button>
+          <footer class="chat-entry">
+            <div class="context-pill" *ngIf="selectedJobId">
+              <span class="pill-label">In response to</span>
+              <span class="pill-value">Job #{{ selectedJobId }}</span>
+              <button class="pill-clear" (click)="selectedJobId = null">✕</button>
             </div>
             
-            <div class="input-area-wrap">
+            <div class="composer">
               <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none">
-              <button class="util-btn" (click)="triggerFileUpload()" [disabled]="isUploading">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <button class="composer-action" (click)="triggerFileUpload()" [disabled]="isUploading">
+                <svg *ngIf="!isUploading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
                 </svg>
+                <div *ngIf="isUploading" class="upload-loader"></div>
               </button>
 
-              <div class="input-container">
+              <div class="composer-field">
                 <textarea 
                   [(ngModel)]="newMessage" 
                   (keydown.enter)="$event.preventDefault(); sendMessage()" 
                   (input)="onTyping()"
-                  placeholder="Write your message..." 
-                  class="message-textarea"
+                  placeholder="Draft your message..." 
+                  class="composer-input"
                   rows="1"
+                  #messageArea
                 ></textarea>
-                <button class="action-btn send" (click)="sendMessage()" [disabled]="!newMessage.trim() && !isUploading">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                
+                <button class="composer-send" (click)="sendMessage()" [disabled]="!newMessage.trim() && !isUploading">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                   </svg>
                 </button>
               </div>
@@ -179,15 +236,23 @@ import { environment } from '../../environments/environment';
           </footer>
         </ng-container>
 
-        <ng-template #noChatSelected>
-          <div class="empty-state">
-            <div class="empty-illustration">
-              <svg viewBox="0 0 24 24" width="120" height="120" fill="none" stroke="var(--border)" stroke-width="0.5">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
+        <ng-template #welcomeScreen>
+          <div class="empty-view">
+            <div class="editorial-empty">
+              <div class="empty-orb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <h2>Correspondence</h2>
+              <p>Select a thread from your archives to view your full history and continue the conversation.</p>
+              <div class="empty-stats">
+                <div class="stat-pill">
+                  <strong>{{ contacts.length }}</strong>
+                  <span>Active Threads</span>
+                </div>
+              </div>
             </div>
-            <h3>Select a conversation</h3>
-            <p>Pick a person from the left to start chatting about opportunities.</p>
           </div>
         </ng-template>
       </main>
@@ -195,48 +260,102 @@ import { environment } from '../../environments/environment';
   `,
   styles: [`
     :host {
-      --sidebar-width: 340px;
-      --chat-bg: #fffcf8;
-      --bubble-mine: #bb3e2d;
-      --bubble-theirs: #f0e6d7;
-      --border-color: #e8dfd1;
+      --sidebar-w: 380px;
+      --header-h: 72px;
+      --view-bg: var(--bg);
+      --card-bg: var(--surface);
+      --border-c: var(--border);
+      --accent-c: var(--brand);
+      --text-main: var(--ink);
+      --text-dim: var(--ink-soft);
+      --radius: var(--radius-lg);
     }
 
     .messages-layout {
-      display: grid;
-      grid-template-columns: var(--sidebar-width) 1fr;
-      height: calc(100vh - 72px);
-      background: white;
+      display: flex;
+      height: calc(100vh - var(--header-h));
+      background: var(--view-bg);
       overflow: hidden;
+      position: relative;
     }
 
-    /* Sidebar */
+    /* --- Sidebar Section --- */
     .contacts-sidebar {
-      border-right: 1px solid var(--border-color);
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      border-right: 1px solid var(--border-c);
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 20;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar-inner {
+      height: 100%;
       display: flex;
       flex-direction: column;
-      background: #faf7f2;
     }
 
     .sidebar-header {
-      padding: 24px;
-      background: white;
-      border-bottom: 1px solid var(--border-color);
+      padding: 32px 24px 24px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-c);
     }
 
-    .sidebar-header h2 {
-      font-size: 1.25rem;
-      margin: 0 0 16px;
-      color: #1f1d18;
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header-top h2 {
+      font-size: 1.6rem;
+      color: var(--text-main);
+    }
+
+    .chat-count {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-c);
+      background: color-mix(in srgb, var(--accent-c) 8%, transparent);
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid color-mix(in srgb, var(--accent-c) 20%, transparent);
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+      pointer-events: none;
     }
 
     .search-input {
       width: 100%;
-      padding: 10px 16px;
-      border: 1px solid var(--border-color);
+      padding: 12px 16px 12px 42px;
+      background: var(--view-bg);
+      border: 1px solid var(--border-c);
       border-radius: 12px;
-      background: #fdfaf6;
       font-size: 0.9rem;
+      transition: all 0.2s ease;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .search-input:focus {
+      background: var(--card-bg);
+      border-color: var(--accent-c);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-c) 12%, transparent);
       outline: none;
     }
 
@@ -246,425 +365,666 @@ import { environment } from '../../environments/environment';
       padding: 12px;
     }
 
-    .contact-card {
+    .contact-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px;
+      gap: 16px;
+      padding: 16px;
       border-radius: 16px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       margin-bottom: 4px;
+      position: relative;
+      background: transparent;
     }
 
-    .contact-card:hover {
-      background: #f0e9dd;
+    .contact-item:hover {
+      background: rgba(255, 255, 255, 0.6);
+      transform: translateY(-1px);
     }
 
-    .contact-card.selected {
-      background: #bb3e2d;
-      color: white;
+    .contact-item.active {
+      background: var(--card-bg);
+      box-shadow: var(--shadow-soft);
     }
 
-    .section-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: #9c9181;
-      letter-spacing: 1px;
-      margin: 20px 12px 10px;
+    .contact-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 16px;
+      bottom: 16px;
+      width: 4px;
+      background: var(--accent-c);
+      border-radius: 0 4px 4px 0;
     }
 
-    .mini-avatar {
-      width: 36px !important;
-      height: 36px !important;
-      font-size: 0.9rem !important;
-    }
-
-    .avatar-wrap {
+    .avatar-container {
       position: relative;
     }
 
     .user-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: #bb3e2d;
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
       color: white;
       display: grid;
       place-items: center;
       font-weight: 800;
-      font-size: 1.2rem;
-      box-shadow: 0 4px 10px rgba(187, 62, 45, 0.15);
+      font-size: 1.4rem;
+      box-shadow: var(--shadow-tactile);
+      font-family: 'Fraunces', serif;
     }
 
-    .contact-card.selected .user-avatar {
-      background: white;
-      color: #bb3e2d;
-    }
+    .user-avatar.mini { width: 40px; height: 40px; font-size: 1.1rem; border-radius: 14px; }
 
-    .status-dot {
+    .online-dot {
       position: absolute;
       bottom: -2px;
       right: -2px;
       width: 14px;
       height: 14px;
-      border-radius: 50%;
-      border: 3px solid #faf7f2;
       background: #10b981;
+      border: 3px solid var(--card-bg);
+      border-radius: 50%;
     }
 
-    .contact-details {
+    .contact-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .info-row {
       display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
     }
 
     .name {
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      color: var(--text-main);
       white-space: nowrap;
-      text-overflow: ellipsis;
       overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Fraunces', serif;
     }
 
-    .role-tag {
+    .time {
       font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+
+    .role-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
       opacity: 0.7;
-      text-transform: capitalize;
     }
 
-    /* Main Chat Area */
-    .chat-main {
-      display: flex;
-      flex-direction: column;
-      background: var(--chat-bg);
-      position: relative;
+    .unread-indicator {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-c);
+      border-radius: 50%;
+      box-shadow: 0 0 10px color-mix(in srgb, var(--accent-c) 40%, transparent);
     }
 
-    .chat-main-header {
-      padding: 16px 32px;
-      background: white;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 10;
-    }
-
-    .header-user {
+    .section-divider {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin: 32px 16px 12px;
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .header-search {
-      margin-left: auto;
-      margin-right: 20px;
-    }
-
-    .search-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #f4efe6;
-      padding: 6px 12px;
-      border-radius: 100px;
-      border: 1px solid var(--border-color);
-    }
-
-    .inline-search {
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: 0.85rem;
-      width: 150px;
-    }
-
-    .user-avatar.mini {
-      width: 40px;
-      height: 40px;
-      font-size: 1rem;
-    }
-
-    .header-info h4 {
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    .header-info p {
-      margin: 0;
-      font-size: 0.8rem;
-      color: #655f51;
-      text-transform: capitalize;
-    }
-
-    .messages-viewport {
+    .section-divider::after {
+      content: '';
       flex: 1;
-      overflow-y: auto;
-      padding: 24px 32px;
+      height: 1px;
+      background: var(--border-c);
+      opacity: 0.5;
+    }
+
+    /* --- Chat Main View --- */
+    .chat-view {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-
-    .chat-day-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 20px 0;
+      background: var(--view-bg);
       position: relative;
     }
 
-    .chat-day-divider::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 1px;
-      background: var(--border-color);
-      z-index: 1;
+    .chat-view-header {
+      height: 88px;
+      padding: 0 32px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-c);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      z-index: 10;
     }
 
-    .chat-day-divider span {
-      background: var(--chat-bg);
-      padding: 0 16px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #9c9181;
-      z-index: 2;
+    .back-link {
+      display: none;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .back-link svg { width: 18px; height: 18px; }
+
+    .header-main {
+      flex: 1;
+    }
+
+    .user-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-summary .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+    }
+
+    .user-text h3 {
+      font-size: 1.4rem;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .user-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .presence-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #10b981;
+    }
+
+    .presence-tag .dot {
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      border-radius: 50%;
+    }
+
+    .user-meta .sep { opacity: 0.3; }
+
+    .inline-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .tool-input {
+      background: var(--view-bg);
+      border: 1px solid var(--border-c);
+      padding: 8px 16px 8px 36px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      width: 200px;
+      transition: all 0.3s ease;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .tool-input:focus {
+      width: 280px;
+      outline: none;
+      background: #fff;
+      border-color: var(--accent-c);
+    }
+
+    .inline-search svg {
+      position: absolute;
+      left: 12px;
+      width: 14px;
+      height: 14px;
+      color: var(--text-dim);
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .date-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 32px 0;
+      position: relative;
+    }
+
+    .date-marker::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border-c);
+      opacity: 0.4;
+    }
+
+    .date-marker span {
+      background: var(--view-bg);
+      padding: 0 16px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      position: relative;
     }
 
     .msg-row {
       display: flex;
+      flex-direction: column;
       margin-bottom: 4px;
+      animation: msgReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .msg-row.mine {
-      justify-content: flex-end;
+    @keyframes msgReveal {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+
+    .msg-row.outgoing { align-items: flex-end; }
+    .msg-row.incoming { align-items: flex-start; }
 
     .msg-bubble {
       max-width: 65%;
-      padding: 12px 16px;
-      border-radius: 20px;
+      padding: 14px 20px;
+      border-radius: 24px;
       font-size: 0.95rem;
+      line-height: 1.6;
       position: relative;
-      box-shadow: 0 2px 8px rgba(31, 29, 24, 0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: transform 0.2s ease;
     }
 
-    .mine .msg-bubble {
-      background: var(--bubble-mine);
+    .outgoing .msg-bubble {
+      background: var(--accent-c);
       color: white;
       border-bottom-right-radius: 4px;
     }
 
-    .msg-row:not(.mine) .msg-bubble {
-      background: var(--bubble-theirs);
-      color: #1f1d18;
+    .incoming .msg-bubble {
+      background: var(--card-bg);
+      color: var(--text-main);
       border-bottom-left-radius: 4px;
+      border: 1px solid var(--border-c);
     }
 
+    .msg-row.compact { margin-top: -2px; }
+    .compact.outgoing .msg-bubble { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+    .compact.incoming .msg-bubble { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+
     .msg-attachment {
-      margin-top: 10px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      padding: 10px;
+      margin-top: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      gap: 16px;
     }
 
-    .msg-row:not(.mine) .msg-attachment {
-      background: white;
+    .incoming .msg-attachment {
+      background: var(--view-bg);
+      border-color: var(--border-c);
     }
 
     .attachment-info {
       display: flex;
       align-items: center;
-      gap: 10px;
-      overflow: hidden;
+      gap: 14px;
+      min-width: 0;
     }
 
-    .file-icon { font-size: 1.5rem; }
-    .file-meta { display: flex; flex-direction: column; overflow: hidden; }
-    .file-name { font-weight: 700; font-size: 0.85rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .file-type { font-size: 0.7rem; opacity: 0.7; }
-
-    .download-link {
+    .file-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
       color: inherit;
-      opacity: 0.8;
-      transition: opacity 0.2s;
     }
 
-    .download-link:hover { opacity: 1; }
+    .incoming .file-icon { background: var(--card-bg); border: 1px solid var(--border-c); }
 
-    .msg-meta {
+    .file-meta {
       display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
-      margin-top: 4px;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-size {
       font-size: 0.7rem;
       opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .read-icon { color: #10b981; }
-    .unread-icon { opacity: 0.5; }
-
-    /* Typing Indicator */
-    .typing-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 0;
-      margin-top: 4px;
-    }
-
-    .typing-indicator {
-      display: flex;
-      gap: 4px;
-      background: #e8e1d5;
-      padding: 10px 14px;
-      border-radius: 20px;
-      border-bottom-left-radius: 4px;
-    }
-
-    .typing-indicator span {
-      width: 6px;
-      height: 6px;
-      background: #8e8474;
+    .file-download {
+      color: inherit;
+      padding: 8px;
       border-radius: 50%;
-      animation: typing 1.4s infinite ease-in-out;
-    }
-
-    .typing-indicator span:nth-child(1) { animation-delay: 0s; }
-    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes typing {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1); }
-    }
-
-    .typing-text {
-      font-size: 0.8rem;
-      color: #9c9181;
-      font-style: italic;
-    }
-
-    .chat-footer {
-      padding: 24px 32px;
-      background: white;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .job-context-alert {
-      background: #fcf6e8;
-      border: 1px solid #f0e0c0;
-      padding: 8px 16px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.85rem;
-      color: #856404;
-    }
-
-    .clear-context {
-      margin-left: auto;
-      background: none;
-      border: none;
-      cursor: pointer;
-      opacity: 0.5;
-    }
-
-    .input-area-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .util-btn {
-      background: none;
-      border: none;
-      color: #655f51;
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 50%;
+      background: rgba(0,0,0,0.05);
       transition: all 0.2s;
     }
 
-    .util-btn:hover {
-      background: #f4efe6;
-      color: #bb3e2d;
-    }
+    .file-download:hover { background: rgba(0,0,0,0.1); transform: scale(1.1); }
 
-    .input-container {
-      flex: 1;
+    .msg-footer {
       display: flex;
       align-items: center;
-      gap: 16px;
-      background: #fdfaf6;
-      border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 8px 8px 8px 20px;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      opacity: 0.6;
     }
 
-    .message-textarea {
-      flex: 1;
-      border: none;
-      background: transparent;
-      outline: none;
-      resize: none;
-      font-family: inherit;
-      padding: 10px 0;
-      max-height: 120px;
+    .msg-status .read-icon { color: #10b981; }
+
+    /* Typing Status */
+    .typing-notice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      font-weight: 700;
     }
 
-    .action-btn {
-      width: 44px;
-      height: 44px;
+    .typing-dots {
+      background: var(--card-bg);
+      padding: 10px 14px;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--border-c);
+      display: flex;
+      gap: 4px;
+    }
+
+    .typing-dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-c);
       border-radius: 50%;
-      border: none;
+      opacity: 0.4;
+      animation: dotFlow 1.4s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotFlow {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* --- Composer Section --- */
+    .chat-entry {
+      padding: 24px 32px 32px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-c);
+    }
+
+    .context-pill {
+      background: var(--surface-soft);
+      border: 1px solid var(--border-c);
+      border-radius: 99px;
+      padding: 6px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.8rem;
+      animation: pillFade 0.3s ease;
+    }
+
+    @keyframes pillFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+    .pill-label { font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.5; font-size: 0.7rem; }
+    .pill-value { font-weight: 700; color: var(--accent-c); }
+    .pill-clear { background: none; border: none; cursor: pointer; opacity: 0.4; font-size: 1rem; }
+
+    .composer {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+    }
+
+    .composer-action {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid var(--border-c);
+      background: var(--view-bg);
+      color: var(--text-dim);
       display: grid;
       place-items: center;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .action-btn.send {
-      background: #bb3e2d;
-      color: white;
+    .composer-action:hover:not(:disabled) {
+      background: white;
+      color: var(--accent-c);
+      border-color: var(--accent-c);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-c) 10%, transparent);
     }
 
-    .action-btn.send:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .empty-state {
+    .composer-field {
       flex: 1;
+      background: var(--view-bg);
+      border-radius: 22px;
+      padding: 6px;
+      display: flex;
+      align-items: flex-end;
+      border: 1px solid var(--border-c);
+      transition: all 0.2s;
+    }
+
+    .composer-field:focus-within {
+      background: white;
+      border-color: var(--accent-c);
+      box-shadow: var(--ring);
+    }
+
+    .composer-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: none;
+      outline: none;
+      max-height: 180px;
+      color: var(--text-main);
+    }
+
+    .composer-send {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: var(--accent-c);
+      color: white;
+      border: none;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 2px;
+    }
+
+    .composer-send:disabled {
+      background: var(--border-c);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .composer-send:hover:not(:disabled) {
+      transform: scale(1.05) translateY(-1px);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-c) 30%, transparent);
+    }
+
+    /* --- Welcome Screen --- */
+    .empty-view {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 40px;
+    }
+
+    .editorial-empty {
+      text-align: center;
+      max-width: 460px;
+    }
+
+    .empty-orb {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+      border-radius: 48px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 40px;
+      box-shadow: 0 24px 48px color-mix(in srgb, var(--brand) 25%, transparent);
+      animation: orbFloat 6s infinite ease-in-out;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .editorial-empty h2 {
+      font-size: 2.6rem;
+      margin-bottom: 20px;
+    }
+
+    .editorial-empty p {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .empty-stats {
+      display: flex;
+      justify-content: center;
+      padding-top: 40px;
+      border-top: 1px solid var(--border-c);
+    }
+
+    .stat-pill {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px;
-      color: #9c9181;
+      gap: 6px;
     }
 
-    .empty-illustration {
-      margin-bottom: 24px;
-      opacity: 0.5;
+    .stat-pill strong { font-size: 1.8rem; color: var(--accent-c); font-family: 'Fraunces', serif; }
+    .stat-pill span { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 900; color: var(--text-dim); }
+
+    /* --- Utilities --- */
+    .upload-loader {
+      width: 22px;
+      height: 22px;
+      border: 3px solid color-mix(in srgb, var(--accent-c) 15%, transparent);
+      border-top-color: var(--accent-c);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
 
-    .empty-state h3 {
-      color: #1f1d18;
-      margin: 0 0 8px;
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* --- Responsive --- */
+    @media (max-width: 1024px) {
+      :host { --sidebar-w: 320px; }
+      .chat-view-header { padding: 0 24px; }
+      .chat-body { padding: 24px; }
+    }
+
+    @media (max-width: 768px) {
+      .contacts-sidebar {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        z-index: 30;
+        transform: translateX(0);
+      }
+      .contacts-sidebar.hidden-mobile { transform: translateX(-100%); }
+      
+      .chat-view {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        z-index: 20;
+        display: none;
+      }
+      .chat-view.mobile-active { display: flex; }
+      
+      .back-link { display: flex; }
+      .header-tools { display: none; }
+      
+      .msg-bubble { max-width: 85%; }
     }
   `]
 })
@@ -672,7 +1032,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  contacts: User[] = [];
+  contacts: any[] = []; // Changed to any to support extra UI fields
   selectedContact: User | null = null;
   messages: DirectMessage[] = [];
   newMessage: string = '';
@@ -686,6 +1046,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
   isOtherTyping: boolean = false;
   selectedJobId: number | null = null;
   isUploading: boolean = false;
+
+  private avatarColors = [
+    '#bb3e2d', '#0d6774', '#1e6742', '#d97706', 
+    '#5b21b6', '#1e40af', '#991b1b', '#065f46'
+  ];
 
   constructor(
     private messageService: MessageService,
@@ -737,6 +1102,27 @@ export class MessagesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.pollSubscription?.unsubscribe();
     this.typingSub?.unsubscribe();
+  }
+
+  getAvatarColor(user: User): string {
+    const id = user.id || 0;
+    return this.avatarColors[id % this.avatarColors.length];
+  }
+
+  isCompact(index: number): boolean {
+    if (index === 0) return false;
+    const current = this.messages[index];
+    const prev = this.messages[index - 1];
+    return current.sender.id === prev.sender.id;
+  }
+
+  isImage(type?: string): boolean {
+    return !!type && type.startsWith('image/');
+  }
+
+  hasUnreadFrom(contact: User): boolean {
+    // This would ideally come from the server in the contacts list
+    return false; 
   }
 
   private anyUnread(msgs: DirectMessage[]): boolean {
@@ -797,7 +1183,10 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   loadContacts(): void {
     this.messageService.getContacts().subscribe(contacts => {
-      this.contacts = contacts;
+      this.contacts = contacts.map(c => ({
+        ...c,
+        lastMessageAt: new Date() // Placeholder, ideally from backend
+      }));
       if (this.selectedContact && !this.contacts.some(c => c.id === this.selectedContact?.id)) {
         this.contacts.unshift(this.selectedContact);
       }

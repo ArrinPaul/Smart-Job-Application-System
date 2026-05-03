@@ -81,6 +81,13 @@ public class RecruiterController {
         return ResponseEntity.ok(applicationService.getApplicationsForRecruiter(username));
     }
 
+    @GetMapping("/applications/stats")
+    public ResponseEntity<?> getRecruiterApplicationStats() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Recruiter {} fetching application stats", username);
+        return ResponseEntity.ok(applicationService.getApplicationCountsForRecruiter(username));
+    }
+
     @GetMapping("/jobs")
     public ResponseEntity<?> getRecruiterJobs() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

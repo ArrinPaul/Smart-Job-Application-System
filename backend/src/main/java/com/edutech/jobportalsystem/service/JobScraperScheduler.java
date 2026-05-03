@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import com.edutech.jobportalsystem.entity.Job;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class JobScraperScheduler {
 
     @Autowired
     private JobIngestionService jobIngestionService;
+
+    @Autowired
+    private TranslationService translationService;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -263,16 +267,16 @@ public class JobScraperScheduler {
     private Map<String, String> normalizeJobPayload(Map<String, String> job) {
         if (job == null) return null;
 
-        String title = normalizeText(job.get("title"));
+        String title = translateIfNeeded(normalizeText(job.get("title")), "job title");
         if (title == null || title.isBlank()) return null;
 
         String companyName = normalizeText(job.getOrDefault("companyName", "Unknown Company"));
         String location = normalizeText(job.getOrDefault("location", "Remote"));
-        String jobType = normalizeText(job.getOrDefault("jobType", "Full-Time"));
+        String jobType = translateIfNeeded(normalizeText(job.getOrDefault("jobType", "Full-Time")), "job type");
         String applicationLink = normalizeText(job.get("applicationLink"));
-        String requiredSkills = normalizeText(job.get("requiredSkills"));
-        String howToApply = normalizeText(job.get("howToApply"));
-        String description = normalizeText(stripHtml(job.get("description")));
+        String requiredSkills = translateIfNeeded(normalizeText(job.get("requiredSkills")), "required skills");
+        String howToApply = translateIfNeeded(normalizeText(job.get("howToApply")), "application instructions");
+        String description = translateIfNeeded(normalizeText(stripHtml(job.get("description"))), "job description");
 
         String formattedDescription = formatTemplate(title, companyName, location, jobType, description, requiredSkills, applicationLink);
 
@@ -287,6 +291,59 @@ public class JobScraperScheduler {
         out.put("description", formattedDescription);
         return out;
     }
+
+    private String translateIfNeeded(String text, String label) {
+        if (text == null || text.isBlank() || !shouldTranslateText(text)) {
+            return text;
+        }
+
+        try {
+            String translated = translationService.translateToEnglish(text);
+            if (translated == null || translated.isBlank()) {
+                return text;
+            }
+            return translated;
+        } catch (Exception e) {
+            logger.warn("Translation failed for {}: {}", label, e.getMessage());
+            return text;
+        }
+    }
+
+    private boolean shouldTranslateText(String text) {
+        if (text == null) return false;
+        String value = text.trim();
+        if (value.length() < 12) return false;
+
+        if (value.matches(".*[\\u00C0-\\u024F\\u0400-\\u04FF\\u0600-\\u06FF\\u3040-\\u30FF\\u4E00-\\u9FFF\\uAC00-\\uD7AF].*")) {
+            return true;
+        }
+
+        String[] tokens = value.toLowerCase().split("[^a-zà-ÿ]+");
+        int foreignHits = 0;
+        int englishHits = 0;
+        for (int i = 0; i < tokens.length && i < 40; i++) {
+            String token = tokens[i];
+            if (token.isBlank()) continue;
+            if (NON_ENGLISH_HINT_WORDS.contains(token)) foreignHits++;
+            if (ENGLISH_HINT_WORDS.contains(token)) englishHits++;
+        }
+
+        return (foreignHits >= 2 && foreignHits > englishHits + 1) || foreignHits >= 3;
+    }
+
+
+
+    private static final java.util.Set<String> NON_ENGLISH_HINT_WORDS = java.util.Set.of(
+            "und", "der", "die", "das", "ein", "eine", "mit", "für", "auf", "von", "zum", "zur", "den", "dem",
+            "y", "de", "la", "el", "los", "las", "para", "con", "por", "del", "que", "en",
+            "et", "le", "les", "des", "pour", "dans", "sur", "une", "un",
+            "di", "per", "il", "lo", "gli", "una", "nel", "alla",
+            "om", "het", "een", "van", "naar"
+    );
+
+    private static final java.util.Set<String> ENGLISH_HINT_WORDS = java.util.Set.of(
+            "the", "and", "for", "with", "from", "this", "that", "role", "job", "work", "team", "company", "apply"
+    );
 
     private String stripHtml(String input) {
         if (input == null) return "";
@@ -400,5 +457,79 @@ public class JobScraperScheduler {
         }
         if (out.length() > 0) out.append('.');
         return out.toString();
+    }
+
+    /**
+     * Daily backfill: Slowly translate old untranslated jobs (10 at a time at 11:30 PM)
+     * Cron: 0 30 23 * * * = Every day at 11:30 PM
+     */
+    @Scheduled(cron = "0 30 23 * * *")
+    public void scheduleNightlyBackfillTranslation() {
+        logger.info("Starting nightly backfill translation task (11:30 PM)...");
+        try {
+            // Find 10 jobs that need translation (title is not English)
+            List<Job> jobsToTranslate = jobIngestionService.findUntranslatedJobs(10);
+            
+            if (jobsToTranslate.isEmpty()) {
+                logger.info("No jobs to translate - backfill complete or all jobs already translated");
+                return;
+            }
+
+            int translated = 0;
+            for (Job job : jobsToTranslate) {
+                try {
+                    boolean changed = false;
+
+                    // Translate title
+                    String translatedTitle = translateIfNeeded(job.getTitle(), "title");
+                    if (!translatedTitle.equals(job.getTitle())) {
+                        job.setTitle(translatedTitle);
+                        changed = true;
+                    }
+
+                    // Translate description
+                    if (job.getDescription() != null && !job.getDescription().isBlank()) {
+                        String translatedDesc = translateIfNeeded(job.getDescription(), "description");
+                        if (!translatedDesc.equals(job.getDescription())) {
+                            job.setDescription(translatedDesc);
+                            changed = true;
+                        }
+                    }
+
+                    // Translate required skills
+                    if (job.getRequiredSkills() != null && !job.getRequiredSkills().isBlank()) {
+                        String translatedSkills = translateIfNeeded(job.getRequiredSkills(), "skills");
+                        if (!translatedSkills.equals(job.getRequiredSkills())) {
+                            job.setRequiredSkills(translatedSkills);
+                            changed = true;
+                        }
+                    }
+
+                    // Translate how to apply
+                    if (job.getHowToApply() != null && !job.getHowToApply().isBlank()) {
+                        String translatedApply = translateIfNeeded(job.getHowToApply(), "howToApply");
+                        if (!translatedApply.equals(job.getHowToApply())) {
+                            job.setHowToApply(translatedApply);
+                            changed = true;
+                        }
+                    }
+
+                    if (changed) {
+                        jobIngestionService.saveJob(job);
+                        translated++;
+                        logger.debug("Translated job: {} - {}", job.getId(), job.getTitle());
+                    }
+
+                } catch (Exception e) {
+                    logger.warn("Failed to translate job {}: {}", job.getId(), e.getMessage());
+                    // Continue with next job
+                }
+            }
+
+            logger.info("Nightly backfill complete: {} jobs translated", translated);
+
+        } catch (Exception e) {
+            logger.error("Nightly backfill translation failed: {}", e.getMessage(), e);
+        }
     }
 }
