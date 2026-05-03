@@ -1,4 +1,3 @@
-// File: ./src/app/applications/applications.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,8 +6,8 @@ import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
 import { Application, ApplicationStatus } from '../models/job.model';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, interval, of, Subscription } from 'rxjs';
+import { takeUntil, switchMap, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-applications',
@@ -24,6 +23,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   currentPhase = 'active'; // active, interviews, offers, archived
   statusOptions = Object.values(ApplicationStatus);
   private destroy$ = new Subject<void>();
+  private pollingSub?: Subscription;
 
   constructor(
     private httpService: HttpService,
@@ -37,28 +37,42 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     this.isRecruiter = this.authService.isRecruiter();
     this.isJobSeeker = this.authService.isJobSeeker();
     
-    this.route.url.subscribe(() => {
+    this.route.url.pipe(takeUntil(this.destroy$)).subscribe(() => {
       const path = this.router.url.split('/').pop() || 'active';
       this.currentPhase = ['active', 'interviews', 'offers', 'archived'].includes(path) ? path : 'active';
-      this.loadApplications();
+      this.startPolling();
     });
   }
 
-  loadApplications(): void {
-    this.isLoading = true;
-    const request = this.isRecruiter ? this.httpService.getRecruiterApplications() : this.httpService.getMyApplications();
-    
-    request.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response: Application[]) => {
-        this.applications = response;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      }
-    });
+  startPolling(): void {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
+
+    // Poll every 5 seconds for updates
+    this.pollingSub = interval(5000)
+      .pipe(
+        startWith(0),
+        switchMap(() => {
+          if (document.visibilityState === 'visible') {
+            return this.isRecruiter ? this.httpService.getRecruiterApplications() : this.httpService.getMyApplications();
+          }
+          return of(this.applications); // Return current state if hidden
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (response: Application[]) => {
+          // Deep compare simple check to avoid UI jump if nothing changed
+          if (JSON.stringify(this.applications) !== JSON.stringify(response)) {
+            this.applications = response;
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        }
+      });
   }
 
   get filteredApplications(): Application[] {
@@ -89,7 +103,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   }
 
   getStepStatus(currentStatus: string, step: string): string {
-    const interviewStatuses = ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW', 'OFFER_EXTENDED'];
+    const interviewStatuses = ['PHONE_SCREEN', 'TECHNICAL_INTERVIEW', 'ON_SITE_INTERVIEW'];
     
     if (step === 'APPLIED') {
       return 'completed';
@@ -103,11 +117,12 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     if (step === 'INTERVIEW') {
       if (['APPLIED', 'SHORTLISTED'].includes(currentStatus)) return '';
       if (interviewStatuses.includes(currentStatus)) return 'active';
-      if (currentStatus === 'HIRED' || currentStatus === 'REJECTED') return 'completed';
+      if (['OFFER_EXTENDED', 'HIRED', 'REJECTED'].includes(currentStatus)) return 'completed';
     }
 
     if (step === 'HIRED') {
-      if (currentStatus === 'HIRED') return 'active';
+      if (currentStatus === 'OFFER_EXTENDED') return 'active';
+      if (currentStatus === 'HIRED') return 'completed';
       return '';
     }
 
@@ -120,7 +135,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toastService.showSuccess('Status updated to: ' + newStatus.replace('_', ' '));
-          this.loadApplications();
+          // No need to loadApplications manually, polling will pick it up
         }
       });
   }

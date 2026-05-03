@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { ToastService } from '../services/toast.service';
 import { Application, ApplicationStatus } from '../models/job.model';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Subject, takeUntil, finalize, interval, switchMap, startWith, of, Subscription, forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -29,51 +29,80 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
   currentStage = 'applied'; 
   private destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
-    // 1. Load stats immediately to show counts
-    this.loadStats();
+  private pollingSub?: Subscription;
 
-    // 2. React to URL changes (stage switching)
+  ngOnInit(): void {
+    // React to URL changes (stage switching)
     this.route.url.pipe(takeUntil(this.destroy$)).subscribe(segments => {
       const path = segments.length > 0 ? segments[segments.length - 1].path : 'applied';
-      this.currentStage = ['applied', 'shortlisted', 'interviews', 'offers', 'hired'].includes(path) ? path : 'applied';
+      const validStages = [
+        'applied', 'shortlisted', 'phone_screen', 'technical_interview', 
+        'on_site_interview', 'offer_extended', 'hired', 'rejected', 'hold'
+      ];
+      this.currentStage = validStages.includes(path) ? path : 'applied';
       
-      // Load applications for this specific stage
-      this.loadApplications();
+      // Start/Restart polling when stage changes
+      this.startPolling();
     });
   }
 
-  loadStats(): void {
-    this.loadingStats = true;
-    this.httpService.getRecruiterApplicationStats()
+  startPolling(): void {
+    // Clear previous polling subscription if it exists
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
+
+    // Poll stats and applications every 5 seconds
+    this.pollingSub = interval(5000)
       .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loadingStats = false)
+        startWith(0),
+        switchMap(() => {
+          if (document.visibilityState !== 'visible') {
+            return of(null);
+          }
+          // Fetch both stats and stage-specific applications in parallel
+          return forkJoin({
+            stats: this.httpService.getRecruiterApplicationStats(),
+            apps: this.httpService.getRecruiterApplications(this.currentStage)
+          });
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (stats) => this.stats = stats || {},
-        error: () => console.error('Failed to load pipeline stats')
+        next: (result) => {
+          if (!result) return;
+
+          this.stats = result.stats || {};
+          this.loadingStats = false;
+
+          if (JSON.stringify(this.applications) !== JSON.stringify(result.apps)) {
+            this.applications = result.apps || [];
+            this.applyStageFilter();
+          }
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.loadingStats = false;
+        }
       });
   }
 
-  loadApplications(): void {
-    this.loading = true;
-    this.httpService.getRecruiterApplications(this.currentStage)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loading = false)
-      )
+  quickReject(app: Application): void {
+    if (!confirm(`Are you sure you want to reject ${app.applicant.fullName || app.applicant.username}?`)) return;
+
+    this.httpService.updateApplicationStatus(app.id, 'REJECTED')
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (apps) => {
-          this.applications = apps || [];
-          this.filteredApplications = [...this.applications];
+        next: () => {
+          this.toastService.showSuccess('Application rejected');
+          // Polling will handle the refresh
         },
-        error: () => this.toastService.showError('Failed to sync pipeline data')
+        error: () => this.toastService.showError('Failed to reject application')
       });
   }
 
   applyStageFilter(): void {
-    // No longer needed as server handles filtering, but kept for search
     this.filteredApplications = [...this.applications];
   }
 
@@ -83,12 +112,20 @@ export class RecruiterApplicationsComponent implements OnInit, OnDestroy {
     switch (stage) {
       case 'shortlisted':
         return this.stats['SHORTLISTED'] || 0;
-      case 'interviews':
-        return (this.stats['PHONE_SCREEN'] || 0) + (this.stats['TECHNICAL_INTERVIEW'] || 0) + (this.stats['ON_SITE_INTERVIEW'] || 0);
-      case 'offers':
+      case 'phone_screen':
+        return this.stats['PHONE_SCREEN'] || 0;
+      case 'technical_interview':
+        return this.stats['TECHNICAL_INTERVIEW'] || 0;
+      case 'on_site_interview':
+        return this.stats['ON_SITE_INTERVIEW'] || 0;
+      case 'offer_extended':
         return this.stats['OFFER_EXTENDED'] || 0;
       case 'hired':
         return this.stats['HIRED'] || 0;
+      case 'rejected':
+        return this.stats['REJECTED'] || 0;
+      case 'hold':
+        return this.stats['HOLD'] || 0;
       case 'applied':
       default:
         return this.stats['APPLIED'] || 0;

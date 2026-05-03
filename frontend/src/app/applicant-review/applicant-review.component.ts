@@ -1,15 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { ToastService } from '../services/toast.service';
 import { Application, ApplicationStatus } from '../models/job.model';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Subject, takeUntil, finalize, interval, switchMap, startWith, of, Subscription } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-applicant-review',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="review-page" *ngIf="application; else stateTpl">
       <header class="review-header">
@@ -77,6 +79,36 @@ import { Subject, takeUntil, finalize } from 'rxjs';
             </div>
           </div>
 
+          <!-- Application Details Form -->
+          <div class="card details-card">
+            <div class="card-header">
+              <h3>Application Management</h3>
+              <button class="btn-save" (click)="saveDetails()">Save All Changes</button>
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Recruiter Notes (Internal only)</label>
+                <textarea [(ngModel)]="detailsRequest.internalNotes" placeholder="Add private notes about this candidate..."></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>Interview Date & Time</label>
+                <input type="datetime-local" [(ngModel)]="detailsRequest.interviewDate">
+              </div>
+              
+              <div class="form-group">
+                <label>Interview Location / Link</label>
+                <input type="text" [(ngModel)]="detailsRequest.interviewLocation" placeholder="Office address or meeting link">
+              </div>
+
+              <div class="form-group full-width">
+                <label>Feedback for Candidate (Visible to them)</label>
+                <textarea [(ngModel)]="detailsRequest.recruiterFeedback" placeholder="Provide feedback or instructions for the applicant..."></textarea>
+              </div>
+            </div>
+          </div>
+
           <div class="card resume-viewer">
             <div class="card-header">
               <h3>Resume / CV</h3>
@@ -99,24 +131,54 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 
           <!-- Decision Bar -->
           <div class="card decision-card">
-            <h3>Decision & Workflow</h3>
-            <p>Update the application status as you move through the hiring process.</p>
+            <h3>Advance Pipeline Stage</h3>
+            <p>Move the candidate through the recruitment steps.</p>
             
             <div class="decision-buttons">
+              <button class="btn-applied" 
+                      [disabled]="application.status === 'APPLIED'"
+                      (click)="updateStatus('APPLIED')">
+                Reset to Applied
+              </button>
               <button class="btn-shortlist" 
                       [disabled]="application.status === 'SHORTLISTED'"
                       (click)="updateStatus('SHORTLISTED')">
-                Shortlist Candidate
+                Shortlist
+              </button>
+              <button class="btn-interview" 
+                      [disabled]="application.status === 'PHONE_SCREEN'"
+                      (click)="updateStatus('PHONE_SCREEN')">
+                Phone Screen
+              </button>
+              <button class="btn-interview" 
+                      [disabled]="application.status === 'TECHNICAL_INTERVIEW'"
+                      (click)="updateStatus('TECHNICAL_INTERVIEW')">
+                Tech Interview
+              </button>
+              <button class="btn-interview" 
+                      [disabled]="application.status === 'ON_SITE_INTERVIEW'"
+                      (click)="updateStatus('ON_SITE_INTERVIEW')">
+                On-Site
+              </button>
+              <button class="btn-offer" 
+                      [disabled]="application.status === 'OFFER_EXTENDED'"
+                      (click)="updateStatus('OFFER_EXTENDED')">
+                Extend Offer
               </button>
               <button class="btn-hire" 
                       [disabled]="application.status === 'HIRED'"
                       (click)="updateStatus('HIRED')">
-                Mark as Hired
+                Mark Hired
+              </button>
+              <button class="btn-hold" 
+                      [disabled]="application.status === 'HOLD'"
+                      (click)="updateStatus('HOLD')">
+                On Hold
               </button>
               <button class="btn-reject" 
                       [disabled]="application.status === 'REJECTED'"
                       (click)="updateStatus('REJECTED')">
-                Reject Application
+                Reject
               </button>
             </div>
           </div>
@@ -149,7 +211,12 @@ import { Subject, takeUntil, finalize } from 'rxjs';
     .current-status[data-status="APPLIED"] { background: #dbeafe; color: #1e40af; }
     .current-status[data-status="SHORTLISTED"] { background: #dcfce7; color: #166534; }
     .current-status[data-status="REJECTED"] { background: #fee2e2; color: #991b1b; }
-    .current-status[data-status="HIRED"] { background: #fef9c3; color: #854d0e; }
+    .current-status[data-status="HIRED"] { background: #dcfce7; color: #166534; }
+    .current-status[data-status="HOLD"] { background: #fef9c3; color: #854d0e; }
+    .current-status[data-status="TECHNICAL_INTERVIEW"], 
+    .current-status[data-status="PHONE_SCREEN"],
+    .current-status[data-status="ON_SITE_INTERVIEW"] { background: #e0f2fe; color: #0369a1; }
+    .current-status[data-status="OFFER_EXTENDED"] { background: #fef3c7; color: #92400e; }
 
     .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 30px; margin-top: 30px; }
 
@@ -180,18 +247,30 @@ import { Subject, takeUntil, finalize } from 'rxjs';
     .job-ref span { color: #64748b; font-size: 0.9rem; }
 
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .btn-download { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+    .btn-download, .btn-save { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+    .btn-save { background: #3b82f6; color: white; border-color: #2563eb; }
     
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: #475569; }
+    .form-group input, .form-group textarea { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; }
+    .form-group textarea { height: 100px; resize: vertical; }
+
     .resume-viewer { min-height: 200px; }
     .resume-placeholder { text-align: center; padding: 40px 0; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; }
     .resume-icon { font-size: 3rem; margin-bottom: 10px; }
     .no-resume { text-align: center; padding: 30px; color: #991b1b; }
 
-    .decision-buttons { display: flex; gap: 15px; margin-top: 20px; }
-    .decision-buttons button { flex: 1; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
+    .decision-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 20px; }
+    .decision-buttons button { padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; font-size: 0.8rem; }
     .decision-buttons button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-applied { background: #94a3b8; color: white; }
     .btn-shortlist { background: #10b981; color: white; }
-    .btn-hire { background: #f59e0b; color: white; }
+    .btn-interview { background: #3b82f6; color: white; }
+    .btn-offer { background: #f59e0b; color: white; }
+    .btn-hire { background: #059669; color: white; }
+    .btn-hold { background: #64748b; color: white; }
     .btn-reject { background: #ef4444; color: white; }
 
     .state-container { text-align: center; padding: 100px 0; }
@@ -204,6 +283,15 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
   loading = true;
   error = '';
   private destroy$ = new Subject<void>();
+  private pollingSub?: Subscription;
+
+  // For the details form
+  detailsRequest: any = {
+    internalNotes: '',
+    interviewDate: '',
+    interviewLocation: '',
+    recruiterFeedback: ''
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -216,32 +304,71 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params['id'];
       if (id) {
-        this.loadApplication(id);
+        this.startPolling(Number(id));
       }
     });
   }
 
   ngOnDestroy(): void {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  loadApplication(id: number): void {
-    this.loading = true;
-    // We need a way to get a single application. 
-    // For now we'll filter from all recruiter applications.
-    this.httpService.getRecruiterApplications()
+  startPolling(id: number): void {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
+
+    // Poll every 5 seconds for updates
+    this.pollingSub = interval(5000)
       .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loading = false)
+        startWith(0),
+        switchMap(() => {
+          if (document.visibilityState === 'visible') {
+            return this.httpService.getRecruiterApplications();
+          }
+          return of([]);
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: (apps) => {
-          this.application = apps.find(a => a.id === Number(id)) || null;
-          if (!this.application) this.error = 'Application not found';
+          const found = apps.find(a => a.id === id);
+          if (found) {
+            // Only update if something actually changed to avoid form reset
+            const hasChanged = !this.application || 
+              JSON.stringify(this.application) !== JSON.stringify(found);
+
+            if (hasChanged) {
+              this.application = found;
+              this.initForm();
+            }
+            this.loading = false;
+          } else if (this.loading) {
+            this.error = 'Application not found';
+            this.loading = false;
+          }
         },
-        error: () => this.error = 'Failed to load application details'
+        error: () => {
+          if (this.loading) {
+            this.error = 'Failed to load application details';
+            this.loading = false;
+          }
+        }
       });
+  }
+
+  initForm(): void {
+    if (!this.application) return;
+    this.detailsRequest = {
+      internalNotes: this.application.internalNotes || '',
+      interviewDate: this.application.interviewDate ? new Date(this.application.interviewDate).toISOString().slice(0, 16) : '',
+      interviewLocation: this.application.interviewLocation || '',
+      recruiterFeedback: this.application.recruiterFeedback || ''
+    };
   }
 
   getSkills(): string[] {
@@ -256,9 +383,29 @@ export class ApplicantReviewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (updated) => {
           this.application!.status = updated.status;
-          this.toastService.showSuccess(`Application ${status.toLowerCase()} successfully`);
+          this.toastService.showSuccess(`Application stage updated to ${status.replace('_', ' ')}`);
         },
         error: () => this.toastService.showError('Failed to update status')
+      });
+  }
+
+  saveDetails(): void {
+    if (!this.application) return;
+
+    const request = {
+      ...this.detailsRequest,
+      interviewDate: this.detailsRequest.interviewDate ? new Date(this.detailsRequest.interviewDate).toISOString() : null
+    };
+
+    this.httpService.updateApplicationDetails(this.application.id, request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updated) => {
+          this.application = updated;
+          this.initForm();
+          this.toastService.showSuccess('Application details saved successfully');
+        },
+        error: () => this.toastService.showError('Failed to save application details')
       });
   }
 

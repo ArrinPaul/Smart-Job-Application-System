@@ -8,22 +8,36 @@
 
   <main class="container">
     <div class="pipeline-nav-panel">
-      <div class="tabs-nav">
-        <a routerLink="/recruiter/applications/applied" routerLinkActive="active" class="tab-link">
-          New ({{ getCount('applied') }})
-        </a>
-        <a routerLink="/recruiter/applications/shortlisted" routerLinkActive="active" class="tab-link">
-          Shortlisted ({{ getCount('shortlisted') }})
-        </a>
-        <a routerLink="/recruiter/applications/interviews" routerLinkActive="active" class="tab-link">
-          Interviews ({{ getCount('interviews') }})
-        </a>
-        <a routerLink="/recruiter/applications/offers" routerLinkActive="active" class="tab-link">
-          Offers ({{ getCount('offers') }})
-        </a>
-        <a routerLink="/recruiter/applications/hired" routerLinkActive="active" class="tab-link">
-          Hired ({{ getCount('hired') }})
-        </a>
+      <div class="tabs-nav-scroll">
+        <div class="tabs-nav">
+          <a routerLink="/recruiter/applications/applied" routerLinkActive="active" class="tab-link">
+            New ({{ getCount('applied') }})
+          </a>
+          <a routerLink="/recruiter/applications/shortlisted" routerLinkActive="active" class="tab-link">
+            Shortlisted ({{ getCount('shortlisted') }})
+          </a>
+          <a routerLink="/recruiter/applications/phone_screen" routerLinkActive="active" class="tab-link">
+            Phone ({{ getCount('phone_screen') }})
+          </a>
+          <a routerLink="/recruiter/applications/technical_interview" routerLinkActive="active" class="tab-link">
+            Technical ({{ getCount('technical_interview') }})
+          </a>
+          <a routerLink="/recruiter/applications/on_site_interview" routerLinkActive="active" class="tab-link">
+            On-site ({{ getCount('on_site_interview') }})
+          </a>
+          <a routerLink="/recruiter/applications/offer_extended" routerLinkActive="active" class="tab-link">
+            Offers ({{ getCount('offer_extended') }})
+          </a>
+          <a routerLink="/recruiter/applications/hired" routerLinkActive="active" class="tab-link">
+            Hired ({{ getCount('hired') }})
+          </a>
+          <a routerLink="/recruiter/applications/rejected" routerLinkActive="active" class="tab-link">
+            Rejected ({{ getCount('rejected') }})
+          </a>
+          <a routerLink="/recruiter/applications/hold" routerLinkActive="active" class="tab-link">
+            Hold ({{ getCount('hold') }})
+          </a>
+        </div>
       </div>
     </div>
 
@@ -72,9 +86,16 @@
               </span>
             </td>
             <td>
-              <button class="btn-review-action" [routerLink]="['/recruiter/applications', app.id]">
-                Manage Candidate
-              </button>
+              <div class="action-group">
+                <button class="btn-review-action" [routerLink]="['/recruiter/applications', app.id]">
+                  Manage
+                </button>
+                <button *ngIf="app.status !== 'REJECTED'" 
+                        class="btn-reject-quick" 
+                        (click)="quickReject(app)">
+                  Reject
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>

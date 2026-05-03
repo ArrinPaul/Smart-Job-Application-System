@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { Application, ApplicationStatus } from '../models/job.model';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Subject, takeUntil, finalize, interval, switchMap, of, startWith, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-application-preview',
@@ -33,40 +33,72 @@ export class ApplicationPreviewComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  private pollingSub?: Subscription;
+
   ngOnInit(): void {
-    const id = this.route.snapshot.params['slug']; // Reusing slug param for ID for now, or updating route
+    const id = this.route.snapshot.params['slug']; 
     if (id) {
-      this.loadApplication(Number(id));
+      this.startPolling(Number(id));
     }
   }
 
   ngOnDestroy(): void {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  loadApplication(id: number): void {
-    this.loading = true;
-    this.httpService.getMyApplications()
+  startPolling(id: number): void {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
+
+    // Poll every 5 seconds for status updates while the page is open
+    this.pollingSub = interval(5000)
       .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loading = false)
+        startWith(0),
+        switchMap(() => {
+          if (document.visibilityState === 'visible') {
+            return this.httpService.getMyApplications();
+          }
+          return of([]);
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: (apps) => {
-          this.application = apps.find(a => a.id === id) || null;
-          if (!this.application) this.error = 'Application record not found.';
+          const found = apps.find(a => a.id === id);
+          if (found) {
+            // Only update if status or details changed to avoid flicker
+            if (!this.application || 
+                JSON.stringify(this.application) !== JSON.stringify(found)) {
+              this.application = found;
+            }
+            this.loading = false;
+          } else if (this.loading) {
+            this.error = 'Application record not found.';
+            this.loading = false;
+          }
         },
-        error: () => this.error = 'Failed to load application status.'
+        error: () => {
+          if (this.loading) {
+            this.error = 'Failed to load application status.';
+            this.loading = false;
+          }
+        }
       });
   }
 
   getStepStatus(stage: ApplicationStatus): string {
     if (!this.application) return '';
-    const currentIdx = this.statusFlow.indexOf(this.application.status.toUpperCase() as ApplicationStatus);
+    
+    const currentStatus = this.application.status.toUpperCase() as ApplicationStatus;
+    const currentIdx = this.statusFlow.indexOf(currentStatus);
     const targetIdx = this.statusFlow.indexOf(stage);
 
-    if (this.application.status === ApplicationStatus.REJECTED) return '';
+    if (currentStatus === ApplicationStatus.REJECTED) return '';
     if (currentIdx === targetIdx) return 'active';
     if (targetIdx < currentIdx) return 'completed';
     return '';

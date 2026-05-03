@@ -106,6 +106,7 @@ public class ApplicationService {
         return applicationRepository.findByApplicant(applicant);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Application updateApplicationDetails(Long applicationId, String status, String notes, 
                                               LocalDateTime interviewDate, String interviewLocation, 
                                               String feedback, String recruiterUsername) {

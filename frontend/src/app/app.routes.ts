@@ -92,7 +92,9 @@ export const routes: Routes = [
       { path: 'shortlisted', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
       { path: 'interviews', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
       { path: 'offers', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
-      { path: 'hired', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) }
+      { path: 'hired', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'rejected', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) },
+      { path: 'hold', loadComponent: () => import('./recruiter-applications/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent) }
     ]
   },
   {
