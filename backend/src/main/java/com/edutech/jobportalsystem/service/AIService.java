@@ -58,10 +58,14 @@ public class AIService {
     private String openRouterUrl;
 
     public String generateContent(String prompt) {
+        return generateContent(prompt, null);
+    }
+
+    public String generateContent(String prompt, String systemPrompt) {
         checkAndResetDailyLimits();
 
         // 1. Try Groq (Primary - Fast & Reliable)
-        String response = tryGroq(prompt);
+        String response = tryGroq(prompt, systemPrompt);
         if (response != null) return response;
 
         // 2. Try Hugging Face (Fallback 1)
@@ -71,11 +75,62 @@ public class AIService {
 
         // 3. Try OpenRouter (Fallback 2)
         logger.warn("Hugging Face failed or limit reached. Trying OpenRouter fallback...");
-        response = tryOpenRouter(prompt);
+        response = tryOpenRouter(prompt, systemPrompt);
         if (response != null) return response;
 
         logger.error("All AI providers failed or limits exceeded for today.");
-        return "AI career services are currently at capacity for today. Please try again tomorrow.";
+        return "AI services are currently at capacity for today. Please try again tomorrow.";
+    }
+
+    /**
+     * prioritized translation with failover.
+     * Tries public mirrors first to save AI tokens, falls back to AI.
+     */
+    public String translateWithFailover(String text, String targetLang) {
+        if (text == null || text.isBlank()) return text;
+
+        // List of public mirrors (low reliability but free)
+        String[] mirrors = {
+            "https://libretranslate.de",
+            "https://translate.terraprint.co",
+            "https://translate.argosopentech.com"
+        };
+
+        for (String baseUrl : mirrors) {
+            try {
+                Map<String, String> payload = new HashMap<>();
+                payload.put("q", text);
+                payload.put("source", "auto");
+                payload.put("target", targetLang != null ? targetLang : "en");
+                payload.put("format", "text");
+
+                Map<?, ?> response = restTemplate.postForObject(baseUrl + "/translate", payload, Map.class);
+                Object translated = response != null ? response.get("translatedText") : null;
+                if (translated instanceof String && !((String) translated).isBlank()) {
+                    logger.info("Translation successful using mirror: {}", baseUrl);
+                    return (String) translated;
+                }
+            } catch (Exception e) {
+                logger.warn("Translation mirror {} failed: {}", baseUrl, e.getMessage());
+            }
+        }
+
+        // Final fallback: Use our AI (reliable but consumes tokens)
+        logger.info("All translation mirrors failed. Falling back to AI...");
+        return translateText(text, targetLang);
+    }
+
+    /**
+     * Specialized translation using AI
+     */
+    public String translateText(String text, String targetLang) {
+        if (text == null || text.isBlank()) return text;
+        
+        String systemPrompt = "You are a professional translator. Translate the following text to " + targetLang + ". " +
+                "Respond ONLY with the translated text. Do not include any explanations, greetings, or notes. " +
+                "Maintain the original formatting, punctuation, and technical terms if appropriate.";
+        
+        return generateContent(text, systemPrompt);
     }
 
     private void checkAndResetDailyLimits() {
@@ -107,13 +162,13 @@ public class AIService {
         lastRequestTime.put(provider, System.currentTimeMillis());
     }
 
-    private String tryGroq(String prompt) {
+    private String tryGroq(String prompt, String systemPrompt) {
         if (isKeyInvalid(groqApiKey)) return null;
         if (!isAllowed("groq", GROQ_DAILY_LIMIT)) return null;
 
         try {
             // Groq Cloud is OpenAI compatible
-            String res = callOpenAICompatibleAPI(groqUrl, groqApiKey, groqModel, prompt);
+            String res = callOpenAICompatibleAPI(groqUrl, groqApiKey, groqModel, prompt, systemPrompt);
             if (res != null) {
                 incrementUsage("groq");
                 return res;
@@ -125,12 +180,12 @@ public class AIService {
         }
     }
 
-    private String tryOpenRouter(String prompt) {
+    private String tryOpenRouter(String prompt, String systemPrompt) {
         if (!isAllowed("openrouter", OPENROUTER_DAILY_LIMIT)) return null;
         if (isKeyInvalid(openRouterApiKey)) return null;
         
         try {
-            String res = callOpenAICompatibleAPI(openRouterUrl, openRouterApiKey, openRouterModel, prompt);
+            String res = callOpenAICompatibleAPI(openRouterUrl, openRouterApiKey, openRouterModel, prompt, systemPrompt);
             if (res != null) incrementUsage("openrouter");
             return res;
         } catch (Exception e) {
@@ -177,7 +232,7 @@ public class AIService {
         }
     }
 
-    private String callOpenAICompatibleAPI(String url, String apiKey, String model, String prompt) {
+    private String callOpenAICompatibleAPI(String url, String apiKey, String model, String prompt, String systemPrompt) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
@@ -185,6 +240,11 @@ public class AIService {
         Map<String, Object> body = new HashMap<>();
         body.put("model", model);
         List<Map<String, String>> messages = new ArrayList<>();
+        
+        if (systemPrompt != null && !systemPrompt.isBlank()) {
+            messages.add(Map.of("role", "system", "content", systemPrompt));
+        }
+        
         messages.add(Map.of("role", "user", "content", prompt));
         body.put("messages", messages);
 

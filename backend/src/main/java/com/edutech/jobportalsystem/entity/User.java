@@ -74,16 +74,22 @@ public class User {
 
     private LocalDateTime onboardingCompletedAt;
 
+    @Column(length = 512)
     private String fullName;
+
+    @Column(length = 512)
     private String headline;
-    
+
     @Column(columnDefinition = "TEXT")
     private String bio;
-    
+
+    @Column(length = 512)
     private String companyName;
+
     private String website;
-    private String location;
-    
+
+    @Column(length = 512)
+    private String location;    
     @Column(columnDefinition = "TEXT")
     private String skills;
     

@@ -21,7 +21,7 @@ public class RecruiterProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     
-    @Column(name = "company_name", length = 255)
+    @Column(name = "company_name", length = 512)
     private String companyName;
     
     @Column(name = "company_website", length = 255)

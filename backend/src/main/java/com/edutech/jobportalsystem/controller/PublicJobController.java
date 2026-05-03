@@ -24,12 +24,27 @@ public class PublicJobController {
     private JobScraperScheduler jobScraperScheduler;
 
     @Autowired
-    private com.edutech.jobportalsystem.service.JobService jobService;
+    private com.edutech.jobportalsystem.service.AIService aiService;
 
     @GetMapping("/portal-stats")
     public ResponseEntity<?> getPortalStats() {
         logger.info("Public request: fetching portal stats");
         return ResponseEntity.ok(jobService.getPublicPortalStats());
+    }
+
+    @PostMapping("/translate")
+    public ResponseEntity<?> translate(@RequestBody Map<String, String> request) {
+        String text = request.get("q");
+        String target = request.getOrDefault("target", "English");
+        
+        logger.info("Public request: translating text to {}", target);
+        String translated = aiService.translateWithFailover(text, target);
+        
+        // Return format compatible with LibreTranslate to avoid frontend changes
+        return ResponseEntity.ok(Map.of(
+            "translatedText", translated,
+            "detectedLanguage", Map.of("language", "auto", "confidence", 1.0)
+        ));
     }
 
     @PostMapping("/ingest-real-jobs")

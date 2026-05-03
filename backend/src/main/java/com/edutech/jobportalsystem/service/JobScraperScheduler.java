@@ -360,79 +360,20 @@ public class JobScraperScheduler {
         return count;
     }
 
+    @Autowired
+    private AIService aiService;
+
     private boolean translationEnabled() {
-        return translateUrl != null && !translateUrl.isBlank();
+        return true; // Always enabled now that we use internal AI
     }
 
     private String detectLanguage(String text) {
-        if (!translationEnabled()) return "en";
-        String sample = normalizeText(text);
-        if (sample.length() > DETECT_SAMPLE_CHARS) {
-            sample = sample.substring(0, DETECT_SAMPLE_CHARS);
-        }
-        if (sample.isBlank()) return "en";
-
-        try {
-            Map<String, String> payload = new HashMap<>();
-            payload.put("q", sample);
-            if (translateKey != null && !translateKey.isBlank()) {
-                payload.put("api_key", translateKey);
-            }
-            List<?> response = restTemplate.postForObject(translateUrl + "/detect", payload, List.class);
-            if (response != null && !response.isEmpty() && response.get(0) instanceof Map) {
-                Map<?, ?> first = (Map<?, ?>) response.get(0);
-                Object lang = first.get("language");
-                if (lang instanceof String) {
-                    String langStr = (String) lang;
-                    if (!langStr.isBlank()) {
-                        return langStr;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("Language detect failed: {}", e.getMessage());
-        }
-
-        return "en";
+        return "auto"; // AI handles detection
     }
 
     private String translateText(String text, String lang) {
-        if (!translationEnabled()) return text;
         if (text == null || text.isBlank()) return text;
-        if ("en".equalsIgnoreCase(lang)) return text;
-
-        StringBuilder builder = new StringBuilder();
-        int start = 0;
-        while (start < text.length()) {
-            int end = Math.min(text.length(), start + TRANSLATE_MAX_CHARS);
-            String chunk = text.substring(start, end);
-            builder.append(translateChunk(chunk, lang));
-            start = end;
-        }
-
-        return builder.toString();
-    }
-
-    private String translateChunk(String chunk, String lang) {
-        try {
-            Map<String, String> payload = new HashMap<>();
-            payload.put("q", chunk);
-            payload.put("source", lang == null || lang.isBlank() ? "auto" : lang);
-            payload.put("target", "en");
-            payload.put("format", "text");
-            if (translateKey != null && !translateKey.isBlank()) {
-                payload.put("api_key", translateKey);
-            }
-            Map<?, ?> response = restTemplate.postForObject(translateUrl + "/translate", payload, Map.class);
-            Object translated = response != null ? response.get("translatedText") : null;
-            if (translated instanceof String) {
-                return (String) translated;
-            }
-            return chunk;
-        } catch (Exception e) {
-            logger.warn("Translation failed: {}", e.getMessage());
-            return chunk;
-        }
+        return aiService.translateText(text, "English");
     }
 
     private String formatTemplate(String title, String company, String location, String jobType, String description, String skills, String applicationLink) {

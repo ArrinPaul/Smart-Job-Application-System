@@ -6,9 +6,10 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
+import { TranslationService } from '../services/translation.service';
 import { Application, ApplicationStatus } from '../models/job.model';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, forkJoin, of } from 'rxjs';
+import { takeUntil, switchMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-applications',
@@ -29,6 +30,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     private httpService: HttpService,
     public authService: AuthService,
     private toastService: ToastService,
+    private translationService: TranslationService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -44,76 +46,33 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     });
   }
 
-  get filteredApplications(): Application[] {
-    switch (this.currentPhase) {
-      case 'interviews':
-        return this.applications.filter(app => 
-          [ApplicationStatus.PHONE_SCREEN, ApplicationStatus.TECHNICAL_INTERVIEW, ApplicationStatus.ON_SITE_INTERVIEW].includes(app.status)
-        );
-      case 'offers':
-        return this.applications.filter(app => app.status === ApplicationStatus.OFFER_EXTENDED);
-      case 'archived':
-        return this.applications.filter(app => 
-          [ApplicationStatus.HIRED, ApplicationStatus.REJECTED, ApplicationStatus.HOLD].includes(app.status)
-        );
-      case 'active':
-      default:
-        return this.applications.filter(app => 
-          [ApplicationStatus.APPLIED, ApplicationStatus.SHORTLISTED].includes(app.status)
-        );
-    }
-  }
-
-  getStepStatus(appStatus: string, stepName: string): string {
-    const statuses = [
-      ApplicationStatus.APPLIED, 
-      ApplicationStatus.SHORTLISTED, 
-      ApplicationStatus.PHONE_SCREEN, 
-      ApplicationStatus.TECHNICAL_INTERVIEW, 
-      ApplicationStatus.ON_SITE_INTERVIEW, 
-      ApplicationStatus.OFFER_EXTENDED, 
-      ApplicationStatus.HIRED
-    ];
-    const currentIdx = statuses.indexOf(appStatus as ApplicationStatus);
-    
-    if (appStatus === ApplicationStatus.REJECTED && stepName === 'REJECTED') return 'rejected';
-    if (appStatus === ApplicationStatus.REJECTED && stepName !== 'APPLIED') return '';
-    
-    if (stepName === 'APPLIED') return currentIdx >= 0 ? 'completed' : '';
-    if (stepName === 'SHORTLISTED') return currentIdx >= 1 ? 'completed' : '';
-    if (stepName === 'INTERVIEW') return currentIdx >= 2 && currentIdx <= 4 ? 'active' : (currentIdx > 4 ? 'completed' : '');
-    if (stepName === 'HIRED') return appStatus === ApplicationStatus.HIRED ? 'completed' : '';
-    
-    return '';
-  }
-
-  getApplicationsCount(phase: string): number {
-    if (!this.applications.length) return 0;
-    
-    switch (phase) {
-      case 'interviews':
-        return this.applications.filter(app => 
-          [ApplicationStatus.PHONE_SCREEN, ApplicationStatus.TECHNICAL_INTERVIEW, ApplicationStatus.ON_SITE_INTERVIEW].includes(app.status)
-        ).length;
-      case 'offers':
-        return this.applications.filter(app => app.status === ApplicationStatus.OFFER_EXTENDED).length;
-      case 'archived':
-        return this.applications.filter(app => 
-          [ApplicationStatus.HIRED, ApplicationStatus.REJECTED, ApplicationStatus.HOLD].includes(app.status)
-        ).length;
-      case 'active':
-      default:
-        return this.applications.filter(app => 
-          [ApplicationStatus.APPLIED, ApplicationStatus.SHORTLISTED].includes(app.status)
-        ).length;
-    }
-  }
-
   loadApplications(): void {
     this.isLoading = true;
     const request = this.isRecruiter ? this.httpService.getRecruiterApplications() : this.httpService.getMyApplications();
     
-    request.pipe(takeUntil(this.destroy$)).subscribe({
+    request.pipe(
+      takeUntil(this.destroy$),
+      switchMap((response: Application[]) => {
+        if (!response || response.length === 0) return of([]);
+        
+        // Translate job titles and locations in applications
+        return forkJoin(response.map(app => 
+          forkJoin({
+            title: this.translationService.translateText(app.job.title),
+            location: this.translationService.translateText(app.job.location)
+          }).pipe(
+            map(trans => ({
+              ...app,
+              job: {
+                ...app.job,
+                title: trans.title,
+                location: trans.location
+              }
+            }))
+          )
+        ));
+      })
+    ).subscribe({
       next: (response: Application[]) => {
         this.applications = response;
         this.isLoading = false;
@@ -123,6 +82,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
       }
     });
   }
+
 
   onUpdateStatus(applicationId: number, newStatus: string): void {
     this.httpService.updateApplicationStatus(applicationId, newStatus)

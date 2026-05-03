@@ -22,7 +22,7 @@ public class JobSeekerProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     
-    @Column(name = "professional_headline", length = 255)
+    @Column(name = "professional_headline", length = 512)
     private String professionalHeadline;
     
     @Column(columnDefinition = "TEXT")
@@ -31,10 +31,10 @@ public class JobSeekerProfile {
     @Column(name = "experience_years")
     private Integer experienceYears = 0;
     
-    @Column(name = "current_company", length = 255)
+    @Column(name = "current_company", length = 512)
     private String currentCompany;
     
-    @Column(name = "current_designation", length = 255)
+    @Column(name = "current_designation", length = 512)
     private String currentDesignation;
     
     @Column(columnDefinition = "TEXT")

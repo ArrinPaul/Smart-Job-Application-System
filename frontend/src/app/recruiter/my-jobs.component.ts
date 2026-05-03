@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { ToastService } from '../services/toast.service';
+import { TranslationService } from '../services/translation.service';
 import { Job } from '../models/job.model';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Subject, takeUntil, finalize, switchMap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -124,6 +125,7 @@ import { AuthService } from '../services/auth.service';
 export class MyJobsComponent implements OnInit, OnDestroy {
   private httpService = inject(HttpService);
   private toastService = inject(ToastService);
+  private translationService = inject(TranslationService);
   private router = inject(Router);
 
   myJobs: Job[] = [];
@@ -144,6 +146,7 @@ export class MyJobsComponent implements OnInit, OnDestroy {
     this.httpService.getRecruiterJobs()
       .pipe(
         takeUntil(this.destroy$),
+        switchMap(jobs => this.translationService.translateJobs(jobs)),
         finalize(() => this.loading = false)
       )
       .subscribe({

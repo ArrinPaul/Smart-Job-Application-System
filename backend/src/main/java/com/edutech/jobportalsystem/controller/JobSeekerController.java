@@ -12,7 +12,6 @@ import com.edutech.jobportalsystem.service.ApplicationService;
 import com.edutech.jobportalsystem.service.JobService;
 import com.edutech.jobportalsystem.service.JobRecommendationService;
 import com.edutech.jobportalsystem.service.ResumeService;
-import com.edutech.jobportalsystem.service.TranslationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import org.slf4j.Logger;
@@ -50,9 +49,6 @@ public class JobSeekerController {
     @Autowired
     private com.edutech.jobportalsystem.service.SmartInsightsService smartInsightsService;
 
-    @Autowired
-    private TranslationService translationService;
-
     @GetMapping("/jobs")
     public ResponseEntity<?> searchJobs(@RequestParam(required = false) @Size(max = 120) String title,
                                        @RequestParam(required = false) @Size(max = 120) String location,
@@ -60,14 +56,14 @@ public class JobSeekerController {
                                        @RequestParam(defaultValue = "1000000") int size) {
         logger.info("Job search - title: {}, location: {}, page: {}, size: {}", title, location, page, size);
         List<Job> jobs = jobService.searchJobs(title, location, page, size);
-        return ResponseEntity.ok(translationService.translateJobs(jobs));
+        return ResponseEntity.ok(jobs);
     }
 
     @GetMapping("/jobs/{slug}")
     public ResponseEntity<?> getJobBySlug(@PathVariable String slug) {
         logger.info("Fetching job details for slug: {}", slug);
         Job job = jobService.getJobBySlug(slug);
-        return ResponseEntity.ok(translationService.translateJob(job));
+        return ResponseEntity.ok(job);
     }
 
     @PostMapping("/job/apply")

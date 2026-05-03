@@ -6,10 +6,11 @@ import { RouterModule } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
+import { TranslationService } from '../services/translation.service';
 import { Job } from '../models/job.model';
 import { User, UserRole } from '../models/user.model';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-list',
@@ -64,7 +65,8 @@ export class JobListComponent implements OnInit, OnDestroy {
   constructor(
     private httpService: HttpService,
     public authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -81,11 +83,14 @@ export class JobListComponent implements OnInit, OnDestroy {
       this.currentPage = 1;
     }
     this.httpService.getJobs(this.searchTitle, this.searchLocation)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((response: Job[]) => this.translationService.translateJobs(response)),
+        finalize(() => { this.isLoading = false; })
+      )
       .subscribe({
-        next: (response: Job[]) => {
-          this.jobs = response;
-          this.isLoading = false;
+        next: (translatedJobs: Job[]) => {
+          this.jobs = translatedJobs;
         },
         error: () => {
           this.isLoading = false;

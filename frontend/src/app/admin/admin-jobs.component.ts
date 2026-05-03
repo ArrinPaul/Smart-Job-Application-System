@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../services/http.service';
 import { ToastService } from '../services/toast.service';
+import { TranslationService } from '../services/translation.service';
 import { Job } from '../models/job.model';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-jobs',
@@ -37,7 +38,8 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
 
   constructor(
     private httpService: HttpService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -47,10 +49,13 @@ export class AdminJobsComponent implements OnInit, OnDestroy {
   loadJobs(): void {
     this.isLoading = true;
     this.httpService.getAllJobsAdmin(this.searchTitle, this.searchLocation)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((response: Job[]) => this.translationService.translateJobs(response))
+      )
       .subscribe({
-        next: (response: Job[]) => {
-          this.jobs = response;
+        next: (translatedJobs: Job[]) => {
+          this.jobs = translatedJobs;
           this.isLoading = false;
           this.currentPage = 1; // Reset to first page on new load
         },

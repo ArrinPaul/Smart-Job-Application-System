@@ -1,11 +1,11 @@
 const axios = require('axios');
 
-const TRANSLATE_URL = (process.env.LIBRETRANSLATE_URL || 'https://libretranslate.de').replace(/\/$/, '');
-const TRANSLATE_KEY = process.env.LIBRETRANSLATE_KEY || '';
-const TRANSLATE_ENABLED = process.env.TRANSLATE_DISABLED !== 'true' && Boolean(TRANSLATE_URL);
-const TRANSLATE_MAX_CHARS = Number(process.env.TRANSLATE_MAX_CHARS || 3800);
+// Point to our own backend translation endpoint
+// During local dev, this is usually http://localhost:8080/api/public
+// During GitHub Actions, you should set INTERNAL_TRANSLATE_URL to your production backend URL
+const TRANSLATE_URL = (process.env.INTERNAL_TRANSLATE_URL || 'http://localhost:8080/api/public').replace(/\/$/, '');
+const TRANSLATE_ENABLED = process.env.TRANSLATE_DISABLED !== 'true';
 
-const languageCache = new Map();
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function postWithRetry(url, payload, options, retries = 2) {
@@ -84,46 +84,10 @@ function normalizeMarkdownBlock(text) {
 
   out = out
     .replace(/([^\n])\s*(#{1,6})\s+/g, '$1\n\n$2 ')
-    .replace(/([^\n])\s*(\*\*[^*\n]+\*\*:)/g, '$1\n$2')
-    .replace(/([^\n])\s*(Position|Location|Employment Type|Description|The Role|Key Skills|Responsibilities):/gi, '$1\n$2:')
-    .replace(/([^\n])\s*(•\s+)/g, '$1\n$2')
+    .replace(/([^\n])\s*(\*\*\w+\*\*:\s+)/g, '$1\n$2')
     .replace(/\n{3,}/g, '\n\n');
 
-  const lines = out.split('\n');
-  const seen = new Set();
-  const cleaned = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      cleaned.push('');
-      continue;
-    }
-
-    const headingMatch = trimmed.match(/^#{1,6}\s+(.*)$/);
-    if (headingMatch) {
-      const heading = headingMatch[1].trim();
-      const key = heading.toLowerCase();
-
-      for (let idx = cleaned.length - 1; idx >= 0; idx -= 1) {
-        const previous = cleaned[idx].trim();
-        if (!previous) continue;
-        if (previous.toLowerCase() === key) {
-          cleaned.splice(idx, 1);
-        }
-        break;
-      }
-
-      if (seen.has(key)) {
-        continue;
-      }
-      seen.add(key);
-    }
-
-    cleaned.push(line);
-  }
-
-  return cleaned.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return out.trim();
 }
 
 function firstSentences(text, count = 3) {
@@ -147,52 +111,24 @@ function normalizeSkills(requiredSkills) {
 }
 
 async function detectLanguage(text) {
-  if (!TRANSLATE_ENABLED) return 'en';
-
-  const sample = normalizeText(text).slice(0, 1000).trim();
-  if (!sample) return 'en';
-  if (languageCache.has(sample)) return languageCache.get(sample);
-
-  try {
-    const payload = { q: sample };
-    if (TRANSLATE_KEY) payload.api_key = TRANSLATE_KEY;
-    const res = await postWithRetry(`${TRANSLATE_URL}/detect`, payload, { timeout: 15000 });
-    const lang = Array.isArray(res.data) && res.data[0] && res.data[0].language ? res.data[0].language : 'en';
-    languageCache.set(sample, lang);
-    return lang;
-  } catch {
-    return 'en';
-  }
+  return 'auto'; // AI handles detection
 }
 
 async function translateText(text, sourceLang) {
   if (!TRANSLATE_ENABLED || !text) return text;
-  if (sourceLang && sourceLang.toLowerCase() === 'en') return text;
 
-  const chunks = [];
-  for (let index = 0; index < text.length; index += TRANSLATE_MAX_CHARS) {
-    chunks.push(text.slice(index, index + TRANSLATE_MAX_CHARS));
-  }
-
-  const translatedChunks = [];
-  for (const chunk of chunks) {
+  try {
     const payload = {
-      q: chunk,
-      source: sourceLang || 'auto',
-      target: 'en',
-      format: 'text'
+      q: text,
+      target: 'English'
     };
-    if (TRANSLATE_KEY) payload.api_key = TRANSLATE_KEY;
 
-    try {
-      const res = await postWithRetry(`${TRANSLATE_URL}/translate`, payload, { timeout: 20000 });
-      translatedChunks.push(res.data?.translatedText || chunk);
-    } catch {
-      translatedChunks.push(chunk);
-    }
+    const res = await postWithRetry(`${TRANSLATE_URL}/translate`, payload, { timeout: 30000 });
+    return res.data?.translatedText || text;
+  } catch (err) {
+    console.error(`Translation error (Internal AI Proxy):`, err.message);
+    return text;
   }
-
-  return translatedChunks.join('');
 }
 
 function formatTemplate(job) {
@@ -262,9 +198,6 @@ async function normalizeJobRecord(job, options = {}) {
   const rawSkills = normalizeSkills(source.requiredSkills);
   const rawHowToApply = normalizeText(source.howToApply || '');
 
-  const sample = [rawTitle, rawDescription, rawSkills, rawHowToApply].filter(Boolean).join(' ');
-  const language = await detectLanguage(sample);
-
   let title = rawTitle;
   let companyName = rawCompany;
   let location = rawLocation;
@@ -273,20 +206,14 @@ async function normalizeJobRecord(job, options = {}) {
   let requiredSkills = rawSkills;
   let howToApply = rawHowToApply;
 
-  if (language && language.toLowerCase() !== 'en') {
-    title = normalizeText(await translateText(rawTitle, language));
-    companyName = normalizeText(await translateText(rawCompany, language)) || rawCompany;
-    location = normalizeText(await translateText(rawLocation, language)) || rawLocation;
-    jobType = normalizeText(await translateText(rawJobType, language)) || rawJobType;
-    description = normalizeText(await translateText(rawDescription, language));
-    requiredSkills = normalizeText(await translateText(rawSkills, language)) || rawSkills;
-    howToApply = normalizeText(await translateText(rawHowToApply, language)) || rawHowToApply;
-
-    const translationFailed = title === rawTitle && description === rawDescription;
-    if (options.strictEnglish !== false && translationFailed) {
-      return null;
-    }
-  }
+  // We always try to translate to ensure everything is in English
+  title = normalizeText(await translateText(rawTitle));
+  companyName = normalizeText(await translateText(rawCompany)) || rawCompany;
+  location = normalizeText(await translateText(rawLocation)) || rawLocation;
+  jobType = normalizeText(await translateText(rawJobType)) || rawJobType;
+  description = normalizeText(await translateText(rawDescription));
+  requiredSkills = normalizeText(await translateText(rawSkills)) || rawSkills;
+  howToApply = normalizeText(await translateText(rawHowToApply)) || rawHowToApply;
 
   const formattedDescription = formatTemplate({
     title,
