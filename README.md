@@ -26,23 +26,30 @@ The platform utilizes a modern architecture where AI services are integrated as 
 ```mermaid
 graph TD
     User((User)) --> FE[Angular 17]
-    FE --> BE[Spring Boot 3]
+    FE <--> BE[Spring Boot 3]
 
-    subgraph AI_Ecosystem
-        BE --> TIKA[Apache Tika]
-        BE --> LLM[LLM Gateway]
-        LLM --> REC[Neural Recommendation]
-        LLM --> BOT[Career Chatbot]
+    subgraph AI_Intelligence_Layer [AI Intelligence Layer]
+        BE --> TIKA[Apache Tika Resume Parser]
+        BE --> LLM[LLM Gateway - Groq/Phi-3]
+        LLM --> REC[Neural Job Recommendation]
+        LLM --> BOT[AI Career Chatbot]
+        LLM --> INS[Smart Match Insights]
     end
 
-    subgraph Data_Layer
+    subgraph Communication_Layer [Communication Layer]
+        BE --> DM[1-to-1 Direct Messaging]
+    end
+
+    subgraph Data_Layer [Data & Security]
         BE <--> DB[(PostgreSQL)]
         DB --- VEC[pgvector Store]
         BE <--> AUTH[Supabase Auth]
     end
 
-    REC -->|Score| FE
-    BOT -->|Insights| FE
+    REC -->|Match Score| FE
+    BOT -->|Conversational AI| FE
+    INS -->|Job Compatibility| FE
+    DM <-->|Real-time Chat| FE
 ```
 
 ---
