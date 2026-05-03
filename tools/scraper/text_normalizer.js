@@ -1,11 +1,5 @@
 const axios = require('axios');
 
-// Point to our own backend translation endpoint
-// During local dev, this is usually http://localhost:8080/api/public
-// During GitHub Actions, you should set INTERNAL_TRANSLATE_URL to your production backend URL
-const TRANSLATE_URL = (process.env.INTERNAL_TRANSLATE_URL || 'http://localhost:8080/api/public').replace(/\/$/, '');
-const TRANSLATE_ENABLED = process.env.TRANSLATE_DISABLED !== 'true';
-
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function postWithRetry(url, payload, options, retries = 2) {
@@ -110,27 +104,6 @@ function normalizeSkills(requiredSkills) {
     .join(', ');
 }
 
-async function detectLanguage(text) {
-  return 'auto'; // AI handles detection
-}
-
-async function translateText(text, sourceLang) {
-  if (!TRANSLATE_ENABLED || !text) return text;
-
-  try {
-    const payload = {
-      q: text,
-      target: 'English'
-    };
-
-    const res = await postWithRetry(`${TRANSLATE_URL}/translate`, payload, { timeout: 30000 });
-    return res.data?.translatedText || text;
-  } catch (err) {
-    console.error(`Translation error (Internal AI Proxy):`, err.message);
-    return text;
-  }
-}
-
 function formatTemplate(job) {
   const company = (job.companyName || 'Company').trim();
   const title = (job.title || 'Role').trim();
@@ -188,32 +161,15 @@ function toCanonicalJob(job, fieldMap = {}) {
 
 async function normalizeJobRecord(job, options = {}) {
   const source = toCanonicalJob(job, options.fieldMap);
-  const rawTitle = normalizeText(source.title || '');
-  if (!rawTitle) return null;
+  const title = normalizeText(source.title || '');
+  if (!title) return null;
 
-  const rawDescription = stripHtml(source.description || '');
-  const rawCompany = normalizeText(source.companyName || 'Unknown Company');
-  const rawLocation = normalizeText(source.location || 'Remote');
-  const rawJobType = normalizeText(source.jobType || 'Full-Time');
-  const rawSkills = normalizeSkills(source.requiredSkills);
-  const rawHowToApply = normalizeText(source.howToApply || '');
-
-  let title = rawTitle;
-  let companyName = rawCompany;
-  let location = rawLocation;
-  let jobType = rawJobType;
-  let description = rawDescription;
-  let requiredSkills = rawSkills;
-  let howToApply = rawHowToApply;
-
-  // We always try to translate to ensure everything is in English
-  title = normalizeText(await translateText(rawTitle));
-  companyName = normalizeText(await translateText(rawCompany)) || rawCompany;
-  location = normalizeText(await translateText(rawLocation)) || rawLocation;
-  jobType = normalizeText(await translateText(rawJobType)) || rawJobType;
-  description = normalizeText(await translateText(rawDescription));
-  requiredSkills = normalizeText(await translateText(rawSkills)) || rawSkills;
-  howToApply = normalizeText(await translateText(rawHowToApply)) || rawHowToApply;
+  const description = stripHtml(source.description || '');
+  const companyName = normalizeText(source.companyName || 'Unknown Company');
+  const location = normalizeText(source.location || 'Remote');
+  const jobType = normalizeText(source.jobType || 'Full-Time');
+  const requiredSkills = normalizeSkills(source.requiredSkills);
+  const howToApply = normalizeText(source.howToApply || '');
 
   const formattedDescription = formatTemplate({
     title,
@@ -246,13 +202,11 @@ async function normalizeJobRecord(job, options = {}) {
 }
 
 module.exports = {
-  detectLanguage,
   firstSentences,
   formatTemplate,
   normalizeJobRecord,
   normalizeSkills,
   normalizeText,
   removeEmoji,
-  stripHtml,
-  translateText
+  stripHtml
 };

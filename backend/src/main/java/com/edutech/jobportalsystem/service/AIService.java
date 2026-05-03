@@ -24,7 +24,9 @@ public class AIService {
 
     // Rate Limiting (RPM)
     private final Map<String, Long> lastRequestTime = new ConcurrentHashMap<>();
-    private static final long COOLDOWN_MS = 5000; // 5 seconds (12 RPM) for absolute safety
+    private static final long COOLDOWN_MS = 500; 
+
+    // ... (rest of the class)
 
     // Daily Limit Tracking (Requests per day)
     private final Map<String, Integer> dailyUsage = new ConcurrentHashMap<>();
@@ -80,57 +82,6 @@ public class AIService {
 
         logger.error("All AI providers failed or limits exceeded for today.");
         return "AI services are currently at capacity for today. Please try again tomorrow.";
-    }
-
-    /**
-     * prioritized translation with failover.
-     * Tries public mirrors first to save AI tokens, falls back to AI.
-     */
-    public String translateWithFailover(String text, String targetLang) {
-        if (text == null || text.isBlank()) return text;
-
-        // List of public mirrors (low reliability but free)
-        String[] mirrors = {
-            "https://libretranslate.de",
-            "https://translate.terraprint.co",
-            "https://translate.argosopentech.com"
-        };
-
-        for (String baseUrl : mirrors) {
-            try {
-                Map<String, String> payload = new HashMap<>();
-                payload.put("q", text);
-                payload.put("source", "auto");
-                payload.put("target", targetLang != null ? targetLang : "en");
-                payload.put("format", "text");
-
-                Map<?, ?> response = restTemplate.postForObject(baseUrl + "/translate", payload, Map.class);
-                Object translated = response != null ? response.get("translatedText") : null;
-                if (translated instanceof String && !((String) translated).isBlank()) {
-                    logger.info("Translation successful using mirror: {}", baseUrl);
-                    return (String) translated;
-                }
-            } catch (Exception e) {
-                logger.warn("Translation mirror {} failed: {}", baseUrl, e.getMessage());
-            }
-        }
-
-        // Final fallback: Use our AI (reliable but consumes tokens)
-        logger.info("All translation mirrors failed. Falling back to AI...");
-        return translateText(text, targetLang);
-    }
-
-    /**
-     * Specialized translation using AI
-     */
-    public String translateText(String text, String targetLang) {
-        if (text == null || text.isBlank()) return text;
-        
-        String systemPrompt = "You are a professional translator. Translate the following text to " + targetLang + ". " +
-                "Respond ONLY with the translated text. Do not include any explanations, greetings, or notes. " +
-                "Maintain the original formatting, punctuation, and technical terms if appropriate.";
-        
-        return generateContent(text, systemPrompt);
     }
 
     private void checkAndResetDailyLimits() {

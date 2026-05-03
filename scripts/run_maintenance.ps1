@@ -16,7 +16,7 @@ if (-not (Test-Path "node_modules")) {
 # This script handles:
 # 1. Scraping new jobs (scrape_and_sync.js)
 # 2. Database Sync (sync_to_supabase.js)
-# 3. Deep Normalization (Translation, Emoji Removal, Formatting)
+# 3. Deep Normalization (Emoji Removal, Formatting)
 # 4. Deduplication
 node daily_maintenance.js
 

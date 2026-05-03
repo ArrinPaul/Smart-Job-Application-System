@@ -24,15 +24,7 @@ public class JobScraperScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(JobScraperScheduler.class);
 
-    private static final int DETECT_SAMPLE_CHARS = 1000;
-    private static final int TRANSLATE_MAX_CHARS = 3800;
     private static final Pattern EMOJI_PATTERN = Pattern.compile("[\\x{1F300}-\\x{1FAFF}\\x{1F1E6}-\\x{1F1FF}\\x{2600}-\\x{27BF}]");
-
-    @Value("${app.translate.url:https://libretranslate.de}")
-    private String translateUrl;
-
-    @Value("${app.translate.key:}")
-    private String translateKey;
 
     @Autowired
     private JobIngestionService jobIngestionService;
@@ -271,8 +263,7 @@ public class JobScraperScheduler {
     private Map<String, String> normalizeJobPayload(Map<String, String> job) {
         if (job == null) return null;
 
-        String originalTitle = normalizeText(job.get("title"));
-        String title = originalTitle;
+        String title = normalizeText(job.get("title"));
         if (title == null || title.isBlank()) return null;
 
         String companyName = normalizeText(job.getOrDefault("companyName", "Unknown Company"));
@@ -282,22 +273,6 @@ public class JobScraperScheduler {
         String requiredSkills = normalizeText(job.get("requiredSkills"));
         String howToApply = normalizeText(job.get("howToApply"));
         String description = normalizeText(stripHtml(job.get("description")));
-
-        String lang = detectLanguage(title + " " + description);
-        if (!"en".equalsIgnoreCase(lang)) {
-            title = translateText(title, lang);
-            companyName = translateText(companyName, lang);
-            location = translateText(location, lang);
-            jobType = translateText(jobType, lang);
-            description = translateText(description, lang);
-            requiredSkills = translateText(requiredSkills, lang);
-            howToApply = translateText(howToApply, lang);
-
-            if (title == null || title.isBlank() || title.equalsIgnoreCase(originalTitle)) {
-                logger.warn("Skipping non-English job because translation did not produce usable English text: {}", originalTitle);
-                return null;
-            }
-        }
 
         String formattedDescription = formatTemplate(title, companyName, location, jobType, description, requiredSkills, applicationLink);
 
@@ -358,22 +333,6 @@ public class JobScraperScheduler {
             if (text.charAt(i) == '\uFFFD') count++;
         }
         return count;
-    }
-
-    @Autowired
-    private AIService aiService;
-
-    private boolean translationEnabled() {
-        return true; // Always enabled now that we use internal AI
-    }
-
-    private String detectLanguage(String text) {
-        return "auto"; // AI handles detection
-    }
-
-    private String translateText(String text, String lang) {
-        if (text == null || text.isBlank()) return text;
-        return aiService.translateText(text, "English");
     }
 
     private String formatTemplate(String title, String company, String location, String jobType, String description, String skills, String applicationLink) {

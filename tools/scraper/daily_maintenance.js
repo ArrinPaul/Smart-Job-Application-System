@@ -51,11 +51,11 @@ async function runScrapeAndSync() {
 }
 
 /**
- * PHASE 2: Deep Normalization (Translation, Emoji Removal, Formatting)
+ * PHASE 2: Deep Normalization (Emoji Removal, Formatting)
  * This iterates through ALL jobs in the database and ensures they are normalized.
  */
 async function runDeepNormalization() {
-  LOG.info('--- PHASE 2: Deep Normalization (Translation & Cleanup) ---');
+  LOG.info('--- PHASE 2: Deep Normalization (Cleanup) ---');
   
   const dbHost = process.env.SUPABASE_DB_HOST;
   const dbUser = process.env.SUPABASE_DB_USER;
@@ -201,7 +201,7 @@ async function main() {
     // 1. Scrape new jobs, dedupe them, and sync to DB
     await runScrapeAndSync();
 
-    // 2. Run normalization on all jobs in DB (Translate, Remove Emojis, Fix Text)
+    // 2. Run normalization on all jobs in DB (Remove Emojis, Fix Text)
     await runDeepNormalization();
 
     const endTime = new Date();

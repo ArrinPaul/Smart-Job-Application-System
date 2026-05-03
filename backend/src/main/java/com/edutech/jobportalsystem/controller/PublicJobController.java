@@ -2,6 +2,7 @@ package com.edutech.jobportalsystem.controller;
 
 import com.edutech.jobportalsystem.service.JobIngestionService;
 import com.edutech.jobportalsystem.service.JobScraperScheduler;
+import com.edutech.jobportalsystem.service.JobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class PublicJobController {
     private static final Logger logger = LoggerFactory.getLogger(PublicJobController.class);
 
     @Autowired
+    private JobService jobService;
+
+    @Autowired
     private JobIngestionService jobIngestionService;
 
     @Autowired
@@ -30,21 +34,6 @@ public class PublicJobController {
     public ResponseEntity<?> getPortalStats() {
         logger.info("Public request: fetching portal stats");
         return ResponseEntity.ok(jobService.getPublicPortalStats());
-    }
-
-    @PostMapping("/translate")
-    public ResponseEntity<?> translate(@RequestBody Map<String, String> request) {
-        String text = request.get("q");
-        String target = request.getOrDefault("target", "English");
-        
-        logger.info("Public request: translating text to {}", target);
-        String translated = aiService.translateWithFailover(text, target);
-        
-        // Return format compatible with LibreTranslate to avoid frontend changes
-        return ResponseEntity.ok(Map.of(
-            "translatedText", translated,
-            "detectedLanguage", Map.of("language", "auto", "confidence", 1.0)
-        ));
     }
 
     @PostMapping("/ingest-real-jobs")

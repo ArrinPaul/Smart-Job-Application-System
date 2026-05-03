@@ -7,9 +7,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import { sanitizeHtml } from '../lib/safe-dompurify';
 import { ToastService } from '../services/toast.service';
-import { TranslationService } from '../services/translation.service';
 import { Subject, takeUntil, finalize } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 
 import { JobMatchInsights } from '../models/recommendation.model';
 import { ChatService } from '../services/chat.service';
@@ -38,7 +36,6 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     private httpService: HttpService,
     private sanitizer: DomSanitizer,
     private toastService: ToastService,
-    private translationService: TranslationService,
     private chatService: ChatService,
     private authService: AuthService,
     private router: Router
@@ -95,7 +92,6 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     this.httpService.getJobBySlug(slug)
       .pipe(
         takeUntil(this.destroy$),
-        switchMap(job => this.translationService.translateJob(job)),
         finalize(() => { this.loading = false; })
       )
       .subscribe({

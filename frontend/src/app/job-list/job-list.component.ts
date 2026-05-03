@@ -6,11 +6,10 @@ import { RouterModule } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
-import { TranslationService } from '../services/translation.service';
 import { Job } from '../models/job.model';
 import { User, UserRole } from '../models/user.model';
 import { Subject } from 'rxjs';
-import { finalize, switchMap, takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-list',
@@ -65,8 +64,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   constructor(
     private httpService: HttpService,
     public authService: AuthService,
-    private toastService: ToastService,
-    private translationService: TranslationService
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -85,61 +83,16 @@ export class JobListComponent implements OnInit, OnDestroy {
     this.httpService.getJobs(this.searchTitle, this.searchLocation)
       .pipe(
         takeUntil(this.destroy$),
-        switchMap((response: Job[]) => this.translationService.translateJobs(response)),
         finalize(() => { this.isLoading = false; })
       )
       .subscribe({
-        next: (translatedJobs: Job[]) => {
-          this.jobs = translatedJobs;
+        next: (response: Job[]) => {
+          this.jobs = response;
         },
         error: () => {
           this.isLoading = false;
         }
       });
-  }
-
-  get filteredJobs(): Job[] {
-    return this.jobs.filter(job => {
-      let matchesCategory = true;
-      let matchesType = true;
-
-      const title = (job.title || '').toLowerCase();
-      const desc = (job.description || '').toLowerCase();
-      const loc = (job.location || '').toLowerCase();
-      const skills = (job.requiredSkills || '').toLowerCase();
-      const combinedText = `${title} ${desc} ${skills}`;
-
-      // Handle quick filter categories
-      if (this.activeQuickFilter !== 'ALL') {
-        matchesCategory = this.matchesCategory(this.activeQuickFilter, combinedText);
-      } else if (this.selectedCategory !== 'All Categories') {
-        matchesCategory = this.matchesCategory(this.selectedCategory, combinedText);
-      }
-
-      if (this.selectedJobType !== 'All Types') {
-        const type = this.selectedJobType.toLowerCase();
-        if (type === 'remote') {
-          matchesType = loc.includes('remote') || desc.includes('remote');
-        } else if (type === 'hybrid') {
-          matchesType = loc.includes('hybrid') || desc.includes('hybrid');
-        } else if (type === 'on-site') {
-          matchesType = !loc.includes('remote') && !loc.includes('hybrid') && !desc.includes('remote');
-        } else {
-          matchesType = title.includes(type) || desc.includes(type);
-        }
-      }
-
-      return matchesCategory && matchesType;
-    });
-  }
-
-  get paginatedJobs(): Job[] {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    return this.filteredJobs.slice(startIndex, startIndex + this.pageSize);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredJobs.length / this.pageSize);
   }
 
   setPage(page: number): void {

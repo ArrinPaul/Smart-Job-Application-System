@@ -5,10 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpService } from '../services/http.service';
 import { AuthService } from '../services/auth.service';
 import { ChatService } from '../services/chat.service';
-import { TranslationService } from '../services/translation.service';
 import { JobRecommendation } from '../models/recommendation.model';
-import { Subject, forkJoin, of } from 'rxjs';
-import { takeUntil, switchMap, map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,8 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private httpService: HttpService,
     private authService: AuthService,
-    private chatService: ChatService,
-    private translationService: TranslationService
+    private chatService: ChatService
   ) {}
 
   ngOnInit(): void {
@@ -69,33 +67,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         error: () => {}
       });
 
-    // Load recommendations and translate them
+    // Load recommendations
     this.httpService.getJobRecommendations(6)
       .pipe(
-        takeUntil(this.destroy$),
-        switchMap((data: JobRecommendation[]) => {
-          if (!data || data.length === 0) return of([]);
-          
-          // Since JobRecommendation is not a Job object, we translate it manually or adapt
-          return forkJoin(data.slice(0, 6).map(rec => 
-            forkJoin({
-              title: this.translationService.translateText(rec.jobTitle),
-              company: this.translationService.translateText(rec.companyName),
-              location: this.translationService.translateText(rec.location)
-            }).pipe(
-              map(trans => ({
-                ...rec,
-                jobTitle: trans.title,
-                companyName: trans.company,
-                location: trans.location
-              }))
-            )
-          ));
-        })
+        takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (translatedRecs) => {
-          this.recommendations = translatedRecs;
+        next: (data: JobRecommendation[]) => {
+          this.recommendations = data || [];
           this.loading = false;
         },
         error: (err) => {

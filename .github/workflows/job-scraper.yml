@@ -30,7 +30,5 @@ jobs:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
           SUPABASE_DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
-          LIBRETRANSLATE_URL: ${{ secrets.LIBRETRANSLATE_URL }}
-          LIBRETRANSLATE_KEY: ${{ secrets.LIBRETRANSLATE_KEY }}
           WEBHOOK_NOTIFY_URL: ${{ secrets.WEBHOOK_NOTIFY_URL }}
         run: node daily_maintenance.js

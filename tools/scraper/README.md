@@ -20,10 +20,10 @@ cd tools/scraper
 npm ci
 ```
 
-2. Clean existing jobs, translate non-English rows, and remove duplicates before refresh
+2. Clean existing jobs and remove duplicates before refresh
 
 ```bash
-LIBRETRANSLATE_URL=https://libretranslate.de node normalize_existing_jobs.js
+node normalize_existing_jobs.js
 ```
 
 3. Run the scraper and sync fresh data to Supabase
@@ -45,7 +45,7 @@ The workflow `.github/workflows/job-scraper.yml` runs automatically:
 - **On demand**: Use `workflow_dispatch` button in Actions tab
 - **Actions**:
   1. Install dependencies
-  2. Run `node normalize_existing_jobs.js` → Remove duplicates, fix mojibake, translate existing rows to English
+  2. Run `node normalize_existing_jobs.js` → Remove duplicates and fix mojibake
   3. Run `node scrape_and_sync.js` → Collect fresh jobs, dedupe scraper data, normalize, and sync to PostgreSQL
   4. Report results
 
@@ -62,9 +62,3 @@ Notes
 - Database-side dedupe removes duplicate stored jobs before upsert
 - Recruiter user auto-created on first sync
 - All credentials loaded from backend `.env` (secure & centralized)
-
-Translation settings (optional)
-- `LIBRETRANSLATE_URL` — Base URL for LibreTranslate (free option). Default: https://libretranslate.de
-- `LIBRETRANSLATE_KEY` — Optional API key if your instance requires it
-- `TRANSLATE_DISABLED=true` — Disable translation entirely
-- `TRANSLATE_MAX_CHARS=3800` — Chunk size for translation requests
