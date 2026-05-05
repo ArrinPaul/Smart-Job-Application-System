@@ -10,6 +10,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
 import { catchError, retry, tap, timeout } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 import { environment } from '../../environments/environment';
@@ -18,7 +19,8 @@ import { environment } from '../../environments/environment';
 export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -116,6 +118,15 @@ export class AuthInterceptor implements HttpInterceptor {
       case 403:
         errorMessage = 'Access denied - you do not have permission for this action.';
         errorType = 'error';
+        // Safety redirect: if access is denied, send user to their respective dashboard
+        const role = this.authService.getRole();
+        if (role === 'RECRUITER') {
+          this.router.navigate(['/post-job']);
+        } else if (role === 'JOB_SEEKER') {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.router.navigate(['/']);
+        }
         break;
 
       case 404:
