@@ -17,6 +17,7 @@ try {
 
 const LOG = console;
 const BATCH_SIZE = 50;
+const MAX_VARCHAR_LENGTH = 512;
 
 function slugify(value, id) {
   const base = String(value || '')
@@ -29,6 +30,26 @@ function slugify(value, id) {
 
   const idSuffix = `-${id}`;
   return slug.slice(0, 200 - idSuffix.length) + idSuffix;
+}
+
+/**
+ * Truncate string to max length, preserving word boundaries when possible
+ */
+function truncateField(text, maxLength = MAX_VARCHAR_LENGTH) {
+  if (!text) return '';
+  const str = String(text).trim();
+  if (str.length <= maxLength) return str;
+  
+  // Try to truncate at word boundary
+  const truncated = str.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  
+  if (lastSpace > maxLength * 0.7) {
+    // If we found a space in the last 30% of the truncated text, use it
+    return truncated.substring(0, lastSpace).trim();
+  }
+  
+  return truncated.trim();
 }
 
 /**
@@ -122,13 +143,13 @@ async function runDeepNormalization() {
       const newSlug = slugify(`${normalized.title}-${normalized.companyName}`, row.id);
       const changed =
         newSlug !== (row.slug || '') ||
-        normalized.title !== (row.title || '') ||
+        truncateField(normalized.title) !== (row.title || '') ||
         normalized.description !== (row.description || '') ||
-        normalized.requiredSkills !== (row.required_skills || '') ||
-        normalized.howToApply !== (row.how_to_apply || '') ||
-        normalized.companyName !== (row.company_name || '') ||
-        normalized.location !== (row.location || '') ||
-        normalized.jobType !== (row.job_type || '');
+        truncateField(normalized.requiredSkills) !== (row.required_skills || '') ||
+        truncateField(normalized.howToApply) !== (row.how_to_apply || '') ||
+        truncateField(normalized.companyName) !== (row.company_name || '') ||
+        truncateField(normalized.location) !== (row.location || '') ||
+        truncateField(normalized.jobType) !== (row.job_type || '');
 
       if (changed) {
         await client.query(
@@ -143,13 +164,13 @@ async function runDeepNormalization() {
                slug = $8
            WHERE id = $9`,
           [
-            normalized.title,
+            truncateField(normalized.title),
             normalized.description,
-            normalized.requiredSkills || null,
-            normalized.howToApply || null,
-            normalized.companyName || null,
-            normalized.location || null,
-            normalized.jobType || null,
+            truncateField(normalized.requiredSkills || ''),
+            truncateField(normalized.howToApply || ''),
+            truncateField(normalized.companyName || ''),
+            truncateField(normalized.location || ''),
+            truncateField(normalized.jobType || ''),
             newSlug,
             row.id
           ]
