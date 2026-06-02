@@ -21,6 +21,7 @@ const LOG = console;
 const OUT_FILE = path.join(__dirname, 'last_scrape.json');
 const GLOBAL_RECRUITER_USERNAME = 'global.recruiter';
 const GLOBAL_RECRUITER_EMAIL = 'global.recruiter@jobportal.local';
+const MAX_VARCHAR_LENGTH = 512;
 
 function loadJobsFromFile() {
   if (!fs.existsSync(OUT_FILE)) {
@@ -39,21 +40,41 @@ function slugify(value) {
     .slice(0, 200) || 'job';
 }
 
+/**
+ * Truncate string to max length, preserving word boundaries when possible
+ */
+function truncateField(text, maxLength = MAX_VARCHAR_LENGTH) {
+  if (!text) return '';
+  const str = String(text).trim();
+  if (str.length <= maxLength) return str;
+  
+  // Try to truncate at word boundary
+  const truncated = str.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  
+  if (lastSpace > maxLength * 0.7) {
+    // If we found a space in the last 30% of the truncated text, use it
+    return truncated.substring(0, lastSpace).trim();
+  }
+  
+  return truncated.trim();
+}
+
 async function normalizeJob(job) {
   const normalized = await normalizeJobRecord(job, { strictEnglish: true });
   if (!normalized) return null;
 
   return {
     ...job,
-    title: normalized.title,
-    companyName: normalized.companyName,
-    location: normalized.location,
-    applicationLink: normalized.applicationLink || '',
-    description: normalized.description,
-    requiredSkills: normalized.requiredSkills || '',
-    jobType: normalized.jobType || '',
-    workType: typeof job.workType === 'string' ? job.workType.trim() : '',
-    howToApply: normalized.howToApply || (typeof job.howToApply === 'string' ? job.howToApply.trim() : '')
+    title: truncateField(normalized.title, MAX_VARCHAR_LENGTH),
+    companyName: truncateField(normalized.companyName, MAX_VARCHAR_LENGTH),
+    location: truncateField(normalized.location, MAX_VARCHAR_LENGTH),
+    applicationLink: truncateField(normalized.applicationLink || '', MAX_VARCHAR_LENGTH),
+    description: normalized.description, // Description can be longer (text type)
+    requiredSkills: truncateField(normalized.requiredSkills || '', MAX_VARCHAR_LENGTH),
+    jobType: truncateField(normalized.jobType || '', MAX_VARCHAR_LENGTH),
+    workType: truncateField(typeof job.workType === 'string' ? job.workType.trim() : '', MAX_VARCHAR_LENGTH),
+    howToApply: truncateField(normalized.howToApply || (typeof job.howToApply === 'string' ? job.howToApply.trim() : ''), MAX_VARCHAR_LENGTH)
   };
 }
 
